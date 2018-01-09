@@ -7,6 +7,7 @@
 */
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "GuiComponent.h"
 
 //==============================================================================
 /*
@@ -19,14 +20,18 @@ public:
     //==============================================================================
     MainContentComponent()
     {
+        addAndMakeVisible (guiComponent = new GuiComponent());
+
         setSize (800, 600);
 
         // specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
+        
     }
 
     ~MainContentComponent()
     {
+        guiComponent = nullptr;
         shutdownAudio();
     }
 
@@ -75,6 +80,7 @@ public:
         // This is called when the MainContentComponent is resized.
         // If you add any child components, this is where you should
         // update their positions.
+        guiComponent->setBoundsRelative (0.0f, 0.0f, 1.0f, 1.0f);
     }
 
 
@@ -82,7 +88,7 @@ private:
     //==============================================================================
 
     // Your private member variables go here...
-
+    ScopedPointer<GuiComponent> guiComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
