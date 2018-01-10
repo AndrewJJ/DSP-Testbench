@@ -394,6 +394,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SourceComponent.cpp">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\GuiComponent.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
@@ -2256,6 +2265,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MonitoringComponent.h">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ProcessorComponent.h">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SourceComponent.h">
+      <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\GuiComponent.h">
       <Filter>DSP Testbench\Source</Filter>
     </ClInclude>

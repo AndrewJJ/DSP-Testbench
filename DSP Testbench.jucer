@@ -3,6 +3,18 @@
 <JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.2.0">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
+      <FILE id="rY2ABv" name="MonitoringComponent.cpp" compile="1" resource="0"
+            file="Source/MonitoringComponent.cpp"/>
+      <FILE id="LNuBdq" name="MonitoringComponent.h" compile="0" resource="0"
+            file="Source/MonitoringComponent.h"/>
+      <FILE id="ly6BEc" name="ProcessorComponent.cpp" compile="1" resource="0"
+            file="Source/ProcessorComponent.cpp"/>
+      <FILE id="ZFfP7O" name="ProcessorComponent.h" compile="0" resource="0"
+            file="Source/ProcessorComponent.h"/>
+      <FILE id="HZtJRF" name="SourceComponent.cpp" compile="1" resource="0"
+            file="Source/SourceComponent.cpp"/>
+      <FILE id="PC1I7w" name="SourceComponent.h" compile="0" resource="0"
+            file="Source/SourceComponent.h"/>
       <FILE id="WoOsmL" name="GuiComponent.cpp" compile="1" resource="0"
             file="Source/GuiComponent.cpp"/>
       <FILE id="yAqs06" name="GuiComponent.h" compile="0" resource="0" file="Source/GuiComponent.h"/>

@@ -23,11 +23,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 //[/Headers]
 
-#include "SourceComponent.h"
-#include "SourceComponent.h"
-#include "ProcessorComponent.h"
-#include "ProcessorComponent.h"
-#include "MonitoringComponent.h"
 
 
 //==============================================================================
@@ -38,12 +33,14 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class GuiComponent  : public Component
+class ProcessorComponent  : public Component,
+                            public Button::Listener,
+                            public Slider::Listener
 {
 public:
     //==============================================================================
-    GuiComponent ();
-    ~GuiComponent();
+    ProcessorComponent (String processorId);
+    ~ProcessorComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -51,6 +48,8 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
+    void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 
 
@@ -59,15 +58,25 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<SourceComponent> srcComponentA;
-    ScopedPointer<SourceComponent> srcComponentB;
-    ScopedPointer<ProcessorComponent> procComponentA;
-    ScopedPointer<ProcessorComponent> procComponentB;
-    ScopedPointer<MonitoringComponent> monitoringComponent;
+    ScopedPointer<ToggleButton> btnSourceA;
+    ScopedPointer<ToggleButton> btnSourceB;
+    ScopedPointer<Slider> slider1;
+    ScopedPointer<Label> lblParameter1;
+    ScopedPointer<Slider> slider2;
+    ScopedPointer<Label> lblParameter2;
+    ScopedPointer<Slider> slider3;
+    ScopedPointer<Label> lblParameter3;
+    ScopedPointer<Slider> slider4;
+    ScopedPointer<Label> lblParameter4;
+    ScopedPointer<Label> lblProcessor;
+    ScopedPointer<TextButton> btnMute;
+    ScopedPointer<TextButton> btnDisable;
+    ScopedPointer<Label> lblParameter5;
+    ScopedPointer<Slider> slider5;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuiComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorComponent)
 };
 
 //[EndFile] You can add extra defines here...

@@ -23,11 +23,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 //[/Headers]
 
-#include "SourceComponent.h"
-#include "SourceComponent.h"
-#include "ProcessorComponent.h"
-#include "ProcessorComponent.h"
-#include "MonitoringComponent.h"
 
 
 //==============================================================================
@@ -38,12 +33,14 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class GuiComponent  : public Component
+class MonitoringComponent  : public Component,
+                             public Slider::Listener,
+                             public Button::Listener
 {
 public:
     //==============================================================================
-    GuiComponent ();
-    ~GuiComponent();
+    MonitoringComponent ();
+    ~MonitoringComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -51,6 +48,8 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void buttonClicked (Button* buttonThatWasClicked) override;
 
 
 
@@ -59,15 +58,16 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<SourceComponent> srcComponentA;
-    ScopedPointer<SourceComponent> srcComponentB;
-    ScopedPointer<ProcessorComponent> procComponentA;
-    ScopedPointer<ProcessorComponent> procComponentB;
-    ScopedPointer<MonitoringComponent> monitoringComponent;
+    ScopedPointer<Slider> sldOutputGain;
+    ScopedPointer<Label> lblGain;
+    ScopedPointer<ToggleButton> btnLimiter;
+    ScopedPointer<TextButton> btnMuteLeft;
+    ScopedPointer<TextButton> btnMuteRight;
+    ScopedPointer<Label> lblMonitoring;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuiComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MonitoringComponent)
 };
 
 //[EndFile] You can add extra defines here...

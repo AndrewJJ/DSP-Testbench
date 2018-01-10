@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2020669C-FB7D-7196-E934-7BCD325862E8}</ProjectGuid>
+    <ProjectGuid>{864DE017-F6A9-3BDE-B790-E8CDEDC9430D}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -148,6 +148,9 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MonitoringComponent.cpp"/>
+    <ClCompile Include="..\..\Source\ProcessorComponent.cpp"/>
+    <ClCompile Include="..\..\Source\SourceComponent.cpp"/>
     <ClCompile Include="..\..\Source\GuiComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -1851,6 +1854,9 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_video.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MonitoringComponent.h"/>
+    <ClInclude Include="..\..\Source\ProcessorComponent.h"/>
+    <ClInclude Include="..\..\Source\SourceComponent.h"/>
     <ClInclude Include="..\..\Source\GuiComponent.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
