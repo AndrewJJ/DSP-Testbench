@@ -22,7 +22,19 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class SynthesisTab : public Component, public Button::Listener, public Slider::Listener
+// TODO - consider putting this enum into a separate file "Definitions.h" so it can also be used by the audio engine
+enum Waveforms
+{
+    sine = 1,
+    saw,
+    square,
+    impulse,
+    step,
+    whiteNoise,
+    pinkNoise
+};
+
+class SynthesisTab : public Component, public Slider::Listener
 {
 public:
     SynthesisTab();
@@ -30,7 +42,6 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 private:
@@ -39,8 +50,11 @@ private:
     ScopedPointer<Slider> sldEndFrequency;
     ScopedPointer<Slider> sldSweepDuration;
     ScopedPointer<TextButton> btnSweepEnabled;
+    ScopedPointer<TextButton> btnSweepReset;
 
-    void waveformSelectionChange();
+    void updateWaveform();
+    void updateSweepEnablement();
+    void resetSweep();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };

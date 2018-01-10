@@ -27,30 +27,38 @@
 SynthesisTab::SynthesisTab ()
 {
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
-    cmbWaveform->addItem ("Sine", 1);
-    cmbWaveform->addItem ("Saw", 2);
-    cmbWaveform->addItem ("Square", 3);
-    cmbWaveform->addItem ("Impulse", 4);
-    cmbWaveform->addItem ("Step", 5);
-    cmbWaveform->addItem ("White Noise", 6);
-    cmbWaveform->addItem ("Pink Noise", 7);
-    cmbWaveform->onChange = [this] { waveformSelectionChange(); };
+    cmbWaveform->addItem ("Sine", Waveforms::sine);
+    cmbWaveform->addItem ("Saw", Waveforms::saw);
+    cmbWaveform->addItem ("Square", Waveforms::square);
+    cmbWaveform->addItem ("Impulse", Waveforms::impulse);
+    cmbWaveform->addItem ("Step", Waveforms::step);
+    cmbWaveform->addItem ("White Noise", Waveforms::whiteNoise);
+    cmbWaveform->addItem ("Pink Noise", Waveforms::pinkNoise);
+    cmbWaveform->onChange = [this] { updateWaveform(); };
+    cmbWaveform->setSelectedId(Waveforms::sine);
 
     addAndMakeVisible (sldStartFrequency = new Slider ("Start Frequency"));
+    sldStartFrequency->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
     sldStartFrequency->addListener(this);
 
     addAndMakeVisible (sldEndFrequency = new Slider ("End Frequency"));
+    sldEndFrequency->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
     sldEndFrequency->addListener(this);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
+    sldSweepDuration->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
     sldSweepDuration->addListener(this);
 
-    addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep Enabled"));
+    addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
+    btnSweepEnabled->setTooltip("Enable sweeping from start frequency to end frequency");
     btnSweepEnabled->setClickingTogglesState(true);
     btnSweepEnabled->setToggleState(true, dontSendNotification);
     btnSweepEnabled->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSweepEnabled->onStateChange = [this] { updateSweepEnablement(); };
 
-    // TODO - set size?
+    addAndMakeVisible (btnSweepReset = new TextButton ("Reset"));
+    btnSweepReset->setTooltip("Resset/restart the frequency sweep");
+    btnSweepEnabled->onClick = [this] { resetSweep(); };
 }
 SynthesisTab::~SynthesisTab ()
 {
@@ -61,23 +69,36 @@ SynthesisTab::~SynthesisTab ()
     btnSweepEnabled = nullptr;
 }
 void SynthesisTab::paint (Graphics& g)
-{
-    // TODO - paint some graphics?
-}
+{ }
 void SynthesisTab::resized ()
 {
-    // TODO - size all components appropriately
-    cmbWaveform->setBoundsRelative(0.1f, 0.0f, 0.8f, 0.2f);
-    sldStartFrequency->setBoundsRelative(0.1f, 0.25f, 0.8f, .2f);
-    sldEndFrequency->setBoundsRelative(0.1f, 0.5f, 0.8f, .2f);
-    sldSweepDuration->setBoundsRelative(0.1f, 0.75f, 0.6f, .2f);
-    btnSweepEnabled->setBoundsRelative(0.7f, 0.75f, 0.2f, .2f);
-}
-void SynthesisTab::buttonClicked (Button* buttonThatWasClicked)
-{
-    if (buttonThatWasClicked == btnSweepEnabled)
-    {
-    }
+    Grid grid;
+    grid.rowGap = 5_px;
+    grid.columnGap = 5_px;
+
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
+
+    grid.templateColumns = { Track (1_fr),
+                             Track (1_fr)
+                           };
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    grid.items.addArray ({ GridItem (cmbWaveform).withArea({ }, GridItem::Span (2)),
+                            GridItem (sldStartFrequency).withArea({ }, GridItem::Span (2)),
+                            GridItem (sldEndFrequency).withArea({ }, GridItem::Span (2)),
+                            GridItem (sldSweepDuration).withArea({ }, GridItem::Span (2)),
+                            GridItem (btnSweepEnabled),
+                            GridItem (btnSweepReset)
+                            });
+
+    const auto marg = 5;
+    grid.performLayout (getLocalBounds().withTrimmedTop(marg).withTrimmedBottom(marg).withTrimmedLeft(marg).withTrimmedRight(marg));
 }
 void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
 {
@@ -91,14 +112,46 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
     {
     }
 }
-void SynthesisTab::waveformSelectionChange ()
+void SynthesisTab::updateWaveform()
 {
-    // TODO - finish this implementation
-    if (cmbWaveform->getSelectedId() == 1)
-        DBG("Sine");
+    // Modify controls according to waveform selection
+    // TODO - hide or recolour disabled controls
+    const auto id = cmbWaveform->getSelectedId();
+    if (id == Waveforms::sine || id == Waveforms::saw || id == Waveforms::square)
+    {
+        sldStartFrequency->setEnabled(true);
+        if (btnSweepEnabled->getToggleState())
+        {
+            sldEndFrequency->setEnabled(true);
+            sldSweepDuration->setEnabled(true);
+        }
+    }
     else
-        DBG("TODO :)");
+    {
+        sldStartFrequency->setEnabled(false);
+        sldEndFrequency->setEnabled(false);
+        sldSweepDuration->setEnabled(false);
+    }
 
+    // TODO - notify audio engine of change
+
+    //if (id == Waveforms::sine)
+    //else if (id == Waveforms::saw)
+    //else if (id == Waveforms::square)
+    //else if (id == Waveforms::impulse)
+    //else if (id == Waveforms::step)
+    //else if (id == Waveforms::whiteNoise)
+    //else if (id == Waveforms::pinkNoise)
+
+}
+void SynthesisTab::updateSweepEnablement ()
+{
+    // TODO - rename start frequency to just frequency if sweep is disabled
+    // TODO - notify audio engine of change
+}
+void SynthesisTab::resetSweep ()
+{
+    // TODO - notify audio engine of change
 }
 
 SampleTab::SampleTab ()
