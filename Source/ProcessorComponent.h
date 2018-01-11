@@ -13,7 +13,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class ProcessorComponent  : public Component,
-                            public Button::Listener,
                             public Slider::Listener
 {
 public:
@@ -23,18 +22,20 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
-
-
 
 private:
     
     int numControls;
 
-    ScopedPointer<Label> lblProcessor;
-    ScopedPointer<ToggleButton> btnSourceA;
-    ScopedPointer<ToggleButton> btnSourceB;
+    void toggleSourceA();
+    void toggleSourceB();
+    void toggleMute();
+    void toggleDisable();
+
+    ScopedPointer<Label> lblTitle;
+    ScopedPointer<TextButton> btnSourceA;
+    ScopedPointer<TextButton> btnSourceB;
     ScopedPointer<TextButton> btnMute;
     ScopedPointer<TextButton> btnDisable;
 

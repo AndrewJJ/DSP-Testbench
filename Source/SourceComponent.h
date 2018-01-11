@@ -37,7 +37,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };
 
-class SampleTab : public Component, public Button::Listener, public::ComboBox::Listener
+class SampleTab : public Component
 {
 public:
     SampleTab();
@@ -45,8 +45,6 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
 private:
     ScopedPointer<ComboBox> cmbSample;
@@ -55,7 +53,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
 };
 
-class WaveTab : public Component, public Button::Listener
+class WaveTab : public Component
 {
 public:
     WaveTab();
@@ -63,7 +61,6 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
 
 private:
     ScopedPointer<TextButton> btnPlay;
@@ -90,7 +87,6 @@ private:
 //==============================================================================
 
 class SourceComponent  : public Component,
-                         public Button::Listener,
                          public Slider::Listener
 {
 public:
@@ -100,14 +96,15 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 private:
 
-    ScopedPointer<Label> lblSource;
-    ScopedPointer<Slider> sldInputGain;
-    ScopedPointer<TextButton> btnMuteSource;
+    void toggleMute();
+
+    ScopedPointer<Label> lblTitle;
+    ScopedPointer<Slider> sldGain;
+    ScopedPointer<TextButton> btnMute;
     ScopedPointer<TabbedComponent> tabbedComponent;
  
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceComponent)

@@ -382,6 +382,9 @@
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\AnalyserComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\GuiComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
@@ -2219,6 +2222,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Common.h">
       <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AnalyserComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\GuiComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>

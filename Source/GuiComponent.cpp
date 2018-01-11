@@ -17,6 +17,7 @@ GuiComponent::GuiComponent ()
     addAndMakeVisible (srcComponentB = new SourceComponent ("B"));
     addAndMakeVisible (procComponentA = new ProcessorComponent ("A", 3));
     addAndMakeVisible (procComponentB = new ProcessorComponent ("B", 3));
+    addAndMakeVisible (analyserComponent = new AnalyserComponent());
     addAndMakeVisible (monitoringComponent = new MonitoringComponent());
 
     setSize (1024, 768);
@@ -28,6 +29,7 @@ GuiComponent::~GuiComponent()
     srcComponentB = nullptr;
     procComponentA = nullptr;
     procComponentB = nullptr;
+    analyserComponent = nullptr;
     monitoringComponent = nullptr;
 }
 
@@ -46,8 +48,8 @@ void GuiComponent::resized()
 
     grid.templateRows = {   Track (3_fr),
                             Track (2_fr),
-                            Track (1_fr),
-                            Track (4_fr)
+                            Track (4_fr),
+                            Track (1_fr)
                         };
 
     grid.templateColumns = { Track (1_fr), Track (1_fr) };
@@ -61,6 +63,7 @@ void GuiComponent::resized()
                             GridItem (srcComponentB),
                             GridItem (procComponentA),
                             GridItem (procComponentB),
+                            GridItem (analyserComponent).withArea({ }, GridItem::Span (2)),
                             GridItem (monitoringComponent).withArea({ }, GridItem::Span (2))
                         });
 

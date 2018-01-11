@@ -136,14 +136,15 @@ SampleTab::SampleTab ()
     addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
     cmbSample->addItem ("None", 1);
     cmbSample->setSelectedId (1, dontSendNotification);
-    cmbSample->addListener (this);
+    cmbSample->onChange = [this] { };
 
     addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
     btnLoopEnabled->setClickingTogglesState (true);
     //btnLoopEnabled->setToggleState (true, dontSendNotification);
     btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
+    btnLoopEnabled->onClick = [this] { };
 
-    // TODO - add delay control to prevent machine gunning of sample
+    // TODO - add delay control to prevent machine gunning of sample?
 }
 SampleTab::~SampleTab ()
 {
@@ -157,18 +158,6 @@ void SampleTab::resized ()
 {
     cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
     btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
-}
-void SampleTab::buttonClicked (Button* buttonThatWasClicked)
-{
-    if (buttonThatWasClicked == btnLoopEnabled)
-    {
-    }
-}
-void SampleTab::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
-{
-    if (comboBoxThatHasChanged == cmbSample)
-    {
-    }
 }
 
 WaveTab::WaveTab ()
@@ -184,9 +173,6 @@ void WaveTab::paint (Graphics& g)
     g.drawFittedText ("Wave playing not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void WaveTab::resized ()
-{
-}
-void WaveTab::buttonClicked (Button* buttonThatWasClicked)
 {
 }
 
@@ -210,25 +196,25 @@ void AudioTab::resized ()
 
 SourceComponent::SourceComponent (String sourceId)
 {
-    addAndMakeVisible (lblSource = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
-    lblSource->setFont (Font (15.00f, Font::bold));
-    lblSource->setJustificationType (Justification::topLeft);
-    lblSource->setEditable (false, false, false);
-    lblSource->setColour (TextEditor::textColourId, Colours::black);
-    lblSource->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
+    lblTitle->setFont (Font (15.00f, Font::bold));
+    lblTitle->setJustificationType (Justification::topLeft);
+    lblTitle->setEditable (false, false, false);
+    lblTitle->setColour (TextEditor::textColourId, Colours::black);
+    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (sldInputGain = new Slider ("Input gain slider"));
-    sldInputGain->setTooltip (TRANS("Adjusts the gain of this source"));
-    sldInputGain->setRange (-100, 50, 0.1);
-    sldInputGain->setSliderStyle (Slider::LinearHorizontal);
-    sldInputGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
-    sldInputGain->addListener (this);
+    addAndMakeVisible (sldGain = new Slider ("Input gain slider"));
+    sldGain->setTooltip (TRANS("Adjusts the gain of this source"));
+    sldGain->setRange (-100, 50, 0.1);
+    sldGain->setSliderStyle (Slider::LinearHorizontal);
+    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldGain->addListener (this);
 
-    addAndMakeVisible (btnMuteSource = new TextButton ("Mute Source button"));
-    btnMuteSource->setButtonText (TRANS("Mute"));
-    btnMuteSource->addListener (this);
-    btnMuteSource->setClickingTogglesState (true);
-    btnMuteSource->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
+    btnMute->setButtonText (TRANS("Mute"));
+    btnMute->onClick = [this] { toggleMute(); };
+    btnMute->setClickingTogglesState (true);
+    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     tabbedComponent->setTabBarDepth (30);
@@ -243,9 +229,9 @@ SourceComponent::SourceComponent (String sourceId)
 
 SourceComponent::~SourceComponent()
 {
-    lblSource = nullptr;
-    sldInputGain = nullptr;
-    btnMuteSource = nullptr;
+    lblTitle = nullptr;
+    sldGain = nullptr;
+    btnMute = nullptr;
     tabbedComponent = nullptr;
 }
 
@@ -274,9 +260,9 @@ void SourceComponent::resized()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (lblSource),
-                            GridItem (sldInputGain),
-                            GridItem (btnMuteSource).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
+    grid.items.addArray({   GridItem (lblTitle),
+                            GridItem (sldGain),
+                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
                             GridItem (tabbedComponent).withArea ({ }, GridItem::Span (3))
                         });
     
@@ -285,16 +271,21 @@ void SourceComponent::resized()
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 
-void SourceComponent::buttonClicked (Button* buttonThatWasClicked)
+void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-    if (buttonThatWasClicked == btnMuteSource)
+    if (sliderThatWasMoved == sldGain)
     {
     }
 }
 
-void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
+void SourceComponent::toggleMute()
 {
-    if (sliderThatWasMoved == sldInputGain)
+    if (btnMute->getToggleState())
     {
+        // TODO - notify audio engine that this source component should be muted
+    }
+    else
+    {
+        // TODO - notify audio engine that this source component should be unmuted
     }
 }

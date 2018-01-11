@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1A959A25-62BF-CAEA-E7D7-073D83A4A100}</ProjectGuid>
+    <ProjectGuid>{E0DEFBAB-2728-4DDD-44CE-557F56B202C2}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
+    <ClCompile Include="..\..\Source\AnalyserComponent.cpp"/>
     <ClCompile Include="..\..\Source\GuiComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp"/>
@@ -1826,6 +1827,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Common.h"/>
+    <ClInclude Include="..\..\Source\AnalyserComponent.h"/>
     <ClInclude Include="..\..\Source\GuiComponent.h"/>
     <ClInclude Include="..\..\Source\MonitoringComponent.h"/>
     <ClInclude Include="..\..\Source\ProcessorComponent.h"/>

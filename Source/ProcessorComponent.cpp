@@ -13,34 +13,40 @@
 ProcessorComponent::ProcessorComponent (const String processorId, const int numberOfControls)
     : numControls (numberOfControls)
 {
-    addAndMakeVisible (lblProcessor = new Label ("Processor label", TRANS("Processor") + " " + processorId));
-    lblProcessor->setFont (Font (15.00f, Font::bold));
-    lblProcessor->setJustificationType (Justification::topLeft);
-    lblProcessor->setEditable (false, false, false);
-    lblProcessor->setColour (TextEditor::textColourId, Colours::black);
-    lblProcessor->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle = new Label ("Processor label", TRANS("Processor") + " " + processorId));
+    lblTitle->setFont (Font (15.00f, Font::bold));
+    lblTitle->setJustificationType (Justification::topLeft);
+    lblTitle->setEditable (false, false, false);
+    lblTitle->setColour (TextEditor::textColourId, Colours::black);
+    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (btnSourceA = new ToggleButton ("Source A toggle button"));
+    addAndMakeVisible (btnSourceA = new TextButton ("Source A button"));
     btnSourceA->setTooltip (TRANS("Process input from source A"));
+    btnSourceA->setClickingTogglesState (true);
     btnSourceA->setButtonText (TRANS("Source A"));
-    btnSourceA->addListener (this);
+    btnSourceA->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSourceA->setToggleState(true, dontSendNotification);
+    btnSourceA->onClick = [this] { toggleSourceA(); };
 
-    addAndMakeVisible (btnSourceB = new ToggleButton ("Source B toggle button"));
+    addAndMakeVisible (btnSourceB = new TextButton ("Source B button"));
     btnSourceB->setTooltip (TRANS("Process input from source B"));
+    btnSourceB->setClickingTogglesState (true);
     btnSourceB->setButtonText (TRANS("Source B"));
-    btnSourceB->addListener (this);
+    btnSourceB->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSourceB->setToggleState(true, dontSendNotification);
+    btnSourceB->onClick = [this] { toggleSourceB(); };
 
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText (TRANS("Mute"));
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnMute->addListener (this);
+    btnMute->onClick = [this] { toggleMute(); };
 
     addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
     btnDisable->setButtonText (TRANS("Disable"));
     btnDisable->setClickingTogglesState (true);
     btnDisable->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnDisable->addListener (this);
+    btnDisable->onClick = [this] { toggleDisable(); };
 
     // Assumes sliderLabels and sliders are empty
     for (auto i = 0; i<numControls; ++i)
@@ -64,7 +70,7 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
 
 ProcessorComponent::~ProcessorComponent()
 {
-    lblProcessor = nullptr;
+    lblTitle = nullptr;
     btnSourceA = nullptr;
     btnSourceB = nullptr;
     btnMute = nullptr;
@@ -80,12 +86,6 @@ void ProcessorComponent::paint (Graphics& g)
 
 void ProcessorComponent::resized()
 {
-    //lblProcessor->setBounds (proportionOfWidth (0.0207f), proportionOfHeight (0.0277f), proportionOfWidth (0.3343f), proportionOfHeight (0.1423f));
-    //btnSourceA->setBounds (proportionOfWidth (0.0385f), proportionOfHeight (0.2134f), proportionOfWidth (0.2604f), proportionOfHeight (0.0791f));
-    //btnSourceB->setBounds (proportionOfWidth (0.2988f), proportionOfHeight (0.2134f), proportionOfWidth (0.2604f), proportionOfHeight (0.0791f));
-    //btnMute->setBounds (proportionOfWidth (0.8402f), proportionOfHeight (0.0514f), proportionOfWidth (0.1213f), proportionOfHeight (0.0791f));
-    //btnDisable->setBounds (proportionOfWidth (0.7012f), proportionOfHeight (0.0514f), proportionOfWidth (0.1213f), proportionOfHeight (0.0791f));
-
     Grid grid;
     grid.rowGap = 5_px;
     grid.columnGap = 5_px;
@@ -102,7 +102,7 @@ void ProcessorComponent::resized()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (lblProcessor),
+    grid.items.addArray({   GridItem (lblTitle),
                             GridItem (btnSourceA),
                             GridItem (btnSourceB),
                             GridItem (btnDisable),
@@ -116,25 +116,7 @@ void ProcessorComponent::resized()
     }
 
     const auto marg = 10;
-    //const auto marg = jmin (proportionOfWidth(0.05f), proportionOfHeight(0.05f));
-    //.withTrimmedTop(proportionOfHeight(0.32f))
     grid.performLayout (getLocalBounds().reduced (marg, marg));
-}
-
-void ProcessorComponent::buttonClicked (Button* buttonThatWasClicked)
-{
-    if (buttonThatWasClicked == btnSourceA)
-    {
-    }
-    else if (buttonThatWasClicked == btnSourceB)
-    {
-    }
-    else if (buttonThatWasClicked == btnMute)
-    {
-    }
-    else if (buttonThatWasClicked == btnDisable)
-    {
-    }
 }
 
 void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
@@ -144,5 +126,53 @@ void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     }
     else if (sliderThatWasMoved == sliders[1])
     {
+    }
+}
+
+void ProcessorComponent::toggleSourceA ()
+{
+    if (btnSourceA->getToggleState())
+    {
+        // TODO - notify audio engine that this processor should enable input from source A
+    }
+    else
+    {
+        // TODO - notify audio engine that this processor should disable input from source A
+    }
+}
+
+void ProcessorComponent::toggleSourceB ()
+{
+    if (btnSourceB->getToggleState())
+    {
+        // TODO - notify audio engine that this processor should enable input from source B
+    }
+    else
+    {
+        // TODO - notify audio engine that this processor should disable input from source B
+    }
+}
+
+void ProcessorComponent::toggleMute ()
+{
+    if (btnMute->getToggleState())
+    {
+        // TODO - notify audio engine that this source component should be muted
+    }
+    else
+    {
+        // TODO - notify audio engine that this source component should be unmuted
+    }
+}
+
+void ProcessorComponent::toggleDisable ()
+{
+    if (btnDisable->getToggleState())
+    {
+        // TODO - notify audio engine that this source component should be disabled
+    }
+    else
+    {
+        // TODO - notify audio engine that this source component should be enabled
     }
 }

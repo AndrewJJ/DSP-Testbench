@@ -6,6 +6,10 @@
       <FILE id="H91Gsc" name="Common.h" compile="0" resource="0" file="Source/Common.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
+        <FILE id="CsTDKi" name="AnalyserComponent.cpp" compile="1" resource="0"
+              file="Source/AnalyserComponent.cpp"/>
+        <FILE id="aJXaij" name="AnalyserComponent.h" compile="0" resource="0"
+              file="Source/AnalyserComponent.h"/>
         <FILE id="WoOsmL" name="GuiComponent.cpp" compile="1" resource="0"
               file="Source/GuiComponent.cpp"/>
         <FILE id="yAqs06" name="GuiComponent.h" compile="0" resource="0" file="Source/GuiComponent.h"/>
