@@ -1,70 +1,58 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Projucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Projucer version: 5.2.0
-
-  ------------------------------------------------------------------------------
-
-  The Projucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright (c) 2015 - ROLI Ltd.
+    SourceComponent.h
+    Created: 10 Jan 2018
+    Author:  Andrew Jerrim
 
   ==============================================================================
 */
 
-//[Headers] You can add your own extra header files here...
-//[/Headers]
-
 #include "SourceComponent.h"
 
-
-//[MiscUserDefs] You can add your own user definitions and misc code here...
 SynthesisTab::SynthesisTab ()
 {
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
-    cmbWaveform->addItem ("Sine", Waveforms::sine);
-    cmbWaveform->addItem ("Saw", Waveforms::saw);
-    cmbWaveform->addItem ("Square", Waveforms::square);
-    cmbWaveform->addItem ("Impulse", Waveforms::impulse);
-    cmbWaveform->addItem ("Step", Waveforms::step);
-    cmbWaveform->addItem ("White Noise", Waveforms::whiteNoise);
-    cmbWaveform->addItem ("Pink Noise", Waveforms::pinkNoise);
+    cmbWaveform->addItem ("Sine", Waveform::sine);
+    cmbWaveform->addItem ("Saw", Waveform::saw);
+    cmbWaveform->addItem ("Square", Waveform::square);
+    cmbWaveform->addItem ("Impulse", Waveform::impulse);
+    cmbWaveform->addItem ("Step", Waveform::step);
+    cmbWaveform->addItem ("White Noise", Waveform::whiteNoise);
+    cmbWaveform->addItem ("Pink Noise", Waveform::pinkNoise);
     cmbWaveform->onChange = [this] { updateWaveform(); };
-    cmbWaveform->setSelectedId(Waveforms::sine);
+    cmbWaveform->setSelectedId (Waveform::sine);
 
-    addAndMakeVisible (sldStartFrequency = new Slider ("Start Frequency"));
-    sldStartFrequency->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
-    sldStartFrequency->addListener(this);
-
-    addAndMakeVisible (sldEndFrequency = new Slider ("End Frequency"));
-    sldEndFrequency->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
-    sldEndFrequency->addListener(this);
+    addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
+    sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
+    sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldFrequency->setRange (1.0, 20000.0, 1.0);
+    sldFrequency->setMinAndMaxValues (1.0, 20000.0, dontSendNotification);
+    sldFrequency->setValue (440.0, dontSendNotification);
+    sldFrequency->setSkewFactor (0.5);
+    sldFrequency->addListener (this);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
-    sldSweepDuration->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
-    sldSweepDuration->addListener(this);
+    sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldSweepDuration->addListener (this);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
-    btnSweepEnabled->setTooltip("Enable sweeping from start frequency to end frequency");
-    btnSweepEnabled->setClickingTogglesState(true);
-    btnSweepEnabled->setToggleState(true, dontSendNotification);
-    btnSweepEnabled->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSweepEnabled->setTooltip ("Enable sweeping from start frequency to end frequency");
+    btnSweepEnabled->setClickingTogglesState (true);
+    //btnSweepEnabled->setToggleState (false, dontSendNotification);
+    btnSweepEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
     btnSweepEnabled->onStateChange = [this] { updateSweepEnablement(); };
 
     addAndMakeVisible (btnSweepReset = new TextButton ("Reset"));
-    btnSweepReset->setTooltip("Resset/restart the frequency sweep");
+    btnSweepReset->setTooltip ("Reset/restart the frequency sweep");
     btnSweepEnabled->onClick = [this] { resetSweep(); };
+
+    // TODO - implement sweep modes: Hard Wrap, Hard Reverse, Soft Wrap, Soft Reverse
 }
 SynthesisTab::~SynthesisTab ()
 {
     cmbWaveform = nullptr;
-    sldStartFrequency = nullptr;
-    sldEndFrequency = nullptr;
+    sldFrequency = nullptr;
     sldSweepDuration = nullptr;
     btnSweepEnabled = nullptr;
 }
@@ -78,37 +66,32 @@ void SynthesisTab::resized ()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
+    grid.templateRows = {   Track (1_fr),
+                            Track (1_fr),
+                            Track (1_fr),
+                            Track (1_fr)
+                        };
 
-    grid.templateColumns = { Track (1_fr),
-                             Track (1_fr)
-                           };
+    grid.templateColumns = { Track (1_fr), Track (1_fr) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray ({ GridItem (cmbWaveform).withArea({ }, GridItem::Span (2)),
-                            GridItem (sldStartFrequency).withArea({ }, GridItem::Span (2)),
-                            GridItem (sldEndFrequency).withArea({ }, GridItem::Span (2)),
-                            GridItem (sldSweepDuration).withArea({ }, GridItem::Span (2)),
+    grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (2)),
+                            GridItem (sldFrequency).withArea ({ }, GridItem::Span (2)),
+                            GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (2)),
                             GridItem (btnSweepEnabled),
                             GridItem (btnSweepReset)
-                            });
+                        });
 
-    const auto marg = 5;
-    grid.performLayout (getLocalBounds().withTrimmedTop(marg).withTrimmedBottom(marg).withTrimmedLeft(marg).withTrimmedRight(marg));
+    const auto marg = jmin (proportionOfWidth (0.05f), proportionOfHeight (0.05f));
+    grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-    if (sliderThatWasMoved == sldStartFrequency)
-    {
-    }
-    else if (sliderThatWasMoved == sldEndFrequency)
-    {
-    }
-    else if (sliderThatWasMoved == sldSweepDuration)
+    if (sliderThatWasMoved == sldFrequency)
     {
     }
 }
@@ -117,20 +100,14 @@ void SynthesisTab::updateWaveform()
     // Modify controls according to waveform selection
     // TODO - hide or recolour disabled controls
     const auto id = cmbWaveform->getSelectedId();
-    if (id == Waveforms::sine || id == Waveforms::saw || id == Waveforms::square)
+    if (id == Waveform::sine || id == Waveform::saw || id == Waveform::square)
     {
-        sldStartFrequency->setEnabled(true);
         if (btnSweepEnabled->getToggleState())
-        {
-            sldEndFrequency->setEnabled(true);
             sldSweepDuration->setEnabled(true);
-        }
     }
     else
     {
-        sldStartFrequency->setEnabled(false);
-        sldEndFrequency->setEnabled(false);
-        sldSweepDuration->setEnabled(false);
+        sldSweepDuration->setEnabled (false);
     }
 
     // TODO - notify audio engine of change
@@ -158,12 +135,15 @@ SampleTab::SampleTab ()
 {
     addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
     cmbSample->addItem ("None", 1);
-    cmbSample->addListener(this);
+    cmbSample->setSelectedId (1, dontSendNotification);
+    cmbSample->addListener (this);
 
     addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
-    btnLoopEnabled->setClickingTogglesState(true);
-    btnLoopEnabled->setToggleState(true, dontSendNotification);
-    btnLoopEnabled->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnLoopEnabled->setClickingTogglesState (true);
+    //btnLoopEnabled->setToggleState (true, dontSendNotification);
+    btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
+
+    // TODO - add delay control to prevent machine gunning of sample
 }
 SampleTab::~SampleTab ()
 {
@@ -175,8 +155,8 @@ void SampleTab::paint (Graphics& g)
 }
 void SampleTab::resized ()
 {
-    cmbSample->setBoundsRelative(0.1f, 0.2f, 0.8f, 0.2f);
-    btnLoopEnabled->setBoundsRelative(0.1f, 0.5f, 0.8f, 0.2f);
+    cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
+    btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
 }
 void SampleTab::buttonClicked (Button* buttonThatWasClicked)
 {
@@ -199,8 +179,9 @@ WaveTab::~WaveTab ()
 }
 void WaveTab::paint (Graphics& g)
 {
-    g.setFont(25.0f);
-    g.drawFittedText("Wave playing not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
+    g.setFont (25.0f);
+    g.setColour (Colours::white);
+    g.drawFittedText ("Wave playing not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void WaveTab::resized ()
 {
@@ -217,195 +198,103 @@ AudioTab::~AudioTab ()
 }
 void AudioTab::paint (Graphics& g)
 {
-    g.setFont(25.0f);
-    g.drawFittedText("Audio input not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
+    g.setFont (25.0f);
+    g.setColour (Colours::white);
+    g.drawFittedText ("Audio input not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void AudioTab::resized ()
 {
 }
-//[/MiscUserDefs]
 
 //==============================================================================
+
 SourceComponent::SourceComponent (String sourceId)
 {
-    //[Constructor_pre] You can add your own custom stuff here..
-    //[/Constructor_pre]
+    addAndMakeVisible (lblSource = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
+    lblSource->setFont (Font (15.00f, Font::bold));
+    lblSource->setJustificationType (Justification::topLeft);
+    lblSource->setEditable (false, false, false);
+    lblSource->setColour (TextEditor::textColourId, Colours::black);
+    lblSource->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
-    tabbedComponent->setTabBarDepth (30);
-    tabbedComponent->addTab (TRANS("Synthesis"), Colours::lightgrey, new SynthesisTab(), true);
-    tabbedComponent->addTab (TRANS("Sample"), Colours::lightgrey, new SampleTab(), true);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::lightgrey, new WaveTab(), true);
-    tabbedComponent->addTab (TRANS("Audio In"), Colours::lightgrey, new AudioTab(), true);
-    tabbedComponent->setCurrentTabIndex (0);
-
-    addAndMakeVisible (btnMuteSource = new TextButton ("new button"));
-    btnMuteSource->setButtonText (TRANS("Mute"));
-    btnMuteSource->addListener (this);
-
-    addAndMakeVisible (sldInputGain = new Slider ("new slider"));
+    addAndMakeVisible (sldInputGain = new Slider ("Input gain slider"));
     sldInputGain->setTooltip (TRANS("Adjusts the gain of this source"));
     sldInputGain->setRange (-100, 50, 0.1);
     sldInputGain->setSliderStyle (Slider::LinearHorizontal);
     sldInputGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
     sldInputGain->addListener (this);
 
-    addAndMakeVisible (lblSource = new Label ("new label",
-                                              TRANS("Source")));
-    lblSource->setFont (Font (25.00f, Font::plain).withTypefaceStyle ("Regular"));
-    lblSource->setJustificationType (Justification::centredLeft);
-    lblSource->setEditable (false, false, false);
-    lblSource->setColour (TextEditor::textColourId, Colours::black);
-    lblSource->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-
-    //[UserPreSize]
-    //[/UserPreSize]
-
-    setSize (600, 400);
-
-
-    //[Constructor] You can add your own custom stuff here..
-    lblSource->setText ("Source " + sourceId, dontSendNotification);
+    addAndMakeVisible (btnMuteSource = new TextButton ("Mute Source button"));
+    btnMuteSource->setButtonText (TRANS("Mute"));
+    btnMuteSource->addListener (this);
     btnMuteSource->setClickingTogglesState (true);
     btnMuteSource->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    //[/Constructor]
+
+    addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
+    tabbedComponent->setTabBarDepth (30);
+    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, new SynthesisTab(), true);
+    tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, new SampleTab(), true);
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, new WaveTab(), true);
+    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, new AudioTab(), true);
+    tabbedComponent->setCurrentTabIndex (0);
+
+    //setSize (600, 400);
 }
 
 SourceComponent::~SourceComponent()
 {
-    //[Destructor_pre]. You can add your own custom destruction code here..
-    //[/Destructor_pre]
-
-    tabbedComponent = nullptr;
-    btnMuteSource = nullptr;
-    sldInputGain = nullptr;
     lblSource = nullptr;
-
-
-    //[Destructor]. You can add your own custom destruction code here..
-    //[/Destructor]
+    sldInputGain = nullptr;
+    btnMuteSource = nullptr;
+    tabbedComponent = nullptr;
 }
 
-//==============================================================================
 void SourceComponent::paint (Graphics& g)
 {
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
-
-    g.fillAll (Colour (0xff323e44));
-
-    {
-        float x = static_cast<float> (proportionOfWidth (0.0000f)), y = static_cast<float> (proportionOfHeight (0.0000f)), width = static_cast<float> (proportionOfWidth (1.0000f)), height = static_cast<float> (proportionOfHeight (1.0000f));
-        Colour fillColour = Colour (0x30a80000);
-        //[UserPaintCustomArguments] Customize the painting arguments here..
-        //[/UserPaintCustomArguments]
-        g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
-    }
-
-    //[UserPaint] Add your own custom painting code here..
-    //[/UserPaint]
+    g.setColour (Colours::darkgrey);
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
 }
 
 void SourceComponent::resized()
 {
-    //[UserPreResize] Add your own custom resize code here..
-    //[/UserPreResize]
+    Grid grid;
+    grid.rowGap = 5_px;
+    grid.columnGap = 5_px;
 
-    tabbedComponent->setBounds (proportionOfWidth (0.0325f), proportionOfHeight (0.9526f) - proportionOfHeight (0.7747f), proportionOfWidth (0.9320f), proportionOfHeight (0.7747f));
-    btnMuteSource->setBounds (proportionOfWidth (0.8935f), proportionOfHeight (0.0593f), proportionOfWidth (0.0681f), proportionOfHeight (0.0593f));
-    sldInputGain->setBounds (proportionOfWidth (0.3047f), proportionOfHeight (0.0593f), proportionOfWidth (0.5710f), proportionOfHeight (0.0593f));
-    lblSource->setBounds (proportionOfWidth (0.0266f), proportionOfHeight (0.0435f), proportionOfWidth (0.2633f), proportionOfHeight (0.0988f));
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = {   Track (1_fr),
+                            Track (4_fr)
+                        };
+
+    grid.templateColumns = { Track (2_fr), Track (6_fr), Track (1_fr) };
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    grid.items.addArray({   GridItem (lblSource),
+                            GridItem (sldInputGain),
+                            GridItem (btnMuteSource).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
+                            GridItem (tabbedComponent).withArea ({ }, GridItem::Span (3))
+                        });
+    
+    const auto marg = 10;
+    // .withTrimmedTop(proportionOfHeight(0.1f))
+    grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 
 void SourceComponent::buttonClicked (Button* buttonThatWasClicked)
 {
-    //[UserbuttonClicked_Pre]
-    //[/UserbuttonClicked_Pre]
-
     if (buttonThatWasClicked == btnMuteSource)
     {
-        //[UserButtonCode_btnMuteSource] -- add your button handler code here..
-        //[/UserButtonCode_btnMuteSource]
     }
-
-    //[UserbuttonClicked_Post]
-    //[/UserbuttonClicked_Post]
 }
 
 void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-    //[UsersliderValueChanged_Pre]
-    //[/UsersliderValueChanged_Pre]
-
     if (sliderThatWasMoved == sldInputGain)
     {
-        //[UserSliderCode_sldInputGain] -- add your slider handling code here..
-        //[/UserSliderCode_sldInputGain]
     }
-
-    //[UsersliderValueChanged_Post]
-    //[/UsersliderValueChanged_Post]
 }
-
-
-
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-//[/MiscUserCode]
-
-
-//==============================================================================
-#if 0
-/*  -- Projucer information section --
-
-    This is where the Projucer stores the metadata that describe this GUI layout, so
-    make changes in here at your peril!
-
-BEGIN_JUCER_METADATA
-
-<JUCER_COMPONENT documentType="Component" className="SourceComponent" componentName=""
-                 parentClasses="public Component" constructorParams="String sourceId"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="600" initialHeight="400">
-  <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="0% 0% 100% 100%" cornerSize="10" fill="solid: 30a80000"
-               hasStroke="0"/>
-  </BACKGROUND>
-  <TABBEDCOMPONENT name="new tabbed component" id="68af494af88f97b5" memberName="tabbedComponent"
-                   virtualName="" explicitFocusOrder="0" pos="3.333% 95.25%r 93.167% 77.5%"
-                   orientation="top" tabBarDepth="30" initialTab="0">
-    <TAB name="Synthesis" colour="ffd3d3d3" useJucerComp="0" contentClassName="SynthesisTab"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Sample" colour="ffd3d3d3" useJucerComp="0" contentClassName="SampleTab"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Wave File" colour="ffd3d3d3" useJucerComp="0" contentClassName="WaveTab"
-         constructorParams="" jucerComponentFile=""/>
-    <TAB name="Audio In" colour="ffd3d3d3" useJucerComp="0" contentClassName="AudioTab"
-         constructorParams="" jucerComponentFile=""/>
-  </TABBEDCOMPONENT>
-  <TEXTBUTTON name="new button" id="f2d5eb87d2ae5bb9" memberName="btnMuteSource"
-              virtualName="" explicitFocusOrder="0" pos="89.333% 6% 6.833% 6%"
-              buttonText="Mute" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <SLIDER name="new slider" id="c31f97dab0d58c74" memberName="sldInputGain"
-          virtualName="" explicitFocusOrder="0" pos="30.5% 6% 57.167% 6%"
-          tooltip="Adjusts the gain of this source" min="-100" max="50"
-          int="0.10000000000000000555" style="LinearHorizontal" textBoxPos="TextBoxRight"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
-          needsCallback="1"/>
-  <LABEL name="new label" id="88cdc6c6ed2aeaa7" memberName="lblSource"
-         virtualName="" explicitFocusOrder="0" pos="2.667% 4.25% 26.333% 10%"
-         edTextCol="ff000000" edBkgCol="0" labelText="Source" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="25" kerning="0" bold="0" italic="0" justification="33"/>
-</JUCER_COMPONENT>
-
-END_JUCER_METADATA
-*/
-#endif
-
-
-//[EndFile] You can add extra defines here...
-//[/EndFile]

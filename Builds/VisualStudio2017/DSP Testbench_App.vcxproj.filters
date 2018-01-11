@@ -2,6 +2,12 @@
 
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="DSP Testbench\Source\GUI">
+      <UniqueIdentifier>{A96E2AFB-FB98-D638-5321-46AEC907BF37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Testbench\Source\Processing">
+      <UniqueIdentifier>{08B3D88D-6CE1-51FD-0135-1236E05CA72C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="DSP Testbench\Source">
       <UniqueIdentifier>{8A5A0C49-6574-C8D4-3468-0D600B60FD07}</UniqueIdentifier>
     </Filter>
@@ -191,15 +197,6 @@
     <Filter Include="JUCE Modules\juce_core">
       <UniqueIdentifier>{BAA582FA-40B7-320E-EE7A-4C3892C7BE72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JUCE Modules\juce_cryptography\encryption">
-      <UniqueIdentifier>{89B3E447-34BE-C691-638E-09796C6B647E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_cryptography\hashing">
-      <UniqueIdentifier>{9BE78436-DBF4-658C-579B-ED19FFD0EB5D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_cryptography">
-      <UniqueIdentifier>{21E7FA61-9E0A-4BA1-04B7-AF47AFA9CB8B}</UniqueIdentifier>
-    </Filter>
     <Filter Include="JUCE Modules\juce_data_structures\app_properties">
       <UniqueIdentifier>{632B4C79-AF7D-BFB5-D006-5AE67F607130}</UniqueIdentifier>
     </Filter>
@@ -374,18 +371,6 @@
     <Filter Include="JUCE Modules\juce_opengl">
       <UniqueIdentifier>{9FBFF5E5-56F1-34A1-2C85-F760DA2B1EB7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JUCE Modules\juce_video\capture">
-      <UniqueIdentifier>{CB8DF3B2-0409-6D59-C5D4-A034EBB7F973}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video\native">
-      <UniqueIdentifier>{7774F72F-C951-B8AB-E927-E34AD23C52C8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video\playback">
-      <UniqueIdentifier>{658BADF8-7095-C722-F9EC-9F36E8818187}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="JUCE Modules\juce_video">
-      <UniqueIdentifier>{2C58F450-CD01-0231-2F16-0D4D68565164}</UniqueIdentifier>
-    </Filter>
     <Filter Include="JUCE Modules">
       <UniqueIdentifier>{FE955B6B-68AC-AA07-70D8-2413F6DB65C8}</UniqueIdentifier>
     </Filter>
@@ -394,23 +379,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
-      <Filter>DSP Testbench\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
-      <Filter>DSP Testbench\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SourceComponent.cpp">
+    <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\GuiComponent.cpp">
-      <Filter>DSP Testbench\Source</Filter>
+      <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
-      <Filter>DSP Testbench\Source</Filter>
+      <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Main.cpp">
-      <Filter>DSP Testbench\Source</Filter>
+    <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SourceComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Analysis.cpp">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Synthesis.cpp">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\TestProcessor.cpp">
+      <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <Filter>JUCE Modules\juce_audio_basics\buffers</Filter>
@@ -1161,30 +1155,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_core\juce_core.mm">
       <Filter>JUCE Modules\juce_core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.cpp">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_Primes.cpp">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_RSAKey.cpp">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_MD5.cpp">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_SHA256.cpp">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_Whirlpool.cpp">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.cpp">
-      <Filter>JUCE Modules\juce_cryptography</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.mm">
-      <Filter>JUCE Modules\juce_cryptography</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.cpp">
       <Filter>JUCE Modules\juce_data_structures\app_properties</Filter>
@@ -2206,18 +2176,6 @@
     <ClCompile Include="..\..\..\JUCE\modules\juce_opengl\juce_opengl.mm">
       <Filter>JUCE Modules\juce_opengl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_video\capture\juce_CameraDevice.cpp">
-      <Filter>JUCE Modules\juce_video\capture</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_video\playback\juce_VideoComponent.cpp">
-      <Filter>JUCE Modules\juce_video\playback</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_video\juce_video.cpp">
-      <Filter>JUCE Modules\juce_video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_video\juce_video.mm">
-      <Filter>JUCE Modules\juce_video</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -2234,9 +2192,6 @@
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_core.cpp">
-      <Filter>JUCE Library Code</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\include_juce_cryptography.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_data_structures.cpp">
@@ -2260,22 +2215,31 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_opengl.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\JuceLibraryCode\include_juce_video.cpp">
-      <Filter>JUCE Library Code</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\MonitoringComponent.h">
-      <Filter>DSP Testbench\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ProcessorComponent.h">
-      <Filter>DSP Testbench\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SourceComponent.h">
+    <ClInclude Include="..\..\Source\Common.h">
       <Filter>DSP Testbench\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\GuiComponent.h">
-      <Filter>DSP Testbench\Source</Filter>
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MonitoringComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ProcessorComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SourceComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Analysis.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Synthesis.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\TestProcessor.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>
@@ -3243,27 +3207,6 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\juce_core.h">
       <Filter>JUCE Modules\juce_core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.h">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_Primes.h">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\encryption\juce_RSAKey.h">
-      <Filter>JUCE Modules\juce_cryptography\encryption</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_MD5.h">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_SHA256.h">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\hashing\juce_Whirlpool.h">
-      <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h">
-      <Filter>JUCE Modules\juce_cryptography</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h">
       <Filter>JUCE Modules\juce_data_structures\app_properties</Filter>
     </ClInclude>
@@ -4196,30 +4139,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\JUCE\modules\juce_opengl\juce_opengl.h">
       <Filter>JUCE Modules\juce_opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\capture\juce_CameraDevice.h">
-      <Filter>JUCE Modules\juce_video\capture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\native\juce_android_CameraDevice.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\native\juce_mac_CameraDevice.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\native\juce_mac_Video.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\native\juce_win32_CameraDevice.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\native\juce_win32_Video.h">
-      <Filter>JUCE Modules\juce_video\native</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\playback\juce_VideoComponent.h">
-      <Filter>JUCE Modules\juce_video\playback</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_video\juce_video.h">
-      <Filter>JUCE Modules\juce_video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
       <Filter>JUCE Library Code</Filter>

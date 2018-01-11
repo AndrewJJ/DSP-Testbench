@@ -22,7 +22,8 @@ public:
     {
         addAndMakeVisible (guiComponent = new GuiComponent());
 
-        setSize (800, 600);
+        setSize (1024, 768);
+        oglContext.attachTo (*this);
 
         // specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
@@ -89,6 +90,7 @@ private:
 
     // Your private member variables go here...
     ScopedPointer<GuiComponent> guiComponent;
+    OpenGLContext oglContext;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

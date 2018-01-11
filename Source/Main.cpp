@@ -95,6 +95,7 @@ public:
 
 private:
     ScopedPointer<MainWindow> mainWindow;
+    TooltipWindow tooltipWindow;
 };
 
 //==============================================================================
