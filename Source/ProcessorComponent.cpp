@@ -26,27 +26,23 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     btnSourceA->setButtonText (TRANS("Source A"));
     btnSourceA->setColour(TextButton::buttonOnColourId, Colours::green);
     btnSourceA->setToggleState(true, dontSendNotification);
-    btnSourceA->onClick = [this] { toggleSourceA(); };
 
     addAndMakeVisible (btnSourceB = new TextButton ("Source B button"));
     btnSourceB->setTooltip (TRANS("Process input from source B"));
     btnSourceB->setClickingTogglesState (true);
     btnSourceB->setButtonText (TRANS("Source B"));
     btnSourceB->setColour(TextButton::buttonOnColourId, Colours::green);
-    btnSourceB->setToggleState(true, dontSendNotification);
-    btnSourceB->onClick = [this] { toggleSourceB(); };
+    btnSourceB->setToggleState(false, dontSendNotification);
 
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText (TRANS("Mute"));
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnMute->onClick = [this] { toggleMute(); };
 
     addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
     btnDisable->setButtonText (TRANS("Disable"));
     btnDisable->setClickingTogglesState (true);
     btnDisable->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnDisable->onClick = [this] { toggleDisable(); };
 
     // Assumes sliderLabels and sliders are empty
     for (auto i = 0; i<numControls; ++i)
@@ -129,50 +125,22 @@ void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     }
 }
 
-void ProcessorComponent::toggleSourceA ()
+bool ProcessorComponent::isSourceConnectedA () const
 {
-    if (btnSourceA->getToggleState())
-    {
-        // TODO - notify audio engine that this processor should enable input from source A
-    }
-    else
-    {
-        // TODO - notify audio engine that this processor should disable input from source A
-    }
+    return btnSourceA->getToggleState();
 }
 
-void ProcessorComponent::toggleSourceB ()
+bool ProcessorComponent::isSourceConnectedB () const
 {
-    if (btnSourceB->getToggleState())
-    {
-        // TODO - notify audio engine that this processor should enable input from source B
-    }
-    else
-    {
-        // TODO - notify audio engine that this processor should disable input from source B
-    }
+    return btnSourceB->getToggleState();
 }
 
-void ProcessorComponent::toggleMute ()
+bool ProcessorComponent::isMuted () const
 {
-    if (btnMute->getToggleState())
-    {
-        // TODO - notify audio engine that this source component should be muted
-    }
-    else
-    {
-        // TODO - notify audio engine that this source component should be unmuted
-    }
+    return btnMute->getToggleState();
 }
 
-void ProcessorComponent::toggleDisable ()
+bool ProcessorComponent::isProcessorEnabled () const
 {
-    if (btnDisable->getToggleState())
-    {
-        // TODO - notify audio engine that this source component should be disabled
-    }
-    else
-    {
-        // TODO - notify audio engine that this source component should be enabled
-    }
+    return !btnDisable->getToggleState();
 }

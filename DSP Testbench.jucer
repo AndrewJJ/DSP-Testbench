@@ -4,17 +4,16 @@
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
       <FILE id="H91Gsc" name="Common.h" compile="0" resource="0" file="Source/Common.h"/>
+      <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
         <FILE id="CsTDKi" name="AnalyserComponent.cpp" compile="1" resource="0"
               file="Source/AnalyserComponent.cpp"/>
         <FILE id="aJXaij" name="AnalyserComponent.h" compile="0" resource="0"
               file="Source/AnalyserComponent.h"/>
-        <FILE id="WoOsmL" name="GuiComponent.cpp" compile="1" resource="0"
-              file="Source/GuiComponent.cpp"/>
-        <FILE id="yAqs06" name="GuiComponent.h" compile="0" resource="0" file="Source/GuiComponent.h"/>
         <FILE id="D0lQdS" name="MainComponent.cpp" compile="1" resource="0"
               file="Source/MainComponent.cpp"/>
+        <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
         <FILE id="rY2ABv" name="MonitoringComponent.cpp" compile="1" resource="0"
               file="Source/MonitoringComponent.cpp"/>
         <FILE id="LNuBdq" name="MonitoringComponent.h" compile="0" resource="0"

@@ -26,8 +26,8 @@ SynthesisTab::SynthesisTab ()
     addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
     sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
-    sldFrequency->setRange (1.0, 20000.0, 1.0);
-    sldFrequency->setMinAndMaxValues (1.0, 20000.0, dontSendNotification);
+    sldFrequency->setRange (1.0, 24000.0, 1.0);
+    sldFrequency->setMinAndMaxValues (1.0, 24000.0, dontSendNotification);
     sldFrequency->setValue (440.0, dontSendNotification);
     sldFrequency->setSkewFactor (0.5);
     sldFrequency->addListener (this);
@@ -95,6 +95,40 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
     {
     }
 }
+void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
+{
+    for (auto&& oscillator : oscillators)
+    {
+        // TODO - get initial value from Gui? but only if Gui is already loaded
+        oscillator.setFrequency (sldFrequency->getValue());
+        oscillator.prepare (spec);
+    }
+}
+void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    auto idx = cmbWaveform->getSelectedId();
+    switch (static_cast<Waveform> (idx)) {
+    case sine:
+    case saw:
+    case Waveform::square:
+        oscillators[idx-1].setFrequency (sldFrequency->getValue());
+        oscillators[idx-1].process (context);
+        break;
+    default: ;  // Do nothing
+    }
+}
+void SynthesisTab::reset()
+{
+    auto idx = cmbWaveform->getSelectedId();
+    switch (static_cast<Waveform> (idx)) {
+    case sine:
+    case saw:
+    case Waveform::square:
+        oscillators[idx].reset();
+        break;
+    default: ;  // Do nothing
+    }
+}
 void SynthesisTab::updateWaveform()
 {
     // Modify controls according to waveform selection
@@ -109,17 +143,6 @@ void SynthesisTab::updateWaveform()
     {
         sldSweepDuration->setEnabled (false);
     }
-
-    // TODO - notify audio engine of change
-
-    //if (id == Waveforms::sine)
-    //else if (id == Waveforms::saw)
-    //else if (id == Waveforms::square)
-    //else if (id == Waveforms::impulse)
-    //else if (id == Waveforms::step)
-    //else if (id == Waveforms::whiteNoise)
-    //else if (id == Waveforms::pinkNoise)
-
 }
 void SynthesisTab::updateSweepEnablement ()
 {
@@ -136,13 +159,13 @@ SampleTab::SampleTab ()
     addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
     cmbSample->addItem ("None", 1);
     cmbSample->setSelectedId (1, dontSendNotification);
-    cmbSample->onChange = [this] { };
+    cmbSample->onChange = [this] { selectedSampleChanged(); };
 
     addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
     btnLoopEnabled->setClickingTogglesState (true);
     //btnLoopEnabled->setToggleState (true, dontSendNotification);
     btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnLoopEnabled->onClick = [this] { };
+    btnLoopEnabled->onClick = [this] { loopEnablementToggled(); };
 
     // TODO - add delay control to prevent machine gunning of sample?
 }
@@ -158,6 +181,24 @@ void SampleTab::resized ()
 {
     cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
     btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
+}
+void SampleTab::selectedSampleChanged ()
+{
+}
+void SampleTab::loopEnablementToggled ()
+{
+}
+void SampleTab::prepare (const dsp::ProcessSpec& spec)
+{
+    // TODO
+}
+void SampleTab::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    // TODO
+}
+void SampleTab::reset()
+{
+    // TODO
 }
 
 WaveTab::WaveTab ()
@@ -175,6 +216,18 @@ void WaveTab::paint (Graphics& g)
 void WaveTab::resized ()
 {
 }
+void WaveTab::prepare (const dsp::ProcessSpec& spec)
+{
+    // TODO
+}
+void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    // TODO
+}
+void WaveTab::reset()
+{
+    // TODO
+}
 
 AudioTab::AudioTab ()
 {
@@ -190,6 +243,18 @@ void AudioTab::paint (Graphics& g)
 }
 void AudioTab::resized ()
 {
+}
+void AudioTab::prepare (const dsp::ProcessSpec& spec)
+{
+    // TODO
+}
+void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    // TODO
+}
+void AudioTab::reset()
+{
+    // TODO
 }
 
 //==============================================================================
@@ -212,21 +277,22 @@ SourceComponent::SourceComponent (String sourceId)
 
     addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
     btnMute->setButtonText (TRANS("Mute"));
-    btnMute->onClick = [this] { toggleMute(); };
+    //btnMute->onClick = [this] { toggleMute(); };
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     tabbedComponent->setTabBarDepth (30);
-    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, new SynthesisTab(), true);
-    tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, new SampleTab(), true);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, new WaveTab(), true);
-    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, new AudioTab(), true);
+    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
+    tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
+    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
     tabbedComponent->setCurrentTabIndex (0);
 
     //setSize (600, 400);
-}
 
+    gain.setRampDurationSeconds (0.01);
+}
 SourceComponent::~SourceComponent()
 {
     lblTitle = nullptr;
@@ -234,13 +300,11 @@ SourceComponent::~SourceComponent()
     btnMute = nullptr;
     tabbedComponent = nullptr;
 }
-
 void SourceComponent::paint (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
 }
-
 void SourceComponent::resized()
 {
     Grid grid;
@@ -253,7 +317,7 @@ void SourceComponent::resized()
                             Track (4_fr)
                         };
 
-    grid.templateColumns = { Track (2_fr), Track (6_fr), Track (1_fr) };
+    grid.templateColumns = { Track (3_fr), Track (10_fr), Track (2_fr) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
@@ -270,22 +334,62 @@ void SourceComponent::resized()
     // .withTrimmedTop(proportionOfHeight(0.1f))
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-
 void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     if (sliderThatWasMoved == sldGain)
     {
+        gain.setGainDecibels(sldGain->getValue());
     }
 }
-
-void SourceComponent::toggleMute()
+double SourceComponent::getGain () const
 {
-    if (btnMute->getToggleState())
+    return sldGain->getValue();
+}
+bool SourceComponent::isMuted () const
+{
+    return btnMute->getToggleState();
+}
+SourceComponent::Mode SourceComponent::getMode() const
+{
+    return static_cast<Mode> (tabbedComponent->getCurrentTabIndex());
+}
+void SourceComponent::prepare (const dsp::ProcessSpec& spec)
+{
+    synthesisTab->prepare (spec);
+    sampleTab->prepare (spec);
+    waveTab->prepare (spec);
+    audioTab->prepare (spec);
+    gain.prepare (spec);
+    jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
+    if (sldGain != nullptr)
+        gain.setGainDecibels(sldGain->getValue());
+}
+void SourceComponent::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    if (!isMuted())
     {
-        // TODO - notify audio engine that this source component should be muted
+        // Process currently selected source
+        const auto idx = tabbedComponent->getCurrentTabIndex();
+        if (idx == Mode::Synthesis)
+            synthesisTab->process (context);
+        else if (idx == Mode::Sample)
+            sampleTab->process (context);
+        else if (idx == Mode::WaveFile)
+            waveTab->process (context);
+        else if (idx == Mode::AudioIn)
+            audioTab->process (context);
+        
+        // Apply gain
+        gain.process (context);
     }
     else
-    {
-        // TODO - notify audio engine that this source component should be unmuted
-    }
+        context.getOutputBlock().clear();
+}
+void SourceComponent::reset ()
+{
+    synthesisTab->reset();
+    sampleTab->reset();
+    waveTab->reset();
+    audioTab->reset();
+    gain.reset();
 }

@@ -24,13 +24,14 @@ public:
     void resized() override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
+    double getGain() const;
+    bool isLimited() const;
+    bool isMuted() const;
+
 private:
 
-    void toggleLimiter();
-    void toggleMute();
-
     ScopedPointer<Label> lblTitle;
-    ScopedPointer<Slider> sldOutputGain;
+    ScopedPointer<Slider> sldGain;
     ScopedPointer<TextButton> btnLimiter;
     ScopedPointer<TextButton> btnMute;
 

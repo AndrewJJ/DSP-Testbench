@@ -9,3 +9,12 @@
 */
 
 #include "Synthesis.h"
+#include "Common.h"
+
+namespace juce {
+namespace dsp {
+
+
+
+}
+}

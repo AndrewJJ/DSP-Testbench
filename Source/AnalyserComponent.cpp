@@ -48,7 +48,8 @@ void AnalyserComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr)
+    grid.templateRows = {   Track (1_fr),
+                            Track (6_fr)
                         };
 
     //grid.templateColumns = { Track (1_fr), Track (6_fr), Track (1_fr), Track (1_fr) };

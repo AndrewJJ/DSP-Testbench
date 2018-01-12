@@ -9,6 +9,7 @@
 */
 
 #include "MonitoringComponent.h"
+#include "Main.h"
 
 MonitoringComponent::MonitoringComponent ()
 {
@@ -19,12 +20,12 @@ MonitoringComponent::MonitoringComponent ()
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
     lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (sldOutputGain = new Slider ("Output gain slider"));
-    sldOutputGain->setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
-    sldOutputGain->setRange (-100, 0, 0.1);
-    sldOutputGain->setSliderStyle (Slider::LinearHorizontal);
-    sldOutputGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
-    sldOutputGain->addListener (this);
+    addAndMakeVisible (sldGain = new Slider ("Output gain slider"));
+    sldGain->setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
+    sldGain->setRange (-100, 0, 0.1);
+    sldGain->setSliderStyle (Slider::LinearHorizontal);
+    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldGain->addListener (this);
 
     addAndMakeVisible (btnLimiter = new TextButton ("Limiter button"));
     btnLimiter->setTooltip (TRANS("Activate limiter on output"));
@@ -32,31 +33,38 @@ MonitoringComponent::MonitoringComponent ()
     btnLimiter->setClickingTogglesState (true);
     btnLimiter->setColour(TextButton::buttonOnColourId, Colours::darkorange);
     //btnLimiter->setToggleState (true, dontSendNotification);
-    btnLimiter->onClick = [this] { toggleLimiter(); };
+    btnLimiter->onClick = [this] {
+        // TODO - notify audio engine of change to limiter
+        //DSPTestbenchApplication::getApp().getMainComponent().monitoringChanged();
+        //DSPTestbenchApplication::getApp().getMainComponent().updateLimiter (btnLimiter->getToggleState());
+
+        //=======================================================================================================================
+        //  TODO - wait a minute, I don't need to notify if the processor routine just checks the values every block anyway!!!
+        //=======================================================================================================================
+    };
     
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText ("Mute");
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnMute->onClick = [this] { toggleMute(); };
+    btnMute->onClick = [this] { 
+        // TODO - notify audio engine of change to mute
+    };
 
     //setSize (400, 150);
 }
-
 MonitoringComponent::~MonitoringComponent()
 {
     lblTitle = nullptr;
-    sldOutputGain = nullptr;
+    sldGain = nullptr;
     btnLimiter = nullptr;
     btnMute = nullptr;
 }
-
 void MonitoringComponent::paint (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
 }
-
 void MonitoringComponent::resized()
 {
     Grid grid;
@@ -76,7 +84,7 @@ void MonitoringComponent::resized()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (sldOutputGain),
+                            GridItem (sldGain),
                             GridItem (btnLimiter).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
                             GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f))
                         });
@@ -84,34 +92,22 @@ void MonitoringComponent::resized()
     const auto marg = 10;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-
 void MonitoringComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-    if (sliderThatWasMoved == sldOutputGain)
+    if (sliderThatWasMoved == sldGain)
     {
+        // TODO - notify audio engine of change to gain
     }
 }
-
-void MonitoringComponent::toggleLimiter ()
+double MonitoringComponent::getGain () const
 {
-    if (btnLimiter->getToggleState())
-    {
-        // TODO - notify audio engine that this source component should have it's limiter turned on
-    }
-    else
-    {
-        // TODO - notify audio engine that this source component should have it's limiter turned off
-    }
+    return sldGain->getValue();
 }
-
-void MonitoringComponent::toggleMute ()
+bool MonitoringComponent::isLimited () const
 {
-    if (btnMute->getToggleState())
-    {
-        // TODO - notify audio engine that this source component should be muted
-    }
-    else
-    {
-        // TODO - notify audio engine that this source component should be unmuted
-    }
+    return btnLimiter->getToggleState();
+}
+bool MonitoringComponent::isMuted () const
+{
+    return btnMute->getToggleState();
 }

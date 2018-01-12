@@ -24,14 +24,14 @@ public:
     void resized() override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
+    bool isSourceConnectedA() const;
+    bool isSourceConnectedB() const;
+    bool isMuted() const;
+    bool isProcessorEnabled() const;
+
 private:
     
     int numControls;
-
-    void toggleSourceA();
-    void toggleSourceB();
-    void toggleMute();
-    void toggleDisable();
 
     ScopedPointer<Label> lblTitle;
     ScopedPointer<TextButton> btnSourceA;
