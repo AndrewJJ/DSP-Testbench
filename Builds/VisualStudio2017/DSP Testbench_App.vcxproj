@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1756D2DF-4C32-642E-E199-0F5BDA238693}</ProjectGuid>
+    <ProjectGuid>{594191F3-BA39-76B6-7C77-BA38BB566854}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -155,7 +155,6 @@
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp"/>
     <ClCompile Include="..\..\Source\SourceComponent.cpp"/>
     <ClCompile Include="..\..\Source\Analysis.cpp"/>
-    <ClCompile Include="..\..\Source\Synthesis.cpp"/>
     <ClCompile Include="..\..\Source\TestProcessor.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -1825,7 +1824,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_opengl.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Common.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\AnalyserComponent.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
@@ -1833,7 +1831,6 @@
     <ClInclude Include="..\..\Source\ProcessorComponent.h"/>
     <ClInclude Include="..\..\Source\SourceComponent.h"/>
     <ClInclude Include="..\..\Source\Analysis.h"/>
-    <ClInclude Include="..\..\Source\Synthesis.h"/>
     <ClInclude Include="..\..\Source\TestProcessor.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

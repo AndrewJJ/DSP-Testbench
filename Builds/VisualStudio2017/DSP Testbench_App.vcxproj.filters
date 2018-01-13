@@ -400,9 +400,6 @@
     <ClCompile Include="..\..\Source\Analysis.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Synthesis.cpp">
-      <Filter>DSP Testbench\Source\Processing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\TestProcessor.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
@@ -2217,9 +2214,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Common.h">
-      <Filter>DSP Testbench\Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Main.h">
       <Filter>DSP Testbench\Source</Filter>
     </ClInclude>
@@ -2239,9 +2233,6 @@
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Analysis.h">
-      <Filter>DSP Testbench\Source\Processing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Synthesis.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\TestProcessor.h">

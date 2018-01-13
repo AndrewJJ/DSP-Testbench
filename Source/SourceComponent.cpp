@@ -11,6 +11,11 @@
 #include "SourceComponent.h"
 
 SynthesisTab::SynthesisTab ()
+    :   sampleRate (0.0),
+        maxBlockSize (0),
+        numSweepSteps (0.0),
+        sweepStepIndex (0),
+        sweepStepDelta (1)
 {
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
     cmbWaveform->addItem ("Sine", Waveform::sine);
@@ -20,34 +25,44 @@ SynthesisTab::SynthesisTab ()
     cmbWaveform->addItem ("Step", Waveform::step);
     cmbWaveform->addItem ("White Noise", Waveform::whiteNoise);
     cmbWaveform->addItem ("Pink Noise", Waveform::pinkNoise);
-    cmbWaveform->onChange = [this] { updateWaveform(); };
+    cmbWaveform->onChange = [this] { waveformUpdated(); };
     cmbWaveform->setSelectedId (Waveform::sine);
 
     addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
     sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
     sldFrequency->setRange (1.0, 24000.0, 1.0);
     sldFrequency->setMinAndMaxValues (1.0, 24000.0, dontSendNotification);
     sldFrequency->setValue (440.0, dontSendNotification);
     sldFrequency->setSkewFactor (0.5);
-    sldFrequency->addListener (this);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
     sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldSweepDuration->setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
+    sldSweepDuration->setRange (0.5, 5.0, 0.1);
     sldSweepDuration->addListener (this);
+    sldSweepDuration->setValue (1.0, sendNotificationAsync);
+    
+    addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
+    cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
+    cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
+    cmbSweepMode->onChange = [this] { resetSweep(); };
+    cmbSweepMode->setSelectedId (SweepMode::Wrap);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
     btnSweepEnabled->setTooltip ("Enable sweeping from start frequency to end frequency");
     btnSweepEnabled->setClickingTogglesState (true);
-    //btnSweepEnabled->setToggleState (false, dontSendNotification);
     btnSweepEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
     btnSweepEnabled->onStateChange = [this] { updateSweepEnablement(); };
 
     addAndMakeVisible (btnSweepReset = new TextButton ("Reset"));
     btnSweepReset->setTooltip ("Reset/restart the frequency sweep");
-    btnSweepEnabled->onClick = [this] { resetSweep(); };
+    btnSweepReset->onClick = [this] { resetSweep(); };
 
-    // TODO - implement sweep modes: Hard Wrap, Hard Reverse, Soft Wrap, Soft Reverse
+    addAndMakeVisible (btnSynchWithOther = new TextButton ("Synch"));
+    btnSynchWithOther->setTooltip ("Synch other source oscillator with this");
+    btnSynchWithOther->onClick = [this] { performSynch(); };
 }
 SynthesisTab::~SynthesisTab ()
 {
@@ -72,86 +87,175 @@ void SynthesisTab::resized ()
                             Track (1_fr)
                         };
 
-    grid.templateColumns = { Track (1_fr), Track (1_fr) };
+    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (2)),
-                            GridItem (sldFrequency).withArea ({ }, GridItem::Span (2)),
-                            GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (2)),
+    grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
+                            GridItem (sldFrequency).withArea ({ }, GridItem::Span (4)),
+                            GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (4)),
+                            GridItem (cmbSweepMode),
                             GridItem (btnSweepEnabled),
-                            GridItem (btnSweepReset)
+                            GridItem (btnSweepReset),
+                            GridItem (btnSynchWithOther)
                         });
 
     const auto marg = jmin (proportionOfWidth (0.05f), proportionOfHeight (0.05f));
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
+void SynthesisTab::performSynch ()
 {
-    if (sliderThatWasMoved == sldFrequency)
-    {
-    }
+    ScopedLock sl (synthesiserCriticalSection);
+
+    otherSource->getSynthesisTab()->syncAndResetOscillator( getSelectedWaveform(),
+                                                            sldFrequency->getValue(),
+                                                            sldFrequency->getMinValue(),
+                                                            sldFrequency->getMaxValue(),
+                                                            sldSweepDuration->getValue(),
+                                                            getSelectedSweepMode(),
+                                                            btnSweepEnabled->getToggleState()
+                                                          );
+    this->reset();
+}
+void SynthesisTab::setOtherSource (SourceComponent* otherSourceComponent)
+{
+    otherSource = otherSourceComponent;
+}
+void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double freq,
+                                           const double sweepStart, const double sweepEnd,
+                                           const double sweepDuration, SweepMode sweepMode, const bool sweepEnabled)
+{
+    cmbWaveform->setSelectedId (waveform, sendNotificationSync);
+    sldFrequency->setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
+    sldFrequency->setValue(freq, sendNotificationSync);
+    cmbSweepMode->setSelectedId (sweepMode, sendNotificationSync);
+    btnSweepEnabled->setToggleState(sweepEnabled, sendNotificationSync);
+    sldSweepDuration->setValue(sweepDuration, sendNotificationSync);
+    this->reset();
 }
 void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
 {
+    // Assumes sliders are constructed before prepare is ever called and that audio is shutdown before sliders are destroyed
+    jassert (sldFrequency != nullptr && sldSweepDuration != nullptr);
+
     for (auto&& oscillator : oscillators)
     {
-        // TODO - get initial value from Gui? but only if Gui is already loaded
-        oscillator.setFrequency (sldFrequency->getValue());
+        oscillator.setFrequency (static_cast<float> (sldFrequency->getValue()));
         oscillator.prepare (spec);
     }
+    
+    sampleRate = spec.sampleRate;
+    maxBlockSize = spec.maximumBlockSize;
+
+    calculateNumSweepSteps();
+    resetSweep();
 }
 void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    auto idx = cmbWaveform->getSelectedId();
-    switch (static_cast<Waveform> (idx)) {
-    case sine:
-    case saw:
-    case Waveform::square:
-        oscillators[idx-1].setFrequency (sldFrequency->getValue());
-        oscillators[idx-1].process (context);
-        break;
-    default: ;  // Do nothing
+    if (isSelectedWaveformOscillatorBased())
+    {
+        if (btnSweepEnabled->getToggleState())
+        {
+            oscillators[getSelectedWaveformIndex()].setFrequency (getSweepFrequency());
+            
+            if (getSelectedSweepMode() == SweepMode::Wrap)
+            {
+                if (sweepStepIndex >= numSweepSteps)
+                    sweepStepIndex = 0;
+                sweepStepIndex++;
+            }
+            else if (getSelectedSweepMode() == SweepMode::Reverse)
+            {
+                if (sweepStepIndex >= numSweepSteps)
+                    sweepStepDelta = -1;
+                else if (sweepStepIndex <= 0)
+                    sweepStepDelta = 1;
+                sweepStepIndex += sweepStepDelta;
+            }
+        }
+        else
+            oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (sldFrequency->getValue()));
+
+        oscillators[getSelectedWaveformIndex()].process (context);
     }
 }
 void SynthesisTab::reset()
 {
-    auto idx = cmbWaveform->getSelectedId();
-    switch (static_cast<Waveform> (idx)) {
-    case sine:
-    case saw:
-    case Waveform::square:
-        oscillators[idx].reset();
-        break;
-    default: ;  // Do nothing
+    ScopedLock sl (synthesiserCriticalSection);
+
+    if (isSelectedWaveformOscillatorBased())
+    {
+        oscillators[getSelectedWaveformIndex()].reset();
+        oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (sldFrequency->getValue()), true);
+        resetSweep();
     }
 }
-void SynthesisTab::updateWaveform()
+void SynthesisTab::timerCallback ()
+{
+    jassert (btnSweepEnabled->getToggleState());
+    sldFrequency->setValue (getSweepFrequency(),dontSendNotification);
+}
+void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
+{
+    if (sliderThatWasMoved == sldSweepDuration)
+        calculateNumSweepSteps();
+}
+
+Waveform SynthesisTab::getSelectedWaveform() const
+{
+    return static_cast<Waveform> (cmbWaveform->getSelectedId());
+}
+int SynthesisTab::getSelectedWaveformIndex() const
+{
+    return cmbWaveform->getSelectedId()-1;
+}
+bool SynthesisTab::isSelectedWaveformOscillatorBased() const
+{
+    return (getSelectedWaveform() == Waveform::sine || getSelectedWaveform() == Waveform::saw || getSelectedWaveform() == Waveform::square);
+}
+SweepMode SynthesisTab::getSelectedSweepMode () const
+{
+    return static_cast<SweepMode> (cmbSweepMode->getSelectedId());
+}
+void SynthesisTab::waveformUpdated()
 {
     // Modify controls according to waveform selection
     // TODO - hide or recolour disabled controls
-    const auto id = cmbWaveform->getSelectedId();
-    if (id == Waveform::sine || id == Waveform::saw || id == Waveform::square)
-    {
-        if (btnSweepEnabled->getToggleState())
-            sldSweepDuration->setEnabled(true);
-    }
-    else
-    {
-        sldSweepDuration->setEnabled (false);
-    }
+    sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased() && btnSweepEnabled->getToggleState());
 }
 void SynthesisTab::updateSweepEnablement ()
 {
-    // TODO - rename start frequency to just frequency if sweep is disabled
-    // TODO - notify audio engine of change
+    sldSweepDuration->setEnabled (btnSweepEnabled->getToggleState());
+    
+    if (btnSweepEnabled->getToggleState())
+        startTimer (20.0);
+    else
+        stopTimer();
 }
 void SynthesisTab::resetSweep ()
 {
-    // TODO - notify audio engine of change
+    sweepStepIndex = 0;
+    sweepStepDelta = 1;
+}
+double SynthesisTab::getSweepFrequency ()
+{
+    //f(x) = 10^(log(Span)/n*x) + fStart
+    //where:
+    //    x = the number of the sweep point
+    //    n = total number of sweep points
+    double duration = sldSweepDuration->getValue();
+    double mn = sldFrequency->getMinValue();
+    double mx = sldFrequency->getMaxValue();
+    double span = mx - mn;
+
+    return pow(10, log10(span)/numSweepSteps * sweepStepIndex) + mn;
+}
+void SynthesisTab::calculateNumSweepSteps ()
+{
+    numSweepSteps = static_cast<long> (sldSweepDuration->getValue() * sampleRate / static_cast<double> (maxBlockSize));
 }
 
 SampleTab::SampleTab ()
@@ -275,6 +379,12 @@ SourceComponent::SourceComponent (String sourceId)
     sldGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
     sldGain->addListener (this);
 
+    addAndMakeVisible (btnInvert = new TextButton ("Invert Source button"));
+    btnInvert->setButtonText (TRANS("Invert"));
+    //btnInvert->onClick = [this] { };
+    btnInvert->setClickingTogglesState (true);
+    btnInvert->setColour(TextButton::buttonOnColourId, Colours::green);
+
     addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
     btnMute->setButtonText (TRANS("Mute"));
     //btnMute->onClick = [this] { toggleMute(); };
@@ -317,7 +427,7 @@ void SourceComponent::resized()
                             Track (4_fr)
                         };
 
-    grid.templateColumns = { Track (3_fr), Track (10_fr), Track (2_fr) };
+    grid.templateColumns = { Track (3_fr), Track (8_fr), Track (2_fr), Track (2_fr) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
@@ -325,25 +435,29 @@ void SourceComponent::resized()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (sldGain),
-                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
-                            GridItem (tabbedComponent).withArea ({ }, GridItem::Span (3))
+                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, 10.0f, 0.0f, 0.0f)),
+                            GridItem (btnInvert),
+                            GridItem (btnMute),
+                            GridItem (tabbedComponent).withArea ({ }, GridItem::Span (4))
                         });
     
     const auto marg = 10;
-    // .withTrimmedTop(proportionOfHeight(0.1f))
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     if (sliderThatWasMoved == sldGain)
     {
-        gain.setGainDecibels(sldGain->getValue());
+        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
     }
 }
 double SourceComponent::getGain () const
 {
     return sldGain->getValue();
+}
+bool SourceComponent::isInverted () const
+{
+    return btnInvert->getToggleState();
 }
 bool SourceComponent::isMuted () const
 {
@@ -352,6 +466,15 @@ bool SourceComponent::isMuted () const
 SourceComponent::Mode SourceComponent::getMode() const
 {
     return static_cast<Mode> (tabbedComponent->getCurrentTabIndex());
+}
+void SourceComponent::setOtherSource (SourceComponent* otherSourceComponent)
+{
+    otherSource = otherSourceComponent;
+    synthesisTab->setOtherSource (otherSourceComponent);
+}
+SynthesisTab* SourceComponent::getSynthesisTab ()
+{
+    return synthesisTab;
 }
 void SourceComponent::prepare (const dsp::ProcessSpec& spec)
 {
@@ -362,7 +485,7 @@ void SourceComponent::prepare (const dsp::ProcessSpec& spec)
     gain.prepare (spec);
     jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
     if (sldGain != nullptr)
-        gain.setGainDecibels(sldGain->getValue());
+        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
 }
 void SourceComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -381,6 +504,9 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
         
         // Apply gain
         gain.process (context);
+
+        if (isInverted())
+            context.getOutputBlock().multiply(-1.0f);
     }
     else
         context.getOutputBlock().clear();

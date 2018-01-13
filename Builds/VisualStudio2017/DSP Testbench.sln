@@ -1,7 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2017
 
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSP Testbench - App", "DSP Testbench_App.vcxproj", "{1756D2DF-4C32-642E-E199-0F5BDA238693}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DSP Testbench - App", "DSP Testbench_App.vcxproj", "{594191F3-BA39-76B6-7C77-BA38BB566854}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1756D2DF-4C32-642E-E199-0F5BDA238693}.Debug|x64.ActiveCfg = Debug|x64
-		{1756D2DF-4C32-642E-E199-0F5BDA238693}.Debug|x64.Build.0 = Debug|x64
-		{1756D2DF-4C32-642E-E199-0F5BDA238693}.Release|x64.ActiveCfg = Release|x64
-		{1756D2DF-4C32-642E-E199-0F5BDA238693}.Release|x64.Build.0 = Release|x64
+		{594191F3-BA39-76B6-7C77-BA38BB566854}.Debug|x64.ActiveCfg = Debug|x64
+		{594191F3-BA39-76B6-7C77-BA38BB566854}.Debug|x64.Build.0 = Debug|x64
+		{594191F3-BA39-76B6-7C77-BA38BB566854}.Release|x64.ActiveCfg = Release|x64
+		{594191F3-BA39-76B6-7C77-BA38BB566854}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

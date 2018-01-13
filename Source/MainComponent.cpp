@@ -19,6 +19,9 @@ MainContentComponent::MainContentComponent()
     addAndMakeVisible (analyserComponent = new AnalyserComponent());
     addAndMakeVisible (monitoringComponent = new MonitoringComponent());
 
+    srcComponentA->setOtherSource (srcComponentB);
+    srcComponentB->setOtherSource (srcComponentA);
+
     setSize (1024, 768);
     oglContext.attachTo (*this);
 

@@ -3,7 +3,6 @@
 <JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.2.0">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
-      <FILE id="H91Gsc" name="Common.h" compile="0" resource="0" file="Source/Common.h"/>
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
@@ -30,8 +29,6 @@
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
         <FILE id="BhJYfA" name="Analysis.cpp" compile="1" resource="0" file="Source/Analysis.cpp"/>
         <FILE id="yjlnh6" name="Analysis.h" compile="0" resource="0" file="Source/Analysis.h"/>
-        <FILE id="y9Ksc2" name="Synthesis.cpp" compile="1" resource="0" file="Source/Synthesis.cpp"/>
-        <FILE id="jajTDL" name="Synthesis.h" compile="0" resource="0" file="Source/Synthesis.h"/>
         <FILE id="uNS7YK" name="TestProcessor.cpp" compile="1" resource="0"
               file="Source/TestProcessor.cpp"/>
         <FILE id="z3PBri" name="TestProcessor.h" compile="0" resource="0" file="Source/TestProcessor.h"/>
