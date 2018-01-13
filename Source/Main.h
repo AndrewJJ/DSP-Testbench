@@ -12,14 +12,15 @@
 
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MainComponent.h"
 
-Component* createMainContentComponent();
+//Component* createMainContentComponent();
 
-class DSPTestbenchApplication  : public JUCEApplication
+class DSPTestbenchApplication  : public JUCEApplication, public TimeSliceThread
 {
 public:
 
-    DSPTestbenchApplication() {}
+    DSPTestbenchApplication();
 
     const String getApplicationName() override      { return ProjectInfo::projectName; }
     const String getApplicationVersion() override   { return ProjectInfo::versionString; }
@@ -55,8 +56,12 @@ public:
     static DSPTestbenchApplication& getApp();
     MainWindow& getMainWindow();
     Component& getMainComponent();
+    //MainContentComponent& getMainContentComponent();
+    AudioDeviceManager& getDeviceManager();
+    AudioFormatManager& getFormatManager();
 
 private:
     ScopedPointer<MainWindow> mainWindow;
     TooltipWindow tooltipWindow;
+    AudioFormatManager formatManager;
 };

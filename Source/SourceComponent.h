@@ -95,6 +95,7 @@ private:
     double getSweepFrequency();
     void calculateNumSweepSteps();
 
+    // TODO - implement bandlimited oscillators instead
     dsp::Oscillator<float> oscillators[3] =
     {
         // No Approximation
@@ -122,7 +123,7 @@ public:
 
     void prepare (const dsp::ProcessSpec&) override;
     void process (const dsp::ProcessContextReplacing<float>&) override;
-    void reset () override;
+    void reset() override;
 
 private:
 
@@ -135,7 +136,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
 };
 
-class WaveTab : public Component, public dsp::ProcessorBase
+class WaveTab : public Component, public dsp::ProcessorBase, public ChangeListener
 {
 public:
     WaveTab();
@@ -146,12 +147,69 @@ public:
 
     void prepare (const dsp::ProcessSpec&) override;
     void process (const dsp::ProcessContextReplacing<float>&) override;
-    void reset () override;
+    void reset() override;
+
+    void changeListenerCallback (ChangeBroadcaster* source) override;
+
+    class AudioThumbnailComponent : public Component,
+                                    public FileDragAndDropTarget,
+                                    public ChangeBroadcaster,
+                                    private ChangeListener,
+                                    private Timer
+    {
+    public:
+        AudioThumbnailComponent();
+        ~AudioThumbnailComponent();
+
+        void paint (Graphics& g) override;
+
+        bool isInterestedInFileDrag (const StringArray& files) override;
+        void filesDropped (const StringArray& files, int x, int y) override;
+        
+        void setCurrentFile (const File& f);
+        File getCurrentFile() const;
+        void setTransportSource (AudioTransportSource* newSource);
+
+    private:
+        AudioThumbnailCache thumbnailCache;
+        AudioThumbnail thumbnail;
+        AudioTransportSource* transportSource = nullptr;
+
+        File currentFile;
+        double currentPosition = 0.0;
+
+        void changeListenerCallback (ChangeBroadcaster* source) override;
+        void timerCallback() override;
+
+        void reset();
+        void loadFile (const File& f, bool notify = false);
+        void mouseDrag (const MouseEvent& e) override;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioThumbnailComponent)
+    };
 
 private:
+    ScopedPointer<AudioThumbnailComponent> audioThumbnailComponent;
+    ScopedPointer<TextButton> btnLoad;
     ScopedPointer<TextButton> btnPlay;
-    ScopedPointer<TextButton> btnPause;
-    ScopedPointer<TextButton> btnLoopEnabled;
+    ScopedPointer<TextButton> btnStop;
+    ScopedPointer<TextButton> btnLoop;
+
+    ScopedPointer<AudioFormatReader> reader;
+    ScopedPointer<AudioFormatReaderSource> readerSource;
+    ScopedPointer<AudioTransportSource> transportSource;
+    //AudioSourcePlayer audioSourcePlayer; // TODO - is this needed?
+
+    bool loadFile (const File& fileToPlay);
+    void chooseFile();
+    void init();
+    void play();
+    void pause();
+    void stop();
+
+    AudioBuffer<float> fileReadBuffer;
+    double sampleRate;
+    uint32 maxBlockSize;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
@@ -167,7 +225,7 @@ public:
 
     void prepare (const dsp::ProcessSpec&) override;
     void process (const dsp::ProcessContextReplacing<float>&) override;
-    void reset () override;
+    void reset() override;
 
 private:
 

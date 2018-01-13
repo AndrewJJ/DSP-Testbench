@@ -10,12 +10,20 @@
 
 #include "Main.h"
 
+DSPTestbenchApplication::DSPTestbenchApplication ()
+    : TimeSliceThread ("Audio File Reader Thread")
+{
+}
+
 void DSPTestbenchApplication::initialise (const String& commandLine)
 {
+    formatManager.registerBasicFormats();
     mainWindow = new MainWindow (getApplicationName());
+    startThread();
 }
 void DSPTestbenchApplication::shutdown()
 {
+    stopThread (100);
     mainWindow = nullptr; // (deletes our window)
 }
 void DSPTestbenchApplication::systemRequestedQuit()
@@ -47,6 +55,14 @@ Component& DSPTestbenchApplication::getMainComponent ()
     jassert (comp != nullptr);
     return *comp;
 }
+AudioDeviceManager& DSPTestbenchApplication::getDeviceManager()
+{
+    return reinterpret_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager;
+}
+AudioFormatManager& DSPTestbenchApplication::getFormatManager()
+{
+    return formatManager;
+}
 
 DSPTestbenchApplication::MainWindow::MainWindow (String name)
     : DocumentWindow (name,
@@ -54,7 +70,8 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (false);
-    setContentOwned (createMainContentComponent(), true);
+    //setContentOwned (createMainContentComponent(), true);
+    setContentOwned (new MainContentComponent(), true);
     setResizable (true, true);
 
     centreWithSize (getWidth(), getHeight());

@@ -9,7 +9,6 @@
 */
 
 #include "MonitoringComponent.h"
-#include "Main.h"
 
 MonitoringComponent::MonitoringComponent ()
 {
@@ -34,13 +33,7 @@ MonitoringComponent::MonitoringComponent ()
     btnLimiter->setColour(TextButton::buttonOnColourId, Colours::darkorange);
     //btnLimiter->setToggleState (true, dontSendNotification);
     btnLimiter->onClick = [this] {
-        // TODO - notify audio engine of change to limiter
-        //DSPTestbenchApplication::getApp().getMainComponent().monitoringChanged();
-        //DSPTestbenchApplication::getApp().getMainComponent().updateLimiter (btnLimiter->getToggleState());
-
-        //=======================================================================================================================
-        //  TODO - wait a minute, I don't need to notify if the processor routine just checks the values every block anyway!!!
-        //=======================================================================================================================
+        // TODO
     };
     
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));

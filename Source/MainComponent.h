@@ -48,4 +48,5 @@ private:
 };
 
 // (This function is called by the app startup code to create our main component)
-Component* createMainContentComponent()     { return new MainContentComponent(); }
+// TODO - remove
+//Component* createMainContentComponent()     { return new MainContentComponent(); }

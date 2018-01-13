@@ -9,6 +9,7 @@
 */
 
 #include "SourceComponent.h"
+#include "Main.h"
 
 SynthesisTab::SynthesisTab ()
     :   sampleRate (0.0),
@@ -18,6 +19,7 @@ SynthesisTab::SynthesisTab ()
         sweepStepDelta (1)
 {
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
+    cmbWaveform->setTooltip ("Select a waveform");
     cmbWaveform->addItem ("Sine", Waveform::sine);
     cmbWaveform->addItem ("Saw", Waveform::saw);
     cmbWaveform->addItem ("Square", Waveform::square);
@@ -45,6 +47,7 @@ SynthesisTab::SynthesisTab ()
     sldSweepDuration->setValue (1.0, sendNotificationAsync);
     
     addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
+    cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
     cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
     cmbSweepMode->onChange = [this] { resetSweep(); };
@@ -181,6 +184,11 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 
         oscillators[getSelectedWaveformIndex()].process (context);
     }
+    else
+    {
+        // TODO - implement other waveforms
+        context.getOutputBlock().clear();
+    }
 }
 void SynthesisTab::reset()
 {
@@ -222,16 +230,17 @@ SweepMode SynthesisTab::getSelectedSweepMode () const
 }
 void SynthesisTab::waveformUpdated()
 {
-    // Modify controls according to waveform selection
-    // TODO - hide or recolour disabled controls
-    sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased() && btnSweepEnabled->getToggleState());
+    // Only enable sweep controls for oscillator based waveforms
+    sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased());
+    btnSweepEnabled->setEnabled (isSelectedWaveformOscillatorBased());
+    btnSweepReset->setEnabled (isSelectedWaveformOscillatorBased());
 }
 void SynthesisTab::updateSweepEnablement ()
 {
     sldSweepDuration->setEnabled (btnSweepEnabled->getToggleState());
     
     if (btnSweepEnabled->getToggleState())
-        startTimer (20.0);
+        startTimerHz (50.0);
     else
         stopTimer();
 }
@@ -299,39 +308,317 @@ void SampleTab::prepare (const dsp::ProcessSpec& spec)
 void SampleTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
     // TODO
+    context.getOutputBlock().clear();
 }
 void SampleTab::reset()
 {
     // TODO
 }
 
-WaveTab::WaveTab ()
+WaveTab::AudioThumbnailComponent::AudioThumbnailComponent()
+    : thumbnailCache (5),
+      thumbnail (128, DSPTestbenchApplication::getApp().getFormatManager(), thumbnailCache)
 {
+    thumbnail.addChangeListener (this);
+}
+WaveTab::AudioThumbnailComponent::~AudioThumbnailComponent ()
+{
+    thumbnail.removeChangeListener (this);
+}
+void WaveTab::AudioThumbnailComponent::paint (Graphics& g)
+{
+    g.fillAll (Colour (0xff495358));
+
+    g.setColour (Colours::white);
+
+    if (thumbnail.getTotalLength() > 0.0)
+    {
+        thumbnail.drawChannels (g, getLocalBounds().reduced (2),
+                                0.0, thumbnail.getTotalLength(), 1.0f);
+
+        g.setColour (Colours::black);
+        g.fillRect (static_cast<float> (currentPosition * getWidth()), 0.0f,
+                    1.0f, static_cast<float> (getHeight()));
+    }
+    else
+    {
+        g.drawFittedText ("No audio file loaded.\nDrop a file here or click the \"Load\" button.", getLocalBounds(),
+                            Justification::centred, 2);
+    }
+}
+bool WaveTab::AudioThumbnailComponent::isInterestedInFileDrag (const StringArray&)
+{
+    return true;
+}
+void WaveTab::AudioThumbnailComponent::filesDropped (const StringArray& files, int, int)
+{
+    loadFile (File (files[0]), true);
+}
+void WaveTab::AudioThumbnailComponent::setCurrentFile (const File& f)
+{
+    if (currentFile == f)
+        return;
+
+    loadFile (f);
+}
+File WaveTab::AudioThumbnailComponent::getCurrentFile() const
+{
+    return currentFile;
+}
+void WaveTab::AudioThumbnailComponent::setTransportSource (AudioTransportSource* newSource)
+{
+    transportSource = newSource;
+
+    struct ResetCallback  : public CallbackMessage
+    {
+        ResetCallback (AudioThumbnailComponent& o) : owner (o) {}
+        void messageCallback() override    { owner.reset(); }
+
+        AudioThumbnailComponent& owner;
+    };
+
+    (new ResetCallback (*this))->post();
+}
+void WaveTab::AudioThumbnailComponent::changeListenerCallback (ChangeBroadcaster* source)
+{
+    if (source == reinterpret_cast<ChangeBroadcaster*> (&thumbnail) || source == this)
+        repaint();
+}
+void WaveTab::AudioThumbnailComponent::timerCallback ()
+{
+    if (transportSource != nullptr)
+    {
+        currentPosition = transportSource->getCurrentPosition() / thumbnail.getTotalLength();
+        repaint();
+    }
+}
+void WaveTab::AudioThumbnailComponent::reset ()
+{
+    currentPosition = 0.0;
+    repaint();
+
+    if (transportSource == nullptr)
+        stopTimer();
+    else
+        startTimerHz (25);
+}
+void WaveTab::AudioThumbnailComponent::loadFile (const File& f, bool notify)
+{
+    if (currentFile == f || ! f.existsAsFile())
+        return;
+
+    currentFile = f;
+    thumbnail.setSource (new FileInputSource (f));
+
+    if (notify)
+        sendChangeMessage();
+}
+void WaveTab::AudioThumbnailComponent::mouseDrag (const MouseEvent& e)
+{
+    if (transportSource != nullptr)
+    {
+        AudioDeviceManager* adm = &DSPTestbenchApplication::getApp().getDeviceManager();
+        const ScopedLock sl (adm->getAudioCallbackLock());
+
+        transportSource->setPosition ((jmax (static_cast<double> (e.x), 0.0) / getWidth())
+                                        * thumbnail.getTotalLength());
+    }
+}
+
+WaveTab::WaveTab()
+    :   sampleRate(0.0),
+        maxBlockSize(0)
+{
+    addAndMakeVisible(audioThumbnailComponent = new AudioThumbnailComponent());
+    audioThumbnailComponent->addChangeListener (this);
+
+    addAndMakeVisible (btnLoad = new TextButton ("Load"));
+    btnLoad->setTooltip ("Load wave file");
+    btnLoad->onClick = [this] { chooseFile(); };
+
+    addAndMakeVisible (btnPlay = new TextButton ("Play"));
+    btnPlay->setTooltip ("Play/pause (playing will loop once the end of the file is reached)");
+    btnPlay->setClickingTogglesState (true);
+    btnPlay->setColour (TextButton::buttonOnColourId, Colours::green);
+    btnPlay->onClick = [this] {
+        if (btnPlay->getToggleState())
+            play();
+        else
+            pause();
+    };
+
+    addAndMakeVisible (btnStop = new TextButton ("Stop"));
+    btnStop->onClick = [this] { stop(); };
+
+    addAndMakeVisible (btnLoop = new TextButton ("Loop"));
+    btnLoop->setClickingTogglesState (true);
+    btnLoop->setToggleState(true, dontSendNotification);
+    btnLoop->setColour (TextButton::buttonOnColourId, Colours::green);
+    btnLoop->onStateChange = [this] { 
+        readerSource->setLooping (btnLoop->getToggleState());
+    };
+
 }
 WaveTab::~WaveTab ()
 {
 }
 void WaveTab::paint (Graphics& g)
 {
-    g.setFont (25.0f);
-    g.setColour (Colours::white);
-    g.drawFittedText ("Wave playing not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void WaveTab::resized ()
 {
+    Grid grid;
+    grid.rowGap = 5_px;
+    grid.columnGap = 5_px;
+
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = {   Track (2_fr),
+                            Track (1_fr)
+                        };
+
+    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    grid.items.addArray({   GridItem (audioThumbnailComponent).withArea ({ }, GridItem::Span (4)),
+                            GridItem (btnLoad),
+                            GridItem (btnPlay),
+                            GridItem (btnStop),
+                            GridItem (btnLoop)
+                        });
+    
+    const auto marg = 10;
+    grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void WaveTab::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO
+    sampleRate = spec.sampleRate;
+    maxBlockSize = spec.maximumBlockSize;
+    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize);
+    init();
 }
 void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO
+    if (transportSource != nullptr)
+    {
+        AudioSourceChannelInfo info (fileReadBuffer);
+
+        // Always read next audio block so pause & stop methods doesn't have a one second time out
+        transportSource->getNextAudioBlock (info);
+
+        // But only output the block if currently playing
+        if (transportSource->isPlaying())
+            context.getOutputBlock().copy(fileReadBuffer);
+        else
+            context.getOutputBlock().clear();
+    }
+    else
+        context.getOutputBlock().clear();
 }
 void WaveTab::reset()
 {
-    // TODO
+    // TODO - check this code (is it actually needed?)
+    stop();
+    transportSource = nullptr;
+    readerSource = nullptr;
+    reader = nullptr;
+    fileReadBuffer.clear();
 }
+void WaveTab::changeListenerCallback (ChangeBroadcaster* source)
+{
+    if (source == audioThumbnailComponent)
+    {
+        if (btnPlay->getToggleState())
+            stop();
+        loadFile (audioThumbnailComponent->getCurrentFile());
+    }
+    if (transportSource->hasStreamFinished())
+        stop();
+}
+bool WaveTab::loadFile (const File& fileToPlay)
+{
+    stop();
+
+    audioThumbnailComponent->setTransportSource (nullptr);
+    transportSource.reset();
+    readerSource.reset();
+
+    reader = DSPTestbenchApplication::getApp().getFormatManager().createReaderFor (fileToPlay);
+    if (reader != nullptr)
+    {
+        readerSource = new AudioFormatReaderSource (reader, false);
+        init();
+        return true;
+    }
+    return false;
+}
+void WaveTab::chooseFile()
+{
+    stop();
+
+    FileChooser fc ("Select an audio file...", File(), "*.wav;*.mp3;*.aif;");
+
+    if (fc.browseForFileToOpen())
+    {
+        auto f = fc.getResult();
+
+        if (!loadFile (f))
+            NativeMessageBox::showOkCancelBox (AlertWindow::WarningIcon, "Error loading file", "Unable to load audio file", nullptr, nullptr);
+        else
+            audioThumbnailComponent->setCurrentFile (f);
+    }
+}
+void WaveTab::init()
+{
+    if (transportSource == nullptr)
+    {
+        transportSource = new AudioTransportSource();
+        transportSource->prepareToPlay(maxBlockSize, sampleRate);
+        transportSource->addChangeListener (this);
+
+        if (readerSource != nullptr)
+        {
+            if (auto* device = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice())
+            {
+                transportSource->setSource (readerSource, roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
+                // tell the main window about this so that it can do the seeking behaviour...
+                audioThumbnailComponent->setTransportSource (transportSource);
+            }
+        }
+    }
+}
+void WaveTab::play()
+{
+    if (readerSource == nullptr)
+        return;
+
+    if (transportSource->getCurrentPosition() >= transportSource->getLengthInSeconds()
+        || transportSource->getCurrentPosition() < 0)
+    {
+        transportSource->setPosition (0);
+    }
+    transportSource->start();
+}
+void WaveTab::pause ()
+{
+    if (transportSource != nullptr)
+        transportSource->stop();
+}
+void WaveTab::stop ()
+{
+    btnPlay->setToggleState (false, dontSendNotification);
+    
+    if (transportSource != nullptr)
+    {
+        transportSource->stop();
+        transportSource->setPosition (0);
+    }
+}
+
 
 AudioTab::AudioTab ()
 {
@@ -355,6 +642,7 @@ void AudioTab::prepare (const dsp::ProcessSpec& spec)
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
     // TODO
+    context.getOutputBlock().clear();
 }
 void AudioTab::reset()
 {
