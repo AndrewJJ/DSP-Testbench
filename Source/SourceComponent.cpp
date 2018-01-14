@@ -12,11 +12,6 @@
 #include "Main.h"
 
 SynthesisTab::SynthesisTab ()
-    :   sampleRate (0.0),
-        maxBlockSize (0),
-        numSweepSteps (0.0),
-        sweepStepIndex (0),
-        sweepStepDelta (1)
 {
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
     cmbWaveform->setTooltip ("Select a waveform");
@@ -50,7 +45,6 @@ SynthesisTab::SynthesisTab ()
     cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
     cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
-    cmbSweepMode->onChange = [this] { resetSweep(); };
     cmbSweepMode->setSelectedId (SweepMode::Wrap);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));

@@ -79,11 +79,11 @@ private:
 
     SourceComponent* otherSource;
     CriticalSection synthesiserCriticalSection;
-    double sampleRate;
-    uint32 maxBlockSize;
-    long numSweepSteps;
-    long sweepStepIndex;
-    int sweepStepDelta;
+    double sampleRate = 0.0;
+    uint32 maxBlockSize = 0;
+    long numSweepSteps = 0;
+    long sweepStepIndex = 0;
+    int sweepStepDelta = 1;
 
     Waveform getSelectedWaveform() const;
     int getSelectedWaveformIndex() const;
