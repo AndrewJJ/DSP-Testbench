@@ -16,8 +16,9 @@ SynthesisTab::SynthesisTab ()
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
     cmbWaveform->setTooltip ("Select a waveform");
     cmbWaveform->addItem ("Sine", Waveform::sine);
-    cmbWaveform->addItem ("Saw", Waveform::saw);
+    cmbWaveform->addItem ("Triangle", Waveform::triangle);
     cmbWaveform->addItem ("Square", Waveform::square);
+    cmbWaveform->addItem ("Saw", Waveform::saw);
     cmbWaveform->addItem ("Impulse", Waveform::impulse);
     cmbWaveform->addItem ("Step", Waveform::step);
     cmbWaveform->addItem ("White Noise", Waveform::whiteNoise);
@@ -181,6 +182,9 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
     else
     {
         // TODO - implement other waveforms
+        // see here for white and pink noise: https://github.com/tebjan/VVVV.Audio/blob/master/Source/VVVV.Audio.Signals/Sources/OscSignal.cs
+
+        // TODO - delete
         context.getOutputBlock().clear();
     }
 }
@@ -217,7 +221,11 @@ int SynthesisTab::getSelectedWaveformIndex() const
 }
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
-    return (getSelectedWaveform() == Waveform::sine || getSelectedWaveform() == Waveform::saw || getSelectedWaveform() == Waveform::square);
+    return (    getSelectedWaveform() == Waveform::sine 
+             || getSelectedWaveform() == Waveform::saw 
+             || getSelectedWaveform() == Waveform::square 
+             || getSelectedWaveform() == Waveform::triangle
+           );
 }
 SweepMode SynthesisTab::getSelectedSweepMode () const
 {

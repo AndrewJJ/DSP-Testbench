@@ -19,8 +19,9 @@ class SourceComponent;
 enum Waveform
 {
     sine = 1,
-    saw,
+    triangle,
     square,
+    saw,
     impulse,
     step,
     whiteNoise,
@@ -34,6 +35,7 @@ enum Waveform
 //        case sine: return "Sine"; break;
 //        case saw: return "Saw"; break;
 //        case Waveform::square: return "Square"; break;
+//        case Waveform::triangle: return "Triangle"; break;
 //        case impulse: return "Impulse"; break;
 //        case step: return "Step"; break;
 //        case whiteNoise: return "White Noise"; break;
@@ -96,11 +98,12 @@ private:
     double getSweepFrequency();
     void calculateNumSweepSteps();
 
-    dsp::PolyBlepOscillator<float> oscillators[3] =
+    dsp::PolyBlepOscillator<float> oscillators[4] =
     {
         dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::sine),
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::saw),
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::square)
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::triangle),
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::square),
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::saw)
     };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
@@ -276,7 +279,6 @@ public:
 
     // TODO - consider synch to other for whole source
     // TODO - add buttons to invert source signals and output of processors
-    // TODO - consider adding triangle wave if aliasing can be fixed in PolyBlepOscillator
 
     dsp::Gain<float> gain;
 

@@ -15,7 +15,6 @@
 namespace juce {
 namespace dsp {
 
-// TODO - triangle aliases during sweeping
 // TODO - consider wavetable implementation
 
 /* 
@@ -46,6 +45,7 @@ public:
             case sine:
                 generator = [] (float x) { return std::sin (x); };
                 break;
+
             case saw:
                 generator = [] (float x)    {
                                                 auto one = static_cast<NumericType> (1.0);
@@ -54,14 +54,26 @@ public:
                                                 return (x * oneOnPi) - one;
                                             };
                 break;
+
             case square:
-            case triangle: 
                 generator = [] (float x)    {
                                                 auto one = static_cast<NumericType> (1.0);
                                                 auto pi = MathConstants<NumericType>::pi;
                                                 return x < pi ? one : -one;
                                             };
                 break;
+
+            case triangle:
+                generator = [] (float x)    {
+                                                auto one = static_cast<NumericType> (1.0);
+                                                auto two = static_cast<NumericType> (2.0);
+                                                auto oneOnPi = one / MathConstants<NumericType>::pi;
+                                                auto half = static_cast<NumericType> (0.5);
+                                                auto y = (x * oneOnPi) - one;
+                                                return two * (fabs (y) - half);
+                                            };
+                break;
+
             default: ; // Do nothing
         }        
     }
@@ -87,6 +99,8 @@ public:
         phaseBuffer.resize (static_cast<int> (spec.maximumBlockSize));
         incrementBuffer.resize (static_cast<int> (spec.maximumBlockSize));
 
+        oneOnSr = one / sampleRate;
+
         reset();
     }
 
@@ -102,21 +116,24 @@ public:
     /** Returns the result of processing a single sample. */
     SampleType JUCE_VECTOR_CALLTYPE processSample (SampleType) noexcept
     {
-        auto normIncrement = frequency.getNextValue() / sampleRate;
-        auto increment = normIncrement * MathConstants<NumericType>::twoPi;
-        auto ph = phase.advance (increment);
-        auto value = generator (ph);
-        auto t = ph / MathConstants<NumericType>::twoPi;
+        auto normIncrement  = frequency.getNextValue() / sampleRate;
+        auto increment      = normIncrement * MathConstants<NumericType>::twoPi;
+        auto ph             = phase.advance (increment);
+        auto value          = generator (ph);
+        auto t              = ph * oneOnTwoPi;
+
         if (waveform == saw)
-            value -= poly_blep (t, normIncrement);
-        else if (waveform == square || waveform == triangle)
+            value -= PolyBLEPSaw (t, normIncrement);
+        else if (waveform == square)
         {
-            value += poly_blep (t, normIncrement);
-            value -= poly_blep (fmod (t + half, one), normIncrement);
+            value += PolyBLEPSquare (t, normIncrement);
+            value -= PolyBLEPSquare (fmod (t + half, one), normIncrement);
         }
-        if (waveform == triangle)
-            value = increment * value + (1 - increment) * lastValue; // leaky integrator
-        lastValue = value;
+        else if (waveform == triangle)
+        {
+            value -= PolyBLAMP (t, normIncrement);
+            value += PolyBLAMP (fmod (t + half, one), normIncrement);
+        }
         return value;
     }
 
@@ -125,17 +142,11 @@ public:
     void process (const ProcessContext& context) noexcept
     {
         auto&& outBlock = context.getOutputBlock();
+        auto   len      = outBlock.getNumSamples();
 
         // this is an output-only processory
         jassert (context.getInputBlock().getNumChannels() == 0 || (! context.usesSeparateInputAndOutputBlocks()));
         jassert (outBlock.getNumSamples() <= static_cast<size_t> (phaseBuffer.size()));
-
-        auto len           = outBlock.getNumSamples();
-        auto one           = static_cast<NumericType> (1.0);
-        auto half          = static_cast<NumericType> (0.5);
-        auto zero          = static_cast<NumericType> (0.0);
-        auto oneOnTwoPi    = static_cast<NumericType> (1.0) / MathConstants<NumericType>::twoPi;
-        auto oneOnSr       = one / sampleRate;
 
         if (frequency.isSmoothing())
         {
@@ -151,17 +162,17 @@ public:
                 ch0[i] = generator (phBuffer[i]);
                 auto t = phBuffer[i] * oneOnTwoPi;
                 if (waveform == saw)
-                    ch0[i] -= poly_blep (t, incBuffer[i]);
-                else if (waveform == square || waveform == triangle)
+                    ch0[i] -= PolyBLEPSaw (t, incBuffer[i]);
+                else if (waveform == square)
                 {
-                    ch0[i] += poly_blep (t, incBuffer[i]);
-                    ch0[i] -= poly_blep (fmod (t + half, one), incBuffer[i]);
+                    ch0[i] += PolyBLEPSquare (t, incBuffer[i]);
+                    ch0[i] -= PolyBLEPSquare (fmod (t + half, one), incBuffer[i]);
                 }
-                if (waveform == triangle)
-                    //ch0[i] = increment * ch0[i] + (one - increment) * lastValue; // leaky integrator
-                    // TODO - this can be unstable if sweeping near Nyquist, so apply tanh to keep it under control (still aliases while sweeping)
-                    ch0[i] = tanh (increment * ch0[i] + (one - increment) * lastValue); // leaky integrator
-                lastValue = ch0[i];
+                else if (waveform == triangle)
+                {
+                    ch0[i] -= PolyBLAMP (t, incBuffer[i]);
+                    ch0[i] += PolyBLAMP (fmod (t + half, one), incBuffer[i]);
+                }
             }
 
             duplicateOtherChannelsFromFirst (outBlock);
@@ -177,15 +188,17 @@ public:
                 ch0[i] = generator (ph);
                 auto t = ph * oneOnTwoPi;
                 if (waveform == saw)
-                    ch0[i] -= poly_blep (t, normIncrement);
-                else if (waveform == square || waveform == triangle)
+                    ch0[i] -= PolyBLEPSaw (t, normIncrement);
+                else if (waveform == square)
                 {
-                    ch0[i] += poly_blep (t, normIncrement);
-                    ch0[i] -= poly_blep (fmod (t + half, one), normIncrement);
+                    ch0[i] += PolyBLEPSquare (t, normIncrement);
+                    ch0[i] -= PolyBLEPSquare (fmod (t + half, one), normIncrement);
                 }
-                if (waveform == triangle)
-                    ch0[i] = increment * ch0[i] + (one - increment) * lastValue; // leaky integrator
-                lastValue = ch0[i];
+                else if (waveform == triangle)
+                {
+                    ch0[i] -= PolyBLAMP (t, normIncrement);
+                    ch0[i] += PolyBLAMP (fmod (t + half, one), normIncrement);
+                }
             }
            
             duplicateOtherChannelsFromFirst (outBlock);
@@ -194,29 +207,90 @@ public:
     
 private:
 
-    // PolyBLEP by Tale (http://www.kvraudio.com/forum/viewtopic.php?t=375517)
-    // Slightly modified by Martin Finke (http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/)
-    // Then adapted by Andrew Jerrim for use in juce::dsp
-    //
-    // Normalised phase = phase / (2 * Pi)
-    //
-    NumericType poly_blep(NumericType normalisedPhase, NumericType normalisedPhaseIncrement)
+    //// PolyBLEP by Tale (http://www.kvraudio.com/forum/viewtopic.php?t=375517)
+    //// Slightly modified by Martin Finke (http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/)
+    //// Then adapted by Andrew Jerrim for use in juce::dsp
+    ////
+    //// Normalised phase = phase / (2 * Pi)
+    ////
+    //NumericType polyBlep (NumericType t, NumericType dt)
+    //{
+    //    // 0 <= t < 1
+    //    if (t < dt)
+    //    {
+    //        t /= dt;
+    //        return t+t - t*t - one;
+    //    }
+    //    // -1 < t < 0
+    //    else if (t > one - dt)
+    //    {
+    //        t = (t - one) / dt;
+    //        return t*t + t+t + one;
+    //    }
+    //    // 0 otherwise
+    //    else return zero;
+    //}
+
+    // The following are adapted from https://github.com/tebjan/VVVV.Audio/blob/master/Source/VVVV.Audio.Signals/Sources/OscSignal.cs
+    NumericType PolyBLEPSquare (NumericType t, NumericType dt)
     {
-        auto one = static_cast<NumericType> (1.0);
         // 0 <= t < 1
-        if (normalisedPhase < normalisedPhaseIncrement)
+        if (t < dt)
         {
-            normalisedPhase /= normalisedPhaseIncrement;
-            return normalisedPhase+normalisedPhase - normalisedPhase*normalisedPhase - one;
+            t = t/dt - one;
+            return -t*t;
         }
         // -1 < t < 0
-        else if (normalisedPhase > one - normalisedPhaseIncrement)
+        else if (t > one - dt)
         {
-            normalisedPhase = (normalisedPhase - one) / normalisedPhaseIncrement;
-            return normalisedPhase*normalisedPhase + normalisedPhase+normalisedPhase + one;
+            t = (t - one)/dt + one;
+            return t*t;
         }
         // 0 otherwise
-        else return static_cast<NumericType> (0.0);
+        else
+        {
+            return zero;
+        }
+    }        
+    NumericType PolyBLEPSaw (NumericType t, NumericType dt)
+    {
+        // 0 <= t < 1
+        if (t < dt)
+        {
+            t /= dt;
+            // 2 * (t - t^2/2 - 0.5)
+            return t+t - t*t - one;
+        }
+        // -1 < t < 0
+        else if (t > one - dt)
+        {
+            t = (t - one) / dt;
+            // 2 * (t^2/2 + t + 0.5)
+            return t*t + t+t + one;
+        }
+        // 0 otherwise
+        else
+        {
+            return zero;
+        }
+    }
+    NumericType PolyBLAMP (NumericType t, NumericType dt)
+    {
+        // Adapated to scale the output by 4 * dt
+        if (t < dt)
+        {
+            t = t/dt - one;
+            return t * t * t * -oneThird * four * dt;
+        }
+        else if (t > one - dt)
+        {
+            t = (t - one)/dt + one;
+            return oneThird * t * t * t * four * dt;
+        }
+        else
+        {
+            return zero;
+        }
     }
 
     static void duplicateOtherChannelsFromFirst (AudioBlock<NumericType> &block)
@@ -242,7 +316,14 @@ private:
     LinearSmoothedValue<NumericType> frequency { static_cast<NumericType> (440.0) };
     NumericType sampleRate = 48000.0;
     Phase<NumericType> phase;
-    NumericType lastValue = 0.0;
+
+    NumericType one        = static_cast<NumericType> (1.0);
+    NumericType four       = static_cast<NumericType> (4.0);
+    NumericType half       = static_cast<NumericType> (0.5);
+    NumericType oneThird   = static_cast<NumericType> (1.0/3.0);
+    NumericType zero       = static_cast<NumericType> (0.0);
+    NumericType oneOnTwoPi = static_cast<NumericType> (1.0) / MathConstants<NumericType>::twoPi;
+    NumericType oneOnSr;
 };
 
 }   // namespace dsp
