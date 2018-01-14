@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "PolyBLEP.h"
 
 // Forward declaration
 class SourceComponent;
@@ -95,18 +96,11 @@ private:
     double getSweepFrequency();
     void calculateNumSweepSteps();
 
-    // TODO - implement bandlimited oscillators instead
-    dsp::Oscillator<float> oscillators[3] =
+    dsp::PolyBlepOscillator<float> oscillators[3] =
     {
-        // No Approximation
-        {[] (float x) { return std::sin (x); }},                   // sine
-        {[] (float x) { return x / MathConstants<float>::pi; }},   // saw
-        {[] (float x) { return x < 0.0f ? -1.0f : 1.0f; }},        // square
-
-        // Approximated by a wave-table
-        //{[] (float x) { return std::sin (x); }, 100},                 // sine
-        //{[] (float x) { return x / MathConstants<float>::pi; }, 100}, // saw
-        //{[] (float x) { return x < 0.0f ? -1.0f : 1.0f; }, 100}       // square
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::sine),
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::saw),
+        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::square)
     };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
@@ -280,12 +274,10 @@ public:
 
     SourceComponent* otherSource;
 
-    // TODO - document that oscillators aren't synchronised across sources
     // TODO - consider synch to other for whole source
     // TODO - add buttons to invert source signals and output of processors
-    // TODO - remove aliasing of oscillators (or remove saw & square option)
+    // TODO - consider adding triangle wave if aliasing can be fixed in PolyBlepOscillator
 
-    // TODO - implement source gain
     dsp::Gain<float> gain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceComponent)

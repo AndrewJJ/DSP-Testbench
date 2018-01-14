@@ -143,7 +143,7 @@ void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
         oscillator.setFrequency (static_cast<float> (sldFrequency->getValue()));
         oscillator.prepare (spec);
     }
-    
+
     sampleRate = spec.sampleRate;
     maxBlockSize = spec.maximumBlockSize;
 
@@ -156,7 +156,7 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
     {
         if (btnSweepEnabled->getToggleState())
         {
-            oscillators[getSelectedWaveformIndex()].setFrequency (getSweepFrequency());
+            oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (getSweepFrequency()));
             
             if (getSelectedSweepMode() == SweepMode::Wrap)
             {
@@ -188,12 +188,13 @@ void SynthesisTab::reset()
 {
     ScopedLock sl (synthesiserCriticalSection);
 
-    if (isSelectedWaveformOscillatorBased())
+    for (auto&& oscillator : oscillators)
     {
-        oscillators[getSelectedWaveformIndex()].reset();
-        oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (sldFrequency->getValue()), true);
-        resetSweep();
+        oscillator.reset();
+        oscillator.setFrequency (static_cast<float> (sldFrequency->getValue()), true);
     }
+
+    resetSweep();
 }
 void SynthesisTab::timerCallback ()
 {
@@ -234,7 +235,7 @@ void SynthesisTab::updateSweepEnablement ()
     sldSweepDuration->setEnabled (btnSweepEnabled->getToggleState());
     
     if (btnSweepEnabled->getToggleState())
-        startTimerHz (50.0);
+        startTimerHz (50);
     else
         stopTimer();
 }
@@ -249,10 +250,9 @@ double SynthesisTab::getSweepFrequency ()
     //where:
     //    x = the number of the sweep point
     //    n = total number of sweep points
-    double duration = sldSweepDuration->getValue();
-    double mn = sldFrequency->getMinValue();
-    double mx = sldFrequency->getMaxValue();
-    double span = mx - mn;
+    const auto mn = sldFrequency->getMinValue();
+    const auto mx = sldFrequency->getMaxValue();
+    const auto span = mx - mn;
 
     return pow(10, log10(span)/numSweepSteps * sweepStepIndex) + mn;
 }
@@ -289,24 +289,26 @@ void SampleTab::resized ()
     cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
     btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
 }
-void SampleTab::selectedSampleChanged ()
+void SampleTab::selectedSampleChanged()
 {
+    // TODO - SampleTab::selectedSampleChanged()
 }
-void SampleTab::loopEnablementToggled ()
+void SampleTab::loopEnablementToggled()
 {
+    // TODO - SampleTab::loopEnablementToggled()
 }
 void SampleTab::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO
+    // TODO - SampleTab::prepare()
 }
 void SampleTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO
+    // TODO - SampleTab::process()
     context.getOutputBlock().clear();
 }
 void SampleTab::reset()
 {
-    // TODO
+    // TODO - SampleTab::reset()
 }
 
 WaveTab::AudioThumbnailComponent::AudioThumbnailComponent()
@@ -631,16 +633,16 @@ void AudioTab::resized ()
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO
+    // TODO - AudioTab::prepare()
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO
+    // TODO - AudioTab::process()
     context.getOutputBlock().clear();
 }
 void AudioTab::reset()
 {
-    // TODO
+    // TODO - AudioTab::reset()
 }
 
 //==============================================================================

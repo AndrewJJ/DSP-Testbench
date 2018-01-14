@@ -29,6 +29,7 @@
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
         <FILE id="BhJYfA" name="Analysis.cpp" compile="1" resource="0" file="Source/Analysis.cpp"/>
         <FILE id="yjlnh6" name="Analysis.h" compile="0" resource="0" file="Source/Analysis.h"/>
+        <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>
         <FILE id="uNS7YK" name="TestProcessor.cpp" compile="1" resource="0"
               file="Source/TestProcessor.cpp"/>
         <FILE id="z3PBri" name="TestProcessor.h" compile="0" resource="0" file="Source/TestProcessor.h"/>
