@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PolyBLEP.h"
+#include "NoiseGenerators.h"
 
 // Forward declaration
 class SourceComponent;
@@ -27,21 +28,6 @@ enum Waveform
     whiteNoise,
     pinkNoise
 };
-
-//String WaveformToString (const Waveform waveForm)
-//{
-//    switch (waveForm)
-//    {
-//        case sine: return "Sine"; break;
-//        case saw: return "Saw"; break;
-//        case Waveform::square: return "Square"; break;
-//        case Waveform::triangle: return "Triangle"; break;
-//        case impulse: return "Impulse"; break;
-//        case step: return "Step"; break;
-//        case whiteNoise: return "White Noise"; break;
-//        case pinkNoise: return "Pink Noise"; break;
-//    }
-//}
 
 enum SweepMode
 {
@@ -105,6 +91,9 @@ private:
         dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::square),
         dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::saw)
     };
+
+    dsp::WhiteNoiseGenerator whiteNoise;
+    dsp::PinkNoiseGenerator pinkNoise;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };
@@ -195,7 +184,6 @@ private:
     ScopedPointer<AudioFormatReader> reader;
     ScopedPointer<AudioFormatReaderSource> readerSource;
     ScopedPointer<AudioTransportSource> transportSource;
-    //AudioSourcePlayer audioSourcePlayer; // TODO - is this needed?
 
     bool loadFile (const File& fileToPlay);
     void chooseFile();
@@ -278,7 +266,7 @@ public:
     SourceComponent* otherSource;
 
     // TODO - consider synch to other for whole source
-    // TODO - add buttons to invert source signals and output of processors
+    // TODO - add buttons to invert output of processors
 
     dsp::Gain<float> gain;
 

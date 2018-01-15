@@ -2235,6 +2235,9 @@
     <ClInclude Include="..\..\Source\Analysis.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\NoiseGenerators.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\PolyBLEP.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>

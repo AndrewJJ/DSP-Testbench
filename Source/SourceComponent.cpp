@@ -179,10 +179,17 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 
         oscillators[getSelectedWaveformIndex()].process (context);
     }
+    else if (cmbWaveform->getSelectedId() == Waveform::whiteNoise)
+    {
+        whiteNoise.process (context);
+    }
+    else if (cmbWaveform->getSelectedId() == Waveform::pinkNoise)
+    {
+        pinkNoise.process (context);
+    }
     else
     {
-        // TODO - implement other waveforms
-        // see here for white and pink noise: https://github.com/tebjan/VVVV.Audio/blob/master/Source/VVVV.Audio.Signals/Sources/OscSignal.cs
+        // TODO - implement impulse and step functions
 
         // TODO - delete
         context.getOutputBlock().clear();

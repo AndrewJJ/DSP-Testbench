@@ -15,7 +15,7 @@
 namespace juce {
 namespace dsp {
 
-template <typename SampleType>        
+template <typename SampleType>
 class PolyBlepOscillator
 {
 public:

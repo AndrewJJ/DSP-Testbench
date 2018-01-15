@@ -100,6 +100,10 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
             tempBuffer.add (srcBufferB);
             // TODO - perform processing on both source A & B
         }
+        else // Neither source is connected
+        {
+            tempBuffer.clear(); // TODO - optimise this away?
+        }
         outputBlock.clear(); // TODO - optimise this away
         if (!procComponentA->isMuted())
         {
