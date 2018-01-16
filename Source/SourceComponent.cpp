@@ -13,6 +13,9 @@
 
 SynthesisTab::SynthesisTab ()
 {
+    // Assume sample rate of 48K - this should be corrected when prepare() is called
+    const auto nyquist = 24000.0;
+
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
     cmbWaveform->setTooltip ("Select a waveform");
     cmbWaveform->addItem ("Sine", Waveform::sine);
@@ -30,9 +33,10 @@ SynthesisTab::SynthesisTab ()
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
     sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
     sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
-    sldFrequency->setRange (1.0, 24000.0, 1.0);
-    sldFrequency->setMinAndMaxValues (1.0, 24000.0, dontSendNotification);
-    sldFrequency->setValue (440.0, dontSendNotification);
+    sldFrequency->setRange (1.0, nyquist, 1.0);
+    sldFrequency->setMinAndMaxValues (1.0, nyquist, dontSendNotification);
+    sldFrequency->addListener (this);
+    sldFrequency->setValue (440.0, sendNotificationSync);
     sldFrequency->setSkewFactor (0.5);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
@@ -40,12 +44,13 @@ SynthesisTab::SynthesisTab ()
     sldSweepDuration->setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
     sldSweepDuration->setRange (0.5, 5.0, 0.1);
     sldSweepDuration->addListener (this);
-    sldSweepDuration->setValue (1.0, sendNotificationAsync);
+    sldSweepDuration->setValue (1.0, sendNotificationSync);
     
     addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
     cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
     cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
+    cmbSweepMode->onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode->getSelectedId()); };
     cmbSweepMode->setSelectedId (SweepMode::Wrap);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
@@ -106,15 +111,16 @@ void SynthesisTab::resized ()
 }
 void SynthesisTab::performSynch ()
 {
+    // Required to ensure synching with other source
     ScopedLock sl (synthesiserCriticalSection);
 
-    otherSource->getSynthesisTab()->syncAndResetOscillator( getSelectedWaveform(),
-                                                            sldFrequency->getValue(),
-                                                            sldFrequency->getMinValue(),
-                                                            sldFrequency->getMaxValue(),
-                                                            sldSweepDuration->getValue(),
-                                                            getSelectedSweepMode(),
-                                                            btnSweepEnabled->getToggleState()
+    otherSource->getSynthesisTab()->syncAndResetOscillator( currentWaveform,
+                                                            currentFrequency,
+                                                            sweepStartFrequency,
+                                                            sweepEndFrequency,
+                                                            sweepDuration,
+                                                            currentSweepMode,
+                                                            isSweepEnabled
                                                           );
     this->reset();
 }
@@ -141,12 +147,15 @@ void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
 
     for (auto&& oscillator : oscillators)
     {
-        oscillator.setFrequency (static_cast<float> (sldFrequency->getValue()));
+        oscillator.setFrequency (static_cast<float> (currentFrequency));
         oscillator.prepare (spec);
     }
 
     sampleRate = spec.sampleRate;
     maxBlockSize = spec.maximumBlockSize;
+    
+    const auto nyquist = round (sampleRate / 2.0);
+    sldFrequency->setMaxValue(nyquist, sendNotificationSync);
 
     calculateNumSweepSteps();
     resetSweep();
@@ -155,17 +164,19 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
     if (isSelectedWaveformOscillatorBased())
     {
-        if (btnSweepEnabled->getToggleState())
+        // Set oscillator frequency
+        if (isSweepEnabled)
         {
-            oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (getSweepFrequency()));
+            for (auto&& oscillator : oscillators)
+                oscillator.setFrequency (static_cast<float> (getSweepFrequency()));
             
-            if (getSelectedSweepMode() == SweepMode::Wrap)
+            if (currentSweepMode == SweepMode::Wrap)
             {
                 if (sweepStepIndex >= numSweepSteps)
                     sweepStepIndex = 0;
                 sweepStepIndex++;
             }
-            else if (getSelectedSweepMode() == SweepMode::Reverse)
+            else if (currentSweepMode == SweepMode::Reverse)
             {
                 if (sweepStepIndex >= numSweepSteps)
                     sweepStepDelta = -1;
@@ -175,15 +186,19 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
             }
         }
         else
-            oscillators[getSelectedWaveformIndex()].setFrequency (static_cast<float> (sldFrequency->getValue()));
+        {
+            for (auto&& oscillator : oscillators)
+                oscillator.setFrequency (currentFrequency);
+        }
 
-        oscillators[getSelectedWaveformIndex()].process (context);
+        // Process current oscillator (note we adjust 1-based index to 0-based index)
+        oscillators[currentWaveform - 1].process (context);
     }
-    else if (cmbWaveform->getSelectedId() == Waveform::whiteNoise)
+    else if (currentWaveform == Waveform::whiteNoise)
     {
         whiteNoise.process (context);
     }
-    else if (cmbWaveform->getSelectedId() == Waveform::pinkNoise)
+    else if (currentWaveform == Waveform::pinkNoise)
     {
         pinkNoise.process (context);
     }
@@ -191,65 +206,69 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
     {
         // TODO - implement impulse and step functions
 
-        // TODO - delete
+        // TODO - delete once impulse and step functions have been implemented
         context.getOutputBlock().clear();
     }
 }
 void SynthesisTab::reset()
 {
+    // Required to ensure synching with other source
     ScopedLock sl (synthesiserCriticalSection);
 
     for (auto&& oscillator : oscillators)
     {
         oscillator.reset();
-        oscillator.setFrequency (static_cast<float> (sldFrequency->getValue()), true);
+        oscillator.setFrequency (currentFrequency, true);
     }
 
     resetSweep();
 }
 void SynthesisTab::timerCallback ()
 {
-    jassert (btnSweepEnabled->getToggleState());
-    sldFrequency->setValue (getSweepFrequency(),dontSendNotification);
+    jassert (isSweepEnabled);
+    sldFrequency->setValue (getSweepFrequency(), sendNotificationAsync);
 }
 void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
 {
+    if (sliderThatWasMoved == sldFrequency)
+    {
+        currentFrequency = sldFrequency->getValue();
+        sweepStartFrequency = sldFrequency->getMinValue();
+        sweepEndFrequency = sldFrequency->getMaxValue();
+    }
     if (sliderThatWasMoved == sldSweepDuration)
+    {
+        sweepDuration = sldSweepDuration->getValue();
         calculateNumSweepSteps();
+    }
 }
 
-Waveform SynthesisTab::getSelectedWaveform() const
-{
-    return static_cast<Waveform> (cmbWaveform->getSelectedId());
-}
-int SynthesisTab::getSelectedWaveformIndex() const
-{
-    return cmbWaveform->getSelectedId()-1;
-}
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
-    return (    getSelectedWaveform() == Waveform::sine 
-             || getSelectedWaveform() == Waveform::saw 
-             || getSelectedWaveform() == Waveform::square 
-             || getSelectedWaveform() == Waveform::triangle
+    return (    currentWaveform == Waveform::sine 
+             || currentWaveform == Waveform::saw 
+             || currentWaveform == Waveform::square 
+             || currentWaveform == Waveform::triangle
            );
-}
-SweepMode SynthesisTab::getSelectedSweepMode () const
-{
-    return static_cast<SweepMode> (cmbSweepMode->getSelectedId());
 }
 void SynthesisTab::waveformUpdated()
 {
+    // Store locally so audio routines can check value safely
+    currentWaveform = static_cast<Waveform> (cmbWaveform->getSelectedId());
+
     // Only enable sweep controls for oscillator based waveforms
     sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased());
     btnSweepEnabled->setEnabled (isSelectedWaveformOscillatorBased());
     btnSweepReset->setEnabled (isSelectedWaveformOscillatorBased());
+    sldFrequency->setEnabled (isSelectedWaveformOscillatorBased());
 }
 void SynthesisTab::updateSweepEnablement ()
 {
-    sldSweepDuration->setEnabled (btnSweepEnabled->getToggleState());
+    isSweepEnabled = btnSweepEnabled->getToggleState();
     
-    if (btnSweepEnabled->getToggleState())
+    sldSweepDuration->setEnabled (isSweepEnabled);
+    
+    if (isSweepEnabled)
         startTimerHz (50);
     else
         stopTimer();
@@ -259,21 +278,18 @@ void SynthesisTab::resetSweep ()
     sweepStepIndex = 0;
     sweepStepDelta = 1;
 }
-double SynthesisTab::getSweepFrequency ()
+double SynthesisTab::getSweepFrequency() const
 {
-    //f(x) = 10^(log(Span)/n*x) + fStart
+    //f(x) = 10^(log(span)/n*x) + fStart
     //where:
     //    x = the number of the sweep point
     //    n = total number of sweep points
-    const auto mn = sldFrequency->getMinValue();
-    const auto mx = sldFrequency->getMaxValue();
-    const auto span = mx - mn;
-
-    return pow(10, log10(span)/numSweepSteps * sweepStepIndex) + mn;
+    const auto span = sweepEndFrequency - sweepStartFrequency;
+    return pow (10, log10 (span) / numSweepSteps * sweepStepIndex) + sweepStartFrequency;
 }
-void SynthesisTab::calculateNumSweepSteps ()
+void SynthesisTab::calculateNumSweepSteps()
 {
-    numSweepSteps = static_cast<long> (sldSweepDuration->getValue() * sampleRate / static_cast<double> (maxBlockSize));
+    numSweepSteps = static_cast<long> (sweepDuration * sampleRate / static_cast<double> (maxBlockSize));
 }
 
 SampleTab::SampleTab ()
@@ -390,6 +406,11 @@ void WaveTab::AudioThumbnailComponent::setTransportSource (AudioTransportSource*
 
     (new ResetCallback (*this))->post();
 }
+void WaveTab::AudioThumbnailComponent::clear ()
+{
+    thumbnail.clear();
+    fileLoaded = false;
+}
 void WaveTab::AudioThumbnailComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
     if (source == reinterpret_cast<ChangeBroadcaster*> (&thumbnail) || source == this)
@@ -397,7 +418,7 @@ void WaveTab::AudioThumbnailComponent::changeListenerCallback (ChangeBroadcaster
 }
 void WaveTab::AudioThumbnailComponent::timerCallback ()
 {
-    if (transportSource != nullptr)
+    if (transportSource != nullptr && fileLoaded)
     {
         currentPosition = transportSource->getCurrentPosition() / thumbnail.getTotalLength();
         repaint();
@@ -420,6 +441,7 @@ void WaveTab::AudioThumbnailComponent::loadFile (const File& f, bool notify)
 
     currentFile = f;
     thumbnail.setSource (new FileInputSource (f));
+    fileLoaded = true;
 
     if (notify)
         sendChangeMessage();
@@ -434,6 +456,10 @@ void WaveTab::AudioThumbnailComponent::mouseDrag (const MouseEvent& e)
         transportSource->setPosition ((jmax (static_cast<double> (e.x), 0.0) / getWidth())
                                         * thumbnail.getTotalLength());
     }
+}
+bool WaveTab::AudioThumbnailComponent::isFileLoaded() const
+{
+    return fileLoaded;
 }
 
 WaveTab::WaveTab()
@@ -452,7 +478,9 @@ WaveTab::WaveTab()
     btnPlay->setClickingTogglesState (true);
     btnPlay->setColour (TextButton::buttonOnColourId, Colours::green);
     btnPlay->onClick = [this] {
-        if (btnPlay->getToggleState())
+        if (!audioThumbnailComponent->isFileLoaded())
+            btnPlay->setToggleState(false, dontSendNotification);
+        else if (btnPlay->getToggleState())
             play();
         else
             pause();
@@ -465,8 +493,9 @@ WaveTab::WaveTab()
     btnLoop->setClickingTogglesState (true);
     btnLoop->setToggleState(true, dontSendNotification);
     btnLoop->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnLoop->onStateChange = [this] { 
-        readerSource->setLooping (btnLoop->getToggleState());
+    btnLoop->onClick = [this] { 
+        if (readerSource != nullptr)
+            readerSource->setLooping (btnLoop->getToggleState());
     };
 
 }
@@ -532,12 +561,13 @@ void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
 }
 void WaveTab::reset()
 {
-    // TODO - check this code (is it actually needed?)
-    stop();
-    transportSource = nullptr;
-    readerSource = nullptr;
-    reader = nullptr;
+    btnPlay->setToggleState (false, dontSendNotification);
+    audioThumbnailComponent->clear();
+    transportSource.reset();
+    readerSource.reset();
+    reader.reset();
     fileReadBuffer.clear();
+    init();
 }
 void WaveTab::changeListenerCallback (ChangeBroadcaster* source)
 {
@@ -633,6 +663,8 @@ void WaveTab::stop ()
 
 AudioTab::AudioTab ()
 {
+    // TODO - add input metering
+    // TODO - add mix controls
 }
 AudioTab::~AudioTab ()
 {
@@ -641,29 +673,28 @@ void AudioTab::paint (Graphics& g)
 {
     g.setFont (25.0f);
     g.setColour (Colours::white);
-    g.drawFittedText ("Audio input not yet implemented", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
+    g.drawFittedText ("Audio inputs passed through on matching outputs", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void AudioTab::resized ()
 {
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO - AudioTab::prepare()
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO - AudioTab::process()
-    context.getOutputBlock().clear();
+    // Currently doing nothing - this allows inputs to be copied straight to output
 }
-void AudioTab::reset()
+void AudioTab::reset ()
 {
-    // TODO - AudioTab::reset()
 }
 
 //==============================================================================
 
 SourceComponent::SourceComponent (String sourceId)
 {
+    gain.setRampDurationSeconds (0.01);
+
     addAndMakeVisible (lblTitle = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
     lblTitle->setFont (Font (15.00f, Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
@@ -680,13 +711,13 @@ SourceComponent::SourceComponent (String sourceId)
 
     addAndMakeVisible (btnInvert = new TextButton ("Invert Source button"));
     btnInvert->setButtonText (TRANS("Invert"));
-    //btnInvert->onClick = [this] { };
+    btnInvert->onClick = [this] { isInverted = btnInvert->getToggleState(); };
     btnInvert->setClickingTogglesState (true);
     btnInvert->setColour(TextButton::buttonOnColourId, Colours::green);
 
     addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
     btnMute->setButtonText (TRANS("Mute"));
-    //btnMute->onClick = [this] { toggleMute(); };
+    btnMute->onClick = [this] { isMuted = btnMute->getToggleState(); };
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 
@@ -697,10 +728,6 @@ SourceComponent::SourceComponent (String sourceId)
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
     tabbedComponent->setCurrentTabIndex (0);
-
-    //setSize (600, 400);
-
-    gain.setRampDurationSeconds (0.01);
 }
 SourceComponent::~SourceComponent()
 {
@@ -750,31 +777,6 @@ void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
         gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
     }
 }
-double SourceComponent::getGain () const
-{
-    return sldGain->getValue();
-}
-bool SourceComponent::isInverted () const
-{
-    return btnInvert->getToggleState();
-}
-bool SourceComponent::isMuted () const
-{
-    return btnMute->getToggleState();
-}
-SourceComponent::Mode SourceComponent::getMode() const
-{
-    return static_cast<Mode> (tabbedComponent->getCurrentTabIndex());
-}
-void SourceComponent::setOtherSource (SourceComponent* otherSourceComponent)
-{
-    otherSource = otherSourceComponent;
-    synthesisTab->setOtherSource (otherSourceComponent);
-}
-SynthesisTab* SourceComponent::getSynthesisTab ()
-{
-    return synthesisTab;
-}
 void SourceComponent::prepare (const dsp::ProcessSpec& spec)
 {
     synthesisTab->prepare (spec);
@@ -782,29 +784,39 @@ void SourceComponent::prepare (const dsp::ProcessSpec& spec)
     waveTab->prepare (spec);
     audioTab->prepare (spec);
     gain.prepare (spec);
+
     jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
     if (sldGain != nullptr)
         gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
 }
 void SourceComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    if (!isMuted())
+    dsp::AudioBlock<float> inputBlock;
+
+    if (!isMuted)
     {
         // Process currently selected source
-        const auto idx = tabbedComponent->getCurrentTabIndex();
-        if (idx == Mode::Synthesis)
-            synthesisTab->process (context);
-        else if (idx == Mode::Sample)
-            sampleTab->process (context);
-        else if (idx == Mode::WaveFile)
-            waveTab->process (context);
-        else if (idx == Mode::AudioIn)
-            audioTab->process (context);
-        
+        const auto idx = static_cast<Mode> (tabbedComponent->getCurrentTabIndex()); // this should be safe to call from an audio routine
+        switch (idx) {
+            case Synthesis:
+                synthesisTab->process (context);
+                break;
+            case Sample:
+                sampleTab->process (context);
+                break;
+            case WaveFile:
+                waveTab->process (context);
+                break;
+            case AudioIn:
+                audioTab->process (context);
+                break;
+            default: ; // Do nothing
+        }
+
         // Apply gain
         gain.process (context);
 
-        if (isInverted())
+        if (isInverted)
             context.getOutputBlock().multiply(-1.0f);
     }
     else
@@ -817,4 +829,22 @@ void SourceComponent::reset ()
     waveTab->reset();
     audioTab->reset();
     gain.reset();
+}
+SourceComponent::Mode SourceComponent::getMode() const
+{
+    // This is just looking up a local variable inside the tabbed component, so should be safe enough for audio processing
+    return static_cast<Mode> (tabbedComponent->getCurrentTabIndex());
+}
+void SourceComponent::setOtherSource (SourceComponent* otherSourceComponent)
+{
+    otherSource = otherSourceComponent;
+    synthesisTab->setOtherSource (otherSourceComponent);
+}
+SynthesisTab* SourceComponent::getSynthesisTab ()
+{
+    return synthesisTab;
+}
+void SourceComponent::mute()
+{
+    btnMute->setToggleState (true, sendNotificationSync);
 }

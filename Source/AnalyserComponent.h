@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class AnalyserComponent  :  public Component
+class AnalyserComponent  :  public Component, public dsp::ProcessorBase
 {
 public:
 
@@ -22,12 +22,18 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
+    void reset () override;
+
+    bool isActive() const;
+
 private:
 
-    void toggleMute();
-
     ScopedPointer<Label> lblTitle;
-    ScopedPointer<TextButton> btnMute;
+    ScopedPointer<TextButton> btnDisable;
+
+    bool statusActive = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalyserComponent)
 };

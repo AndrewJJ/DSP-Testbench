@@ -253,7 +253,7 @@ public:
     // Return next pseudo-random value as a floating point value.
     float rand31dc::ranf(void)  
     {
-        return (nextrand() / 2147483647.0);
+        return static_cast<float> (nextrand() / 2147483647.0);
     }    
 
 private:

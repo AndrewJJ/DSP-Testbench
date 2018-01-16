@@ -26,9 +26,20 @@ public:
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
-
+    
     void paint (Graphics& g) override;
     void resized() override;
+    void mouseDown(const MouseEvent& event) override
+    {
+        srcComponentA->reset();
+
+        AudioIODevice* currentDevice = deviceManager.getCurrentAudioDevice();
+        dsp::ProcessSpec spec;
+        spec.maximumBlockSize = currentDevice->getCurrentBufferSizeSamples();
+        spec.numChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
+        spec.sampleRate = currentDevice->getCurrentSampleRate();
+        srcComponentA->prepare (spec);
+    };
 
 private:
 
@@ -44,9 +55,7 @@ private:
     HeapBlock<char> srcBufferMemoryA, srcBufferMemoryB, tempBufferMemory;
     dsp::AudioBlock<float> srcBufferA, srcBufferB, tempBuffer;
 
+    void routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>&);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
-
-// (This function is called by the app startup code to create our main component)
-// TODO - remove
-//Component* createMainContentComponent()     { return new MainContentComponent(); }

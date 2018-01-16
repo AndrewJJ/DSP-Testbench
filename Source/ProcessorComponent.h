@@ -12,8 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class ProcessorComponent  : public Component,
-                            public Slider::Listener
+class ProcessorComponent  : public Component, public Slider::Listener, dsp::ProcessorBase
 {
 public:
     
@@ -24,10 +23,18 @@ public:
     void resized() override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
+    void reset () override;
+
     bool isSourceConnectedA() const;
     bool isSourceConnectedB() const;
-    bool isMuted() const;
     bool isProcessorEnabled() const;
+    bool isInverted() const;
+    bool isMuted() const;
+    // Returns true if this processor is producing audio
+    bool isActive() const;
+    void mute();
 
 private:
     
@@ -36,8 +43,15 @@ private:
     ScopedPointer<Label> lblTitle;
     ScopedPointer<TextButton> btnSourceA;
     ScopedPointer<TextButton> btnSourceB;
-    ScopedPointer<TextButton> btnMute;
     ScopedPointer<TextButton> btnDisable;
+    ScopedPointer<TextButton> btnInvert;
+    ScopedPointer<TextButton> btnMute;
+
+    bool statusSourceA = true;
+    bool statusSourceB = false;
+    bool statusDisable = false;
+    bool statusInvert = false;
+    bool statusMute = false;
 
     OwnedArray<Label> sliderLabels;
     OwnedArray<Slider> sliders;

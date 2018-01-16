@@ -19,27 +19,22 @@ AnalyserComponent::AnalyserComponent ()
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
     lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     
-    addAndMakeVisible (btnMute = new TextButton ("Mute button"));
-    btnMute->setButtonText ("Mute");
-    btnMute->setClickingTogglesState (true);
-    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnMute->onClick = [this] { toggleMute(); };
-
-    //setSize (400, 150);
+    addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
+    btnDisable->setButtonText ("Disable");
+    btnDisable->setClickingTogglesState (true);
+    btnDisable->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnDisable->onClick = [this] { statusActive = !btnDisable->getToggleState(); };
 }
-
 AnalyserComponent::~AnalyserComponent()
 {
     lblTitle = nullptr;
-    btnMute = nullptr;
+    btnDisable = nullptr;
 }
-
 void AnalyserComponent::paint (Graphics& g)
 {
     g.setColour (Colours::black);
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
 }
-
 void AnalyserComponent::resized()
 {
     Grid grid;
@@ -61,21 +56,25 @@ void AnalyserComponent::resized()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f))
+                            GridItem (btnDisable).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f))
                         });
 
     const auto marg = 10;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-
-void AnalyserComponent::toggleMute ()
+void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    if (btnMute->getToggleState())
-    {
-        // TODO - notify audio engine that this source component should be muted
-    }
-    else
-    {
-        // TODO - notify audio engine that this source component should be unmuted
-    }
+    // TODO - AnalyserComponent::prepare
+}
+void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    // TODO - AnalyserComponent::process
+}
+void AnalyserComponent::reset ()
+{
+    // TODO - AnalyserComponent::reset
+}
+bool AnalyserComponent::isActive () const
+{
+    return statusActive;
 }

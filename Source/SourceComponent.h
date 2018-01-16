@@ -50,8 +50,8 @@ public:
                                  const double sweepStart, const double sweepEnd,                                 
                                  const double sweepDuration, SweepMode sweepMode, const bool sweepEnabled);
 
-    void prepare (const dsp::ProcessSpec&) override;
-    void process (const dsp::ProcessContextReplacing<float>&) override;
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
     
     void timerCallback() override;
@@ -68,28 +68,32 @@ private:
 
     SourceComponent* otherSource;
     CriticalSection synthesiserCriticalSection;
+    Waveform currentWaveform;
     double sampleRate = 0.0;
     uint32 maxBlockSize = 0;
     long numSweepSteps = 0;
     long sweepStepIndex = 0;
     int sweepStepDelta = 1;
+    double currentFrequency = 0.0;
+    double sweepStartFrequency = 0.0;
+    double sweepEndFrequency = 0.0;
+    double sweepDuration = 0.0;
+    bool isSweepEnabled = false;
+    SweepMode currentSweepMode = SweepMode::Wrap;
 
-    Waveform getSelectedWaveform() const;
-    int getSelectedWaveformIndex() const;
     bool isSelectedWaveformOscillatorBased() const;
-    SweepMode getSelectedSweepMode() const;
     void waveformUpdated();
     void updateSweepEnablement();
     void resetSweep();
-    double getSweepFrequency();
+    double getSweepFrequency() const;
     void calculateNumSweepSteps();
 
     dsp::PolyBlepOscillator<float> oscillators[4] =
     {
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::sine),
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::triangle),
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::square),
-        dsp::PolyBlepOscillator<float> (dsp::PolyBlepOscillator<float>::saw)
+        dsp::PolyBlepOscillator<float>::sine,
+        dsp::PolyBlepOscillator<float>::triangle,
+        dsp::PolyBlepOscillator<float>::square,
+        dsp::PolyBlepOscillator<float>::saw
     };
 
     dsp::WhiteNoiseGenerator whiteNoise;
@@ -107,8 +111,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
-    void prepare (const dsp::ProcessSpec&) override;
-    void process (const dsp::ProcessContextReplacing<float>&) override;
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
 private:
@@ -131,8 +135,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
-    void prepare (const dsp::ProcessSpec&) override;
-    void process (const dsp::ProcessContextReplacing<float>&) override;
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
     void changeListenerCallback (ChangeBroadcaster* source) override;
@@ -155,6 +159,8 @@ public:
         void setCurrentFile (const File& f);
         File getCurrentFile() const;
         void setTransportSource (AudioTransportSource* newSource);
+        void clear();
+        bool isFileLoaded() const;
 
     private:
         AudioThumbnailCache thumbnailCache;
@@ -163,6 +169,7 @@ public:
 
         File currentFile;
         double currentPosition = 0.0;
+        bool fileLoaded = false;
 
         void changeListenerCallback (ChangeBroadcaster* source) override;
         void timerCallback() override;
@@ -208,8 +215,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
-    void prepare (const dsp::ProcessSpec&) override;
-    void process (const dsp::ProcessContextReplacing<float>&) override;
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
 private:
@@ -238,18 +245,14 @@ public:
     void resized() override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
-    // TODO - do these need to be public?
-    double getGain() const;
-    bool isInverted() const;
-    bool isMuted() const;
-    Mode getMode() const; // TODO - may no longer be needed
-    
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
+    void reset () override;
+
+    Mode getMode() const;
     void setOtherSource (SourceComponent* otherSourceComponent);
     SynthesisTab* getSynthesisTab();
-
-    void prepare (const dsp::ProcessSpec&) override;
-    void process (const dsp::ProcessContextReplacing<float>&) override;
-    void reset () override;
+    void mute();
 
     private:
 
@@ -264,9 +267,10 @@ public:
     ScopedPointer<AudioTab> audioTab;
 
     SourceComponent* otherSource;
+    bool isInverted = false;
+    bool isMuted = false;
 
-    // TODO - consider synch to other for whole source
-    // TODO - add buttons to invert output of processors
+    // TODO - consider synch to other for sample, wave and audio tabs also
 
     dsp::Gain<float> gain;
 

@@ -70,7 +70,6 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (false);
-    //setContentOwned (createMainContentComponent(), true);
     setContentOwned (new MainContentComponent(), true);
     setResizable (true, true);
 

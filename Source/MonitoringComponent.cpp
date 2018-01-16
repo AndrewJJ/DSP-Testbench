@@ -12,6 +12,8 @@
 
 MonitoringComponent::MonitoringComponent ()
 {
+    gain.setRampDurationSeconds (0.01);
+
     addAndMakeVisible (lblTitle = new Label ("Monitoring label", TRANS("Monitoring")));
     lblTitle->setFont (Font (15.00f, Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
@@ -31,20 +33,14 @@ MonitoringComponent::MonitoringComponent ()
     btnLimiter->setButtonText (TRANS("Limiter"));
     btnLimiter->setClickingTogglesState (true);
     btnLimiter->setColour(TextButton::buttonOnColourId, Colours::darkorange);
-    //btnLimiter->setToggleState (true, dontSendNotification);
-    btnLimiter->onClick = [this] {
-        // TODO
-    };
+    btnLimiter->onClick = [this] { statusLimiter = btnLimiter->getToggleState(); };
+    btnLimiter->setToggleState (true, dontSendNotification);
     
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText ("Mute");
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnMute->onClick = [this] { 
-        // TODO - notify audio engine of change to mute
-    };
-
-    //setSize (400, 150);
+    btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
 }
 MonitoringComponent::~MonitoringComponent()
 {
@@ -89,18 +85,45 @@ void MonitoringComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     if (sliderThatWasMoved == sldGain)
     {
-        // TODO - notify audio engine of change to gain
+        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
     }
 }
-double MonitoringComponent::getGain () const
+void MonitoringComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    return sldGain->getValue();
+    gain.prepare (spec);
+
+    jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
+    if (sldGain != nullptr)
+        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
 }
-bool MonitoringComponent::isLimited () const
+void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    return btnLimiter->getToggleState();
+    dsp::AudioBlock<float> inputBlock;
+
+    if (!isMuted()) // Probably not necessary, because main component doesn't call MonitoringComponent::process if monitoring is muted anyway!
+    {
+        // Apply gain
+        gain.process (context);
+
+        if (isLimited())
+        {
+            // TODO - implement limiting function
+        }
+    }
+    else
+        context.getOutputBlock().clear();
+}
+void MonitoringComponent::reset ()
+{
+    gain.reset();
 }
 bool MonitoringComponent::isMuted () const
 {
-    return btnMute->getToggleState();
+    // For safe audio processing, we use local variable rather than accessing button toggle state
+    return statusMute;
+}
+bool MonitoringComponent::isLimited () const
+{
+    // For safe audio processing, we use local variable rather than accessing button toggle state
+    return statusLimiter;
 }
