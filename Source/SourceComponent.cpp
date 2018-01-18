@@ -712,13 +712,13 @@ void AudioTab::ChannelComponent::resized ()
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
 
-    grid.autoFlow = Grid::AutoFlow::row;
+    grid.autoFlow = Grid::AutoFlow::column;
 
     // TODO - add toggle buttons to a ViewPort holding grpOutputs
-    grid.items.addArray({   GridItem (lblChannel).withArea ({}, GridItem::Span (3)),
+    grid.items.addArray({   GridItem (lblChannel),
                             GridItem (meterBar),
-                            GridItem (sldGain),
-                            GridItem (chViewport)
+                            GridItem (sldGain).withArea (GridItem::Span (2), {}),
+                            GridItem (chViewport).withArea (GridItem::Span (2), {})
                         });
 
     const auto marg = 10;

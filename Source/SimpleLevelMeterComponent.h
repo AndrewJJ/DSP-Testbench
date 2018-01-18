@@ -37,7 +37,7 @@ private:
 
     float dBtoPx (const float dB) const;
 
-    float minDb       = -80.0f;
+    float minDb       = -50.0f;
     float cautionDb   = -15.0f;
     float alertDb     = -3.0f;
     float maxDb       = 0.0f;
