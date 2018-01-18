@@ -43,7 +43,7 @@ MainContentComponent::~MainContentComponent()
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     AudioIODevice* currentDevice = deviceManager.getCurrentAudioDevice();
-	//auto numInputChannels = currentDevice->getActiveInputChannels().countNumberOfSetBits();
+	auto numInputChannels = currentDevice->getActiveInputChannels().countNumberOfSetBits();
     auto numOutputChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
    
     srcBufferA = dsp::AudioBlock<float> (srcBufferMemoryA, numOutputChannels, samplesPerBlockExpected);
@@ -52,9 +52,11 @@ void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sa
 
     dsp::ProcessSpec spec;
     spec.maximumBlockSize = samplesPerBlockExpected;
-    spec.numChannels = numOutputChannels;
+    spec.numChannels = jmax (numInputChannels, numOutputChannels);
     spec.sampleRate = sampleRate;
     
+    srcComponentA->setNumChannels (numInputChannels, numOutputChannels);
+    srcComponentB->setNumChannels (numInputChannels, numOutputChannels);
     srcComponentA->prepare (spec);
     srcComponentB->prepare (spec);
     procComponentA->prepare (spec);

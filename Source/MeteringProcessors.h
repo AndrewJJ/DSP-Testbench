@@ -11,6 +11,10 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <atomic>
+#ifdef JUCE_CLANG
+#include <mm_malloc.h>
+#endif
 
 class SimpleLevelMeterProcessor : public dsp::ProcessorBase
 {
@@ -37,7 +41,9 @@ private:
 private:
 
     size_t numChannels = 0;
-	Array<Atomic<float>> envelopeContinuation;
-    float attackTimeConstant = 0.0f;
+	// TODO - delete
+    //Array<Atomic<float>> envelopeContinuation;
+    HeapBlock <std::atomic <float>> envelopeContinuation;
 	float releaseTimeConstant = 0.0f;
+    const float antiDenormalFloat = 1e-15f;
 };

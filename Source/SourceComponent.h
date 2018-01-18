@@ -209,7 +209,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
 
-class AudioTab : public Component, public dsp::ProcessorBase
+class AudioTab : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
     AudioTab();
@@ -221,36 +221,40 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
+    void timerCallback () override;
+    
+    void setNumChannels (const size_t  numInputChannels, const size_t numOutputChannels);
+    void setRefresh (const bool shouldRefresh);
 
-    class ChannelComponent : public Component, public Timer, public Slider::Listener
+    class ChannelComponent : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t channelIndex);;
+        ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
         void resized() override;
-        void timerCallback () override;
         void sliderValueChanged (Slider* slider) override;
 
-        // Should be called every time prepare is called on the parent object
         void setNumOutputChannels (const size_t numberOfOutputChannels);
         void getSelectedOutputs(); // TODO - figure out how to do this
         void reset();
-        double getGain();
+        void refresh();
+        double getGain() const;
 
     private:
         
+        ScopedPointer<Label> lblChannel;
         ScopedPointer<SimpleLevelMeterComponent> meterBar;
         ScopedPointer<Slider> sldGain;
         ScopedPointer<GroupComponent> grpOutputs;
         OwnedArray<ToggleButton> toggleButtons;
+        Viewport chViewport;
 
         SimpleLevelMeterProcessor* meterProcessor;
-        size_t channel = 0;
-        String label;
-        float currentLinearGain = 0.0f;
         size_t numOutputs = 0;
+        size_t channel = 0;
+        float currentLinearGain = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
@@ -259,13 +263,14 @@ private:
 
     SimpleLevelMeterProcessor meterProcessor;
     OwnedArray <ChannelComponent> channelComponents;
-
+    Viewport viewport;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioTab)
 };
 
 //==============================================================================
 
-class SourceComponent  : public Component, public Slider::Listener, public dsp::ProcessorBase
+class SourceComponent  : public Component, public Slider::Listener, public ChangeListener, public dsp::ProcessorBase
 {
 public:
 
@@ -283,10 +288,14 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
+    void changeListenerCallback (ChangeBroadcaster* source) override;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
+
+    // Should be called before prepare is called
+    void setNumChannels (int numInputChannels, int numOutputChannels);
 
     Mode getMode() const;
     void setOtherSource (SourceComponent* otherSourceComponent);

@@ -12,7 +12,6 @@
 
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MainComponent.h"
 
 //Component* createMainContentComponent();
 
@@ -56,9 +55,8 @@ public:
     static DSPTestbenchApplication& getApp();
     MainWindow& getMainWindow();
     Component& getMainComponent();
-    //MainContentComponent& getMainContentComponent();
-    AudioDeviceManager* getDeviceManager();
     AudioFormatManager& getFormatManager();
+    AudioDeviceManager* getDeviceManager();
     AudioIODevice* getCurrentAudioDevice();
 
 private:

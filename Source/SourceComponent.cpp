@@ -659,37 +659,70 @@ void WaveTab::stop ()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t channelIndex)
+AudioTab::ChannelComponent::ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
     :   meterProcessor (meterProcessorToQuery),
-        channel(channelIndex)
+        numOutputs (numberOfOutputChannels),
+        channel (channelIndex)
 {
-    auto dev = DSPTestbenchApplication::getApp().getCurrentAudioDevice();
-    jassert(dev);
-    label = dev->getInputChannelNames()[static_cast<int> (channelIndex)];
-
     // Set opaque to reduce performance impact of meters redrawing
     this->setOpaque (true);
 
+    addAndMakeVisible (lblChannel = new Label ());
+    lblChannel->setText ("In " + String (channelIndex), dontSendNotification);
+
+    addAndMakeVisible (meterBar = new SimpleLevelMeterComponent());
+
     addAndMakeVisible (sldGain = new Slider());
-    sldGain->setSliderStyle(Slider::LinearVertical);
+    // TODO - style slider better
+    sldGain->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    sldGain->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
     sldGain->setRange(-100.0, 15.0, 1.0);
+
+    // TODO - add group and toggleButtons to another component and place that inside chViewport
+    //addAndMakeVisible (grpOutputs = new GroupComponent ("", "Outs"));
 }
 AudioTab::ChannelComponent::~ChannelComponent ()
 {
+    lblChannel = nullptr;
+    meterBar = nullptr;
     sldGain = nullptr;
+    grpOutputs = nullptr;
+    // TODO - null out the component we put inside chViewport
 }
 void AudioTab::ChannelComponent::paint (Graphics& g)
 {
-    // Remember that this component is opaque
-    g.fillAll (Colours::darkgrey);
+    // Remember that this component is opaque, so it should be filled with colour
+    g.fillAll (Colours::darkgrey.darker());
 }
 void AudioTab::ChannelComponent::resized ()
 {
     // TODO - implement layout
-}
-void AudioTab::ChannelComponent::timerCallback ()
-{
-    meterBar->setLevel (meterProcessor->getLeveldB (static_cast<int> (channel)));
+    Grid grid;
+    grid.rowGap = 5_px;
+    grid.columnGap = 5_px;
+
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = {   Track (1_fr),
+                            Track (6_fr)
+                        };
+
+    grid.templateColumns = { Track (1_fr), Track (3_fr), Track (1_fr) };
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    // TODO - add toggle buttons to a ViewPort holding grpOutputs
+    grid.items.addArray({   GridItem (lblChannel).withArea ({}, GridItem::Span (3)),
+                            GridItem (meterBar),
+                            GridItem (sldGain),
+                            GridItem (chViewport)
+                        });
+
+    const auto marg = 10;
+    grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
 {
@@ -703,13 +736,31 @@ void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
 void AudioTab::ChannelComponent::setNumOutputChannels (const size_t numberOfOutputChannels)
 {
     numOutputs = numberOfOutputChannels;
-    // TODO - update checkboxes
+    toggleButtons.clear();
+    for (auto ch = 0; ch < static_cast<int> (numberOfOutputChannels); ++ch)
+        addAndMakeVisible (toggleButtons.add(new ToggleButton (String (ch))));
+}
+void AudioTab::ChannelComponent::getSelectedOutputs ()
+{
 }
 void AudioTab::ChannelComponent::reset()
 {
     meterProcessor->reset();
     sldGain->setValue(0.0, sendNotificationSync);
 }
+void AudioTab::ChannelComponent::refresh ()
+{
+    const auto dB = meterProcessor->getLeveldB (static_cast<int> (channel));
+    meterBar->setLevel (dB);
+}
+double AudioTab::ChannelComponent::getGain() const
+{
+    if (sldGain)
+        return sldGain->getValue();
+    else
+        return 0.0;
+}
+
 AudioTab::AudioTab ()
 {
     // TODO - add input metering
@@ -721,28 +772,41 @@ AudioTab::~AudioTab ()
 }
 void AudioTab::paint (Graphics& g)
 {
-    // TODO - update/delete
-    g.setFont (25.0f);
-    g.setColour (Colours::white);
-    g.drawFittedText ("Audio inputs passed through on matching outputs", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void AudioTab::resized ()
 {
     // TODO - layout on grid, but perhaps within scrollable view?
+    // TODO - might need to calculate a preferred width for each channel component
+    Grid grid;
+    grid.rowGap = 5_px;
+    grid.columnGap = 5_px;
+
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = {   Track (1_fr)
+                        };
+
+    grid.templateColumns = { Track (1_fr) };
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+
+    grid.autoFlow = Grid::AutoFlow::column;
+
+    for (auto channelComponent : channelComponents)
+        grid.items.add (GridItem (channelComponent));
+
+    const auto marg = 10;
+    grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
     meterProcessor.prepare (spec);
-
-    auto numOutputChannels = spec.numChannels;
-    if (auto* dev = DSPTestbenchApplication::getApp().getCurrentAudioDevice())
-        numOutputChannels = dev->getActiveOutputChannels().countNumberOfSetBits(); // TODO - does this ever get hit?
-    for (auto ch : channelComponents)
-        ch->setNumOutputChannels (numOutputChannels);
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // Currently doing nothing - this allows inputs to be copied straight to output
+    meterProcessor.process (context);
+    // TODO - mix inputs to assigned outputs (1:1 pass through at the moment)
 }
 void AudioTab::reset ()
 {
@@ -750,6 +814,25 @@ void AudioTab::reset ()
 
     for (auto ch : channelComponents)
         ch->reset();
+}
+void AudioTab::timerCallback ()
+{
+    for (auto ch : channelComponents)
+        ch->refresh();
+}
+void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t numberOfOutputChannels)
+{
+    for (auto ch  = 0; ch < static_cast<int> (numberOfInputChannels); ++ ch)
+        addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
+
+    resized();
+}
+void AudioTab::setRefresh (const bool shouldRefresh)
+{
+    if (shouldRefresh)
+        startTimerHz (50);
+    else
+        stopTimer();
 }
 
 //==============================================================================
@@ -791,6 +874,7 @@ SourceComponent::SourceComponent (String sourceId)
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
     tabbedComponent->setCurrentTabIndex (0);
+    tabbedComponent->getTabbedButtonBar().addChangeListener(this);
 }
 SourceComponent::~SourceComponent()
 {
@@ -838,6 +922,14 @@ void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == sldGain)
     {
         gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
+    }
+}
+void SourceComponent::changeListenerCallback (ChangeBroadcaster* source)
+{
+    if (source == dynamic_cast<ChangeBroadcaster*> (&tabbedComponent->getTabbedButtonBar()))
+    {
+        const auto shouldRefresh = tabbedComponent->getCurrentTabIndex() == Mode::AudioIn;
+        audioTab->setRefresh (shouldRefresh);
     }
 }
 void SourceComponent::prepare (const dsp::ProcessSpec& spec)
@@ -892,6 +984,10 @@ void SourceComponent::reset ()
     waveTab->reset();
     audioTab->reset();
     gain.reset();
+}
+void SourceComponent::setNumChannels (int numInputChannels, int numOutputChannels)
+{
+    audioTab->setNumChannels (numInputChannels, numOutputChannels);
 }
 SourceComponent::Mode SourceComponent::getMode() const
 {

@@ -9,6 +9,7 @@
 */
 
 #include "Main.h"
+#include "MainComponent.h"
 
 DSPTestbenchApplication::DSPTestbenchApplication ()
     : TimeSliceThread ("Audio File Reader Thread")
@@ -55,16 +56,16 @@ Component& DSPTestbenchApplication::getMainComponent ()
     jassert (comp != nullptr);
     return *comp;
 }
-AudioDeviceManager* DSPTestbenchApplication::getDeviceManager()
-{
-    if (mainWindow)
-        return &(reinterpret_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager);
-    else
-        return nullptr;
-}
 AudioFormatManager& DSPTestbenchApplication::getFormatManager()
 {
     return formatManager;
+}
+AudioDeviceManager* DSPTestbenchApplication::getDeviceManager()
+{
+    if (mainWindow)
+        return &(dynamic_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager);
+    else
+        return nullptr;
 }
 AudioIODevice* DSPTestbenchApplication::getCurrentAudioDevice ()
 {
@@ -81,7 +82,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
 {
     setUsingNativeTitleBar (false);
     setContentOwned (new MainContentComponent(), true);
-    setResizable (true, true);
+    setResizable (true, false);
 
     centreWithSize (getWidth(), getHeight());
     Component::setVisible (true);    
