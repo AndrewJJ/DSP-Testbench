@@ -46,6 +46,7 @@ private:
     ScopedPointer<TextButton> btnDisable;
     ScopedPointer<TextButton> btnInvert;
     ScopedPointer<TextButton> btnMute;
+    // TODO - add a bypass button to allow direct analysis of a source?
 
     bool statusSourceA = true;
     bool statusSourceB = false;

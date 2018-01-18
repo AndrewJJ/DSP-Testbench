@@ -21,6 +21,10 @@
               file="Source/ProcessorComponent.cpp"/>
         <FILE id="ZFfP7O" name="ProcessorComponent.h" compile="0" resource="0"
               file="Source/ProcessorComponent.h"/>
+        <FILE id="c5TyN0" name="SimpleLevelMeterComponent.cpp" compile="1"
+              resource="0" file="Source/SimpleLevelMeterComponent.cpp"/>
+        <FILE id="RRcELw" name="SimpleLevelMeterComponent.h" compile="0" resource="0"
+              file="Source/SimpleLevelMeterComponent.h"/>
         <FILE id="HZtJRF" name="SourceComponent.cpp" compile="1" resource="0"
               file="Source/SourceComponent.cpp"/>
         <FILE id="PC1I7w" name="SourceComponent.h" compile="0" resource="0"
@@ -29,6 +33,10 @@
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
         <FILE id="BhJYfA" name="Analysis.cpp" compile="1" resource="0" file="Source/Analysis.cpp"/>
         <FILE id="yjlnh6" name="Analysis.h" compile="0" resource="0" file="Source/Analysis.h"/>
+        <FILE id="JFT69S" name="MeteringProcessors.cpp" compile="1" resource="0"
+              file="Source/MeteringProcessors.cpp"/>
+        <FILE id="tfjF02" name="MeteringProcessors.h" compile="0" resource="0"
+              file="Source/MeteringProcessors.h"/>
         <FILE id="UeLa0S" name="NoiseGenerators.h" compile="0" resource="0"
               file="Source/NoiseGenerators.h"/>
         <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>

@@ -15,7 +15,7 @@ DSPTestbenchApplication::DSPTestbenchApplication ()
 {
 }
 
-void DSPTestbenchApplication::initialise (const String& commandLine)
+void DSPTestbenchApplication::initialise (const String&)
 {
     formatManager.registerBasicFormats();
     mainWindow = new MainWindow (getApplicationName());
@@ -32,7 +32,7 @@ void DSPTestbenchApplication::systemRequestedQuit()
     // request and let the app carry on running, or call quit() to allow the app to close.
     quit();
 }
-void DSPTestbenchApplication::anotherInstanceStarted (const String& commandLine)
+void DSPTestbenchApplication::anotherInstanceStarted (const String&)
 {
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what

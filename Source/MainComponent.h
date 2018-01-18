@@ -29,7 +29,7 @@ public:
     
     void paint (Graphics& g) override;
     void resized() override;
-    void mouseDown(const MouseEvent& event) override
+    void mouseDown(const MouseEvent&) override
     {
         srcComponentA->reset();
 

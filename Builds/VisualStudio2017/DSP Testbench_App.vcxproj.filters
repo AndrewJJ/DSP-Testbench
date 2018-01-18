@@ -394,10 +394,16 @@
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SimpleLevelMeterComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\SourceComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Analysis.cpp">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MeteringProcessors.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestProcessor.cpp">
@@ -2229,10 +2235,16 @@
     <ClInclude Include="..\..\Source\ProcessorComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\SimpleLevelMeterComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\SourceComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Analysis.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MeteringProcessors.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\NoiseGenerators.h">

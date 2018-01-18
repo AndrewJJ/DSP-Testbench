@@ -13,6 +13,9 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PolyBLEP.h"
 #include "NoiseGenerators.h"
+//#include "Main.h"
+#include "MeteringProcessors.h"
+#include "SimpleLevelMeterComponent.h"
 
 // Forward declaration
 class SourceComponent;
@@ -219,7 +222,43 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
+    class ChannelComponent : public Component, public Timer, public Slider::Listener
+    {
+    public:
+        ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t channelIndex);;
+        ~ChannelComponent();
+
+        void paint (Graphics& g) override;
+        void resized() override;
+        void timerCallback () override;
+        void sliderValueChanged (Slider* slider) override;
+
+        // Should be called every time prepare is called on the parent object
+        void setNumOutputChannels (const size_t numberOfOutputChannels);
+        void getSelectedOutputs(); // TODO - figure out how to do this
+        void reset();
+        double getGain();
+
+    private:
+        
+        ScopedPointer<SimpleLevelMeterComponent> meterBar;
+        ScopedPointer<Slider> sldGain;
+        ScopedPointer<GroupComponent> grpOutputs;
+        OwnedArray<ToggleButton> toggleButtons;
+
+        SimpleLevelMeterProcessor* meterProcessor;
+        size_t channel = 0;
+        String label;
+        float currentLinearGain = 0.0f;
+        size_t numOutputs = 0;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
+    };
+
 private:
+
+    SimpleLevelMeterProcessor meterProcessor;
+    OwnedArray <ChannelComponent> channelComponents;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioTab)
 };

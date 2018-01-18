@@ -74,7 +74,7 @@ SynthesisTab::~SynthesisTab ()
     sldSweepDuration = nullptr;
     btnSweepEnabled = nullptr;
 }
-void SynthesisTab::paint (Graphics& g)
+void SynthesisTab::paint (Graphics&)
 { }
 void SynthesisTab::resized ()
 {
@@ -130,14 +130,14 @@ void SynthesisTab::setOtherSource (SourceComponent* otherSourceComponent)
 }
 void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double freq,
                                            const double sweepStart, const double sweepEnd,
-                                           const double sweepDuration, SweepMode sweepMode, const bool sweepEnabled)
+                                           const double newSweepDuration, SweepMode sweepMode, const bool sweepEnabled)
 {
     cmbWaveform->setSelectedId (waveform, sendNotificationSync);
     sldFrequency->setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
     sldFrequency->setValue(freq, sendNotificationSync);
     cmbSweepMode->setSelectedId (sweepMode, sendNotificationSync);
     btnSweepEnabled->setToggleState(sweepEnabled, sendNotificationSync);
-    sldSweepDuration->setValue(sweepDuration, sendNotificationSync);
+    sldSweepDuration->setValue(newSweepDuration, sendNotificationSync);
     this->reset();
 }
 void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
@@ -188,7 +188,7 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
         else
         {
             for (auto&& oscillator : oscillators)
-                oscillator.setFrequency (currentFrequency);
+                oscillator.setFrequency (static_cast<float> (currentFrequency));
         }
 
         // Process current oscillator (note we adjust 1-based index to 0-based index)
@@ -218,7 +218,7 @@ void SynthesisTab::reset()
     for (auto&& oscillator : oscillators)
     {
         oscillator.reset();
-        oscillator.setFrequency (currentFrequency, true);
+        oscillator.setFrequency (static_cast<float> (currentFrequency), true);
     }
 
     resetSweep();
@@ -242,7 +242,6 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
         calculateNumSweepSteps();
     }
 }
-
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
     return (    currentWaveform == Waveform::sine 
@@ -312,7 +311,7 @@ SampleTab::~SampleTab ()
     cmbSample = nullptr;
     btnLoopEnabled = nullptr;
 }
-void SampleTab::paint (Graphics& g)
+void SampleTab::paint (Graphics&)
 {
 }
 void SampleTab::resized ()
@@ -502,7 +501,7 @@ WaveTab::WaveTab()
 WaveTab::~WaveTab ()
 {
 }
-void WaveTab::paint (Graphics& g)
+void WaveTab::paint (Graphics&)
 {
 }
 void WaveTab::resized ()
@@ -660,26 +659,87 @@ void WaveTab::stop ()
     }
 }
 
+AudioTab::ChannelComponent::ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t channelIndex)
+    :   meterProcessor (meterProcessorToQuery),
+        channel(channelIndex)
+{
+    auto dev = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice();
+    jassert(dev);
+    label = dev->getInputChannelNames()[static_cast<int> (channelIndex)];
 
+    // Set opaque to reduce performance impact of meters redrawing
+    this->setOpaque (true);
+
+    addAndMakeVisible (sldGain = new Slider());
+    sldGain->setSliderStyle(Slider::LinearVertical);
+    sldGain->setRange(-100.0, 15.0, 1.0);
+}
+AudioTab::ChannelComponent::~ChannelComponent ()
+{
+    sldGain = nullptr;
+}
+void AudioTab::ChannelComponent::paint (Graphics& g)
+{
+    // Remember that this component is opaque
+    g.fillAll (Colours::darkgrey);
+}
+void AudioTab::ChannelComponent::resized ()
+{
+    // TODO - implement layout
+}
+void AudioTab::ChannelComponent::timerCallback ()
+{
+    meterBar->setLevel (meterProcessor->getLeveldB (static_cast<int> (channel)));
+}
+void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
+{
+    if (slider == sldGain)
+    {
+        const auto currentGain = static_cast<float> (sldGain->getValue());
+        const auto minGain = static_cast<float> (sldGain->getMinimum()); // TODO - check this returns -100.0
+        currentLinearGain = Decibels::decibelsToGain (currentGain, minGain);
+    }
+}
+void AudioTab::ChannelComponent::setNumOutputChannels (const size_t numberOfOutputChannels)
+{
+    numOutputs = numberOfOutputChannels;
+    // TODO - update checkboxes
+}
+void AudioTab::ChannelComponent::reset()
+{
+    meterProcessor->reset();
+    sldGain->setValue(0.0, sendNotificationSync);
+}
 AudioTab::AudioTab ()
 {
     // TODO - add input metering
-    // TODO - add mix controls
+    // TODO - add output channel assignment buttons for each input channel
 }
 AudioTab::~AudioTab ()
 {
+    // TODO - set any component pointers to nullptr
 }
 void AudioTab::paint (Graphics& g)
 {
+    // TODO - update/delete
     g.setFont (25.0f);
     g.setColour (Colours::white);
     g.drawFittedText ("Audio inputs passed through on matching outputs", 0, 0, getWidth(), getHeight(), Justification::Flags::centred, 2);
 }
 void AudioTab::resized ()
 {
+    // TODO - layout on grid, but perhaps within scrollable view?
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
+    meterProcessor.prepare (spec);
+
+    auto* dev = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice();
+    auto numOutputChannels = spec.numChannels;
+    if (dev)
+        numOutputChannels = dev->getActiveOutputChannels().countNumberOfSetBits(); // TODO - does this ever get hit?
+    for (auto ch : channelComponents)
+        ch->setNumOutputChannels (numOutputChannels);
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -687,6 +747,10 @@ void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 }
 void AudioTab::reset ()
 {
+    meterProcessor.reset();
+
+    for (auto ch : channelComponents)
+        ch->reset();
 }
 
 //==============================================================================
