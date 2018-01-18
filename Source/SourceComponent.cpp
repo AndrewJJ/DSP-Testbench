@@ -449,7 +449,7 @@ void WaveTab::AudioThumbnailComponent::mouseDrag (const MouseEvent& e)
 {
     if (transportSource != nullptr)
     {
-        AudioDeviceManager* adm = &DSPTestbenchApplication::getApp().getDeviceManager();
+        AudioDeviceManager* adm = DSPTestbenchApplication::getApp().getDeviceManager();
         const ScopedLock sl (adm->getAudioCallbackLock());
 
         transportSource->setPosition ((jmax (static_cast<double> (e.x), 0.0) / getWidth())
@@ -622,7 +622,7 @@ void WaveTab::init()
 
         if (readerSource != nullptr)
         {
-            if (auto* device = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice())
+            if (auto* device = DSPTestbenchApplication::getApp().getCurrentAudioDevice())
             {
                 transportSource->setSource (readerSource, roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
                 // tell the main window about this so that it can do the seeking behaviour...
@@ -663,7 +663,7 @@ AudioTab::ChannelComponent::ChannelComponent (SimpleLevelMeterProcessor* meterPr
     :   meterProcessor (meterProcessorToQuery),
         channel(channelIndex)
 {
-    auto dev = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice();
+    auto dev = DSPTestbenchApplication::getApp().getCurrentAudioDevice();
     jassert(dev);
     label = dev->getInputChannelNames()[static_cast<int> (channelIndex)];
 
@@ -734,9 +734,8 @@ void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
     meterProcessor.prepare (spec);
 
-    auto* dev = DSPTestbenchApplication::getApp().getDeviceManager().getCurrentAudioDevice();
     auto numOutputChannels = spec.numChannels;
-    if (dev)
+    if (auto* dev = DSPTestbenchApplication::getApp().getCurrentAudioDevice())
         numOutputChannels = dev->getActiveOutputChannels().countNumberOfSetBits(); // TODO - does this ever get hit?
     for (auto ch : channelComponents)
         ch->setNumOutputChannels (numOutputChannels);

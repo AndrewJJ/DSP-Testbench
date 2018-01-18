@@ -55,15 +55,25 @@ Component& DSPTestbenchApplication::getMainComponent ()
     jassert (comp != nullptr);
     return *comp;
 }
-AudioDeviceManager& DSPTestbenchApplication::getDeviceManager()
+AudioDeviceManager* DSPTestbenchApplication::getDeviceManager()
 {
-    return reinterpret_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager;
+    if (mainWindow)
+        return &(reinterpret_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager);
+    else
+        return nullptr;
 }
 AudioFormatManager& DSPTestbenchApplication::getFormatManager()
 {
     return formatManager;
 }
-
+AudioIODevice* DSPTestbenchApplication::getCurrentAudioDevice ()
+{
+    auto* mgr = DSPTestbenchApplication::getApp().getDeviceManager();
+    if (mgr)
+        return mgr->getCurrentAudioDevice();
+    else
+        return nullptr;
+}
 DSPTestbenchApplication::MainWindow::MainWindow (String name)
     : DocumentWindow (name,
                       Desktop::getInstance().getDefaultLookAndFeel().findColour (ResizableWindow::backgroundColourId),

@@ -57,8 +57,9 @@ public:
     MainWindow& getMainWindow();
     Component& getMainComponent();
     //MainContentComponent& getMainContentComponent();
-    AudioDeviceManager& getDeviceManager();
+    AudioDeviceManager* getDeviceManager();
     AudioFormatManager& getFormatManager();
+    AudioIODevice* getCurrentAudioDevice();
 
 private:
     ScopedPointer<MainWindow> mainWindow;
