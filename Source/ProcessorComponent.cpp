@@ -131,11 +131,11 @@ void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     {
     }
 }
-void ProcessorComponent::prepare (const dsp::ProcessSpec& spec)
+void ProcessorComponent::prepare (const dsp::ProcessSpec&)
 {
     // TODO - ProcessorComponent::prepare
 }
-void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>& context)
+void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>&)
 {
     // TODO - ProcessorComponent::process
 }

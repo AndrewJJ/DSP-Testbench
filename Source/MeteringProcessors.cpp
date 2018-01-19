@@ -10,14 +10,14 @@
 
 #include "MeteringProcessors.h"
 
-float SimpleLevelMeterProcessor::getLevel (const int channelNum) const
+float SimplePeakMeterProcessor::getLevel (const int channelNum) const
 {
     if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
         return envelopeContinuation[channelNum].load();
     else
         return 0.0f;
 }
-float SimpleLevelMeterProcessor::getLeveldB (const int channelNum) const
+float SimplePeakMeterProcessor::getLeveldB (const int channelNum) const
 {
     if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
     {
@@ -27,11 +27,11 @@ float SimpleLevelMeterProcessor::getLeveldB (const int channelNum) const
     else
         return -100.0f;
 }
-size_t SimpleLevelMeterProcessor::getNumChannels () const
+size_t SimplePeakMeterProcessor::getNumChannels () const
 {
     return numChannels;
 }
-void SimpleLevelMeterProcessor::prepare (const dsp::ProcessSpec& spec)
+void SimplePeakMeterProcessor::prepare (const dsp::ProcessSpec& spec)
 {
 	numChannels = spec.numChannels;
 
@@ -40,10 +40,9 @@ void SimpleLevelMeterProcessor::prepare (const dsp::ProcessSpec& spec)
     const auto releaseTime = 0.150f * static_cast<float> (spec.sampleRate); // 150 msec in samples
     releaseTimeConstant =  1.0f - exp (-1.0f / releaseTime);
 }
-void SimpleLevelMeterProcessor::process (const dsp::ProcessContextReplacing<float>& context)
+void SimplePeakMeterProcessor::process (const dsp::ProcessContextReplacing<float>& context)
 {
     jassert (numChannels == context.getInputBlock().getNumChannels());
-    //jassert (numChannels == static_cast<size_t> (envelopeContinuation.size()));
 	for (auto ch = 0; ch < static_cast<int> (numChannels); ++ch)
 	{
         const auto* channelBuffer = context.getInputBlock().getChannelPointer(static_cast<int> (ch));
@@ -62,7 +61,7 @@ void SimpleLevelMeterProcessor::process (const dsp::ProcessContextReplacing<floa
         envelopeContinuation[ch].store (env);
 	}
 }
-void SimpleLevelMeterProcessor::reset ()
+void SimplePeakMeterProcessor::reset ()
 {
     envelopeContinuation.clear (numChannels);
 }

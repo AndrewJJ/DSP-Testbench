@@ -327,7 +327,7 @@ void SampleTab::loopEnablementToggled()
 {
     // TODO - SampleTab::loopEnablementToggled()
 }
-void SampleTab::prepare (const dsp::ProcessSpec& spec)
+void SampleTab::prepare (const dsp::ProcessSpec&)
 {
     // TODO - SampleTab::prepare()
 }
@@ -347,7 +347,7 @@ WaveTab::AudioThumbnailComponent::AudioThumbnailComponent()
 {
     thumbnail.addChangeListener (this);
 }
-WaveTab::AudioThumbnailComponent::~AudioThumbnailComponent ()
+WaveTab::AudioThumbnailComponent::~AudioThumbnailComponent()
 {
     thumbnail.removeChangeListener (this);
 }
@@ -659,35 +659,44 @@ void WaveTab::stop ()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
+AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
     :   meterProcessor (meterProcessorToQuery),
         numOutputs (numberOfOutputChannels),
         channel (channelIndex)
 {
+
     // Set opaque to reduce performance impact of meters redrawing
     this->setOpaque (true);
 
-    addAndMakeVisible (lblChannel = new Label ());
-    lblChannel->setText ("In " + String (channelIndex), dontSendNotification);
+    // Initially map each input channel to the corresponding output channel (if it exists)
+    if (channel < numberOfOutputChannels)
+        selectedOutputChannels.setBit (static_cast<int> (channel));
 
-    addAndMakeVisible (meterBar = new SimpleLevelMeterComponent());
+    lblChannel.setText ("In " + String (channelIndex), dontSendNotification);
+    addAndMakeVisible (lblChannel);
 
-    addAndMakeVisible (sldGain = new Slider());
+    addAndMakeVisible (meterBar);
+
     // TODO - style slider better
-    sldGain->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    sldGain->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
-    sldGain->setRange(-100.0, 15.0, 1.0);
+    sldGain.setSliderStyle (Slider::LinearVertical);
+    sldGain.setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    sldGain.setRange(-100.0, 15.0, 1.0);
+    sldGain.setPopupDisplayEnabled (true, true, nullptr);
+    sldGain.setTextValueSuffix(" dB");
+    sldGain.addListener (this);
+    addAndMakeVisible (sldGain);
 
-    // TODO - add group and toggleButtons to another component and place that inside chViewport
-    //addAndMakeVisible (grpOutputs = new GroupComponent ("", "Outs"));
+    btnOutputSelection.setButtonText("Outs");
+    btnOutputSelection.setTooltip ("Assign this input channel to different output channels");
+    btnOutputSelection.setTriggeredOnMouseDown (true);
+    btnOutputSelection.onClick  = [this] {
+        auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
+        getOutputMenu().showMenuAsync (options, new MenuCallback (this));
+    };
+    addAndMakeVisible (btnOutputSelection);
 }
 AudioTab::ChannelComponent::~ChannelComponent ()
 {
-    lblChannel = nullptr;
-    meterBar = nullptr;
-    sldGain = nullptr;
-    grpOutputs = nullptr;
-    // TODO - null out the component we put inside chViewport
 }
 void AudioTab::ChannelComponent::paint (Graphics& g)
 {
@@ -718,59 +727,81 @@ void AudioTab::ChannelComponent::resized ()
     grid.items.addArray({   GridItem (lblChannel),
                             GridItem (meterBar),
                             GridItem (sldGain).withArea (GridItem::Span (2), {}),
-                            GridItem (chViewport).withArea (GridItem::Span (2), {})
+                            GridItem (btnOutputSelection)
                         });
-
     const auto marg = 10;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
 {
-    if (slider == sldGain)
+    if (slider == &sldGain)
     {
-        const auto currentGain = static_cast<float> (sldGain->getValue());
-        const auto minGain = static_cast<float> (sldGain->getMinimum()); // TODO - check this returns -100.0
+        const auto currentGain = static_cast<float> (sldGain.getValue());
+        const auto minGain = static_cast<float> (sldGain.getMinimum());
         currentLinearGain = Decibels::decibelsToGain (currentGain, minGain);
     }
+}
+void AudioTab::ChannelComponent::setActive (bool shouldBeActive)
+{
+    active = shouldBeActive;
 }
 void AudioTab::ChannelComponent::setNumOutputChannels (const size_t numberOfOutputChannels)
 {
     numOutputs = numberOfOutputChannels;
-    toggleButtons.clear();
-    for (auto ch = 0; ch < static_cast<int> (numberOfOutputChannels); ++ch)
-        addAndMakeVisible (toggleButtons.add(new ToggleButton (String (ch))));
 }
-void AudioTab::ChannelComponent::getSelectedOutputs ()
+BigInteger AudioTab::ChannelComponent::getSelectedOutputs() const
 {
+    return selectedOutputChannels;
+}
+void AudioTab::ChannelComponent::toggleOutputSelection (const int channelNumber)
+{
+    if (selectedOutputChannels[channelNumber] == 1)
+        selectedOutputChannels.clearBit (channelNumber);
+    else
+        selectedOutputChannels.setBit (channelNumber);
+}
+bool AudioTab::ChannelComponent::isOutputSelected (const size_t channelNumer) const
+{
+    return selectedOutputChannels[static_cast<int> (channelNumer)];
 }
 void AudioTab::ChannelComponent::reset()
 {
-    meterProcessor->reset();
-    sldGain->setValue(0.0, sendNotificationSync);
+    sldGain.setValue(0.0, sendNotificationSync);
 }
 void AudioTab::ChannelComponent::refresh ()
 {
-    const auto dB = meterProcessor->getLeveldB (static_cast<int> (channel));
-    meterBar->setLevel (dB);
+    auto dB = -100.0f;
+    if (active)
+        dB = meterProcessor->getLeveldB (static_cast<int> (channel));
+    meterBar.setLevel (dB);
 }
-double AudioTab::ChannelComponent::getGain() const
+double AudioTab::ChannelComponent::getLinearGain() const
 {
-    if (sldGain)
-        return sldGain->getValue();
-    else
-        return 0.0;
+    return Decibels::decibelsToGain (static_cast<float> (sldGain.getValue()), -100.0f);
+}
+AudioTab::ChannelComponent::MenuCallback::MenuCallback (ChannelComponent* parentComponent)
+    : parent (parentComponent)
+{
+}
+PopupMenu AudioTab::ChannelComponent::getOutputMenu() const
+{
+    PopupMenu menu;
+    for (size_t ch = 0; ch < numOutputs; ++ch)
+        menu.addItem (static_cast<int> (ch + 1), "Output " + String (ch), true, isOutputSelected (ch));
+    return menu;
+}
+void AudioTab::ChannelComponent::MenuCallback::modalStateFinished (int returnValue)
+{
+    parent->toggleOutputSelection (returnValue - 1);
 }
 
 AudioTab::AudioTab ()
 {
-    // TODO - add input metering
-    // TODO - add output channel assignment buttons for each input channel
 }
 AudioTab::~AudioTab ()
 {
-    // TODO - set any component pointers to nullptr
 }
-void AudioTab::paint (Graphics& g)
+void AudioTab::paint (Graphics&)
 {
 }
 void AudioTab::resized ()
@@ -802,11 +833,38 @@ void AudioTab::resized ()
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
     meterProcessor.prepare (spec);
+    tempBuffer.setSize (spec.numChannels, spec.maximumBlockSize);
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
     meterProcessor.process (context);
-    // TODO - mix inputs to assigned outputs (1:1 pass through at the moment)
+
+    auto input = context.getInputBlock();
+    auto output = context.getOutputBlock();
+    auto temp = dsp::AudioBlock<float> (tempBuffer);
+    const auto numInputChannels = static_cast<int> (input.getNumChannels());
+    const auto numOutputChannels = static_cast<int> (output.getNumChannels());
+
+    // Apply gains to input channels
+    for (auto ch = 0; ch < numInputChannels; ++ch)
+    {
+        const auto linearGain = channelComponents[ch]->getLinearGain();
+        for (auto i = 0; i < input.getNumSamples(); ++i)
+            input.getChannelPointer (ch)[i] *= linearGain;
+    }
+    temp.copy (input);
+    
+    // Add inputs to assigned outputs
+    output.clear();
+    for (auto outCh = 0; outCh < numOutputChannels; ++outCh)
+    {
+        for (auto inCh = 0; inCh < numInputChannels; ++inCh)
+        {
+            auto outputChannel = output.getSingleChannelBlock (outCh);
+            if (channelComponents[inCh]->isOutputSelected (outCh))
+                outputChannel.add(temp.getSingleChannelBlock(inCh));
+        }
+    }
 }
 void AudioTab::reset ()
 {
@@ -830,9 +888,20 @@ void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t 
 void AudioTab::setRefresh (const bool shouldRefresh)
 {
     if (shouldRefresh)
+    {
+        for (auto ch : channelComponents)
+            ch->setActive (true);
         startTimerHz (50);
+    }
     else
+    {
         stopTimer();
+        for (auto ch : channelComponents)
+        {
+            ch->setActive (false);
+            ch->refresh();
+        }
+    }
 }
 
 //==============================================================================
@@ -863,7 +932,10 @@ SourceComponent::SourceComponent (String sourceId)
 
     addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
     btnMute->setButtonText (TRANS("Mute"));
-    btnMute->onClick = [this] { isMuted = btnMute->getToggleState(); };
+    btnMute->onClick = [this] {
+        isMuted = btnMute->getToggleState();
+        audioTab->setRefresh (!isMuted);
+    };
     btnMute->setClickingTogglesState (true);
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 

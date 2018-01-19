@@ -19,14 +19,14 @@
 *  would typically be used to indicate the onset of signal clipping, while caution is a warning
 *  level ahead of that.
 */
-class SimpleLevelMeterComponent    : public Component
+class SimplePeakMeterComponent : public Component
 {
 public:
 	
-    SimpleLevelMeterComponent();
-    SimpleLevelMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
+    SimplePeakMeterComponent();
+    SimplePeakMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
                                const float alertLevelDb, const float maximumLevelDb);
-    ~SimpleLevelMeterComponent();
+    ~SimplePeakMeterComponent();
 
     void paint (Graphics&) override;
     void resized() override;
@@ -47,5 +47,5 @@ private:
     float currentLevelDb = -100.0f;
     float currentLevelY = 0.0f;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleLevelMeterComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimplePeakMeterComponent)
 };

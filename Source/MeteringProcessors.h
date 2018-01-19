@@ -16,14 +16,14 @@
 #include <mm_malloc.h>
 #endif
 
-class SimpleLevelMeterProcessor : public dsp::ProcessorBase
+class SimplePeakMeterProcessor : public dsp::ProcessorBase
 {
 public:
 
-	SimpleLevelMeterProcessor()
+	SimplePeakMeterProcessor()
     {};
 
-	~SimpleLevelMeterProcessor()
+	~SimplePeakMeterProcessor()
     = default;
 
 	float getLevel (const int channelNum) const;
@@ -32,17 +32,15 @@ public:
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset () override;
+    void reset() override;
 
 private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimpleLevelMeterProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimplePeakMeterProcessor)
 
 private:
 
     size_t numChannels = 0;
-	// TODO - delete
-    //Array<Atomic<float>> envelopeContinuation;
     HeapBlock <std::atomic <float>> envelopeContinuation;
 	float releaseTimeConstant = 0.0f;
     const float antiDenormalFloat = 1e-15f;

@@ -62,11 +62,11 @@ void AnalyserComponent::resized()
     const auto marg = 10;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
+void AnalyserComponent::prepare (const dsp::ProcessSpec&)
 {
     // TODO - AnalyserComponent::prepare
 }
-void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
+void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>&)
 {
     // TODO - AnalyserComponent::process
 }

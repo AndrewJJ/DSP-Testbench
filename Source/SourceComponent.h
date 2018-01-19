@@ -223,36 +223,52 @@ public:
     void reset() override;
     void timerCallback () override;
     
-    void setNumChannels (const size_t  numInputChannels, const size_t numOutputChannels);
+    void setNumChannels (const size_t  numberOfInputChannels, const size_t numberOfOutputChannels);
     void setRefresh (const bool shouldRefresh);
 
     class ChannelComponent : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (SimpleLevelMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
+        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
         void resized() override;
         void sliderValueChanged (Slider* slider) override;
 
+        void setActive (bool shouldBeActive);
         void setNumOutputChannels (const size_t numberOfOutputChannels);
-        void getSelectedOutputs(); // TODO - figure out how to do this
+        BigInteger getSelectedOutputs() const;
+        bool isOutputSelected (const size_t channelNumer) const;
+        // Resets
         void reset();
+        // Queries meter processor to update meter value
         void refresh();
-        double getGain() const;
+        double getLinearGain() const;
 
     private:
-        
-        ScopedPointer<Label> lblChannel;
-        ScopedPointer<SimpleLevelMeterComponent> meterBar;
-        ScopedPointer<Slider> sldGain;
-        ScopedPointer<GroupComponent> grpOutputs;
-        OwnedArray<ToggleButton> toggleButtons;
-        Viewport chViewport;
 
-        SimpleLevelMeterProcessor* meterProcessor;
+        void toggleOutputSelection (const int channelNumber);
+        PopupMenu getOutputMenu() const;
+
+        class MenuCallback : public ModalComponentManager::Callback
+        {
+        public:
+            MenuCallback (ChannelComponent* parentComponent);
+            void modalStateFinished (int returnValue) override;
+        private:
+            ChannelComponent* parent;
+        };
+
+        Label lblChannel;
+        SimplePeakMeterComponent meterBar;
+        Slider sldGain;
+        TextButton btnOutputSelection;
+
+        bool active = true;
+        SimplePeakMeterProcessor* meterProcessor;
         size_t numOutputs = 0;
+        BigInteger selectedOutputChannels = 0;
         size_t channel = 0;
         float currentLinearGain = 0.0f;
 
@@ -261,9 +277,10 @@ public:
 
 private:
 
-    SimpleLevelMeterProcessor meterProcessor;
+    SimplePeakMeterProcessor meterProcessor;
     OwnedArray <ChannelComponent> channelComponents;
-    Viewport viewport;
+    Viewport viewport; // TODO - viewport
+    AudioBuffer<float> tempBuffer;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioTab)
 };

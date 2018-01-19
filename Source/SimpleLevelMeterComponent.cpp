@@ -10,11 +10,11 @@
 
 #include "SimpleLevelMeterComponent.h"
 
-SimpleLevelMeterComponent::SimpleLevelMeterComponent()
+SimplePeakMeterComponent::SimplePeakMeterComponent()
 {
     this->setOpaque (true);
 }
-SimpleLevelMeterComponent::SimpleLevelMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
+SimplePeakMeterComponent::SimplePeakMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
                                                       const float alertLevelDb, const float maximumLevelDb)
 {
     minDb       = minimumLevelDb;
@@ -24,10 +24,10 @@ SimpleLevelMeterComponent::SimpleLevelMeterComponent (const float minimumLevelDb
     rangeDb     = maximumLevelDb - minimumLevelDb;
     this->setOpaque (true);
 }
-SimpleLevelMeterComponent::~SimpleLevelMeterComponent()
+SimplePeakMeterComponent::~SimplePeakMeterComponent()
 {
 }
-void SimpleLevelMeterComponent::paint (Graphics& g)
+void SimplePeakMeterComponent::paint (Graphics& g)
 {
     g.fillAll(Colours::black);
 
@@ -67,20 +67,20 @@ void SimpleLevelMeterComponent::paint (Graphics& g)
 		g.fillRect (0.0f, fullHeight - currentLevelY, fullWidth, h);
 	}
 }
-void SimpleLevelMeterComponent::resized ()
+void SimplePeakMeterComponent::resized ()
 {
     conversionFactor    = static_cast<float> (getHeight()) / rangeDb;
     currentLevelY       = dBtoPx (currentLevelDb);
     cautionY            = dBtoPx (cautionDb);
     alertY              = dBtoPx (alertDb);
 }
-void SimpleLevelMeterComponent::setLevel (const float dB)
+void SimplePeakMeterComponent::setLevel (const float dB)
 {
     currentLevelDb = dB;
     currentLevelY = dBtoPx (dB);
     repaint();
 }
-float SimpleLevelMeterComponent::dBtoPx (const float dB) const
+float SimplePeakMeterComponent::dBtoPx (const float dB) const
 {
     if (dB <= -100.0f)
         return 0.0f;
