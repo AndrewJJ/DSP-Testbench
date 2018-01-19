@@ -38,6 +38,15 @@ enum SweepMode
     Reverse
 };
 
+class RotarySliderLnF : public LookAndFeel_V4
+{
+public:
+
+    RotarySliderLnF() : LookAndFeel_V4() {};
+    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
+                           const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
+};
+
 class SynthesisTab : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
 {
 public:
@@ -226,10 +235,13 @@ public:
     void setNumChannels (const size_t  numberOfInputChannels, const size_t numberOfOutputChannels);
     void setRefresh (const bool shouldRefresh);
 
+
+private:
+
     class ChannelComponent : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
+        ChannelComponent (RotarySliderLnF* rotaryLnF, SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
@@ -244,7 +256,7 @@ public:
         void reset();
         // Queries meter processor to update meter value
         void refresh();
-        double getLinearGain() const;
+        float getLinearGain() const;
 
     private:
 
@@ -260,6 +272,7 @@ public:
             ChannelComponent* parent;
         };
 
+        RotarySliderLnF* rotarySliderLnF;
         Label lblChannel;
         SimplePeakMeterComponent meterBar;
         Slider sldGain;
@@ -275,11 +288,24 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
 
-private:
+    class InputArrayComponent : public Component
+    {
+    public:
+        InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo);
+        ~InputArrayComponent();
 
+        void paint (Graphics& g) override;
+        void resized() override;
+
+    private:
+        OwnedArray<ChannelComponent>* channelComponents;
+    };
+
+    RotarySliderLnF rotarySliderLnF;
     SimplePeakMeterProcessor meterProcessor;
     OwnedArray <ChannelComponent> channelComponents;
     Viewport viewport; // TODO - viewport
+    InputArrayComponent inputArrayComponent;
     AudioBuffer<float> tempBuffer;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioTab)

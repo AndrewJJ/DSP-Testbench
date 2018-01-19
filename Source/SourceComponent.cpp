@@ -11,6 +11,43 @@
 #include "SourceComponent.h"
 #include "Main.h"
 
+void RotarySliderLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
+                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
+{
+	const auto radius = static_cast<float> (jmin (width, height)) * 0.48f;
+	const auto centreX = static_cast<float> (x) + static_cast<float> (width) * 0.5f;
+	const auto centreY = static_cast<float> (y) + static_cast<float> (height) * 0.5f;
+    const auto rx = centreX - radius;
+    const auto ry = centreY - radius;
+    const auto rw = radius * 2.0f;
+    const auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+	const auto isEnabled = slider.isEnabled();
+    const auto isMouseOver = slider.isMouseOverOrDragging() && isEnabled;
+
+	const auto fillColour = isEnabled ? Colours::black : Colours::black.brighter();
+	const auto outlineColour = isEnabled ? (isMouseOver ? Colours::white.withAlpha (0.7f) : Colours::black) : Colours::grey.darker (0.6f);
+    const auto indicatorColour = isEnabled ? Colours::white : Colours::grey;
+
+	// Draw knob body
+	{
+		Path  p;
+		p.addEllipse (rx, ry, rw, rw);
+        g.setColour (fillColour);
+		g.fillPath (p);
+		g.setColour (outlineColour);
+		g.strokePath (p, PathStrokeType (radius * 0.075f));
+	}
+
+	// Draw rotating pointer
+	{
+		Path l;
+		l.startNewSubPath (0.0f, radius * -0.95f);
+		l.lineTo (0.0f, radius * -0.50f);
+		g.setColour (indicatorColour);
+		g.strokePath (l, PathStrokeType (2.5f), AffineTransform::rotation (angle).translated (centreX, centreY));
+	}
+}
+
 SynthesisTab::SynthesisTab ()
 {
     // Assume sample rate of 48K - this should be corrected when prepare() is called
@@ -659,8 +696,9 @@ void WaveTab::stop ()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
-    :   meterProcessor (meterProcessorToQuery),
+AudioTab::ChannelComponent::ChannelComponent (RotarySliderLnF* rotaryLnF, SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
+    :   rotarySliderLnF(),
+        meterProcessor (meterProcessorToQuery),
         numOutputs (numberOfOutputChannels),
         channel (channelIndex)
 {
@@ -673,21 +711,25 @@ AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterPro
         selectedOutputChannels.setBit (static_cast<int> (channel));
 
     lblChannel.setText ("In " + String (channelIndex), dontSendNotification);
+    lblChannel.setJustificationType (Justification::centredTop);
+    lblChannel.setFont (Font(15.0f).boldened());
     addAndMakeVisible (lblChannel);
 
+    meterBar.setTooltip("Signal level for input channel " + String (channelIndex));
     addAndMakeVisible (meterBar);
 
-    // TODO - style slider better
-    sldGain.setSliderStyle (Slider::LinearVertical);
-    sldGain.setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-    sldGain.setRange(-100.0, 15.0, 1.0);
+    sldGain.setLookAndFeel (rotaryLnF);
+    sldGain.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+    sldGain.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
+    sldGain.setRange (-100.0, 15.0, 1.0);
     sldGain.setPopupDisplayEnabled (true, true, nullptr);
-    sldGain.setTextValueSuffix(" dB");
+    sldGain.setTextValueSuffix (" dB");
+    sldGain.setTooltip("Set gain for copying input channel " + String (channelIndex) + " to outputs (doesn't affect input meter)");
     sldGain.addListener (this);
     addAndMakeVisible (sldGain);
 
-    btnOutputSelection.setButtonText("Outs");
-    btnOutputSelection.setTooltip ("Assign this input channel to different output channels");
+    btnOutputSelection.setButtonText("Out");
+    btnOutputSelection.setTooltip ("Assign input channel " + String (channelIndex) + " to different output channels");
     btnOutputSelection.setTriggeredOnMouseDown (true);
     btnOutputSelection.onClick  = [this] {
         auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
@@ -695,41 +737,38 @@ AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterPro
     };
     addAndMakeVisible (btnOutputSelection);
 }
-AudioTab::ChannelComponent::~ChannelComponent ()
-{
-}
+AudioTab::ChannelComponent::~ChannelComponent() = default;
 void AudioTab::ChannelComponent::paint (Graphics& g)
 {
     // Remember that this component is opaque, so it should be filled with colour
-    g.fillAll (Colours::darkgrey.darker());
+    g.fillAll (Colours::darkgrey.darker (0.3f));
 }
 void AudioTab::ChannelComponent::resized ()
 {
-    // TODO - implement layout
     Grid grid;
     grid.rowGap = 5_px;
     grid.columnGap = 5_px;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr),
-                            Track (6_fr)
+    grid.templateRows = {   Track (18_px),
+                            Track (30_px),
+                            Track (1_fr)
                         };
 
-    grid.templateColumns = { Track (1_fr), Track (3_fr), Track (1_fr) };
+    grid.templateColumns = { Track (15_px), Track (40_px) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
 
     grid.autoFlow = Grid::AutoFlow::column;
 
-    // TODO - add toggle buttons to a ViewPort holding grpOutputs
-    grid.items.addArray({   GridItem (lblChannel),
-                            GridItem (meterBar),
-                            GridItem (sldGain).withArea (GridItem::Span (2), {}),
-                            GridItem (btnOutputSelection)
+    grid.items.addArray({   GridItem (meterBar).withArea (GridItem::Span (3), {}).withMargin(GridItem::Margin (0.0f, 2.0f, 0.0f, 0.0f)),
+                            GridItem (lblChannel),
+                            GridItem (btnOutputSelection),
+                            GridItem (sldGain)
                         });
-    const auto marg = 10;
+    const auto marg = 5;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
 void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
@@ -775,7 +814,7 @@ void AudioTab::ChannelComponent::refresh ()
         dB = meterProcessor->getLeveldB (static_cast<int> (channel));
     meterBar.setLevel (dB);
 }
-double AudioTab::ChannelComponent::getLinearGain() const
+float AudioTab::ChannelComponent::getLinearGain() const
 {
     return Decibels::decibelsToGain (static_cast<float> (sldGain.getValue()), -100.0f);
 }
@@ -795,40 +834,45 @@ void AudioTab::ChannelComponent::MenuCallback::modalStateFinished (int returnVal
     parent->toggleOutputSelection (returnValue - 1);
 }
 
-AudioTab::AudioTab ()
+AudioTab::InputArrayComponent::InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo)
+    : channelComponents (channelComponentsToReferTo)
+{ }
+AudioTab::InputArrayComponent::~InputArrayComponent() = default;
+void AudioTab::InputArrayComponent::paint (Graphics& g)
+{ }
+void AudioTab::InputArrayComponent::resized ()
 {
-}
-AudioTab::~AudioTab ()
-{
-}
-void AudioTab::paint (Graphics&)
-{
-}
-void AudioTab::resized ()
-{
-    // TODO - layout on grid, but perhaps within scrollable view?
-    // TODO - might need to calculate a preferred width for each channel component
     Grid grid;
     grid.rowGap = 5_px;
     grid.columnGap = 5_px;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr)
-                        };
-
-    grid.templateColumns = { Track (1_fr) };
-
-    grid.autoColumns = Track (1_fr);
+    grid.autoColumns = Track (75_px);
     grid.autoRows = Track (1_fr);
-
     grid.autoFlow = Grid::AutoFlow::column;
 
-    for (auto channelComponent : channelComponents)
+    for (auto channelComponent : *channelComponents)
         grid.items.add (GridItem (channelComponent));
 
-    const auto marg = 10;
+    const auto marg = 5;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
+}
+
+AudioTab::AudioTab ()
+    : inputArrayComponent (&channelComponents)
+{
+    viewport.setScrollBarsShown (false, true);
+    viewport.setViewedComponent (&inputArrayComponent);
+    addAndMakeVisible (viewport);
+}
+AudioTab::~AudioTab() = default;
+void AudioTab::paint (Graphics&)
+{
+}
+void AudioTab::resized ()
+{
+    viewport.setBounds (getLocalBounds());
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
@@ -880,9 +924,26 @@ void AudioTab::timerCallback ()
 }
 void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t numberOfOutputChannels)
 {
-    for (auto ch  = 0; ch < static_cast<int> (numberOfInputChannels); ++ ch)
-        addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
+    channelComponents.clear();
 
+    const auto numInputs = static_cast<int> (numberOfInputChannels);
+    for (auto ch  = 0; ch < numInputs; ++ ch)
+        inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&rotarySliderLnF, &meterProcessor, numberOfOutputChannels, ch)));
+        
+    // Use this code to test the case where there are more channels that can fit within the parent
+    //for (auto ch = numInputs; ch < 32; ++ ch)
+    //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&rotarySliderLnF, &meterProcessor, numberOfOutputChannels, ch)));
+    //numInputs = 32;
+
+    const auto channelWidth = 75;   // Set in ChannelComponent resized()
+    const auto channelGap = 5;      // Set in ChannelComponent resized()
+    const auto margins = 5;         // Set in InputArrayComponent::resized()
+    const auto viewWidth = numInputs * channelWidth + jmax (0, numInputs - 1) * channelGap + margins * 2;
+    auto viewHeight = getHeight();
+    if (viewWidth>getWidth())
+        viewHeight -= viewport.getLookAndFeel().getDefaultScrollbarWidth();
+    inputArrayComponent.setSize (viewWidth, viewHeight);
+    
     resized();
 }
 void AudioTab::setRefresh (const bool shouldRefresh)
@@ -903,8 +964,6 @@ void AudioTab::setRefresh (const bool shouldRefresh)
         }
     }
 }
-
-//==============================================================================
 
 SourceComponent::SourceComponent (String sourceId)
 {

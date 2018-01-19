@@ -19,7 +19,7 @@
 *  would typically be used to indicate the onset of signal clipping, while caution is a warning
 *  level ahead of that.
 */
-class SimplePeakMeterComponent : public Component
+class SimplePeakMeterComponent : public Component, public SettableTooltipClient
 {
 public:
 	
