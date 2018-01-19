@@ -114,29 +114,29 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };
 
-class SampleTab : public Component, public dsp::ProcessorBase
-{
-public:
-    SampleTab();
-    ~SampleTab();
-
-    void paint (Graphics& g) override;
-    void resized() override;
-
-    void prepare (const dsp::ProcessSpec& spec) override;
-    void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset() override;
-
-private:
-
-    void selectedSampleChanged();
-    void loopEnablementToggled();
-
-    ScopedPointer<ComboBox> cmbSample;
-    ScopedPointer<TextButton> btnLoopEnabled;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
-};
+//class SampleTab : public Component, public dsp::ProcessorBase
+//{
+//public:
+//    SampleTab();
+//    ~SampleTab();
+//
+//    void paint (Graphics& g) override;
+//    void resized() override;
+//
+//    void prepare (const dsp::ProcessSpec& spec) override;
+//    void process (const dsp::ProcessContextReplacing<float>& context) override;
+//    void reset() override;
+//
+//private:
+//
+//    void selectedSampleChanged();
+//    void loopEnablementToggled();
+//
+//    ScopedPointer<ComboBox> cmbSample;
+//    ScopedPointer<TextButton> btnLoopEnabled;
+//
+//    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
+//};
 
 class WaveTab : public Component, public dsp::ProcessorBase, public ChangeListener
 {
@@ -304,7 +304,7 @@ private:
     RotarySliderLnF rotarySliderLnF;
     SimplePeakMeterProcessor meterProcessor;
     OwnedArray <ChannelComponent> channelComponents;
-    Viewport viewport; // TODO - viewport
+    Viewport viewport;
     InputArrayComponent inputArrayComponent;
     AudioBuffer<float> tempBuffer;
     
@@ -320,7 +320,7 @@ public:
     enum Mode
     {
         Synthesis = 0,
-        Sample,
+        //Sample,
         WaveFile,
         AudioIn
     };
@@ -353,7 +353,7 @@ public:
     ScopedPointer<TextButton> btnMute;
     ScopedPointer<TabbedComponent> tabbedComponent;
     ScopedPointer<SynthesisTab> synthesisTab;
-    ScopedPointer<SampleTab> sampleTab;
+    //ScopedPointer<SampleTab> sampleTab;
     ScopedPointer<WaveTab> waveTab;
     ScopedPointer<AudioTab> audioTab;
 

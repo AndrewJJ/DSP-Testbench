@@ -328,55 +328,44 @@ void SynthesisTab::calculateNumSweepSteps()
     numSweepSteps = static_cast<long> (sweepDuration * sampleRate / static_cast<double> (maxBlockSize));
 }
 
-SampleTab::SampleTab ()
-{
-    addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
-    cmbSample->addItem ("None", 1);
-    cmbSample->setSelectedId (1, dontSendNotification);
-    cmbSample->onChange = [this] { selectedSampleChanged(); };
-
-    addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
-    btnLoopEnabled->setClickingTogglesState (true);
-    //btnLoopEnabled->setToggleState (true, dontSendNotification);
-    btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnLoopEnabled->onClick = [this] { loopEnablementToggled(); };
-
-    // TODO - add delay control to prevent machine gunning of sample?
-}
-SampleTab::~SampleTab ()
-{
-    cmbSample = nullptr;
-    btnLoopEnabled = nullptr;
-}
-void SampleTab::paint (Graphics&)
-{
-}
-void SampleTab::resized ()
-{
-    cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
-    btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
-}
-void SampleTab::selectedSampleChanged()
-{
-    // TODO - SampleTab::selectedSampleChanged()
-}
-void SampleTab::loopEnablementToggled()
-{
-    // TODO - SampleTab::loopEnablementToggled()
-}
-void SampleTab::prepare (const dsp::ProcessSpec&)
-{
-    // TODO - SampleTab::prepare()
-}
-void SampleTab::process (const dsp::ProcessContextReplacing<float>& context)
-{
-    // TODO - SampleTab::process()
-    context.getOutputBlock().clear();
-}
-void SampleTab::reset()
-{
-    // TODO - SampleTab::reset()
-}
+//SampleTab::SampleTab ()
+//{
+//    addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
+//    cmbSample->addItem ("None", 1);
+//    cmbSample->setSelectedId (1, dontSendNotification);
+//    cmbSample->onChange = [this] { selectedSampleChanged(); };
+//
+//    addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
+//    btnLoopEnabled->setClickingTogglesState (true);
+//    //btnLoopEnabled->setToggleState (true, dontSendNotification);
+//    btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
+//    btnLoopEnabled->onClick = [this] { loopEnablementToggled(); };
+//
+//    // Add delay control to prevent machine gunning of sample?
+//}
+//SampleTab::~SampleTab ()
+//{
+//    cmbSample = nullptr;
+//    btnLoopEnabled = nullptr;
+//}
+//void SampleTab::paint (Graphics&)
+//{
+//}
+//void SampleTab::resized ()
+//{
+//    cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
+//    btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
+//}
+//void SampleTab::selectedSampleChanged()
+//{ }
+//void SampleTab::loopEnablementToggled()
+//{ }
+//void SampleTab::prepare (const dsp::ProcessSpec&)
+//{ }
+//void SampleTab::process (const dsp::ProcessContextReplacing<float>& context)
+//{ }
+//void SampleTab::reset()
+//{ }
 
 WaveTab::AudioThumbnailComponent::AudioThumbnailComponent()
     : thumbnailCache (5),
@@ -1001,7 +990,7 @@ SourceComponent::SourceComponent (String sourceId)
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     tabbedComponent->setTabBarDepth (30);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
-    tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
+    //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
     tabbedComponent->setCurrentTabIndex (0);
@@ -1066,7 +1055,7 @@ void SourceComponent::changeListenerCallback (ChangeBroadcaster* source)
 void SourceComponent::prepare (const dsp::ProcessSpec& spec)
 {
     synthesisTab->prepare (spec);
-    sampleTab->prepare (spec);
+    //sampleTab->prepare (spec);
     waveTab->prepare (spec);
     audioTab->prepare (spec);
     gain.prepare (spec);
@@ -1087,9 +1076,9 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
             case Synthesis:
                 synthesisTab->process (context);
                 break;
-            case Sample:
-                sampleTab->process (context);
-                break;
+            //case Sample:
+                //sampleTab->process (context);
+                //break;
             case WaveFile:
                 waveTab->process (context);
                 break;
@@ -1111,7 +1100,7 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
 void SourceComponent::reset ()
 {
     synthesisTab->reset();
-    sampleTab->reset();
+    //sampleTab->reset();
     waveTab->reset();
     audioTab->reset();
     gain.reset();
