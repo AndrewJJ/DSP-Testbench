@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{282A172A-8966-3AA4-512B-DED7BEA24DD7}</ProjectGuid>
+    <ProjectGuid>{C98B8EE6-D66B-D43F-4671-16A87E192957}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -1834,6 +1834,7 @@
     <ClInclude Include="..\..\Source\SimpleLevelMeterComponent.h"/>
     <ClInclude Include="..\..\Source\SourceComponent.h"/>
     <ClInclude Include="..\..\Source\Analysis.h"/>
+    <ClInclude Include="..\..\Source\AudioDataTransfer.h"/>
     <ClInclude Include="..\..\Source\MeteringProcessors.h"/>
     <ClInclude Include="..\..\Source\NoiseGenerators.h"/>
     <ClInclude Include="..\..\Source\PolyBLEP.h"/>

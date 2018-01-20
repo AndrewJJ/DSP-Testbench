@@ -10,26 +10,106 @@
 
 #include "AnalyserComponent.h"
 
-AnalyserComponent::AnalyserComponent ()
+SimpleFftScope::SimpleFftScope (): fftMult (nullptr)
 {
-    addAndMakeVisible (lblTitle = new Label ("Analyser label", TRANS("Analyser")));
-    lblTitle->setFont (Font (15.00f, Font::bold));
-    lblTitle->setJustificationType (Justification::topLeft);
-    lblTitle->setEditable (false, false, false);
-    lblTitle->setColour (TextEditor::textColourId, Colours::black);
-    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    this->setOpaque (true);
+}
+SimpleFftScope::~SimpleFftScope ()
+{
+    if (fftMult != nullptr)
+        fftMult->removeListener (this);
+}
+void SimpleFftScope::paint (Graphics& g)
+{
+    // TODO - optimise & make pretty
+    // TODO - plot with alternate frequency scales (as per biquad control)
+
+    g.fillAll(Colours::black);
+
+    const auto dbMin = -80.0f;
+    const auto nyquist = static_cast<float> (samplingFreq * 0.5);
+    const auto minFreq = 10.0f; // TODO - make the min frequency a property?
+    const auto maxFreq = nyquist; // TODO - make the max frequency a property?
+    const auto minLogFreq = log10 (minFreq);
+    const auto logFreqSpan = log10 (maxFreq) - minLogFreq;
+    const auto n = fftMult->getFixedBlockSize() / 2;
+    const auto xRatio = static_cast<float> (getWidth()) / logFreqSpan;
+    const auto yRatio = static_cast<float> (getHeight()) / dbMin;
+    const auto amplitudeCorrection = 1.0f / static_cast<float>(n);
+    const auto binToHz = nyquist / static_cast<float> (n);
+    const auto strokeWidth = 1.0f;
+
+    for (auto ch = 0; ch < fftMult->getNumChannels(); ++ch)
+    {
+        // Draw a line representing the freq data for this channel
+        Path p;
+        p.preallocateSpace ((n + 1) * 3);
+        const auto offscreenX = -1.0f - strokeWidth;
+        const auto offscreenY = static_cast<float> (getHeight()) + strokeWidth;
+        fftMult->copyFrequencyData (f, ch);
+        auto x = offscreenX;
+        auto y = (f[0] <= 0.0f) ? offscreenY : todBVoltsFromLinear (f[0] * amplitudeCorrection) * yRatio;
+        p.startNewSubPath(x, y);
+        for (auto i = 1; i <= n; ++i)
+        {
+            y = (f[i] <= 0.0f) ? offscreenY : todBVoltsFromLinear (f[i] * amplitudeCorrection) * yRatio;
+            x = (log10 (static_cast<float> (i) * binToHz) - minLogFreq) * xRatio;
+            p.lineTo (x, y);
+        }
+        const auto pst = PathStrokeType (strokeWidth);
+        // TODO - different colours for different channels
+        if (ch == 0)
+            g.setColour (Colours::green);
+        else
+            g.setColour (Colours::yellow);
+        g.strokePath(p, pst);
+    }
+}
+void SimpleFftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
+{
+    jassert (fftMultPtr != nullptr);
+    fftMult = fftMultPtr;
+    // Note that each channel will trigger a repaint - hopefully they get coalesced!
+    fftMult->addListener (this);
+}
+void SimpleFftScope::asyncProbeUpdated (AudioProcessorProbe<FftProcessor<12>::FftFrame>*)
+{
+    repaint();
+}
+void SimpleFftScope::prepare (const dsp::ProcessSpec& spec)
+{
+    samplingFreq = spec.sampleRate;
+}
+float SimpleFftScope::todBVoltsFromLinear (const float x) const
+{
+    if (x <= 0.0f)
+        return 0.0f;
+    else
+        return 20.0f * log10(x);
+}
+
+AnalyserComponent::AnalyserComponent()
+    : fftMult (2)
+{
+    lblTitle.setName ("Analyser label");
+    lblTitle.setText ("Analyser", dontSendNotification);
+    lblTitle.setFont (Font (15.00f, Font::bold));
+    lblTitle.setJustificationType (Justification::topLeft);
+    lblTitle.setEditable (false, false, false);
+    lblTitle.setColour (TextEditor::textColourId, Colours::black);
+    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle);
     
-    addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
-    btnDisable->setButtonText ("Disable");
-    btnDisable->setClickingTogglesState (true);
-    btnDisable->setColour(TextButton::buttonOnColourId, Colours::darkred);
-    btnDisable->onClick = [this] { statusActive = !btnDisable->getToggleState(); };
+    btnDisable.setButtonText ("Disable");
+    btnDisable.setClickingTogglesState (true);
+    btnDisable.setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnDisable.onClick = [this] { statusActive = !btnDisable.getToggleState(); };
+    addAndMakeVisible (btnDisable);
+
+    addAndMakeVisible (fftScope);
+    fftScope.assignFftMult (&fftMult);
 }
-AnalyserComponent::~AnalyserComponent()
-{
-    lblTitle = nullptr;
-    btnDisable = nullptr;
-}
+AnalyserComponent::~AnalyserComponent() = default;
 void AnalyserComponent::paint (Graphics& g)
 {
     g.setColour (Colours::black);
@@ -56,23 +136,26 @@ void AnalyserComponent::resized()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (btnDisable).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f))
+                            GridItem (btnDisable).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
+                            GridItem (fftScope).withArea ({}, GridItem::Span (2))
                         });
 
     const auto marg = 10;
     grid.performLayout (getLocalBounds().reduced (marg, marg));
 }
-void AnalyserComponent::prepare (const dsp::ProcessSpec&)
+void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO - AnalyserComponent::prepare
+    fftMult.prepare (spec);
+    fftScope.prepare (spec);
 }
-void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>&)
+void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO - AnalyserComponent::process
+    auto* inputBlock = &context.getInputBlock();
+    for (size_t ch = 0; ch < inputBlock->getNumChannels(); ++ch)
+        fftMult.appendData (static_cast<int> (ch), static_cast<int> (inputBlock->getNumSamples()), inputBlock->getChannelPointer (ch));
 }
 void AnalyserComponent::reset ()
 {
-    // TODO - AnalyserComponent::reset
 }
 bool AnalyserComponent::isActive () const
 {

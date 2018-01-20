@@ -50,7 +50,7 @@ void RotarySliderLnF::drawRotarySlider (Graphics& g, int x, int y, int width, in
 
 SynthesisTab::SynthesisTab ()
 {
-    // Assume sample rate of 48K - this should be corrected when prepare() is called
+    // Assume sample rate of 48K - this will be corrected when prepare() is called
     const auto nyquist = 24000.0;
 
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
@@ -70,8 +70,8 @@ SynthesisTab::SynthesisTab ()
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
     sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
     sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
-    sldFrequency->setRange (1.0, nyquist, 1.0);
-    sldFrequency->setMinAndMaxValues (1.0, nyquist, dontSendNotification);
+    sldFrequency->setRange (10.0, nyquist, 1.0);
+    sldFrequency->setMinAndMaxValues (10.0, nyquist, dontSendNotification);
     sldFrequency->addListener (this);
     sldFrequency->setValue (440.0, sendNotificationSync);
     sldFrequency->setSkewFactor (0.5);
@@ -192,7 +192,7 @@ void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
     maxBlockSize = spec.maximumBlockSize;
     
     const auto nyquist = round (sampleRate / 2.0);
-    sldFrequency->setMaxValue(nyquist, sendNotificationSync);
+    sldFrequency->setRange (10.0, nyquist, 1.0);
 
     calculateNumSweepSteps();
     resetSweep();
@@ -827,7 +827,7 @@ AudioTab::InputArrayComponent::InputArrayComponent (OwnedArray<ChannelComponent>
     : channelComponents (channelComponentsToReferTo)
 { }
 AudioTab::InputArrayComponent::~InputArrayComponent() = default;
-void AudioTab::InputArrayComponent::paint (Graphics& g)
+void AudioTab::InputArrayComponent::paint (Graphics&)
 { }
 void AudioTab::InputArrayComponent::resized ()
 {

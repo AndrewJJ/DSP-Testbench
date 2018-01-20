@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.2.0">
+<JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.2.0"
+              reportAppUsage="0">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
@@ -33,6 +34,8 @@
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
         <FILE id="BhJYfA" name="Analysis.cpp" compile="1" resource="0" file="Source/Analysis.cpp"/>
         <FILE id="yjlnh6" name="Analysis.h" compile="0" resource="0" file="Source/Analysis.h"/>
+        <FILE id="kYn7rt" name="AudioDataTransfer.h" compile="0" resource="0"
+              file="Source/AudioDataTransfer.h"/>
         <FILE id="JFT69S" name="MeteringProcessors.cpp" compile="1" resource="0"
               file="Source/MeteringProcessors.cpp"/>
         <FILE id="tfjF02" name="MeteringProcessors.h" compile="0" resource="0"

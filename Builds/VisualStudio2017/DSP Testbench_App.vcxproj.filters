@@ -2244,6 +2244,9 @@
     <ClInclude Include="..\..\Source\Analysis.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\AudioDataTransfer.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MeteringProcessors.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>

@@ -102,7 +102,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     else // neither is active
         outputBlock.clear();
 
-    // Run audio through analyser
+    // Run audio through analyser (note that the analyser isn't expected to alter the outputBlock)
     if (analyserComponent->isActive())
         analyserComponent->process (dsp::ProcessContextReplacing<float> (outputBlock));
 
