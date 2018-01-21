@@ -10,19 +10,20 @@
 
 #include "AnalyserComponent.h"
 
-SimpleFftScope::SimpleFftScope (): fftMult (nullptr)
+SimpleFftScope::SimpleFftScope (): fftProcessor (nullptr)
 {
     this->setOpaque (true);
 }
 SimpleFftScope::~SimpleFftScope ()
 {
-    if (fftMult != nullptr)
-        fftMult->removeListener (this);
+    if (fftProcessor != nullptr)
+        fftProcessor->removeListener (this);
 }
 void SimpleFftScope::paint (Graphics& g)
 {
     // TODO - optimise & make pretty
-    // TODO - plot with alternate frequency scales (as per biquad control)
+    // TODO - plot with alternate frequency scales (cache to bitmap)
+    // TODO - implement painting on another thread to avoid choking the message thread
 
     g.fillAll(Colours::black);
 
@@ -32,21 +33,21 @@ void SimpleFftScope::paint (Graphics& g)
     const auto maxFreq = nyquist; // TODO - make the max frequency a property?
     const auto minLogFreq = log10 (minFreq);
     const auto logFreqSpan = log10 (maxFreq) - minLogFreq;
-    const auto n = fftMult->getFixedBlockSize() / 2;
+    const auto n = fftProcessor->getCurrentBlockSize() / 2;
     const auto xRatio = static_cast<float> (getWidth()) / logFreqSpan;
     const auto yRatio = static_cast<float> (getHeight()) / dbMin;
     const auto amplitudeCorrection = 1.0f / static_cast<float>(n);
     const auto binToHz = nyquist / static_cast<float> (n);
     const auto strokeWidth = 1.0f;
 
-    for (auto ch = 0; ch < fftMult->getNumChannels(); ++ch)
+    for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
     {
         // Draw a line representing the freq data for this channel
         Path p;
         p.preallocateSpace ((n + 1) * 3);
         const auto offscreenX = -1.0f - strokeWidth;
         const auto offscreenY = static_cast<float> (getHeight()) + strokeWidth;
-        fftMult->copyFrequencyData (f, ch);
+        fftProcessor->copyFrequencyData (f, ch);
         auto x = offscreenX;
         auto y = (f[0] <= 0.0f) ? offscreenY : todBVoltsFromLinear (f[0] * amplitudeCorrection) * yRatio;
         p.startNewSubPath(x, y);
@@ -68,11 +69,10 @@ void SimpleFftScope::paint (Graphics& g)
 void SimpleFftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
 {
     jassert (fftMultPtr != nullptr);
-    fftMult = fftMultPtr;
-    // Note that each channel will trigger a repaint - hopefully they get coalesced!
-    fftMult->addListener (this);
+    fftProcessor = fftMultPtr;
+    fftProcessor->addListener (this);
 }
-void SimpleFftScope::asyncProbeUpdated (AudioProcessorProbe<FftProcessor<12>::FftFrame>*)
+void SimpleFftScope::asyncProbeUpdated (AudioProcessorProbe<FftProcessor<12>::FftFrame>* p)
 {
     repaint();
 }

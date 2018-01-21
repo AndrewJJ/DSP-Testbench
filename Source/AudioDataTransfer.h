@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../JuceLibraryCode/JuceHeader.h"
+
 /*  
 	This file contains utility classes designed for data transfer applications involving a juce::AudioProcessor. As you'll see from the
 	use cases described below, this involves asynchronous transfer between an AudioProcessor and an AudioProcessorEditor and synchronous
@@ -64,14 +66,14 @@
 *   for reading minimises the risk of data tearing. Tearing can only occur if the write method overwrites the read
 *   position during the non-atomic copy operation. Hence the risk is a function of the queue length.
 *  
-*   The ElementType used for the dataframe must be of fixed size at compile time. For example:
+*   The FrameType used for the dataframe must be of fixed size at compile time. For example:
 *  
 *   struct SimpleDataFrame
 *	{
 *		alignas(16) float f[1024];
 *	};
 */
-template <class ElementType>
+template <class FrameType>
 class AudioProcessorProbe
 {
 public:
@@ -98,12 +100,12 @@ public:
         : numFramesInQueue (queueLengthInFrames),
         writeIndex (1),
         readIndex (0),
-        frameSize (sizeof (ElementType))
+        frameSize (sizeof (FrameType))
     {
         // Allocate memory for queue
 		writeQueue.allocate (numFramesInQueue, false);
         // Intialise frame at read position
-		writeQueue[readIndex] = ElementType ();
+		writeQueue[readIndex] = FrameType ();
     }
 
     /* Destructor. */
@@ -118,7 +120,7 @@ public:
 
     /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer().
     *   There is no need to call finishedWrite() after this. */
-    void writeFrame (ElementType* source)
+    void writeFrame (FrameType* source)
     {
         jassert (writeIndex != readIndex);
         std::memcpy (&writeQueue[writeIndex], source, frameSize);
@@ -126,7 +128,7 @@ public:
     }
 
     /** Access pointer to write a data frame. Must be followed by a call to finishedWrite() when done. */
-	ElementType* getWritePointer()
+	FrameType* getWritePointer()
     {
         jassert (writeIndex != readIndex);
         return &writeQueue[writeIndex];
@@ -154,7 +156,7 @@ public:
 	*	and copying out in one operation, the risk of data tearing is extremely low (an assertion will throw if this does happen).
 	*	Observers/listeners should pre-allocate a member variable of ElementType to copy into if performance is critical.
 	*/
-    void copyFrame (ElementType* destination)
+    void copyFrame (FrameType* destination)
     {
         jassert (writeIndex != readIndex);
         std::memcpy (destination, &writeQueue[readIndex], frameSize);
@@ -199,7 +201,7 @@ private:
     int writeIndex, readIndex;  // In units of frame size
     int frameSize;              // In bytes
 	ListenerList <Listener> listeners;
-	HeapBlock <ElementType> writeQueue;
+	HeapBlock <FrameType> writeQueue;
 };
 
 
@@ -208,10 +210,17 @@ private:
 *	is independent of the block size of the source stream. Derivations need to implement the performProcessing() method. It is assumed that
 *	processing will take place on the same thread as AudioProcessor::processBlock(), there is no consideration given to thread safety.
 *	Note that this class only operates on float based audio data.
+*	
+*	Note that we set a maximum block size at construction but allow modification to a smaller size if necessary.
 */
 class FixedBlockProcessor
 {
 public:
+
+    explicit FixedBlockProcessor (const int maximumBlockSize)
+        : maxBlockSize (maximumBlockSize),
+          currentBlockSize (maximumBlockSize)
+    { }
 
 	virtual ~FixedBlockProcessor() = default;
 
@@ -230,18 +239,27 @@ public:
         return numChannels;
     }
 
-	/** Sets the block size used - may be independent of the stream being copied. */
-    void setFixedBlockSize (const int size		/**< Block size */)
+	/** Sets the current block size used. Current size is initialised to maximum size. If you set a smaller size,
+	 *  then it performProcessing() will be called when the smaller, current block size is reached. */
+    void modifyCurrentBlockSize (const int size		/**< This block size must be <= to the maximum, larger values will be truncated to max. */)
     {
         jassert (size > 0);
-        blockSize = size;
-        resizeBuffer();
+        jassert (size <= maxBlockSize);
+        currentBlockSize = jmin (size, maxBlockSize);
+        // TODO
+        //resizeBuffer();
     }
 
-	/** Gets the block size. */
-    int getFixedBlockSize() const
+	/** Gets the maximum block size. */
+    int getMaximumBlockSize() const
     {
-        return blockSize;
+        return maxBlockSize;
+    }
+
+    /** Gets the current block size. */
+    int getCurrentBlockSize() const
+    {
+        return currentBlockSize;
     }
 
 	/** Appends data to the buffer. */
@@ -250,15 +268,14 @@ public:
 		             const float* data		/**< Pointer to source data */
                     )
     {
-        jassert (numChannels > 0);
-        jassert (blockSize > 0);
+        jassert (numChannels > 0);  // If this assert fires then you probably haven't called prepare()
+        jassert (currentBlockSize > 0);
         jassert (channel >= 0 && channel < numChannels);
-        jassert (numSamples > 0);
-
+        jassert (numSamples > 0);   // If this assert fires then you probably haven't called prepare()
 
         if (data != nullptr)
         {
-            if (currentIndex[channel] + numSamples < blockSize)
+            if (currentIndex[channel] + numSamples < currentBlockSize)
             {
                 // Data can't fill the channel buffer, so write what we have
                 buffer.copyFrom (channel, currentIndex[channel], data, numSamples);
@@ -271,7 +288,7 @@ public:
                 auto dataOffset = 0;
 
                 // Write remainder of channel buffer and process
-                const auto rem = blockSize - currentIndex[channel];
+                const auto rem = currentBlockSize - currentIndex[channel];
                 buffer.copyFrom (channel, currentIndex[channel], data, rem);
                 performProcessing (channel);
                 currentIndex[channel] = 0;
@@ -279,12 +296,12 @@ public:
                 dataOffset += rem;
 
                 // Loop full blocks (processing as we go)
-                while (samplesRemaining >= blockSize)
+                while (samplesRemaining >= currentBlockSize)
                 {
-                    buffer.copyFrom (channel, currentIndex[channel], data + dataOffset, blockSize);
+                    buffer.copyFrom (channel, currentIndex[channel], data + dataOffset, currentBlockSize);
                     performProcessing (channel);
-                    samplesRemaining -= blockSize;
-                    dataOffset += blockSize;
+                    samplesRemaining -= currentBlockSize;
+                    dataOffset += currentBlockSize;
                 }
 
                 if (samplesRemaining > 0)
@@ -306,17 +323,20 @@ protected:
 	AudioSampleBuffer buffer;
 
 	/** Used to hold current position in buffer (per channel) */
-    HeapBlock<int> currentIndex;
+    HeapBlock<int> currentIndex{};
 
 private:
 
-	/** Resizes buffer. */
+	/** Resizes buffer - this always allocates sufficient to hold the maximum block size. */
     void resizeBuffer()
     {
-        buffer.setSize (numChannels, blockSize, false, true);
+        buffer.setSize (numChannels, maxBlockSize, false, true, true);
         currentIndex.allocate (numChannels, true);
     }
 
 	int numChannels = 0;
-	int blockSize = 0;
+    int maxBlockSize = 0;
+	int currentBlockSize = 0;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FixedBlockProcessor);
 };

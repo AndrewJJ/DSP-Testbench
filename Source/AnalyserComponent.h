@@ -29,9 +29,13 @@ private:
     
     float todBVoltsFromLinear (const float x) const;
 
-	FftProcessor<12>* fftMult;
+	FftProcessor<12>* fftProcessor;
 	float f [1 << 12]; // pre-allocated array for use by paint routine
 	double samplingFreq = 48000;
+
+    // TODO - delete
+    double startTime = 0.0;
+    long numPaintCalls = -1;
 };
 
 class AnalyserComponent  :  public Component, public dsp::ProcessorBase

@@ -29,11 +29,11 @@ public:
 	};
 
 	explicit FftProcessor (const int numChannels)
-		: fft (order),
-		  size (1 << order)
+		: FixedBlockProcessor (1 << order),
+		  fft (order),
+          size (1 << order)
 	{
-        setFixedBlockSize (size);
-		temp.setSize (1, size * 2, false, true);
+        temp.setSize (1, size * 2, false, true);
 		window.setSize (1, size);
 		hann (window.getWritePointer (0), size);
 	}
@@ -46,15 +46,20 @@ public:
 
         freqProbes.clear();
         //phaseProbes.clear();
+
+        // Add probes for each channel to transfer audio data to the GUI
 	    for (auto ch = 0; ch < spec.numChannels; ++ch)
         {
             freqProbes.add (new AudioProcessorProbe <FftFrame> ());
             //phaseProbes.add (new AsyncDataTransfer <FftFrame> ());
-            for (auto i = 0; i < listeners.size(); ++i)
-            {
-	            freqProbes[ch]->addListener (listeners.getListeners()[i]);
-                //phaseProbes[ch]->addListener (listeners.getListeners()[i]);
-            }
+        }
+
+        // But add listeners to the last channel only (prevents excessive paint calls)
+	    const auto lastChannel = static_cast<int> (spec.numChannels) - 1;
+        for (auto i = 0; i < listeners.size(); ++i)
+        {
+	        freqProbes[lastChannel]->addListener (listeners.getListeners()[i]);
+            //phaseProbes[lastChannel]->addListener (listeners.getListeners()[i]);
         }
 	}
 
@@ -117,7 +122,7 @@ private:
     }
 
     dsp::FFT fft;
-	const int size;
+    const int size;
 	AudioSampleBuffer temp;
 	AudioSampleBuffer window;
 	float atime;
