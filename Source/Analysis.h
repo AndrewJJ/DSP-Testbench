@@ -28,7 +28,7 @@ public:
 		alignas(16) float f[1 << Order];
 	};
 
-    explicit FftProcessor (const int numChannels);
+    explicit FftProcessor();
     ~FftProcessor ();
 
     void prepare (const dsp::ProcessSpec& spec) override;
@@ -67,23 +67,23 @@ private:
 // Template implementations
 // ===========================================================================================
 
-template <int order>
-FftProcessor<order>::FftProcessor (const int numChannels): FixedBlockProcessor(1 << order),
-                                                           fft(order),
-                                                           size(1 << order)
+template <int Order>
+FftProcessor<Order>::FftProcessor (): FixedBlockProcessor(1 << Order),
+                                      fft(Order),
+                                      size(1 << Order)
 {
     temp.setSize(1, size * 2, false, true);
     window.setSize(1, size);
     hann(window.getWritePointer(0), size);
 }
 
-template <int order>
-FftProcessor<order>::~FftProcessor ()
+template <int Order>
+FftProcessor<Order>::~FftProcessor ()
 {
 }
 
-template <int order>
-void FftProcessor<order>::prepare (const dsp::ProcessSpec& spec)
+template <int Order>
+void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
 {
     FixedBlockProcessor::prepare(spec);
 
@@ -91,7 +91,7 @@ void FftProcessor<order>::prepare (const dsp::ProcessSpec& spec)
     //phaseProbes.clear();
 
     // Add probes for each channel to transfer audio data to the GUI
-    for (auto ch = 0; ch < spec.numChannels; ++ch)
+    for (auto ch = 0; ch < static_cast<int> (spec.numChannels); ++ch)
     {
         freqProbes.add(new AudioProbe<FftFrame>());
         //phaseProbes.add (new AsyncDataTransfer <FftFrame> ());
@@ -106,8 +106,8 @@ void FftProcessor<order>::prepare (const dsp::ProcessSpec& spec)
     }
 }
 
-template <int order>
-void FftProcessor<order>::performProcessing (const int channel)
+template <int Order>
+void FftProcessor<Order>::performProcessing (const int channel)
 {
     temp.copyFrom(0, 0, buffer.getReadPointer(channel), size);
     FloatVectorOperations::multiply(temp.getWritePointer(0), window.getWritePointer(0), size);
@@ -116,32 +116,32 @@ void FftProcessor<order>::performProcessing (const int channel)
     //phaseProbes[channel]->writeFrame(reinterpret_cast<FftFrame*> (temp.getWritePointer (0) + size));
 }
 
-template <int order>
-void FftProcessor<order>::copyFrequencyData (float* dest, const int channel)
+template <int Order>
+void FftProcessor<Order>::copyFrequencyData (float* dest, const int channel)
 {
     freqProbes[channel]->copyFrame(reinterpret_cast<FftFrame*>(dest));
 }
 
-//template <int order>
-//void FftProcessor<order>::copyPhaseData (float* dest, const int channel)
+//template <int Order>
+//void FftProcessor<Order>::copyPhaseData (float* dest, const int channel)
 //{
 //	phaseProbes[channel]->copyFrame (reinterpret_cast <FftFrame*> (dest));
 //}
 
-template <int order>
-void FftProcessor<order>::addListener (typename AudioProbe<FftFrame>::Listener* listener)
+template <int Order>
+void FftProcessor<Order>::addListener (typename AudioProbe<FftFrame>::Listener* listener)
 {
     listeners.add(listener);
 }
 
-template <int order>
-void FftProcessor<order>::removeListener (typename AudioProbe<FftFrame>::Listener* listener)
+template <int Order>
+void FftProcessor<Order>::removeListener (typename AudioProbe<FftFrame>::Listener* listener)
 {
     listeners.remove(listener);
 }
 
-template <int order>
-void FftProcessor<order>::trigwin2 (float* d, const int windowSize, const double c0, const double c1) const
+template <int Order>
+void FftProcessor<Order>::trigwin2 (float* d, const int windowSize, const double c0, const double c1) const
 {
     if (windowSize == 1)
     {
@@ -162,8 +162,8 @@ void FftProcessor<order>::trigwin2 (float* d, const int windowSize, const double
     }
 }
 
-template <int order>
-void FftProcessor<order>::hann (float* d, const int windowSize) const
+template <int Order>
+void FftProcessor<Order>::hann (float* d, const int windowSize) const
 {
     trigwin2(d, windowSize, 0.5, 0.5);
 }

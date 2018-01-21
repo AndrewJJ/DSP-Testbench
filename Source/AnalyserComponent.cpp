@@ -10,27 +10,29 @@
 
 #include "AnalyserComponent.h"
 
-SimpleFftScope::SimpleFftScope (): fftProcessor (nullptr)
+FftScope::FftScope (): fftProcessor (nullptr)
 {
     this->setOpaque (true);
 }
-SimpleFftScope::~SimpleFftScope ()
+FftScope::~FftScope ()
 {
     if (fftProcessor != nullptr)
         fftProcessor->removeListener (this);
 }
-void SimpleFftScope::paint (Graphics& g)
+void FftScope::paint (Graphics& g)
 {
     // TODO - optimise & make pretty
-    // TODO - plot with alternate frequency scales (cache to bitmap)
-    // TODO - implement painting on another thread to avoid choking the message thread
+    // TODO - plot axes and cache to bitmap
+    // TODO - implement painting on another thread to avoid choking the message thread?
 
     g.fillAll(Colours::black);
 
-    const auto dbMin = -80.0f;
     const auto nyquist = static_cast<float> (samplingFreq * 0.5);
-    const auto minFreq = 10.0f; // TODO - make the min frequency a property?
-    const auto maxFreq = nyquist; // TODO - make the max frequency a property?
+
+    const auto strokeWidth = 1.0f;  // TODO - make strokewidth a property, or delete?
+    const auto dbMin = -80.0f;      // TODO - make min dB a property
+    const auto minFreq = 10.0f;     // TODO - make min frequency a property
+    const auto maxFreq = nyquist;   // TODO - make the max frequency a property (limited to nyquist)
     const auto minLogFreq = log10 (minFreq);
     const auto logFreqSpan = log10 (maxFreq) - minLogFreq;
     const auto n = fftProcessor->getCurrentBlockSize() / 2;
@@ -38,7 +40,6 @@ void SimpleFftScope::paint (Graphics& g)
     const auto yRatio = static_cast<float> (getHeight()) / dbMin;
     const auto amplitudeCorrection = 1.0f / static_cast<float>(n);
     const auto binToHz = nyquist / static_cast<float> (n);
-    const auto strokeWidth = 1.0f;
 
     for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
     {
@@ -66,21 +67,21 @@ void SimpleFftScope::paint (Graphics& g)
         g.strokePath(p, pst);
     }
 }
-void SimpleFftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
+void FftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
 {
     jassert (fftMultPtr != nullptr);
     fftProcessor = fftMultPtr;
     fftProcessor->addListener (this);
 }
-void SimpleFftScope::audioProbeUpdated (AudioProbe<FftProcessor<12>::FftFrame>* p)
+void FftScope::audioProbeUpdated (AudioProbe<FftProcessor<12>::FftFrame>*)
 {
     repaint();
 }
-void SimpleFftScope::prepare (const dsp::ProcessSpec& spec)
+void FftScope::prepare (const dsp::ProcessSpec& spec)
 {
     samplingFreq = spec.sampleRate;
 }
-float SimpleFftScope::todBVoltsFromLinear (const float x) const
+float FftScope::todBVoltsFromLinear (const float x) const
 {
     if (x <= 0.0f)
         return 0.0f;
@@ -89,7 +90,6 @@ float SimpleFftScope::todBVoltsFromLinear (const float x) const
 }
 
 AnalyserComponent::AnalyserComponent()
-    : fftMult (2)
 {
     lblTitle.setName ("Analyser label");
     lblTitle.setText ("Analyser", dontSendNotification);
@@ -128,7 +128,7 @@ void AnalyserComponent::resized()
                         };
 
     //grid.templateColumns = { Track (1_fr), Track (6_fr), Track (1_fr), Track (1_fr) };
-    grid.templateColumns = { Track (6_fr), Track (1_fr) };
+    grid.templateColumns = { Track (9_fr), Track (1_fr) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
