@@ -13,14 +13,12 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 /*  
-	This file contains utility classes designed for data transfer applications involving a juce::AudioProcessor. As you'll see from the
-	use cases described below, this involves asynchronous transfer between an AudioProcessor and an AudioProcessorEditor and synchronous
-	transfer within an AudioProcessor. This file does not contain classes relating to data transfer for AudioProcessorParameters.
+	This file contains utility classes designed for data transfer applications involving real time audio.
 
 	Asynchronous use cases:
 	----------------------
 	- AudioProcessor to GUI
-		- AudioProcessor makes latest data available for GUI (AudioProcessorProbe)
+		- AudioProcessor makes latest data available for GUI (AudioProbe)
 			- GUI polls probe when it feels like
 			- GUI is notified when there has been a change
 		-	AudioProcessor streams all data to GUI (AudioProcessorStreamingProbe, not provided)
@@ -29,14 +27,13 @@
 			-	Would require a separate queue for each observer
 		- Trivial cases
 			- Atomic data types
-	-	AudioProcessor to Processing Thread (AudioProcessorParallelStream, not provided)
+	-	AudioProcessor to Processing Thread
 		-	Not recommended for plugins (you can miss the cache and the host will be trying to spread lots of plugins across cores anyhow)
 	
 	Synchronous use cases:
 	---------------------
 	-	AudioProcessor streams all data to elsewhere in AudioProcessor at different block size (FixedBlockProcessor)
 		-	Useful for things like FFTs which need to be processed with a fixed block size
-		-	Maybe template <typename FloatType> FixedBlockProcessor?
 	-	Trivial cases
 		-	AudioProcessor makes latest data available for AudioProcessor (just use state variables)
 		-	AudioProcessor streams all data to elsewhere in AudioProcessor at same block size (just copy data directly)
@@ -51,9 +48,8 @@
 
 */
 
-// TODO - check that addListener() & removeListener() never cause the sender to glitch
 /**
-*   This class is designed to be used by an AudioProcessor which needs to safely and asynchronously transfer non-POD data to one or many 
+*   This class is designed to be used by a real time audio process which needs to safely and asynchronously transfer non-POD data to one or many 
 *	observers. A series of objects of the templated type are written to a lock-free queue for later reading by the observers. This pattern
 *	is useful for communication between an AudioProcessor and it's AudioProcessorEditor(s) because we can't guarantee how many editors exist
 *	at any point in time.
@@ -74,28 +70,27 @@
 *	};
 */
 template <class FrameType>
-class AudioProcessorProbe
+class AudioProbe
 {
 public:
 
-	/** AudioProcessorProbe::Listener class - inherit from this in order to be able to register as a listener. Objects
-    *   inheriting from this should add themselves as a listener by calling addListener() on the parent AudioProcessorProbe<> object.
+	/** AudioProbe::Listener class - inherit from this in order to be able to register as a listener. Objects
+    *   inheriting from this should add themselves as a listener by calling addListener() on the parent AudioProbe<> object.
 	*	Similarly, the listener should remove itself by calling removeListener() on the parent (typically done during destruction). */
 	class Listener
 	{
 	public:
-		/* Destructor. */
-		virtual ~Listener ()
-		{
-		}
 
-		/** Callback for whenever an AudioProcessorProbe is updated. This callback should never attempt to remove a listener
+        /** Default destructor */
+	    ~Listener () = default;
+
+	    /** Callback for whenever an AudioProbe is updated. This callback should never attempt to remove a listener
 		*	(bailout checking not implemented). */
-		virtual void asyncProbeUpdated (AudioProcessorProbe *const asyncProbeThatUpdated) = 0;
+		virtual void audioProbeUpdated (AudioProbe *const audioProbeThatUpdated) = 0;
 	};
 
     /* Constructor. Optionally specify the length of the queue. */
-	explicit AudioProcessorProbe(const int queueLengthInFrames = 3	/**< Number of frames in queue. Higher values have lower risk of data tearing. */)
+	explicit AudioProbe(const int queueLengthInFrames = 3	/**< Number of frames in queue. Higher values have lower risk of data tearing. */)
         : numFramesInQueue (queueLengthInFrames),
         writeIndex (1),
         readIndex (0),
@@ -108,7 +103,7 @@ public:
     }
 
     /* Destructor. */
-    ~AudioProcessorProbe()
+    ~AudioProbe()
 	{
 		// Naturally, the AudioProcessor shouldn't keep trying to write to this object once it has been destroyed! If it attempts to, then behaviour
 		// is undefined.
@@ -117,37 +112,12 @@ public:
 		// should always be destroyed before it's parent AudioProcessor
 	}
 
-    /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer().
-    *   There is no need to call finishedWrite() after this. */
+    /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer(). */
     void writeFrame (FrameType* source)
     {
         jassert (writeIndex != readIndex);
         std::memcpy (&writeQueue[writeIndex], source, frameSize);
         finishedWrite();
-    }
-
-    /** Access pointer to write a data frame. Must be followed by a call to finishedWrite() when done. */
-	FrameType* getWritePointer()
-    {
-        jassert (writeIndex != readIndex);
-        return &writeQueue[writeIndex];
-    }
-
-	/** This should be called when the writer has completed writing a data frame. It is only needed if getWritePointer() has been used to write
-	*	data frame. */
-    void finishedWrite()
-    {
-        jassert (writeIndex != readIndex);
-        readIndex = writeIndex;
-        writeIndex++;
-        if (writeIndex == numFramesInQueue)
-            writeIndex = 0;
-		if (hasListeners())
-		{
-			// Post callback on message thread to notify listeners
-			auto notifyListeners = [this]() { this->notifyAllListeners(); };
-			juce::MessageManager::callAsync(notifyListeners);
-		}
     }
 
 	/** Copies current data frame at read index into the destination.
@@ -178,7 +148,7 @@ public:
 
 	/** Removes a listener from the list. If the listener wasn't in the list, this has no effect.
 	*	If this call is causing errors when called from a destructor then you probably haven't checked to make sure your
-	*	AudioProcessorProbe* is not already a nullptr. */
+	*	AudioProbe* is not already a nullptr. */
 	void removeListener(Listener *const listener		/*<< Listener to remove. */)
 	{
 		listeners.remove(listener);
@@ -186,10 +156,26 @@ public:
 
 private:
 
-	/** Iterates through all listeners, calling AsyncProbeUpdated(). */
+	/** This is called when the writer has completed writing a data frame. */
+    void finishedWrite()
+    {
+        jassert (writeIndex != readIndex);
+        readIndex = writeIndex;
+        writeIndex++;
+        if (writeIndex == numFramesInQueue)
+            writeIndex = 0;
+		if (hasListeners())
+		{
+			// Post callback on message thread to notify listeners
+			auto notifyListeners = [this] { this->notifyAllListeners(); };
+			juce::MessageManager::callAsync(notifyListeners);
+		}
+    }
+
+    /** Iterates through all listeners, calling AsyncProbeUpdated(). */
 	void notifyAllListeners ()
 	{
-		listeners.call (&Listener::asyncProbeUpdated, this);
+		listeners.call (&Listener::audioProbeUpdated, this);
 	}
 
     const int numFramesInQueue; // In units of frame size
@@ -197,21 +183,28 @@ private:
     int frameSize;              // In bytes
 	ListenerList <Listener> listeners;
 	HeapBlock <FrameType> writeQueue;
+
+public:
+    // Declare non-copyable, non-movable
+    AudioProbe (const AudioProbe&) = delete;
+    AudioProbe& operator= (const AudioProbe&) = delete;
+    AudioProbe (AudioProbe&& other) = delete;
+    AudioProbe& operator=(AudioProbe&& other) = delete;
 };
 
-
 /**
-*	This abstract class is used to provide the capability to stream data to elsewhere in an AudioProcessor at a fixed block size which
-*	is independent of the block size of the source stream. Derivations need to implement the performProcessing() method. It is assumed that
-*	processing will take place on the same thread as AudioProcessor::processBlock(), there is no consideration given to thread safety.
+*	This abstract class is used to provide the capability to stream data to elsewhere in a real time audio process at
+*   a fixed block size which is independent of the block size of the source stream. Derivations need to implement the
+*	performProcessing() method. It is assumed that processing will take place on the same thread as AudioProcessor::processBlock(),
+*	there is no consideration given to thread safety.
+*	 
 *	Note that this class only operates on float based audio data.
-*	
-*	Note that we set a maximum block size at construction but allow modification to a smaller size if necessary.
 */
 class FixedBlockProcessor
 {
 public:
 
+    /** We set a maximum block size at construction but allow later modification to a smaller size if necessary. */
     explicit FixedBlockProcessor (const int maximumBlockSize)
         : maxBlockSize (maximumBlockSize),
           currentBlockSize (maximumBlockSize)
@@ -324,7 +317,7 @@ protected:
 
 private:
 
-	/** Resizes buffer - this always allocates sufficient to hold the maximum block size. */
+	/** Resizes buffer - this always allocates sufficient memory to hold the maximum block size. */
     void resizeBuffer()
     {
         buffer.setSize (numChannels, maxBlockSize, false, true, true);
@@ -335,5 +328,10 @@ private:
     int maxBlockSize = 0;
 	int currentBlockSize = 0;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FixedBlockProcessor);
+public:
+    // Declare non-copyable, non-movable
+    FixedBlockProcessor (const FixedBlockProcessor&) = delete;
+    FixedBlockProcessor& operator= (const FixedBlockProcessor&) = delete;
+    FixedBlockProcessor (FixedBlockProcessor&& other) = delete;
+    FixedBlockProcessor& operator=(FixedBlockProcessor&& other) = delete;
 };

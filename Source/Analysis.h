@@ -15,7 +15,7 @@
 
 /**
 	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow a FFT to
-	be computed on a fixed block size, regardless of the block sized used by the audio device or host. An AudioProcessorProbe object
+	be computed on a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
 	is then used to make the processed data available for use on other threads.
 */
 template <int Order>
@@ -36,8 +36,8 @@ public:
     void copyFrequencyData (float* dest, const int channel);
 	//void copyPhaseData (float* dest, const int channel);
 
-    void addListener (typename AudioProcessorProbe<FftFrame>::Listener* listener);
-    void removeListener (typename AudioProcessorProbe<FftFrame>::Listener* listener);
+    void addListener (typename AudioProbe<FftFrame>::Listener* listener);
+    void removeListener (typename AudioProbe<FftFrame>::Listener* listener);
 
 private:
 
@@ -56,10 +56,10 @@ private:
 	float rtime;
 	int type;
 
-    OwnedArray <AudioProcessorProbe <FftFrame>> freqProbes;;
-    //OwnedArray <AudioProcessorProbe <FftFrame>> phaseProbes;
+    OwnedArray <AudioProbe <FftFrame>> freqProbes;;
+    //OwnedArray <AudioProbe <FftFrame>> phaseProbes;
 
-    ListenerList<typename AudioProcessorProbe<FftFrame>::Listener> listeners;
+    ListenerList<typename AudioProbe<FftFrame>::Listener> listeners;
 };
 
 
@@ -93,7 +93,7 @@ void FftProcessor<order>::prepare (const dsp::ProcessSpec& spec)
     // Add probes for each channel to transfer audio data to the GUI
     for (auto ch = 0; ch < spec.numChannels; ++ch)
     {
-        freqProbes.add(new AudioProcessorProbe<FftFrame>());
+        freqProbes.add(new AudioProbe<FftFrame>());
         //phaseProbes.add (new AsyncDataTransfer <FftFrame> ());
     }
 
@@ -129,13 +129,13 @@ void FftProcessor<order>::copyFrequencyData (float* dest, const int channel)
 //}
 
 template <int order>
-void FftProcessor<order>::addListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
+void FftProcessor<order>::addListener (typename AudioProbe<FftFrame>::Listener* listener)
 {
     listeners.add(listener);
 }
 
 template <int order>
-void FftProcessor<order>::removeListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
+void FftProcessor<order>::removeListener (typename AudioProbe<FftFrame>::Listener* listener)
 {
     listeners.remove(listener);
 }

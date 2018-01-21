@@ -72,7 +72,7 @@ void SimpleFftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
     fftProcessor = fftMultPtr;
     fftProcessor->addListener (this);
 }
-void SimpleFftScope::asyncProbeUpdated (AudioProcessorProbe<FftProcessor<12>::FftFrame>* p)
+void SimpleFftScope::audioProbeUpdated (AudioProbe<FftProcessor<12>::FftFrame>* p)
 {
     repaint();
 }
