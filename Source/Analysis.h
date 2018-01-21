@@ -18,108 +18,35 @@
 	be computed on a fixed block size, regardless of the block sized used by the audio device or host. An AudioProcessorProbe object
 	is then used to make the processed data available for use on other threads.
 */
-template <int order>
+template <int Order>
 class FftProcessor : public FixedBlockProcessor
 {
 public:
 
 	struct FftFrame
     {
-		alignas(16) float f[1 << order];
+		alignas(16) float f[1 << Order];
 	};
 
-	explicit FftProcessor (const int numChannels)
-		: FixedBlockProcessor (1 << order),
-		  fft (order),
-          size (1 << order)
-	{
-        temp.setSize (1, size * 2, false, true);
-		window.setSize (1, size);
-		hann (window.getWritePointer (0), size);
-	}
+    explicit FftProcessor (const int numChannels);
+    ~FftProcessor ();
 
-	~FftProcessor () {}
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void performProcessing (const int channel) override;
+    void copyFrequencyData (float* dest, const int channel);
+	//void copyPhaseData (float* dest, const int channel);
 
-    void prepare (const dsp::ProcessSpec& spec) override
-	{
-        FixedBlockProcessor::prepare (spec);
-
-        freqProbes.clear();
-        //phaseProbes.clear();
-
-        // Add probes for each channel to transfer audio data to the GUI
-	    for (auto ch = 0; ch < spec.numChannels; ++ch)
-        {
-            freqProbes.add (new AudioProcessorProbe <FftFrame> ());
-            //phaseProbes.add (new AsyncDataTransfer <FftFrame> ());
-        }
-
-        // But add listeners to the last channel only (prevents excessive paint calls)
-	    const auto lastChannel = static_cast<int> (spec.numChannels) - 1;
-        for (auto i = 0; i < listeners.size(); ++i)
-        {
-	        freqProbes[lastChannel]->addListener (listeners.getListeners()[i]);
-            //phaseProbes[lastChannel]->addListener (listeners.getListeners()[i]);
-        }
-	}
-
-	void performProcessing (const int channel) override
-	{
-		temp.copyFrom (0, 0, buffer.getReadPointer (channel), size);
-		FloatVectorOperations::multiply (temp.getWritePointer (0), window.getWritePointer (0), size);
-	    fft.performFrequencyOnlyForwardTransform (temp.getWritePointer (0));
-		freqProbes[channel]->writeFrame(reinterpret_cast<FftFrame*> (temp.getWritePointer (0)));
-		//phaseProbes[channel]->writeFrame(reinterpret_cast<FftFrame*> (temp.getWritePointer (0) + size));
-	}
-
-	void copyFrequencyData (float* dest, const int channel)
-	{
-		freqProbes[channel]->copyFrame (reinterpret_cast <FftFrame*> (dest));
-	}
-
-	//void copyPhaseData (float* dest, const int channel)
-	//{
-	//	phaseProbes[channel]->copyFrame (reinterpret_cast <FftFrame*> (dest));
-	//}
-	
-    void addListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
-	{
-	    listeners.add (listener);
-	}
-
-    void removeListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
-	{
-	    listeners.remove (listener);
-	}
+    void addListener (typename AudioProcessorProbe<FftFrame>::Listener* listener);
+    void removeListener (typename AudioProcessorProbe<FftFrame>::Listener* listener);
 
 private:
 
     // Generic 2-term trigonometric window (from ICST_DSP BlkDsp)
-    void trigwin2 (float* d, const int windowSize, const double c0, const double c1) const
-    {
-	    if (windowSize == 1)
-        {
-	        d[0] = static_cast<float> (c0 + c1);
-            return;
-        }
-	    auto tmp = MathConstants<double>::twoPi / static_cast<double> (windowSize - 1);
-	    const auto wre = cos(tmp);
-        const auto wim = sin(tmp);
-	    auto re=-1.0;
-        auto im=0.0;
-	    for (auto i=0; i<=(windowSize>>1); i++) {
-		    d[windowSize-i-1] = d[i] = static_cast<float> (c0 + c1 * re);
-		    tmp = re;
-            re = wre*re - wim*im;
-            im = wre*im + wim*tmp;
-	    }
-    }
+    void trigwin2 (float* d, const int windowSize, const double c0, const double c1) const;
 
+    // TODO - use juce::dsp WindowingFunctions instead
     // Hann window (from ICST_DSP BlkDsp)
-    void hann (float* d, const int windowSize) const
-    {
-        trigwin2 (d, windowSize, 0.5, 0.5);
-    }
+    void hann (float* d, const int windowSize) const;
 
     dsp::FFT fft;
     const int size;
@@ -134,3 +61,109 @@ private:
 
     ListenerList<typename AudioProcessorProbe<FftFrame>::Listener> listeners;
 };
+
+
+// ===========================================================================================
+// Template implementations
+// ===========================================================================================
+
+template <int order>
+FftProcessor<order>::FftProcessor (const int numChannels): FixedBlockProcessor(1 << order),
+                                                           fft(order),
+                                                           size(1 << order)
+{
+    temp.setSize(1, size * 2, false, true);
+    window.setSize(1, size);
+    hann(window.getWritePointer(0), size);
+}
+
+template <int order>
+FftProcessor<order>::~FftProcessor ()
+{
+}
+
+template <int order>
+void FftProcessor<order>::prepare (const dsp::ProcessSpec& spec)
+{
+    FixedBlockProcessor::prepare(spec);
+
+    freqProbes.clear();
+    //phaseProbes.clear();
+
+    // Add probes for each channel to transfer audio data to the GUI
+    for (auto ch = 0; ch < spec.numChannels; ++ch)
+    {
+        freqProbes.add(new AudioProcessorProbe<FftFrame>());
+        //phaseProbes.add (new AsyncDataTransfer <FftFrame> ());
+    }
+
+    // But add listeners to the last channel only (prevents excessive paint calls)
+    const auto lastChannel = static_cast<int>(spec.numChannels) - 1;
+    for (auto i = 0; i < listeners.size(); ++i)
+    {
+        freqProbes[lastChannel]->addListener(listeners.getListeners()[i]);
+        //phaseProbes[lastChannel]->addListener (listeners.getListeners()[i]);
+    }
+}
+
+template <int order>
+void FftProcessor<order>::performProcessing (const int channel)
+{
+    temp.copyFrom(0, 0, buffer.getReadPointer(channel), size);
+    FloatVectorOperations::multiply(temp.getWritePointer(0), window.getWritePointer(0), size);
+    fft.performFrequencyOnlyForwardTransform(temp.getWritePointer(0));
+    freqProbes[channel]->writeFrame(reinterpret_cast<FftFrame*>(temp.getWritePointer(0)));
+    //phaseProbes[channel]->writeFrame(reinterpret_cast<FftFrame*> (temp.getWritePointer (0) + size));
+}
+
+template <int order>
+void FftProcessor<order>::copyFrequencyData (float* dest, const int channel)
+{
+    freqProbes[channel]->copyFrame(reinterpret_cast<FftFrame*>(dest));
+}
+
+//template <int order>
+//void FftProcessor<order>::copyPhaseData (float* dest, const int channel)
+//{
+//	phaseProbes[channel]->copyFrame (reinterpret_cast <FftFrame*> (dest));
+//}
+
+template <int order>
+void FftProcessor<order>::addListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
+{
+    listeners.add(listener);
+}
+
+template <int order>
+void FftProcessor<order>::removeListener (typename AudioProcessorProbe<FftFrame>::Listener* listener)
+{
+    listeners.remove(listener);
+}
+
+template <int order>
+void FftProcessor<order>::trigwin2 (float* d, const int windowSize, const double c0, const double c1) const
+{
+    if (windowSize == 1)
+    {
+        d[0] = static_cast<float>(c0 + c1);
+        return;
+    }
+    auto tmp = MathConstants<double>::twoPi / static_cast<double>(windowSize - 1);
+    const auto wre = cos(tmp);
+    const auto wim = sin(tmp);
+    auto re = -1.0;
+    auto im = 0.0;
+    for (auto i = 0; i <= (windowSize >> 1); i++)
+    {
+        d[windowSize - i - 1] = d[i] = static_cast<float>(c0 + c1 * re);
+        tmp = re;
+        re = wre * re - wim * im;
+        im = wre * im + wim * tmp;
+    }
+}
+
+template <int order>
+void FftProcessor<order>::hann (float* d, const int windowSize) const
+{
+    trigwin2(d, windowSize, 0.5, 0.5);
+}

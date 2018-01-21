@@ -80,8 +80,7 @@ public:
 
 	/** AudioProcessorProbe::Listener class - inherit from this in order to be able to register as a listener. Objects
     *   inheriting from this should add themselves as a listener by calling addListener() on the parent AudioProcessorProbe<> object.
-	*	Similarly, the listener should remove itself by calling removeListener() on the parent (typically done during destruction). 
-	*/
+	*	Similarly, the listener should remove itself by calling removeListener() on the parent (typically done during destruction). */
 	class Listener
 	{
 	public:
@@ -114,8 +113,8 @@ public:
 		// Naturally, the AudioProcessor shouldn't keep trying to write to this object once it has been destroyed! If it attempts to, then behaviour
 		// is undefined.
 			
-		// We shouldn't need to worry about delayed reads from listeners arriving during destruction because the AudioProcessorEditor should
-		// always be destroyed before it's parent AudioProcessor
+		// For audio plugins, we shouldn't need to worry about delayed reads from listeners arriving during destruction because the AudioProcessorEditor
+		// should always be destroyed before it's parent AudioProcessor
 	}
 
     /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer().
@@ -154,8 +153,7 @@ public:
 	/** Copies current data frame at read index into the destination.
 	*	Direct access to the current data frame isn't allowed as any non atomic access risks data tearing. By using a lock-free queue
 	*	and copying out in one operation, the risk of data tearing is extremely low (an assertion will throw if this does happen).
-	*	Observers/listeners should pre-allocate a member variable of ElementType to copy into if performance is critical.
-	*/
+	*	Observers/listeners should pre-allocate a member variable of ElementType to copy into if performance is critical. */
     void copyFrame (FrameType* destination)
     {
         jassert (writeIndex != readIndex);
@@ -165,16 +163,14 @@ public:
 	/*	Indicates whether the probe has any listeners.
 	*	In the case where all observers are listeners, this can be used by the sender to choose whether to suspend non-essential processing
 	*	(e.g. don't bother computing an FFT for a GUI if there are no GUIs attached). This is of no use if the observers call copyFrame() 
-	*	of their own volition (e.g. during a timerCallback).
-	*/
+	*	of their own volition (e.g. during a timerCallback). */
 	inline bool hasListeners () const
 	{
 		return listeners.size() > 0;
 	}
 
 	/** Adds a listener to the list. A listener can only be added once, so if the listener is already in the list,
-	*	this method has no effect.
-	*/
+	*	this method has no effect. */
 	void addListener(Listener *const listener			/*<< Listener to add. */)
 	{
 		listeners.add(listener);
@@ -182,8 +178,7 @@ public:
 
 	/** Removes a listener from the list. If the listener wasn't in the list, this has no effect.
 	*	If this call is causing errors when called from a destructor then you probably haven't checked to make sure your
-	*	AudioProcessorProbe* is not already a nullptr.
-	*/
+	*	AudioProcessorProbe* is not already a nullptr. */
 	void removeListener(Listener *const listener		/*<< Listener to remove. */)
 	{
 		listeners.remove(listener);
@@ -240,14 +235,16 @@ public:
     }
 
 	/** Sets the current block size used. Current size is initialised to maximum size. If you set a smaller size,
-	 *  then it performProcessing() will be called when the smaller, current block size is reached. */
+	 *  then performProcessing() will be called when the smaller, current block size is reached. If the size is reduced
+	 *  while there is already data in the buffer, then that data will be cleared and will not be processed.
+	 */
     void modifyCurrentBlockSize (const int size		/**< This block size must be <= to the maximum, larger values will be truncated to max. */)
     {
         jassert (size > 0);
         jassert (size <= maxBlockSize);
         currentBlockSize = jmin (size, maxBlockSize);
-        // TODO
-        //resizeBuffer();
+        for (auto ch = 0 ; ch < numChannels; ++ch)
+            currentIndex[ch] = 0;
     }
 
 	/** Gets the maximum block size. */
