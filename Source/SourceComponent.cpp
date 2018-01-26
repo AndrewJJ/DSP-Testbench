@@ -116,21 +116,18 @@ void SynthesisTab::paint (Graphics&)
 void SynthesisTab::resized ()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr),
-                            Track (1_fr),
-                            Track (1_fr),
-                            Track (1_fr)
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
+                            Track (GUI_BASE_SIZE_PX),
+                            Track (GUI_BASE_SIZE_PX),
+                            Track (GUI_BASE_SIZE_PX)
                         };
 
-    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+    grid.templateColumns = { GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
@@ -143,8 +140,23 @@ void SynthesisTab::resized ()
                             GridItem (btnSynchWithOther)
                         });
 
-    const auto marg = jmin (proportionOfWidth (0.05f), proportionOfHeight (0.05f));
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+float SynthesisTab::getMinimumWidth()
+{
+    // This is an exact calculation of the width in the grid layout in resized()
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemWidth = GUI_SIZE_F(3.5 * 4);
+    const auto totalItemGaps = GUI_GAP_F(3);
+    return innerMargin + totalItemWidth + totalItemGaps;
+}
+float SynthesisTab::getMinimumHeight()
+{
+    // This is an exact calculation of the height in the grid layout in resized()
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemHeight = GUI_SIZE_F(4);
+    const auto totalItemGaps = GUI_GAP_F(3);
+    return innerMargin + totalItemHeight + totalItemGaps;
 }
 void SynthesisTab::performSynch ()
 {
@@ -279,6 +291,7 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
         calculateNumSweepSteps();
     }
 }
+
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
     return (    currentWaveform == Waveform::sine 
@@ -528,18 +541,17 @@ WaveTab::~WaveTab ()
 {
 }
 void WaveTab::paint (Graphics&)
-{
-}
+{ }
 void WaveTab::resized ()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (2_fr),
-                            Track (1_fr)
+    grid.templateRows = {   Track (1_fr),
+                            Track (GUI_BASE_SIZE_PX)
                         };
 
     grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
@@ -556,8 +568,23 @@ void WaveTab::resized ()
                             GridItem (btnLoop)
                         });
     
-    const auto marg = 10;
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+float WaveTab::getMinimumWidth ()
+{
+    // This is an estimate that allows us to use relative widths in grid layout in resized()
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemWidth = GUI_SIZE_F(3 * 4);
+    const auto totalItemGaps = GUI_GAP_F(3);
+    return innerMargin + totalItemWidth + totalItemGaps;
+}
+float WaveTab::getMinimumHeight ()
+{
+    // This is an estimate that allows us to use relative heights in grid layout in resized()
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemHeight = GUI_SIZE_F(3);
+    const auto totalItemGaps = GUI_GAP_F(2);
+    return innerMargin + totalItemHeight + totalItemGaps;
 }
 void WaveTab::prepare (const dsp::ProcessSpec& spec)
 {
@@ -605,6 +632,7 @@ void WaveTab::changeListenerCallback (ChangeBroadcaster* source)
     if (transportSource->hasStreamFinished())
         stop();
 }
+
 bool WaveTab::loadFile (const File& fileToPlay)
 {
     stop();
@@ -700,8 +728,8 @@ AudioTab::ChannelComponent::ChannelComponent (RotarySliderLnF* rotaryLnF, Simple
         selectedOutputChannels.setBit (static_cast<int> (channel));
 
     lblChannel.setText ("In " + String (channelIndex), dontSendNotification);
-    lblChannel.setJustificationType (Justification::centredTop);
-    lblChannel.setFont (Font(15.0f).boldened());
+    lblChannel.setJustificationType (Justification::centred);
+    lblChannel.setFont (Font(GUI_SIZE_F(0.5)).boldened());
     addAndMakeVisible (lblChannel);
 
     meterBar.setTooltip("Signal level for input channel " + String (channelIndex));
@@ -717,7 +745,7 @@ AudioTab::ChannelComponent::ChannelComponent (RotarySliderLnF* rotaryLnF, Simple
     sldGain.addListener (this);
     addAndMakeVisible (sldGain);
 
-    btnOutputSelection.setButtonText("Out");
+    btnOutputSelection.setButtonText("Outs");
     btnOutputSelection.setTooltip ("Assign input channel " + String (channelIndex) + " to different output channels");
     btnOutputSelection.setTriggeredOnMouseDown (true);
     btnOutputSelection.onClick  = [this] {
@@ -735,20 +763,17 @@ void AudioTab::ChannelComponent::paint (Graphics& g)
 void AudioTab::ChannelComponent::resized ()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (18_px),
-                            Track (30_px),
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
+                            Track (GUI_SIZE_PX(0.75)),
                             Track (1_fr)
                         };
 
-    grid.templateColumns = { Track (15_px), Track (40_px) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+    grid.templateColumns = { Track (GUI_SIZE_PX(0.6)), Track (GUI_SIZE_PX(1.4)) };
 
     grid.autoFlow = Grid::AutoFlow::column;
 
@@ -757,8 +782,23 @@ void AudioTab::ChannelComponent::resized ()
                             GridItem (btnOutputSelection),
                             GridItem (sldGain)
                         });
-    const auto marg = 5;
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_BASE_GAP_I, GUI_BASE_GAP_I));
+}
+float AudioTab::ChannelComponent::getMinimumWidth()
+{
+    // This is an exact calculation of the width we want for a channel component
+    const auto innerMargin = GUI_GAP_F(2);
+    const auto totalItemWidth = GUI_SIZE_F(2);
+    const auto totalItemGaps = GUI_BASE_GAP_F;
+    return innerMargin + totalItemWidth + totalItemGaps;
+}
+float AudioTab::ChannelComponent::getMinimumHeight()
+{
+    // This is an approximate calculation of the minimum height we want for a channel component (the rotary slider can grow in height)
+    const auto innerMargin = GUI_GAP_F(2);
+    const auto totalItemHeight = GUI_SIZE_F(4);
+    const auto totalItemGaps = GUI_GAP_F(3);
+    return innerMargin + totalItemHeight + totalItemGaps;
 }
 void AudioTab::ChannelComponent::sliderValueChanged (Slider* slider)
 {
@@ -832,20 +872,27 @@ void AudioTab::InputArrayComponent::paint (Graphics&)
 void AudioTab::InputArrayComponent::resized ()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
-    grid.autoColumns = Track (75_px);
+    grid.autoColumns = Track (Grid::Px (ChannelComponent::getMinimumWidth()));
     grid.autoRows = Track (1_fr);
     grid.autoFlow = Grid::AutoFlow::column;
 
     for (auto channelComponent : *channelComponents)
         grid.items.add (GridItem (channelComponent));
 
-    const auto marg = 5;
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_BASE_GAP_I, GUI_BASE_GAP_I));
+}
+float AudioTab::InputArrayComponent::getMinimumWidth() const
+{
+    const auto channelWidth = ChannelComponent::getMinimumWidth();
+    const auto channelGap = GUI_BASE_GAP_I;    // Set in ChannelComponent resized()
+    const auto margins = GUI_GAP_I(2);         // Set in InputArrayComponent::resized()
+    const auto numInputs = channelComponents->size();
+    return numInputs * channelWidth + jmax (0, numInputs - 1) * channelGap + margins;
 }
 
 AudioTab::AudioTab ()
@@ -857,11 +904,20 @@ AudioTab::AudioTab ()
 }
 AudioTab::~AudioTab() = default;
 void AudioTab::paint (Graphics&)
-{
-}
+{ }
 void AudioTab::resized ()
 {
     viewport.setBounds (getLocalBounds());
+}
+float AudioTab::getMinimumWidth ()
+{
+    // We'll take whatever we get
+    return 0.0f;
+}
+float AudioTab::getMinimumHeight ()
+{
+    // We'll take whatever we get
+    return 0.0f;
 }
 void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
@@ -922,12 +978,8 @@ void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t 
     // Use this code to test the case where there are more channels that can fit within the parent
     //for (auto ch = numInputs; ch < 32; ++ ch)
     //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&rotarySliderLnF, &meterProcessor, numberOfOutputChannels, ch)));
-    //numInputs = 32;
 
-    const auto channelWidth = 75;   // Set in ChannelComponent resized()
-    const auto channelGap = 5;      // Set in ChannelComponent resized()
-    const auto margins = 5;         // Set in InputArrayComponent::resized()
-    const auto viewWidth = numInputs * channelWidth + jmax (0, numInputs - 1) * channelGap + margins * 2;
+    const auto viewWidth = inputArrayComponent.getMinimumWidth();
     auto viewHeight = getHeight();
     if (viewWidth>getWidth())
         viewHeight -= viewport.getLookAndFeel().getDefaultScrollbarWidth();
@@ -957,9 +1009,9 @@ void AudioTab::setRefresh (const bool shouldRefresh)
 SourceComponent::SourceComponent (String sourceId)
 {
     gain.setRampDurationSeconds (0.01);
-
+    
     addAndMakeVisible (lblTitle = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
-    lblTitle->setFont (Font (15.00f, Font::bold));
+    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
     lblTitle->setEditable (false, false, false);
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
@@ -988,7 +1040,7 @@ SourceComponent::SourceComponent (String sourceId)
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
-    tabbedComponent->setTabBarDepth (30);
+    tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
@@ -1006,36 +1058,50 @@ SourceComponent::~SourceComponent()
 void SourceComponent::paint (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), GUI_GAP_F(2));
 }
 void SourceComponent::resized()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr),
-                            Track (4_fr)
+    grid.templateRows = {   
+                            Track (GUI_BASE_SIZE_PX),
+                            Track (Grid::Px (getDesiredTabComponentHeight()))
                         };
 
-    grid.templateColumns = { Track (3_fr), Track (8_fr), Track (2_fr), Track (2_fr) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+    //grid.templateColumns = { GUI_SIZE_PX(3), GUI_SIZE_PX(6.5), GUI_SIZE_PX(2.5), GUI_SIZE_PX(2.5) };
+    // We'll use relative instead of absolute so we don't have to count pixels as the above is a bit narrower than the Synthesis tab
+    grid.templateColumns = { 6_fr, 13_fr, 5_fr, 5_fr };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, 10.0f, 0.0f, 0.0f)),
+                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(2), 0.0f, 0.0f)),
                             GridItem (btnInvert),
                             GridItem (btnMute),
                             GridItem (tabbedComponent).withArea ({ }, GridItem::Span (4))
                         });
     
-    const auto marg = 10;
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+float SourceComponent::getMinimumWidth() const
+{
+    // This is an exact calculation of the width we want
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemWidth = getDesiredTabComponentWidth();
+    return innerMargin + totalItemWidth;
+}
+float SourceComponent::getMinimumHeight() const
+{
+    // This is an exact calculation of the height we want
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemHeight = GUI_BASE_SIZE_F + getDesiredTabComponentHeight();
+    const auto totalItemGaps = GUI_BASE_GAP_F;
+    return innerMargin + totalItemHeight + totalItemGaps;
 }
 void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
@@ -1126,4 +1192,20 @@ SynthesisTab* SourceComponent::getSynthesisTab ()
 void SourceComponent::mute()
 {
     btnMute->setToggleState (true, sendNotificationSync);
+}
+float SourceComponent::getDesiredTabComponentWidth() const
+{
+    // Calculate size of tabbed component
+    const auto tabInnerWidth = jmax (synthesisTab->getMinimumWidth(), jmax (waveTab->getMinimumWidth(), audioTab->getMinimumWidth()));
+    const auto tabBorders = 2.0f;
+    return tabInnerWidth + tabBorders;
+}
+float SourceComponent::getDesiredTabComponentHeight() const
+{
+    // Calculate size of tabbed component
+    const auto tabInnerHeight = jmax (synthesisTab->getMinimumHeight(), jmax (waveTab->getMinimumHeight(), audioTab->getMinimumHeight()));
+    const auto tabBorder = 2.0f;
+    const auto tabMargin = GUI_GAP_F(4);
+    const auto tabButtonBarDepth = GUI_BASE_GAP_F + tabBorder + 1.0f;
+    return tabInnerHeight + tabBorder + tabMargin + tabButtonBarDepth;
 }

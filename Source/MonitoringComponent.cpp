@@ -52,13 +52,13 @@ MonitoringComponent::~MonitoringComponent()
 void MonitoringComponent::paint (Graphics& g)
 {
     g.setColour (Colours::darkgrey);
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), 10.000f);
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), GUI_GAP_F(2));
 }
 void MonitoringComponent::resized()
 {
     Grid grid;
-    grid.rowGap = 5_px;
-    grid.columnGap = 5_px;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
 
     using Track = Grid::TrackInfo;
 
@@ -74,12 +74,11 @@ void MonitoringComponent::resized()
 
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (sldGain),
-                            GridItem (btnLimiter).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
-                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f))
+                            GridItem (btnLimiter).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, GUI_GAP_F(2))),
+                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, GUI_GAP_F(2)))
                         });
 
-    const auto marg = 10;
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
 void MonitoringComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {

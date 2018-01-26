@@ -127,8 +127,8 @@ void MainContentComponent::paint (Graphics& g)
 void MainContentComponent::resized()
 {
     Grid grid;
-    grid.rowGap = 10_px;
-    grid.columnGap = 10_px;
+    grid.rowGap = GUI_GAP_PX(2);
+    grid.columnGap = GUI_GAP_PX(2);
 
     using Track = Grid::TrackInfo;
 
@@ -145,17 +145,17 @@ void MainContentComponent::resized()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (srcComponentA),
-                            GridItem (srcComponentB),
+    // TODO - revise this as source components are overlapping the processor components
+    // TODO - it would be n ice if the processors could collapse on to first row (maybe a grid within a grid?)
+    grid.items.addArray({   GridItem (srcComponentA).withSize(srcComponentA->getMinimumWidth(), srcComponentA->getMinimumHeight()),
+                            GridItem (srcComponentB).withSize(srcComponentB->getMinimumWidth(), srcComponentB->getMinimumHeight()),
                             GridItem (procComponentA),
                             GridItem (procComponentB),
                             GridItem (analyserComponent).withArea({ }, GridItem::Span (2)),
                             GridItem (monitoringComponent).withArea({ }, GridItem::Span (2))
                         });
 
-    const auto marg = 10;
-    // .withTrimmedTop(proportionOfHeight(0.1f))
-    grid.performLayout (getLocalBounds().reduced (marg, marg));
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {

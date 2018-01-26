@@ -13,7 +13,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PolyBLEP.h"
 #include "NoiseGenerators.h"
-//#include "Main.h"
 #include "MeteringProcessors.h"
 #include "SimpleLevelMeterComponent.h"
 
@@ -42,7 +41,6 @@ class RotarySliderLnF : public LookAndFeel_V4
 {
 public:
 
-    RotarySliderLnF() : LookAndFeel_V4() {};
     void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                            const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
 };
@@ -55,12 +53,15 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    static float getMinimumWidth();
+    static float getMinimumHeight();
 
     void performSynch();
     void setOtherSource (SourceComponent* otherSourceComponent);
     void syncAndResetOscillator (const Waveform waveform, const double freq,
                                  const double sweepStart, const double sweepEnd,                                 
-                                 const double sweepDuration, SweepMode sweepMode, const bool sweepEnabled);
+                                 const double newSweepDuration, SweepMode sweepMode,
+                                 const bool sweepEnabled);
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -146,6 +147,9 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    static float getMinimumWidth();
+    static float getMinimumHeight();
+
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -226,6 +230,8 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    static float getMinimumWidth();
+    static float getMinimumHeight();
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -234,7 +240,6 @@ public:
     
     void setNumChannels (const size_t  numberOfInputChannels, const size_t numberOfOutputChannels);
     void setRefresh (const bool shouldRefresh);
-
 
 private:
 
@@ -246,6 +251,9 @@ private:
 
         void paint (Graphics& g) override;
         void resized() override;
+        static float getMinimumWidth();
+        static float getMinimumHeight();
+
         void sliderValueChanged (Slider* slider) override;
 
         void setActive (bool shouldBeActive);
@@ -296,6 +304,7 @@ private:
 
         void paint (Graphics& g) override;
         void resized() override;
+        float getMinimumWidth() const;
 
     private:
         OwnedArray<ChannelComponent>* channelComponents;
@@ -303,7 +312,7 @@ private:
 
     RotarySliderLnF rotarySliderLnF;
     SimplePeakMeterProcessor meterProcessor;
-    OwnedArray <ChannelComponent> channelComponents;
+    OwnedArray <ChannelComponent> channelComponents{};
     Viewport viewport;
     InputArrayComponent inputArrayComponent;
     AudioBuffer<float> tempBuffer;
@@ -330,6 +339,9 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    float getMinimumWidth() const;
+    float getMinimumHeight() const;
+
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
@@ -345,7 +357,10 @@ public:
     SynthesisTab* getSynthesisTab();
     void mute();
 
-    private:
+private:
+
+    float getDesiredTabComponentWidth() const;
+    float getDesiredTabComponentHeight() const;
 
     ScopedPointer<Label> lblTitle;
     ScopedPointer<Slider> sldGain;
