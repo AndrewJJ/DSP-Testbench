@@ -9,6 +9,7 @@
 */
 
 #include "MainComponent.h"
+#include "Main.h"
 
 MainContentComponent::MainContentComponent()
 {
@@ -23,13 +24,15 @@ MainContentComponent::MainContentComponent()
     srcComponentB->setOtherSource (srcComponentA);
     procComponentB->mute();
     
-    setSize (1024, 768);
+    // Set small to force resize to minimum resize limit
+    setSize (1, 1);
+
     oglContext.attachTo (*this);
 
     // specify the number of input and output channels that we want to open
     setAudioChannels (2, 2);
 }
-MainContentComponent::~MainContentComponent()
+MainContentComponent::~MainContentComponent()  // NOLINT
 {
     shutdownAudio();
 
@@ -42,18 +45,18 @@ MainContentComponent::~MainContentComponent()
 }
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    AudioIODevice* currentDevice = deviceManager.getCurrentAudioDevice();
-	auto numInputChannels = currentDevice->getActiveInputChannels().countNumberOfSetBits();
-    auto numOutputChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
+    const auto currentDevice = deviceManager.getCurrentAudioDevice();
+	const auto numInputChannels = currentDevice->getActiveInputChannels().countNumberOfSetBits();
+    const auto numOutputChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
    
     srcBufferA = dsp::AudioBlock<float> (srcBufferMemoryA, numOutputChannels, samplesPerBlockExpected);
     srcBufferB = dsp::AudioBlock<float> (srcBufferMemoryB, numOutputChannels, samplesPerBlockExpected);
     tempBuffer = dsp::AudioBlock<float> (tempBufferMemory, numOutputChannels, samplesPerBlockExpected);
 
     dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlockExpected;
     spec.numChannels = jmax (numInputChannels, numOutputChannels);
-    spec.sampleRate = sampleRate;
     
     srcComponentA->setNumChannels (numInputChannels, numOutputChannels);
     srcComponentB->setNumChannels (numInputChannels, numOutputChannels);
@@ -126,34 +129,59 @@ void MainContentComponent::paint (Graphics& g)
 }
 void MainContentComponent::resized()
 {
+    const auto srcComponentHeight = Grid::Px (jmax (srcComponentA->getMinimumHeight(), srcComponentB->getMinimumHeight()));
+    const auto procComponentHeight = Grid::Px (jmax (procComponentA->getMinimumHeight(), procComponentB->getMinimumHeight()));
+    const auto monitoringComponentHeight = Grid::Px (monitoringComponent->getMinimumHeight());
+
+    // Assume both source components have the same width and that this is also sufficient for the processor components
+    const auto srcWidth = srcComponentA->getMinimumWidth();
+
     Grid grid;
     grid.rowGap = GUI_GAP_PX(2);
     grid.columnGap = GUI_GAP_PX(2);
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (3_fr),
-                            Track (2_fr),
-                            Track (4_fr),
-                            Track (1_fr)
-                        };
+    if (srcWidth * 4 < getWidth())
+    {
+        // Put sources and processors on first row
+        grid.templateRows = {   Track (srcComponentHeight),
+                                Track (1_fr),
+                                Track (monitoringComponentHeight)
+                            };
 
-    grid.templateColumns = { Track (1_fr), Track (1_fr) };
+        grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (1_fr) };
 
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+        grid.items.addArray({   GridItem (srcComponentA), 
+                                GridItem (srcComponentB),
+                                GridItem (procComponentA),
+                                GridItem (procComponentB).withWidth(srcWidth), // set width to prevent stretching
+                                GridItem (analyserComponent).withArea ({ }, GridItem::Span (4)),
+                                GridItem (monitoringComponent).withArea ({ }, GridItem::Span (4))
+                            });
+    }
+    else
+    {
+        // First row is sources, second row is processors
+        grid.templateRows = {   Track (srcComponentHeight),
+                                Track (procComponentHeight),
+                                Track (1_fr),
+                                Track (monitoringComponentHeight)
+                            };
+
+        grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (1_fr) };
+
+        grid.items.addArray({   GridItem (srcComponentA), 
+                                GridItem (srcComponentB).withWidth(srcWidth), // set width to prevent stretching
+                                GridItem (procComponentA),
+                                GridItem (procComponentB).withWidth(srcWidth), // set width to prevent stretching
+                                GridItem (analyserComponent).withArea ({ }, GridItem::Span (2)),
+                                GridItem (monitoringComponent).withArea ({}, GridItem::Span (2))
+                            });
+    }
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    // TODO - revise this as source components are overlapping the processor components
-    // TODO - it would be n ice if the processors could collapse on to first row (maybe a grid within a grid?)
-    grid.items.addArray({   GridItem (srcComponentA).withSize(srcComponentA->getMinimumWidth(), srcComponentA->getMinimumHeight()),
-                            GridItem (srcComponentB).withSize(srcComponentB->getMinimumWidth(), srcComponentB->getMinimumHeight()),
-                            GridItem (procComponentA),
-                            GridItem (procComponentB),
-                            GridItem (analyserComponent).withArea({ }, GridItem::Span (2)),
-                            GridItem (monitoringComponent).withArea({ }, GridItem::Span (2))
-                        });
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }

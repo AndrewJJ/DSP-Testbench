@@ -83,7 +83,8 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
     setUsingNativeTitleBar (false);
     setContentOwned (new MainContentComponent(), true);
     setResizable (true, false);
-
+    setResizeLimits(992, 768, 10000, 10000);
+    
     centreWithSize (getWidth(), getHeight());
     Component::setVisible (true);    
 }

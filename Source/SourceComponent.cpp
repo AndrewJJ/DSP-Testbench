@@ -983,7 +983,7 @@ void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t 
     auto viewHeight = getHeight();
     if (viewWidth>getWidth())
         viewHeight -= viewport.getLookAndFeel().getDefaultScrollbarWidth();
-    inputArrayComponent.setSize (viewWidth, viewHeight);
+    inputArrayComponent.setSize (static_cast<int> (viewWidth), static_cast<int> (viewHeight));
     
     resized();
 }
@@ -1073,14 +1073,12 @@ void SourceComponent::resized()
                             Track (Grid::Px (getDesiredTabComponentHeight()))
                         };
 
-    //grid.templateColumns = { GUI_SIZE_PX(3), GUI_SIZE_PX(6.5), GUI_SIZE_PX(2.5), GUI_SIZE_PX(2.5) };
-    // We'll use relative instead of absolute so we don't have to count pixels as the above is a bit narrower than the Synthesis tab
-    grid.templateColumns = { 6_fr, 13_fr, 5_fr, 5_fr };
+    grid.templateColumns = { GUI_SIZE_PX(3.0), 1_fr, GUI_SIZE_PX(2), GUI_SIZE_PX(1.7) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(2), 0.0f, 0.0f)),
+                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
                             GridItem (btnInvert),
                             GridItem (btnMute),
                             GridItem (tabbedComponent).withArea ({ }, GridItem::Span (4))

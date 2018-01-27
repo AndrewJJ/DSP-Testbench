@@ -21,6 +21,9 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    float getMinimumWidth() const;
+    float getMinimumHeight() const;
+
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
     void prepare (const dsp::ProcessSpec& spec) override;

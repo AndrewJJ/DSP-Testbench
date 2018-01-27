@@ -307,7 +307,7 @@ private:
         float getMinimumWidth() const;
 
     private:
-        OwnedArray<ChannelComponent>* channelComponents;
+        OwnedArray<ChannelComponent>* channelComponents{};
     };
 
     RotarySliderLnF rotarySliderLnF;

@@ -3,7 +3,7 @@
 
     MainComponent.h
     Created: 12 Jan 2018 11:52:07am
-    Author:  Andrew
+    Author:  Andrew Jerrim
 
   ==============================================================================
 */
@@ -52,7 +52,7 @@ private:
     ScopedPointer<AnalyserComponent> analyserComponent;
     ScopedPointer<MonitoringComponent> monitoringComponent;
 
-    HeapBlock<char> srcBufferMemoryA, srcBufferMemoryB, tempBufferMemory;
+    HeapBlock<char> srcBufferMemoryA{}, srcBufferMemoryB{}, tempBufferMemory{};
     dsp::AudioBlock<float> srcBufferA, srcBufferB, tempBuffer;
 
     void routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>&);

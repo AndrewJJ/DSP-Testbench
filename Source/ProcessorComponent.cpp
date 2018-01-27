@@ -14,7 +14,7 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     : numControls (numberOfControls)
 {
     addAndMakeVisible (lblTitle = new Label ("Processor label", TRANS("Processor") + " " + processorId));
-    lblTitle->setFont (Font (15.00f, Font::bold));
+    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
     lblTitle->setEditable (false, false, false);
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
@@ -23,7 +23,7 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     addAndMakeVisible (btnSourceA = new TextButton ("Source A button"));
     btnSourceA->setTooltip (TRANS("Process input from source A"));
     btnSourceA->setClickingTogglesState (true);
-    btnSourceA->setButtonText (TRANS("Source A"));
+    btnSourceA->setButtonText (TRANS("Src A"));
     btnSourceA->setColour(TextButton::buttonOnColourId, Colours::green);
     btnSourceA->onClick = [this] { statusSourceA = btnSourceA->getToggleState(); };
     btnSourceA->setToggleState(true, dontSendNotification);
@@ -31,7 +31,7 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     addAndMakeVisible (btnSourceB = new TextButton ("Source B button"));
     btnSourceB->setTooltip (TRANS("Process input from source B"));
     btnSourceB->setClickingTogglesState (true);
-    btnSourceB->setButtonText (TRANS("Source B"));
+    btnSourceB->setButtonText (TRANS("Src B"));
     btnSourceB->setColour(TextButton::buttonOnColourId, Colours::green);
     btnSourceB->onClick = [this] { statusSourceB = btnSourceB->getToggleState(); };
     btnSourceB->setToggleState(false, dontSendNotification);
@@ -94,31 +94,46 @@ void ProcessorComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr)
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
                         };
+    
+    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track (1_fr), Track (GUI_SIZE_PX(2.1)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
 
-    grid.templateColumns = { Track (4_fr), Track (3_fr), Track (3_fr), Track (3_fr), Track (2_fr), Track (2_fr) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+    grid.autoRows = Track (GUI_BASE_SIZE_PX);
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (lblTitle),
+    grid.items.addArray({   GridItem (lblTitle).withArea ({}, GridItem::Span (2)),
                             GridItem (btnSourceA),
                             GridItem (btnSourceB),
+                            GridItem(),
                             GridItem (btnDisable),
                             GridItem (btnInvert),
                             GridItem (btnMute)
                         });
+
+    // TODO - use a viewport for control sliders
     for (auto i = 0; i<numControls; ++i)
     {
         grid.items.addArray({ GridItem (sliderLabels[i]),
-                              GridItem (sliders[i]).withArea ({}, GridItem::Span (5))
+                              GridItem (sliders[i]).withArea ({}, GridItem::Span (7))
                             });
     }
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+float ProcessorComponent::getMinimumWidth() const
+{
+    // TODO
+    return 0.0f;
+}
+float ProcessorComponent::getMinimumHeight() const
+{
+    // This is an exact calculation of the height we want
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemHeight = GUI_SIZE_F(1 + numControls);
+    const auto totalItemGaps = GUI_BASE_GAP_F * numControls;
+    return innerMargin + totalItemHeight + totalItemGaps;
 }
 void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {

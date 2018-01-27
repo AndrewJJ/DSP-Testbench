@@ -15,7 +15,7 @@ MonitoringComponent::MonitoringComponent ()
     gain.setRampDurationSeconds (0.01);
 
     addAndMakeVisible (lblTitle = new Label ("Monitoring label", TRANS("Monitoring")));
-    lblTitle->setFont (Font (15.00f, Font::bold));
+    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
     lblTitle->setEditable (false, false, false);
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
@@ -62,23 +62,32 @@ void MonitoringComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr)
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
                         };
 
-    grid.templateColumns = { Track (1_fr), Track (6_fr), Track (1_fr), Track (1_fr) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
+    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.3)), Track (GUI_SIZE_PX(1.7)) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (sldGain),
-                            GridItem (btnLimiter).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, GUI_GAP_F(2))),
-                            GridItem (btnMute).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, GUI_GAP_F(2)))
+                            GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
+                            GridItem (btnLimiter),
+                            GridItem (btnMute)
                         });
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+float MonitoringComponent::getMinimumWidth()
+{
+    // This is an arbitrary minimum that should look OK
+    return 400.0f;
+}
+float MonitoringComponent::getMinimumHeight()
+{
+    // This is an exact calculation of the height we want
+    const auto innerMargin = GUI_GAP_F(4);
+    const auto totalItemHeight = GUI_BASE_SIZE_F;
+    return innerMargin + totalItemHeight;
 }
 void MonitoringComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {

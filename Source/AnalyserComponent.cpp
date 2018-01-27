@@ -93,7 +93,7 @@ AnalyserComponent::AnalyserComponent()
 {
     lblTitle.setName ("Analyser label");
     lblTitle.setText ("Analyser", dontSendNotification);
-    lblTitle.setFont (Font (15.00f, Font::bold));
+    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);
@@ -123,12 +123,11 @@ void AnalyserComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (1_fr),
-                            Track (6_fr)
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
+                            Track (1_fr)
                         };
 
-    //grid.templateColumns = { Track (1_fr), Track (6_fr), Track (1_fr), Track (1_fr) };
-    grid.templateColumns = { Track (9_fr), Track (1_fr) };
+    grid.templateColumns = { Track (9_fr), Track (GUI_SIZE_PX(3)) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
