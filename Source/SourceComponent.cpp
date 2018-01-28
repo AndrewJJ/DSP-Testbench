@@ -48,10 +48,10 @@ SynthesisTab::SynthesisTab ()
     
     addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
     cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
-    cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
+    cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode->getSelectedId()); };
-    cmbSweepMode->setSelectedId (SweepMode::Wrap);
+    cmbSweepMode->setSelectedId (SweepMode::Reverse);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
     btnSweepEnabled->setTooltip ("Enable sweeping from start frequency to end frequency");
@@ -980,6 +980,7 @@ SourceComponent::SourceComponent (String sourceId)
     addAndMakeVisible (sldGain = new Slider ("Input gain slider"));
     sldGain->setTooltip (TRANS("Adjusts the gain of this source"));
     sldGain->setRange (-100, 50, 0.1);
+    sldGain->setDoubleClickReturnValue (true, 0.0);
     sldGain->setSliderStyle (Slider::LinearHorizontal);
     sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldGain->addListener (this);

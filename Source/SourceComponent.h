@@ -33,8 +33,8 @@ enum Waveform
 
 enum SweepMode
 {
-    Wrap= 1,
-    Reverse
+    Reverse = 1,
+    Wrap    
 };
 
 class SynthesisTab : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
