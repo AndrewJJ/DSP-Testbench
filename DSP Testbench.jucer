@@ -4,6 +4,8 @@
               reportAppUsage="0">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
+      <FILE id="DV9dVd" name="FastApproximations.h" compile="0" resource="0"
+            file="Source/FastApproximations.h"/>
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">

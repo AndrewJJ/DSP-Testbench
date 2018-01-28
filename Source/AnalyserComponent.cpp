@@ -12,7 +12,10 @@
 
 FftScope::FftScope (): fftProcessor (nullptr)
 {
+    x.allocate(1 << 12, true);
+    y.allocate(1 << 12, true);
     this->setOpaque (true);
+    this->setPaintingIsUnclipped (true);
 }
 FftScope::~FftScope ()
 {
@@ -21,51 +24,14 @@ FftScope::~FftScope ()
 }
 void FftScope::paint (Graphics& g)
 {
-    // TODO - optimise & make pretty
     // TODO - plot axes and cache to bitmap
     // TODO - implement painting on another thread to avoid choking the message thread?
-
-    g.fillAll(Colours::black);
-
-    const auto nyquist = static_cast<float> (samplingFreq * 0.5);
-
-    const auto strokeWidth = 1.0f;  // TODO - make strokewidth a property, or delete?
-    const auto dbMin = -80.0f;      // TODO - make min dB a property
-    const auto minFreq = 10.0f;     // TODO - make min frequency a property
-    const auto maxFreq = nyquist;   // TODO - make the max frequency a property (limited to nyquist)
-    const auto minLogFreq = log10 (minFreq);
-    const auto logFreqSpan = log10 (maxFreq) - minLogFreq;
-    const auto n = fftProcessor->getCurrentBlockSize() / 2;
-    const auto xRatio = static_cast<float> (getWidth()) / logFreqSpan;
-    const auto yRatio = static_cast<float> (getHeight()) / dbMin;
-    const auto amplitudeCorrection = 1.0f / static_cast<float>(n);
-    const auto binToHz = nyquist / static_cast<float> (n);
-
-    for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
-    {
-        // Draw a line representing the freq data for this channel
-        Path p;
-        p.preallocateSpace ((n + 1) * 3);
-        const auto offscreenX = -1.0f - strokeWidth;
-        const auto offscreenY = static_cast<float> (getHeight()) + strokeWidth;
-        fftProcessor->copyFrequencyData (f, ch);
-        auto x = offscreenX;
-        auto y = (f[0] <= 0.0f) ? offscreenY : todBVoltsFromLinear (f[0] * amplitudeCorrection) * yRatio;
-        p.startNewSubPath(x, y);
-        for (auto i = 1; i <= n; ++i)
-        {
-            y = (f[i] <= 0.0f) ? offscreenY : todBVoltsFromLinear (f[i] * amplitudeCorrection) * yRatio;
-            x = (log10 (static_cast<float> (i) * binToHz) - minLogFreq) * xRatio;
-            p.lineTo (x, y);
-        }
-        const auto pst = PathStrokeType (strokeWidth);
-        // TODO - different colours for different channels
-        if (ch == 0)
-            g.setColour (Colours::green);
-        else
-            g.setColour (Colours::yellow);
-        g.strokePath(p, pst);
-    }
+    paintScale (g);
+    paintFft (g);
+}
+void FftScope::resized ()
+{
+    initialiseX();
 }
 void FftScope::assignFftMult (FftProcessor<12>* fftMultPtr)
 {
@@ -80,13 +46,81 @@ void FftScope::audioProbeUpdated (AudioProbe<FftProcessor<12>::FftFrame>*)
 void FftScope::prepare (const dsp::ProcessSpec& spec)
 {
     samplingFreq = spec.sampleRate;
+    initialiseX();
 }
-float FftScope::todBVoltsFromLinear (const float x) const
+void FftScope::paintFft (Graphics& g) const
 {
-    if (x <= 0.0f)
-        return 0.0f;
+    // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
+    const auto n = fftProcessor->getCurrentBlockSize() / 2;
+    const auto amplitudeCorrection = 1.0f / static_cast<float>(n);
+    const auto yRatio = static_cast<float> (getHeight()) / dBmin;
+    const auto bottomY = static_cast<float> (getHeight() - 1);
+
+    for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
+    {
+        // Draw a line representing the freq data for this channel
+        Path p;
+        p.preallocateSpace ((n + 1) * 3);
+        fftProcessor->copyFrequencyData (y, ch);
+        FloatVectorOperations::multiply (y, amplitudeCorrection, fftProcessor->getCurrentBlockSize());
+        auto cy = (y[0] <= 0.0f) ? bottomY : convertTodBV (y[0]) * yRatio;
+        p.startNewSubPath (0, cy);
+        for (auto i = 1; i <= n; ++i)
+        {
+            cy = convertTodBV (y[i]) * yRatio;
+            p.lineTo (x[i], cy - 1.0f);
+        }
+        p.lineTo (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
+        const auto pst = PathStrokeType (1.0f);
+        g.setColour (getColourForChannel (ch));
+        g.strokePath(p, pst);
+    }
+}
+void FftScope::paintScale (Graphics& g) const
+{
+    // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
+
+    g.setColour (Colours::black);
+    g.fillRect (getLocalBounds());
+    g.setColour (Colours::white.withAlpha (0.2f));
+    g.drawRect (getLocalBounds());
+
+    // TODO - draw scale
+}
+float FftScope::convertTodBV (const float linear) const
+{
+    if (linear <= 0.0f)
+        return dBmin;
     else
-        return 20.0f * log10(x);
+        //return log10(x) * 20.0f;
+        return jmax (dBmin, fasterlog2 (linear) * 6.0206f);
+}
+Colour FftScope::getColourForChannel (const int channel) const
+{
+    switch (channel % 6)
+    {
+        case 0: return Colours::green;
+        case 1: return Colours::yellow;
+        case 2: return Colours::blue;
+        case 3: return Colours::cyan;
+        case 4: return Colours::orange;
+        case 5: return Colours::magenta;
+        default: return Colours::red;
+    }
+}
+void FftScope::initialiseX()
+{
+    const auto nyquist = static_cast<float> (samplingFreq * 0.5);
+    const auto minFreq = 10.0f;     // TODO - make min frequency a property
+    const auto maxFreq = nyquist;   // TODO - make the max frequency a property (limited to nyquist)
+    const auto minLogFreq = log10 (minFreq);
+    const auto logFreqSpan = log10 (maxFreq) - minLogFreq;
+    const auto n = fftProcessor->getCurrentBlockSize() / 2;
+    const auto xRatio = static_cast<float> (getWidth()) / logFreqSpan;
+    const auto binToHz = nyquist / static_cast<float> (n);
+
+    for (auto i = 1; i <= n; ++i)
+        x[i] = (log10 (static_cast<float> (i) * binToHz) - minLogFreq) * xRatio;
 }
 
 AnalyserComponent::AnalyserComponent()
@@ -153,8 +187,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         fftMult.appendData (static_cast<int> (ch), static_cast<int> (inputBlock->getNumSamples()), inputBlock->getChannelPointer (ch));
 }
 void AnalyserComponent::reset ()
-{
-}
+{ }
 bool AnalyserComponent::isActive () const noexcept
 {
     return statusActive.get();
