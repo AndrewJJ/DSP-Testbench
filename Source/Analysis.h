@@ -68,9 +68,9 @@ private:
 // ===========================================================================================
 
 template <int Order>
-FftProcessor<Order>::FftProcessor (): FixedBlockProcessor(1 << Order),
-                                      fft(Order),
-                                      size(1 << Order)
+FftProcessor<Order>::FftProcessor (): FixedBlockProcessor (1 << Order),
+                                      fft (Order),
+                                      size (1 << Order)
 {
     temp.setSize(1, size * 2, false, true);
     window.setSize(1, size);
@@ -85,7 +85,7 @@ FftProcessor<Order>::~FftProcessor ()
 template <int Order>
 void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
 {
-    FixedBlockProcessor::prepare(spec);
+    FixedBlockProcessor::prepare (spec);
 
     freqProbes.clear();
     //phaseProbes.clear();
