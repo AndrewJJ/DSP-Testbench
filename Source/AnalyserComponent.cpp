@@ -127,7 +127,7 @@ void AnalyserComponent::resized()
                             Track (1_fr)
                         };
 
-    grid.templateColumns = { Track (9_fr), Track (GUI_SIZE_PX(3)) };
+    grid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(3)) };
 
     grid.autoColumns = Track (1_fr);
     grid.autoRows = Track (1_fr);
@@ -135,7 +135,7 @@ void AnalyserComponent::resized()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
-                            GridItem (btnDisable).withMargin (GridItem::Margin (0.0f, 0.0f, 0.0f, 10.0f)),
+                            GridItem (btnDisable),
                             GridItem (fftScope).withArea ({}, GridItem::Span (2))
                         });
 
@@ -155,7 +155,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
 void AnalyserComponent::reset ()
 {
 }
-bool AnalyserComponent::isActive () const
+bool AnalyserComponent::isActive () const noexcept
 {
-    return statusActive;
+    return statusActive.get();
 }

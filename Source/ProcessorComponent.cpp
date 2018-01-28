@@ -11,7 +11,7 @@
 #include "ProcessorComponent.h"
 
 ProcessorComponent::ProcessorComponent (const String processorId, const int numberOfControls)
-    : numControls (numberOfControls)
+    :   controlArrayComponent (&controlArray)
 {
     addAndMakeVisible (lblTitle = new Label ("Processor label", TRANS("Processor") + " " + processorId));
     lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
@@ -54,22 +54,13 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
     btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
 
-    // Assumes sliderLabels and sliders are empty
-    for (auto i = 0; i<numControls; ++i)
-    {
-        addAndMakeVisible (sliderLabels.add (new Label ("Parameter " + String(i+1) + " slider label", TRANS ("Parameter") + " " + String (i+1))));
-        sliderLabels[i]->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
-        sliderLabels[i]->setJustificationType (Justification::centredLeft);
-        sliderLabels[i]->setEditable (false, false, false);
-        sliderLabels[i]->setColour (TextEditor::textColourId, Colours::black);
-        sliderLabels[i]->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    for (auto i = 0; i < numberOfControls; ++i)
+        controlArray.add (new ControlComponent ("Control " + String (i+1)));
+    controlArrayComponent.initialiseControls();
 
-        addAndMakeVisible (sliders.add (new Slider("Parameter " + String(i+1) + " slider")));
-        sliders[i]->setRange (0, 1, 0);
-        sliders[i]->setSliderStyle (Slider::LinearHorizontal);
-        sliders[i]->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
-        sliders[i]->addListener (this);
-    }
+    viewport.setScrollBarsShown (true, false);
+    viewport.setViewedComponent (&controlArrayComponent);
+    addAndMakeVisible (viewport);
 }
 ProcessorComponent::~ProcessorComponent()
 {
@@ -94,12 +85,12 @@ void ProcessorComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
+                            Track (GUI_SIZE_PX(0.2)),   // Blank row
+                            Track (1_fr)                // Remainder used for viewport
                         };
     
     grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track (1_fr), Track (GUI_SIZE_PX(2.1)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
-
-    grid.autoRows = Track (GUI_BASE_SIZE_PX);
 
     grid.autoFlow = Grid::AutoFlow::row;
 
@@ -109,41 +100,28 @@ void ProcessorComponent::resized()
                             GridItem(),
                             GridItem (btnDisable),
                             GridItem (btnInvert),
-                            GridItem (btnMute)
+                            GridItem (btnMute),
+                            GridItem().withArea ({}, GridItem::Span (8)), // Blank row
+                            GridItem (viewport).withArea ({}, GridItem::Span (8))
                         });
 
-    // TODO - use a viewport for control sliders
-    for (auto i = 0; i<numControls; ++i)
-    {
-        grid.items.addArray({ GridItem (sliderLabels[i]),
-                              GridItem (sliders[i]).withArea ({}, GridItem::Span (7))
-                            });
-    }
-
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+
+    const auto controlWidth = viewport.getWidth() - viewport.getLookAndFeel().getDefaultScrollbarWidth();
+    controlArrayComponent.setSize (controlWidth, static_cast<int> (controlArrayComponent.getPreferredHeight()));
 }
 float ProcessorComponent::getMinimumWidth() const
 {
-    // TODO
-    return 0.0f;
+    // Nominal value, because we are happy to have same width as the source component
+    return GUI_SIZE_F(10);
 }
 float ProcessorComponent::getMinimumHeight() const
 {
     // This is an exact calculation of the height we want
     const auto innerMargin = GUI_GAP_F(4);
-    const auto totalItemHeight = GUI_SIZE_F(1 + numControls);
-    const auto totalItemGaps = GUI_BASE_GAP_F * numControls;
+    const auto totalItemHeight = GUI_SIZE_F(1 + 0.2) + controlArrayComponent.getPreferredHeight();
+    const auto totalItemGaps = GUI_GAP_F(2);
     return innerMargin + totalItemHeight + totalItemGaps;
-}
-void ProcessorComponent::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-    // TODO - implement processor control (local variables for normalised parameter values)
-    if (sliderThatWasMoved == sliders[0])
-    {
-    }
-    else if (sliderThatWasMoved == sliders[1])
-    {
-    }
 }
 void ProcessorComponent::prepare (const dsp::ProcessSpec&)
 {
@@ -152,41 +130,133 @@ void ProcessorComponent::prepare (const dsp::ProcessSpec&)
 void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>&)
 {
     // TODO - ProcessorComponent::process
+    //const auto controlValue0 = controlArray[0]->getCurrentControlValue();
 }
 void ProcessorComponent::reset ()
 {
     // TODO - ProcessorComponent::reset
 }
-bool ProcessorComponent::isSourceConnectedA () const
+bool ProcessorComponent::isSourceConnectedA () const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
-    return statusSourceA;
+    return statusSourceA.get();
 }
-bool ProcessorComponent::isSourceConnectedB () const
+bool ProcessorComponent::isSourceConnectedB () const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
-    return statusSourceB;
+    return statusSourceB.get();
 }
-bool ProcessorComponent::isProcessorEnabled () const
+bool ProcessorComponent::isProcessorEnabled () const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
-    return !statusDisable;
+    return !statusDisable.get();
 }
-bool ProcessorComponent::isInverted () const
+bool ProcessorComponent::isInverted () const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
-    return statusInvert;
+    return statusInvert.get();
 }
-bool ProcessorComponent::isMuted () const
+bool ProcessorComponent::isMuted () const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
-    return statusMute;
+    return statusMute.get();
 }
-bool ProcessorComponent::isActive () const
+bool ProcessorComponent::isActive () const noexcept
 {
-    return !statusDisable && !statusMute;
+    return !statusDisable.get() && !statusMute.get();
 }
 void ProcessorComponent::mute ()
 {
     btnMute->setToggleState (true, sendNotificationSync);
+}
+
+
+ProcessorComponent::ControlComponent::ControlComponent (String controlName)
+    : lblControl (controlName),
+      sldControl (controlName + " slider")
+{
+    lblControl.setText (controlName, dontSendNotification);
+    lblControl.setFont (Font (GUI_SIZE_F(0.5), Font::plain).withTypefaceStyle ("Regular"));
+    lblControl.setJustificationType (Justification::centredLeft);
+    lblControl.setEditable (false, false, false);
+    lblControl.setColour (TextEditor::textColourId, Colours::black);
+    lblControl.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblControl);
+
+    sldControl.setRange (0, 1, 0.001);
+    sldControl.setSliderStyle (Slider::LinearHorizontal);
+    sldControl.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldControl.addListener (this);
+    addAndMakeVisible (sldControl);
+}
+void ProcessorComponent::ControlComponent::paint (Graphics&)
+{ }
+void ProcessorComponent::ControlComponent::resized()
+{
+    Grid grid;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
+
+    using Track = Grid::TrackInfo;
+
+    grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
+                        };
+    
+    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (1_fr) };
+
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    grid.items.addArray({   GridItem (lblControl),
+                            GridItem (sldControl)
+                        });
+
+    grid.performLayout (getLocalBounds());
+}
+void ProcessorComponent::ControlComponent::sliderValueChanged (Slider* sliderThatWasChanged)
+{
+    if (sliderThatWasChanged == &sldControl)
+        currentControlValue.set (sldControl.getValue());
+}
+double ProcessorComponent::ControlComponent::getCurrentControlValue() const
+{
+    return currentControlValue.get();
+}
+
+ProcessorComponent::ControlArrayComponent::ControlArrayComponent (OwnedArray<ControlComponent>* controlComponentsToReferTo)
+    : controlComponents (controlComponentsToReferTo)
+{
+}
+void ProcessorComponent::ControlArrayComponent::paint (Graphics&)
+{ }
+void ProcessorComponent::ControlArrayComponent::resized()
+{
+    Grid grid;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
+
+    using Track = Grid::TrackInfo;
+
+    grid.autoColumns = Track (1_fr);
+    grid.autoRows = Track (1_fr);
+    grid.autoFlow = Grid::AutoFlow::row;
+
+    for (auto controlComponent : *controlComponents)
+        grid.items.add (GridItem (controlComponent));
+
+    grid.performLayout (getLocalBounds());
+}
+float ProcessorComponent::ControlArrayComponent::getPreferredHeight() const
+{
+    // This is an exact calculation of the height we want
+    const auto numControls = controlComponents->size();
+    const auto innerMargin = GUI_GAP_F(2);
+    const auto totalItemHeight = GUI_SIZE_F(numControls);
+    const auto totalItemGaps = GUI_GAP_F(numControls -1);
+    return innerMargin + totalItemHeight + totalItemGaps;
+}
+void ProcessorComponent::ControlArrayComponent::initialiseControls()
+{
+    deleteAllChildren();
+    for (auto controlComponent : *controlComponents)
+        addAndMakeVisible (controlComponent);
 }

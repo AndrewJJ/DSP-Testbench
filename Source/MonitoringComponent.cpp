@@ -25,7 +25,7 @@ MonitoringComponent::MonitoringComponent ()
     sldGain->setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
     sldGain->setRange (-100, 0, 0.1);
     sldGain->setSliderStyle (Slider::LinearHorizontal);
-    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldGain->addListener (this);
 
     addAndMakeVisible (btnLimiter = new TextButton ("Limiter button"));

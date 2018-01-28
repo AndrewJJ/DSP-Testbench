@@ -37,14 +37,6 @@ enum SweepMode
     Reverse
 };
 
-class RotarySliderLnF : public LookAndFeel_V4
-{
-public:
-
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
-};
-
 class SynthesisTab : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
 {
 public:
@@ -246,7 +238,7 @@ private:
     class ChannelComponent : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (RotarySliderLnF* rotaryLnF, SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
+        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
@@ -280,7 +272,6 @@ private:
             ChannelComponent* parent;
         };
 
-        RotarySliderLnF* rotarySliderLnF;
         Label lblChannel;
         SimplePeakMeterComponent meterBar;
         Slider sldGain;
@@ -291,7 +282,7 @@ private:
         size_t numOutputs = 0;
         BigInteger selectedOutputChannels = 0;
         size_t channel = 0;
-        float currentLinearGain = 0.0f;
+        Atomic<float> currentLinearGain = 0.0f;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
@@ -307,13 +298,12 @@ private:
         float getMinimumWidth() const;
 
     private:
-        OwnedArray<ChannelComponent>* channelComponents{};
+        OwnedArray<ChannelComponent>* channelComponents {};
     };
 
-    RotarySliderLnF rotarySliderLnF;
     SimplePeakMeterProcessor meterProcessor;
-    OwnedArray <ChannelComponent> channelComponents{};
     Viewport viewport;
+    OwnedArray <ChannelComponent> channelComponents {};
     InputArrayComponent inputArrayComponent;
     AudioBuffer<float> tempBuffer;
     

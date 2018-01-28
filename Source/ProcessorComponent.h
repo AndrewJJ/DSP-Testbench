@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class ProcessorComponent  : public Component, public Slider::Listener, dsp::ProcessorBase
+class ProcessorComponent  : public Component, dsp::ProcessorBase
 {
 public:
     
@@ -24,24 +24,56 @@ public:
     float getMinimumWidth() const;
     float getMinimumHeight() const;
 
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
-
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
 
-    bool isSourceConnectedA() const;
-    bool isSourceConnectedB() const;
-    bool isProcessorEnabled() const;
-    bool isInverted() const;
-    bool isMuted() const;
+    bool isSourceConnectedA() const noexcept;
+    bool isSourceConnectedB() const noexcept;
+    bool isProcessorEnabled() const noexcept;
+    bool isInverted() const noexcept;
+    bool isMuted() const noexcept;
     // Returns true if this processor is producing audio
-    bool isActive() const;
+    bool isActive() const noexcept;
     void mute();
+
+    // TODO - provide methods to name controls (perhaps an array of names)
 
 private:
     
-    int numControls;
+    class ControlComponent : public Component, public Slider::Listener
+    {
+    public:
+        ControlComponent (String controlName);
+
+        void paint (Graphics& g) override;
+        void resized() override;
+
+        void sliderValueChanged (Slider* sliderThatWasChanged) override;
+
+        double getCurrentControlValue() const;
+
+    private:
+        Label lblControl;
+        Slider sldControl;
+        Atomic<double> currentControlValue;
+    };
+
+    class ControlArrayComponent : public Component
+    {
+    public:
+        explicit ControlArrayComponent (OwnedArray<ControlComponent>* controlComponentsToReferTo);
+
+        void paint (Graphics& g) override;
+        void resized() override;
+        float getPreferredHeight() const;
+
+        /** This must be called to add the controls and make them visible (once they are set up in the parent). */
+        void initialiseControls();
+
+    private:
+        OwnedArray<ControlComponent>* controlComponents {};
+    };
 
     ScopedPointer<Label> lblTitle;
     ScopedPointer<TextButton> btnSourceA;
@@ -49,16 +81,18 @@ private:
     ScopedPointer<TextButton> btnDisable;
     ScopedPointer<TextButton> btnInvert;
     ScopedPointer<TextButton> btnMute;
+
     // TODO - add a bypass button to allow direct analysis of a source?
 
-    bool statusSourceA = true;
-    bool statusSourceB = false;
-    bool statusDisable = false;
-    bool statusInvert = false;
-    bool statusMute = false;
+    Atomic<bool> statusSourceA = true;
+    Atomic<bool> statusSourceB = false;
+    Atomic<bool> statusDisable = false;
+    Atomic<bool> statusInvert = false;
+    Atomic<bool> statusMute = false;
 
-    OwnedArray<Label> sliderLabels;
-    OwnedArray<Slider> sliders;
+    Viewport viewport;
+    OwnedArray<ControlComponent> controlArray {};
+    ControlArrayComponent controlArrayComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorComponent)
 };

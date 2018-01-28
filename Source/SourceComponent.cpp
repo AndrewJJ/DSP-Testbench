@@ -11,43 +11,6 @@
 #include "SourceComponent.h"
 #include "Main.h"
 
-void RotarySliderLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
-{
-	const auto radius = static_cast<float> (jmin (width, height)) * 0.48f;
-	const auto centreX = static_cast<float> (x) + static_cast<float> (width) * 0.5f;
-	const auto centreY = static_cast<float> (y) + static_cast<float> (height) * 0.5f;
-    const auto rx = centreX - radius;
-    const auto ry = centreY - radius;
-    const auto rw = radius * 2.0f;
-    const auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-	const auto isEnabled = slider.isEnabled();
-    const auto isMouseOver = slider.isMouseOverOrDragging() && isEnabled;
-
-	const auto fillColour = isEnabled ? Colours::black : Colours::black.brighter();
-	const auto outlineColour = isEnabled ? (isMouseOver ? Colours::white.withAlpha (0.7f) : Colours::black) : Colours::grey.darker (0.6f);
-    const auto indicatorColour = isEnabled ? Colours::white : Colours::grey;
-
-	// Draw knob body
-	{
-		Path  p;
-		p.addEllipse (rx, ry, rw, rw);
-        g.setColour (fillColour);
-		g.fillPath (p);
-		g.setColour (outlineColour);
-		g.strokePath (p, PathStrokeType (radius * 0.075f));
-	}
-
-	// Draw rotating pointer
-	{
-		Path l;
-		l.startNewSubPath (0.0f, radius * -0.95f);
-		l.lineTo (0.0f, radius * -0.50f);
-		g.setColour (indicatorColour);
-		g.strokePath (l, PathStrokeType (2.5f), AffineTransform::rotation (angle).translated (centreX, centreY));
-	}
-}
-
 SynthesisTab::SynthesisTab ()
 {
     // Assume sample rate of 48K - this will be corrected when prepare() is called
@@ -68,7 +31,7 @@ SynthesisTab::SynthesisTab ()
 
     addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
-    sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
     sldFrequency->setRange (10.0, nyquist, 1.0);
     sldFrequency->setMinAndMaxValues (10.0, nyquist, dontSendNotification);
@@ -77,7 +40,7 @@ SynthesisTab::SynthesisTab ()
     sldFrequency->setSkewFactor (0.5);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
-    sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldSweepDuration->setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
     sldSweepDuration->setRange (0.5, 5.0, 0.1);
     sldSweepDuration->addListener (this);
@@ -713,13 +676,11 @@ void WaveTab::stop ()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (RotarySliderLnF* rotaryLnF, SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
-    :   rotarySliderLnF(),
-        meterProcessor (meterProcessorToQuery),
+AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
+    :   meterProcessor (meterProcessorToQuery),
         numOutputs (numberOfOutputChannels),
         channel (channelIndex)
 {
-
     // Set opaque to reduce performance impact of meters redrawing
     this->setOpaque (true);
 
@@ -735,7 +696,6 @@ AudioTab::ChannelComponent::ChannelComponent (RotarySliderLnF* rotaryLnF, Simple
     meterBar.setTooltip("Signal level for input channel " + String (channelIndex));
     addAndMakeVisible (meterBar);
 
-    sldGain.setLookAndFeel (rotaryLnF);
     sldGain.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     sldGain.setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
     sldGain.setRange (-100.0, 15.0, 1.0);
@@ -845,7 +805,7 @@ void AudioTab::ChannelComponent::refresh ()
 }
 float AudioTab::ChannelComponent::getLinearGain() const
 {
-    return Decibels::decibelsToGain (static_cast<float> (sldGain.getValue()), -100.0f);
+    return currentLinearGain.get();
 }
 AudioTab::ChannelComponent::MenuCallback::MenuCallback (ChannelComponent* parentComponent)
     : parent (parentComponent)
@@ -973,11 +933,11 @@ void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t 
 
     const auto numInputs = static_cast<int> (numberOfInputChannels);
     for (auto ch  = 0; ch < numInputs; ++ ch)
-        inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&rotarySliderLnF, &meterProcessor, numberOfOutputChannels, ch)));
+        inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
         
     // Use this code to test the case where there are more channels that can fit within the parent
     //for (auto ch = numInputs; ch < 32; ++ ch)
-    //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&rotarySliderLnF, &meterProcessor, numberOfOutputChannels, ch)));
+    //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
 
     const auto viewWidth = inputArrayComponent.getMinimumWidth();
     auto viewHeight = getHeight();
@@ -1021,7 +981,7 @@ SourceComponent::SourceComponent (String sourceId)
     sldGain->setTooltip (TRANS("Adjusts the gain of this source"));
     sldGain->setRange (-100, 50, 0.1);
     sldGain->setSliderStyle (Slider::LinearHorizontal);
-    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, 80, 20);
+    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldGain->addListener (this);
 
     addAndMakeVisible (btnInvert = new TextButton ("Invert Source button"));

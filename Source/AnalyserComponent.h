@@ -52,7 +52,7 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
 
-    bool isActive() const;
+    bool isActive() const noexcept;
 
     // TODO - improve FFT display
     // TODO - add waveform display
@@ -67,7 +67,7 @@ private:
     FftProcessor<12> fftMult;
     FftScope fftScope;
 
-    bool statusActive = true;
+    Atomic<bool> statusActive = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalyserComponent)
 };

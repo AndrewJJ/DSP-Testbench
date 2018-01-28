@@ -11,8 +11,47 @@
 #include "MainComponent.h"
 #include "Main.h"
 
+void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
+                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
+{
+	const auto radius = static_cast<float> (jmin (width, height)) * 0.48f;
+	const auto centreX = static_cast<float> (x) + static_cast<float> (width) * 0.5f;
+	const auto centreY = static_cast<float> (y) + static_cast<float> (height) * 0.5f;
+    const auto rx = centreX - radius;
+    const auto ry = centreY - radius;
+    const auto rw = radius * 2.0f;
+    const auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+	const auto isEnabled = slider.isEnabled();
+    const auto isMouseOver = slider.isMouseOverOrDragging() && isEnabled;
+
+	const auto fillColour = isEnabled ? Colours::black : Colours::black.brighter();
+	const auto outlineColour = isEnabled ? (isMouseOver ? Colours::white.withAlpha (0.7f) : Colours::black) : Colours::grey.darker (0.6f);
+    const auto indicatorColour = isEnabled ? Colours::white : Colours::grey;
+
+	// Draw knob body
+	{
+		Path  p;
+		p.addEllipse (rx, ry, rw, rw);
+        g.setColour (fillColour);
+		g.fillPath (p);
+		g.setColour (outlineColour);
+		g.strokePath (p, PathStrokeType (radius * 0.075f));
+	}
+
+	// Draw rotating pointer
+	{
+		Path l;
+		l.startNewSubPath (0.0f, radius * -0.95f);
+		l.lineTo (0.0f, radius * -0.50f);
+		g.setColour (indicatorColour);
+		g.strokePath (l, PathStrokeType (2.5f), AffineTransform::rotation (angle).translated (centreX, centreY));
+	}
+}
+
 MainContentComponent::MainContentComponent()
 {
+    LookAndFeel::setDefaultLookAndFeel (&dspTestBenchLnF);
+
     addAndMakeVisible (srcComponentA = new SourceComponent ("A"));
     addAndMakeVisible (srcComponentB = new SourceComponent ("B"));
     addAndMakeVisible (procComponentA = new ProcessorComponent ("A", 3));
@@ -124,7 +163,6 @@ void MainContentComponent::releaseResources()
 }
 void MainContentComponent::paint (Graphics& g)
 {
-    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.fillAll (Colour (0xff323e44));
 }
 void MainContentComponent::resized()
