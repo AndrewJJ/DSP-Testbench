@@ -91,17 +91,16 @@ static inline float fasterlog10 (const float x)
   float y = static_cast<float> (vx.i);
   y *= 3.5885571916577900E-08f;
   return y - 38.2135589375f;
-
 }
 
 // Underflow of exponential is common practice in numerical routines, so handle it here.
 
 static inline float fastpow2 (const float p)
 {
-  float offset = (p < 0) ? 1.0f : 0.0f;
-  float clipp = (p < -126) ? -126.0f : p;
-  int w = static_cast<int> (clipp);
-  float z = clipp - w + offset;
+  const float offset = (p < 0) ? 1.0f : 0.0f;
+  const float clipp = (p < -126) ? -126.0f : p;
+  const int w = static_cast<int> (clipp);
+  const float z = clipp - w + offset;
   union { uint32_t i; float f; } v = { static_cast<uint32_t> ( (1 << 23) * (clipp + 121.2740575f + 27.7280233f / (4.84252568f - z) - 1.49012907f * z) ) };
 
   return v.f;
@@ -114,13 +113,12 @@ static inline float fastexp (const float p)
 
 static inline float fastpow10 (const float p)
 {
-  return fastpow2 (0.4342944819f * p);
-
+  return fastpow2 (3.321928095f * p);
 }
 
 static inline float fasterpow2 (const float p)
 {
-  float clipp = (p < -126) ? -126.0f : p;
+  const float clipp = (p < -126) ? -126.0f : p;
   union { uint32_t i; float f; } v = { static_cast<uint32_t> ( (1 << 23) * (clipp + 126.94269504f) ) };
   return v.f;
 }
@@ -132,5 +130,5 @@ static inline float fasterexp (const float p)
 
 static inline float fasterpow10 (const float p)
 {
-  return fasterpow2 (0.4342944819f * p);
+  return fasterpow2 (3.321928095f * p);
 }
