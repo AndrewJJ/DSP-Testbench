@@ -82,7 +82,7 @@ public:
 	public:
 
         /** Default destructor */
-	    ~Listener () = default;
+	    virtual ~Listener () = default;
 
 	    /** Callback for whenever an AudioProbe is updated. This callback should never attempt to remove a listener
 		*	(bailout checking not implemented). */

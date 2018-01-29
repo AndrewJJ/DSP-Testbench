@@ -400,9 +400,6 @@
     <ClCompile Include="..\..\Source\SourceComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Analysis.cpp">
-      <Filter>DSP Testbench\Source\Processing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\MeteringProcessors.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
@@ -2229,6 +2226,9 @@
     <ClInclude Include="..\..\Source\AnalyserComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\FftScope.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
@@ -2244,10 +2244,10 @@
     <ClInclude Include="..\..\Source\SourceComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Analysis.h">
+    <ClInclude Include="..\..\Source\AudioDataTransfer.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AudioDataTransfer.h">
+    <ClInclude Include="..\..\Source\FftProcessor.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MeteringProcessors.h">

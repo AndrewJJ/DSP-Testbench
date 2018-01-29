@@ -13,6 +13,7 @@
               file="Source/AnalyserComponent.cpp"/>
         <FILE id="aJXaij" name="AnalyserComponent.h" compile="0" resource="0"
               file="Source/AnalyserComponent.h"/>
+        <FILE id="a2WOfv" name="FftScope.h" compile="0" resource="0" file="Source/FftScope.h"/>
         <FILE id="D0lQdS" name="MainComponent.cpp" compile="1" resource="0"
               file="Source/MainComponent.cpp"/>
         <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
@@ -34,10 +35,9 @@
               file="Source/SourceComponent.h"/>
       </GROUP>
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
-        <FILE id="BhJYfA" name="Analysis.cpp" compile="1" resource="0" file="Source/Analysis.cpp"/>
-        <FILE id="yjlnh6" name="Analysis.h" compile="0" resource="0" file="Source/Analysis.h"/>
         <FILE id="kYn7rt" name="AudioDataTransfer.h" compile="0" resource="0"
               file="Source/AudioDataTransfer.h"/>
+        <FILE id="q9WLJV" name="FftProcessor.h" compile="0" resource="0" file="Source/FftProcessor.h"/>
         <FILE id="JFT69S" name="MeteringProcessors.cpp" compile="1" resource="0"
               file="Source/MeteringProcessors.cpp"/>
         <FILE id="tfjF02" name="MeteringProcessors.h" compile="0" resource="0"
