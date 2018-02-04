@@ -31,20 +31,20 @@ public:
     void prepare (const dsp::ProcessSpec& spec);
 
     // Set minimum dB value for y-axis (defaults to -80dB otherwise)
-    void setDbMin (float minimumDb);
+    void setDbMin (const float minimumDb);
     float getDbMin() const;
 
     // Set maximum dB value for y-axis (defaults to 0dB otherwise)
-    void setDbMax (float maximumDb);
+    void setDbMax (const float maximumDb);
     float getDbMax() const;
 
     // Set minimum frequency for x-axis (defaults to 10Hz otherwise)
-    void setFreqMin (float minimumFreq);
+    void setFreqMin (const float minimumFreq);
     float getFreqMin() const;
 
     // Set maximum frequency value for x-axis (defaults to Nyquist otherwise)
     // Will be limited to Nyquist if set too high
-    void setFreqMax (float maximumFreq);
+    void setFreqMax (const float maximumFreq);
     float getFreqMax() const;
 
 private:
@@ -52,7 +52,7 @@ private:
     class Background : public Component
     {
     public:
-        Background (FftScope* parentFftScope);
+        explicit Background (FftScope* parentFftScope);
         void paint (Graphics& g) override;
     private:
         FftScope* parentScope;
@@ -94,6 +94,8 @@ private:
     float logFreqSpan = 0.0f;
     float xRatio = 1.0f;
     float yRatio = 1.0f;
+    float xRatioInv = 1.0f;
+    float yRatioInv = 1.0f;
     int currentX = -1;
     int currentY = -1;
     
@@ -192,9 +194,10 @@ void FftScope<Order>::assignFftMult (FftProcessor<Order>* fftMultPtr)
 }
 
 template <int Order>
-void FftScope<Order>::audioProbeUpdated (AudioProbe<typename FftProcessor<Order>::FftFrame>*)
+void FftScope<Order>::audioProbeUpdated (AudioProbe<typename FftProcessor<Order>::FftFrame>* audioProbe)
 {
-    repaint();
+    if (fftProcessor->ownsProbe (audioProbe))
+        repaint();
 }
 
 template <int Order>
@@ -205,7 +208,7 @@ void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 }
 
 template <int Order>
-void FftScope<Order>::setDbMin (float minimumDb)
+void FftScope<Order>::setDbMin (const float minimumDb)
 {
     dBmin = minimumDb;
 }
@@ -217,7 +220,7 @@ float FftScope<Order>::getDbMin () const
 }
 
 template <int Order>
-void FftScope<Order>::setDbMax (float maximumDb)
+void FftScope<Order>::setDbMax (const float maximumDb)
 {
     dBmax = maximumDb;
 }
@@ -229,7 +232,7 @@ float FftScope<Order>::getDbMax () const
 }
 
 template <int Order>
-void FftScope<Order>::setFreqMin (float minimumFreq)
+void FftScope<Order>::setFreqMin (const float minimumFreq)
 {
     minFreq = minimumFreq;
 }
@@ -241,7 +244,7 @@ float FftScope<Order>::getFreqMin () const
 }
 
 template <int Order>
-void FftScope<Order>::setFreqMax (float maximumFreq)
+void FftScope<Order>::setFreqMax (const float maximumFreq)
 {
     maxFreq = maximumFreq;
 }
@@ -264,7 +267,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
     for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
     {
         // Copy frequency data and scale
-        fftProcessor->copyFrequencyData (y, ch);
+        fftProcessor->copyFrequencyFrame (y, ch);
 
         // Draw a line representing the freq data for this channel
         Path p;
@@ -421,14 +424,14 @@ inline float FftScope<Order>::toPxFromDbV(const float dB) const
 template <int Order>
 inline float FftScope<Order>::toDbVFromPx (const float yInPixels) const
 {
-    return (yInPixels + 1.0f) / yRatio  + dBmax;
+    return (yInPixels + 1.0f) * yRatioInv  + dBmax;
 }
 
 template <int Order>
 inline float FftScope<Order>::toHzFromPx (const float xInPixels) const
 {
-    //return powf(10.0f, xInPixels / xRatio + minLogFreq);
-    return fastpow10 (xInPixels / xRatio + minLogFreq);
+    //return powf(10.0f, xInPixels * xRatioInv + minLogFreq);
+    return fastpow10 (xInPixels * xRatioInv + minLogFreq);
 }
 
 template <int Order>
@@ -491,10 +494,12 @@ void FftScope<Order>::initialise()
     logFreqSpan = log10 (maxFreq) - minLogFreq;
     const auto n = fftProcessor->getMaximumBlockSize() / 2;
     xRatio = static_cast<float> (getWidth()) / logFreqSpan;
+    xRatioInv = 1.0f / xRatio;
+    
     const auto binToHz = nyquist / static_cast<float> (n);
-
     for (auto i = 1; i <= n; ++i)
         x[i] = toPxFromHz (static_cast<float> (i) * binToHz);
 
     yRatio = static_cast<float> (getHeight()) / (dBmin - dBmax);
+    yRatioInv = 1.0f / yRatio;
 }

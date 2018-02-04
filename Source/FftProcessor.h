@@ -23,14 +23,14 @@ class FftProcessor : public FixedBlockProcessor
 {
 public:
 
-	// This FftFrame is necessary for us to use the AudioProbe class and is why this class (& therefore FftScope is templated).
+	// This FftFrame is necessary for us to use the AudioProbe class and is why this class (& therefore FftScope) is templated.
     struct FftFrame
     {
 		alignas(16) float f[1 << Order];
 	};
 
     explicit FftProcessor();
-    ~FftProcessor ();
+    ~FftProcessor () = default;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void performProcessing (const int channel) override;
@@ -38,14 +38,17 @@ public:
     void addListener (typename AudioProbe<FftFrame>::Listener* listener);
     void removeListener (typename AudioProbe<FftFrame>::Listener* listener);
 
-    /** Copy FFT frequency data */
-    void copyFrequencyData (float* dest, const int channel);
+    /** Copy frame of FFT frequency data */
+    void copyFrequencyFrame (float* dest, const int channel) const;
 
-    /** Copy FFT phase data */
-	void copyPhaseData (float* dest, const int channel);
+    /** Copy frame of FFT phase data */
+	void copyPhaseFrame (float* dest, const int channel) const;
 
     /** Call this to choose a different windowing method (class is initialised with Hann) */
     void setWindowingMethod (dsp::WindowingFunction<float>::WindowingMethod);
+
+    /** Returns true if the referenced probe is owned by this object */
+    bool ownsProbe (AudioProbe<FftFrame>* audioProbe) const;
 
 private:
 
@@ -53,9 +56,6 @@ private:
     const int size;
 	AudioSampleBuffer temp;
 	AudioSampleBuffer window;
-	float atime;
-	float rtime;
-	int type;
     float amplitudeCorrectionFactor = 1.0f;
 
     OwnedArray <AudioProbe <FftFrame>> freqProbes;;
@@ -79,10 +79,6 @@ FftProcessor<Order>::FftProcessor (): FixedBlockProcessor (1 << Order),
 
     setWindowingMethod(dsp::WindowingFunction<float>::hann);
 }
-
-template <int Order>
-FftProcessor<Order>::~FftProcessor ()
-{ }
 
 template <int Order>
 void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
@@ -115,18 +111,18 @@ void FftProcessor<Order>::performProcessing (const int channel)
     FloatVectorOperations::multiply(temp.getWritePointer(0), window.getWritePointer(0), size);
     fft.performFrequencyOnlyForwardTransform(temp.getWritePointer(0));
     FloatVectorOperations::multiply (temp.getWritePointer(0), amplitudeCorrectionFactor, size);
-    freqProbes[channel]->writeFrame(reinterpret_cast<FftFrame*>(temp.getWritePointer(0)));
-    phaseProbes[channel]->writeFrame(reinterpret_cast<FftFrame*> (temp.getWritePointer (0) + size));
+    freqProbes[channel]->writeFrame(reinterpret_cast<const FftFrame*>(temp.getReadPointer(0)));
+    phaseProbes[channel]->writeFrame(reinterpret_cast<const FftFrame*> (temp.getReadPointer (0) + size));
 }
 
 template <int Order>
-void FftProcessor<Order>::copyFrequencyData (float* dest, const int channel)
+void FftProcessor<Order>::copyFrequencyFrame (float* dest, const int channel) const
 {
     freqProbes[channel]->copyFrame(reinterpret_cast<FftFrame*>(dest));
 }
 
 template <int Order>
-void FftProcessor<Order>::copyPhaseData (float* dest, const int channel)
+void FftProcessor<Order>::copyPhaseFrame (float* dest, const int channel) const
 {
 	phaseProbes[channel]->copyFrame (reinterpret_cast <FftFrame*> (dest));
 }
@@ -154,4 +150,26 @@ template <int Order>
 void FftProcessor<Order>::removeListener (typename AudioProbe<FftFrame>::Listener* listener)
 {
     listeners.remove(listener);
+}
+
+template <int Order>
+bool FftProcessor<Order>::ownsProbe (AudioProbe<FftFrame>* audioProbe) const
+{
+    auto owned = false;
+    for (auto p : freqProbes)
+        if (audioProbe == p)
+        {
+            owned = true;
+            break;
+        }
+    if (!owned)
+    {
+        for (auto p : phaseProbes)
+            if (audioProbe == p)
+            {
+                owned = true;
+                break;
+            }
+    }
+    return owned;
 }

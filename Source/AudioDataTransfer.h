@@ -113,7 +113,7 @@ public:
 	}
 
     /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer(). */
-    void writeFrame (FrameType* source)
+    void writeFrame (const FrameType* source)
     {
         jassert (writeIndex != readIndex);
         std::memcpy (&writeQueue[writeIndex], source, frameSize);
