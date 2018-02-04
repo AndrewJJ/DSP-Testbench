@@ -30,6 +30,23 @@ public:
     void audioProbeUpdated (AudioProbe<typename FftProcessor<Order>::FftFrame>* audioProbe) override;
     void prepare (const dsp::ProcessSpec& spec);
 
+    // Set minimum dB value for y-axis (defaults to -80dB otherwise)
+    void setDbMin (float minimumDb);
+    float getDbMin() const;
+
+    // Set maximum dB value for y-axis (defaults to 0dB otherwise)
+    void setDbMax (float maximumDb);
+    float getDbMax() const;
+
+    // Set minimum frequency for x-axis (defaults to 10Hz otherwise)
+    void setFreqMin (float minimumFreq);
+    float getFreqMin() const;
+
+    // Set maximum frequency value for x-axis (defaults to Nyquist otherwise)
+    // Will be limited to Nyquist if set too high
+    void setFreqMax (float maximumFreq);
+    float getFreqMax() const;
+
 private:
     
     class Background : public Component
@@ -69,10 +86,10 @@ private:
 	FftProcessor<Order>* fftProcessor;
     HeapBlock<float> x, y;
 	double samplingFreq = 48000; // will be set correctly in prepare()
-    float dBmax = 0.0f;          // TODO - make max dB a property
-    float dBmin = -80.0f;        // TODO - make min dB a property
-    float minFreq = 10.0f;       // TODO - make min frequency a property
-    float maxFreq = 24000.0f;    // TODO - make the max frequency a property (limited to nyquist)
+    float dBmax = 0.0f;
+    float dBmin = -80.0f;
+    float minFreq = 10.0f;
+    float maxFreq = 0.0f;
     float minLogFreq = 0.0f;
     float logFreqSpan = 0.0f;
     float xRatio = 1.0f;
@@ -110,7 +127,6 @@ FftScope<Order>::Foreground::Foreground (FftScope* parentFftScope)
 template <int Order>
 void FftScope<Order>::Foreground::paint (Graphics& g)
 {
-    // TODO - implement painting on another thread to avoid choking the message thread?
     parentScope->paintFft (g);
 }
 
@@ -189,6 +205,54 @@ void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 }
 
 template <int Order>
+void FftScope<Order>::setDbMin (float minimumDb)
+{
+    dBmin = minimumDb;
+}
+
+template <int Order>
+float FftScope<Order>::getDbMin () const
+{
+    return dBmin;
+}
+
+template <int Order>
+void FftScope<Order>::setDbMax (float maximumDb)
+{
+    dBmax = maximumDb;
+}
+
+template <int Order>
+float FftScope<Order>::getDbMax () const
+{
+    return dBmax;
+}
+
+template <int Order>
+void FftScope<Order>::setFreqMin (float minimumFreq)
+{
+    minFreq = minimumFreq;
+}
+
+template <int Order>
+float FftScope<Order>::getFreqMin () const
+{
+    return minFreq;
+}
+
+template <int Order>
+void FftScope<Order>::setFreqMax (float maximumFreq)
+{
+    maxFreq = maximumFreq;
+}
+
+template <int Order>
+float FftScope<Order>::getFreqMax () const
+{
+    return maxFreq;
+}
+
+template <int Order>
 void FftScope<Order>::paintFft (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
@@ -215,10 +279,16 @@ void FftScope<Order>::paintFft (Graphics& g) const
         //p.lineTo (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
 
         p.preallocateSpace ((getWidth() + 1) * 3); // Will generally be a lot less than this for log frequency scale
-        p.startNewSubPath (x[0], toPxFromLinear (y[0]));
-        auto i = 1;
-        auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
+        
+        // Find first positive x value (important if minFreq is set higher than default
+        auto i = 0;
+        while (x[i]<0)
+            ++i;
+        p.startNewSubPath (x[i], toPxFromLinear (y[i]));
+        ++i;
+        
         // Iterate through x and plot each point, but use max y if x interval is less than a pixel
+        auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
         while (xPx < getWidth() && i <= n)
         {
             const auto xPxNext = xPx + 1; // next pixel along on x-axis
@@ -413,8 +483,10 @@ template <int Order>
 void FftScope<Order>::initialise()
 {
     const auto nyquist = static_cast<float> (samplingFreq * 0.5);
-    minFreq = 10.0f;
-    maxFreq = nyquist;
+    if (maxFreq == 0.0f)
+        maxFreq = nyquist;
+    else
+        maxFreq = jmin (maxFreq, nyquist);
     minLogFreq = log10 (minFreq);
     logFreqSpan = log10 (maxFreq) - minLogFreq;
     const auto n = fftProcessor->getMaximumBlockSize() / 2;
