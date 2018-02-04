@@ -66,7 +66,7 @@ void MonitoringComponent::resized()
     grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
                         };
 
-    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.3)), Track (GUI_SIZE_PX(1.7)) };
+    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(1.7)) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
