@@ -236,8 +236,7 @@ public:
         jassert (size > 0);
         jassert (size <= maxBlockSize);
         currentBlockSize = jmin (size, maxBlockSize);
-        for (auto ch = 0 ; ch < numChannels; ++ch)
-            currentIndex[ch] = 0;
+        resetFrame();
     }
 
 	/** Gets the maximum block size. */
@@ -250,6 +249,13 @@ public:
     int getCurrentBlockSize() const
     {
         return currentBlockSize;
+    }
+
+    /** Resets the current write to the start of the frame (for each channel). */
+    void resetFrame()
+    {
+        for (auto ch = 0 ; ch < numChannels; ++ch)
+            currentIndex[ch] = 0;
     }
 
 	/** Appends data to the buffer. */
@@ -313,7 +319,7 @@ protected:
 	AudioSampleBuffer buffer;
 
 	/** Used to hold current position in buffer (per channel) */
-    HeapBlock<int> currentIndex{};
+    HeapBlock<int> currentIndex { };
 
 private:
 
