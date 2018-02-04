@@ -250,10 +250,18 @@ public:
         return nextrand();
     }
 
-    // Return next pseudo-random value as a floating point value.
+    // Return next pseudo-random value as a floating point value in the range 0.0f to 1.0f
     float rand31dc::ranf(void)  
     {
-        return static_cast<float> (nextrand() / 2147483647.0);
+        // 1 / 2147483647 = 4.656612875245796924105750827168e-10
+        return static_cast<float> (nextrand() * 4.656612875245796924105750827168E-10);
+    }    
+
+    // Return next pseudo-random value as a floating point value in the range -1.0f to 1.0f
+    float rand31dc::ranf2(void)  
+    {
+        // 1 / 1073741824 = 9.31322574615478515625e-10
+        return static_cast<float> (nextrand() * 9.31322574615478515625E-10) - 1.0f;
     }    
 
 private:
@@ -336,7 +344,7 @@ public:
             auto* dst = context.getOutputBlock().getChannelPointer(ch);
 
             for (size_t i = 0; i < context.getOutputBlock().getNumSamples(); i++)
-                dst[i] = prng.ranf();
+                dst[i] = prng.ranf2();
         }
     }
 
@@ -386,7 +394,7 @@ public:
 
             for (size_t i = 0; i < context.getOutputBlock().getNumSamples(); i++)
             {
-                const auto white = prng.ranf();
+                const auto white = prng.ranf2();
                 
                 // Pink noise filter posted by Paul Kellett: http://www.musicdsp.org/files/pink.txt
                 //
