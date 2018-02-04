@@ -18,6 +18,13 @@ class FftScope : public Component, public AudioProbe <typename FftProcessor<Orde
 {
 public:
 
+    /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
+    enum AggregationMethod
+    {
+        maximum = 1,    // This will better show the peak value of a harmonic, but will make white noise looks like it tails upwards
+        average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
+    };
+
     FftScope ();
     ~FftScope ();
 
@@ -46,6 +53,8 @@ public:
     // Will be limited to Nyquist if set too high
     void setFreqMax (const float maximumFreq);
     float getFreqMax() const;
+
+    void setAggregationMethod (const AggregationMethod method);
 
 private:
     
@@ -98,6 +107,7 @@ private:
     float yRatioInv = 1.0f;
     int currentX = -1;
     int currentY = -1;
+    AggregationMethod aggregationMethod = AggregationMethod::maximum;
     
     // Candidate frequencies for drawing the grid on the background
     Array<float> gridFrequencies = { 20.0f, 50.0f, 125.0f, 250.0f, 500.0f, 1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f, 32000.0f, 64000.0f };
@@ -256,6 +266,12 @@ float FftScope<Order>::getFreqMax () const
 }
 
 template <int Order>
+void FftScope<Order>::setAggregationMethod (const AggregationMethod method)
+{
+    aggregationMethod = method;
+}
+
+template <int Order>
 void FftScope<Order>::paintFft (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
@@ -295,10 +311,28 @@ void FftScope<Order>::paintFft (Graphics& g) const
         while (xPx < getWidth() && i <= n)
         {
             const auto xPxNext = xPx + 1; // next pixel along on x-axis
-            auto yMax = y[i];
-            while (i < n && x[i+1] < xPxNext)
-                yMax = jmax (yMax, y[++i]);
-            p.lineTo (x[i], toPxFromLinear (yMax));
+            if (aggregationMethod == AggregationMethod::average)
+            {
+                auto ySum = y[i];
+                auto count = 1;
+                while (i < n && x[i+1] < xPxNext)
+                {
+                    i++;
+                    ySum += y[i];
+                    count++;
+                }
+                p.lineTo (x[i], toPxFromLinear (ySum/count));
+            }
+            else
+            {
+                auto yMax = y[i];
+                while (i < n && x[i+1] < xPxNext)
+                {
+                    i++;
+                    yMax = jmax (yMax, y[i]);
+                }
+                p.lineTo (x[i], toPxFromLinear (yMax));
+            }
             ++i;
             xPx = static_cast<int> (x[i]);
         }
