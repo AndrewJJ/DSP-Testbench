@@ -282,7 +282,7 @@ private:
         size_t numOutputs = 0;
         BigInteger selectedOutputChannels = 0;
         size_t channel = 0;
-        Atomic<float> currentLinearGain = 0.0f;
+        Atomic<float> currentLinearGain = 1.0f;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
