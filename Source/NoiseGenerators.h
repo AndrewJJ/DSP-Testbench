@@ -250,18 +250,30 @@ public:
         return nextrand();
     }
 
+    // Return next pseudo-random value as a double value in the range 0.0f to 1.0f
+    double rand31dc::rand(void)
+    {
+        // 1 / 2147483647 = 4.656612875245796924105750827168e-10
+        return static_cast<double> (nextrand()) * 4.656612875245796924105750827168E-10;
+    }    
+
+    // Return next pseudo-random value as a double value in the range -1.0f to 1.0f
+    double rand31dc::rand2(void)  
+    {
+        // 2 / 2147483647 = 9.31322574615478515625e-10
+        return static_cast<double> (nextrand()) * 9.31322574615478515625E-10 - 1.0;
+    }    
+
     // Return next pseudo-random value as a floating point value in the range 0.0f to 1.0f
     float rand31dc::ranf(void)  
     {
-        // 1 / 2147483647 = 4.656612875245796924105750827168e-10
-        return static_cast<float> (nextrand() * 4.656612875245796924105750827168E-10);
+        return static_cast<float> (rand());
     }    
 
     // Return next pseudo-random value as a floating point value in the range -1.0f to 1.0f
     float rand31dc::ranf2(void)  
     {
-        // 1 / 1073741824 = 9.31322574615478515625e-10
-        return static_cast<float> (nextrand() * 9.31322574615478515625E-10) - 1.0f;
+        return static_cast<float> (rand2());
     }    
 
 private:
@@ -360,6 +372,7 @@ private:
  /**    Generates pink noise by applying a filter to white noise. Filter posted by Paul Kellett
   *     at http://www.musicdsp.org/files/pink.txt.
   *     
+  *     Note that this generator may very occasionally produce samples outside the range of -1.0 to +1.0
   */
 class PinkNoiseGenerator
 {
@@ -384,7 +397,7 @@ public:
 
             for (size_t i = 0; i < context.getOutputBlock().getNumSamples(); i++)
             {
-                const auto white = prng.ranf2();
+                const auto white = prng.rand2();
                 
                 // Pink noise filter posted by Paul Kellett: http://www.musicdsp.org/files/pink.txt
                 //
@@ -403,7 +416,10 @@ public:
                 //b0 = 0.99765 * b0 + white * 0.0990460;
                 //b1 = 0.96300 * b1 + white * 0.2965164;
                 //b2 = 0.57000 * b2 + white * 1.0526913;
-                //dst[i] = static_cast<float> ((b0 + b1 + b2 + white * 0.1848)); // * 0.0333333333333333333);
+                //dst[i] = static_cast<float> (b0 + b1 + b2 + white * 0.1848);
+
+                // Scaling factor empirically determined to lower risk of clipping
+                 dst[i] *= 0.12348f;
             }
         }
     }
@@ -418,5 +434,6 @@ private:
     double      b5 = 0.0;
     double      b6 = 0.0;
 };
+
 } // namespace dsp
 } // namespace juce
