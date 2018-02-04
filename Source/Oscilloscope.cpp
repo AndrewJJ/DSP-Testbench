@@ -36,8 +36,6 @@ Oscilloscope::Oscilloscope ()
     this->setOpaque (true);
     this->setPaintingIsUnclipped (true);
 
-    initialise();
-
     addAndMakeVisible (background);
     addAndMakeVisible (foreground);
 
@@ -53,7 +51,7 @@ void Oscilloscope::paint (Graphics&)
 { }
 void Oscilloscope::resized ()
 {
-    initialise();
+    calculateRatios();
     background.setBounds (getLocalBounds());
     foreground.setBounds (getLocalBounds());
 }
@@ -68,44 +66,57 @@ void Oscilloscope::mouseExit (const MouseEvent&)
     currentX = -1;
     currentY = -1;
 }
-void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProccesorPtr)
+void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr)
 {
-    jassert (oscProccesorPtr != nullptr);
-    oscProcessor = oscProccesorPtr;
+    jassert (oscProcessorPtr != nullptr);
+    oscProcessor = oscProcessorPtr;
+    if (maxXsamples == 0)
+        maxXsamples = oscProcessor->getMaximumBlockSize();
+    prepare();
     oscProcessor->addListener (this);
-    y.allocate (oscProcessor->getMaximumBlockSize(), true);
 }
 void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::OscilloscopeFrame>* audioProbe)
 {
     if (oscProcessor->ownsProbe (audioProbe))
+    {
         repaint();
+        const ScopedLock copyLock (critSection);
+        for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
+            oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
+    }
+}
+void Oscilloscope::prepare()
+{
+    jassert (oscProcessor != nullptr); // oscProcessor should be assigned & prepared first
+    buffer.setSize (oscProcessor->getNumChannels(), oscProcessor->getMaximumBlockSize());
+    calculateRatios();
 }
 void Oscilloscope::setMaxAmplitude(const float maximumAmplitude)
 {
     amplitudeMax = maximumAmplitude;
-    initialise();
+    calculateRatios();
 }
 float Oscilloscope::getMaxAmplitude () const
 {
     return amplitudeMax;
 }
-void Oscilloscope::setTimeMin (const int minimumTime)
+void Oscilloscope::setXmin (const int minimumX)
 {
-    minTime = minimumTime;
-    initialise();
+    minXsamples = minimumX;
+    calculateRatios();
 }
-int Oscilloscope::getTimeMin () const
+int Oscilloscope::getXmin () const
 {
-    return minTime;
+    return minXsamples;
 }
-void Oscilloscope::setTimeMax (const int maximumTime)
+void Oscilloscope::setXmax (const int maximumX)
 {
-    maxTime = maximumTime;
-    initialise();
+    maxXsamples = maximumX;
+    calculateRatios();
 }
-int Oscilloscope::getTimeMax () const
+int Oscilloscope::getXmax () const
 {
-    return maxTime;
+    return maxXsamples;
 }
 void Oscilloscope::setAggregationMethod (const AggregationMethod method)
 {
@@ -119,16 +130,15 @@ void Oscilloscope::paintWaveform (Graphics& g) const
 
     for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
     {
-        // Copy audio data
-        oscProcessor->copyFrame (y, ch);
+        auto* y = buffer.getReadPointer (ch);
 
         // Draw a line representing the freq data for this channel
         Path p;
         p.preallocateSpace ((getWidth() + 1) * 3);
 
         // Start path at first value
-        auto i = minTime;
-        const auto limit = maxTime - 1; // Reduce by 1 because of way while loop is structured
+        auto i = minXsamples;
+        const auto limit = maxXsamples - 1; // Reduce by 1 because of way while loop is structured
         auto curPx = toPxFromTime (i);
         p.startNewSubPath (curPx, toPxFromAmp (y[i]));
 
@@ -211,14 +221,12 @@ void Oscilloscope::paintScale (Graphics& g) const
     // Plot amplitude scale (just halves, quarters or eighths)
     auto maxTicks = getHeight() / GUI_SIZE_I(2);
     auto numTicks = 0;
-    if (maxTicks >= 9)
-        numTicks = 9;
-    else if (maxTicks >= 5)
-        numTicks = 5;
-    else if (maxTicks >= 3)
-        numTicks = 3;
-    else if (maxTicks >= 1)
-        numTicks = 1;
+    if (maxTicks >= 8)
+        numTicks = 8;
+    else if (maxTicks >= 4)
+        numTicks = 4;
+    else
+        numTicks = 2;
 
     // Draw y scale for amplitude
     for (auto t = 0; t < numTicks; ++t)
@@ -233,7 +241,6 @@ void Oscilloscope::paintScale (Graphics& g) const
         const auto lblY = static_cast<int> (scaleY) + GUI_SIZE_I(0.1);
         const auto lblW = GUI_SIZE_I(1.1);
         const auto lblH = static_cast<int> (scaleY) + GUI_SIZE_I(0.6);
-        //g.drawFittedText (dB, lblX, lblY, lblW, lblH, Justification::topLeft, 1, 1.0f);
         g.drawText (ampStr, lblX, lblY, lblW, lblH, Justification::topLeft, false);
     }
    
@@ -260,7 +267,6 @@ void Oscilloscope::paintScale (Graphics& g) const
         const auto lblY = getHeight() - GUI_SIZE_I(0.6);
         const auto lblW = GUI_BASE_SIZE_I;
         const auto lblH = GUI_SIZE_I(0.5);
-        //g.drawFittedText (dB, lblX, lblY, lblW, lblH, Justification::topLeft, 1, 1.0f);
         g.drawText (dBStr, lblX, lblY, lblW, lblH, Justification::topLeft, false);
     }
 }
@@ -274,11 +280,11 @@ inline float Oscilloscope::toPxFromAmp(const float amplitude) const
 }
 inline int Oscilloscope::toTimeFromPx (const float xInPixels) const
 {
-    return static_cast<int> (xInPixels * xRatioInv) + minTime;
+    return static_cast<int> (xInPixels * xRatioInv) + minXsamples;
 }
 inline float Oscilloscope::toPxFromTime (const int xInSamples) const
 {
-    return (xInSamples - minTime) * xRatio;
+    return (xInSamples - minXsamples) * xRatio;
 }
 Colour Oscilloscope::getColourForChannel (const int channel)
 {
@@ -293,10 +299,10 @@ Colour Oscilloscope::getColourForChannel (const int channel)
         default: return Colours::red;
     }
 }
-void Oscilloscope::initialise()
+void Oscilloscope::calculateRatios()
 {
-    maxTime = jmin (maxTime, maxNumSamples);
-    xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxTime - minTime);
+    maxXsamples = jmin (maxXsamples, oscProcessor->getMaximumBlockSize());
+    xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXsamples - minXsamples);
     xRatioInv = 1.0f / xRatio;
     yRatio = static_cast<float> (getHeight()) / (amplitudeMax * 2.0f);
     yRatioInv = 1.0f / yRatio;

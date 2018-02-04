@@ -23,8 +23,8 @@ public:
         average
     };
 
-    Oscilloscope ();
-    ~Oscilloscope ();
+    Oscilloscope();
+    ~Oscilloscope();
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -33,25 +33,25 @@ public:
 
     void assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr);
     void audioProbeUpdated (AudioProbe<OscilloscopeProcessor::OscilloscopeFrame>* audioProbe) override;
+    void prepare();
 
     // Set maximum amplitude scale for y-axis (defaults to 1.0 otherwise)
     void setMaxAmplitude (const float maximumAmplitude);
     float getMaxAmplitude() const;
 
-    // Set minimum time value for x-axis (defaults to 10Hz otherwise)
-    void setTimeMin (const int minimumTime);
-    int getTimeMin() const;
+    // Set minimum time value for x-axis in samples (defaults to 0 otherwise)
+    void setXmin (const int minimumX);
+    int getXmin() const;
 
-    // Set maximum time value for x-axis (defaults to max buffer size otherwise)
+    // Set maximum time value for x-axis in samples (defaults to max buffer size otherwise)
     // Will be limited to max buffer size if set too high
-    void setTimeMax (const int maximumTime);
-    int getTimeMax() const;
+    void setXmax (const int maximumX);
+    int getXmax() const;
 
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
 
-    // TODO - implement one-shot mode
-    // TODO - look for performance improvements or do drawing on separate thread to prevent message queue from being choked
+    // TODO - lengthen buffer but don't allow full zoom (perhaps use audiothumbnail?)
 
 private:
 
@@ -82,17 +82,15 @@ private:
     inline float toPxFromTime (const int xInSamples) const;
 
     static Colour getColourForChannel (const int channel);
-    void initialise();
+    void calculateRatios();
 
     Background background;
     Foreground foreground;
 	OscilloscopeProcessor* oscProcessor;
-    HeapBlock<float> y;
-
-    const int maxNumSamples = 8192; // Needs to match the processor
+    
     float amplitudeMax = 1.0f;
-    int minTime = 0;
-    int maxTime = maxNumSamples;
+    int minXsamples = 0;
+    int maxXsamples = 0;
     float xRatio = 1.0f;
     float yRatio = 1.0f;
     float xRatioInv = 1.0f;
@@ -100,4 +98,6 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::maximum;
+    AudioBuffer<float> buffer;
+    CriticalSection critSection;
 };

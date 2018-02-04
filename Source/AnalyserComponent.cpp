@@ -34,7 +34,7 @@ AnalyserComponent::AnalyserComponent()
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignOscProcessor (&oscProcessor);
     //oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::average);
-    // TODO - set display time window so that performance doesn't choke
+    // TODO - set oscilloscope x axis so that performance doesn't choke
     //oscilloscope.setTimeMin (2000);
     //oscilloscope.setTimeMax (2500);
 }
@@ -76,6 +76,7 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
     fftMult.prepare (spec);
     fftScope.prepare (spec);
     oscProcessor.prepare (spec);
+    oscilloscope.prepare();
 }
 void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {

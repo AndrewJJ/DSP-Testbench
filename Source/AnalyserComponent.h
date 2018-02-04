@@ -32,6 +32,7 @@ public:
 
     bool isActive() const noexcept;
 
+    // TODO - build synch trigger functionality throughout the app (hosted in MainComponent::getNextAudioBlock()
     // TODO - add detailed metering (peak, RMS, VU)
     // TODO - add phase scope
 

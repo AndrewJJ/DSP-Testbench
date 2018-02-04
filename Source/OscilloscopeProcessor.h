@@ -20,16 +20,19 @@
 */
 class OscilloscopeProcessor : public FixedBlockProcessor
 {
+private:
+
+    static const int frame_size = 8192;
+
 public:
 
-    // This is necessary for us to use the AudioProbe class and is why this class (& therefore FftScope is templated).
     struct OscilloscopeFrame
     {
-	    alignas(16) float f[8192];
+	    alignas(16) float f[frame_size];
     };
 
     explicit OscilloscopeProcessor()
-        :   FixedBlockProcessor (8192)
+        :   FixedBlockProcessor (frame_size)
     { }
 
     ~OscilloscopeProcessor() = default;
@@ -47,7 +50,7 @@ public:
         // But add listeners to the last channel only (prevents excessive paint calls)
         const auto lastChannel = static_cast<int>(spec.numChannels) - 1;
         for (auto i = 0; i < listeners.size(); ++i)
-            audioProbes[lastChannel]->addListener(listeners.getListeners()[i]);        
+            audioProbes[lastChannel]->addListener(listeners.getListeners()[i]);
     }
 
     void performProcessing (const int channel) override
