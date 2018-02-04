@@ -54,6 +54,7 @@ public:
     void setFreqMax (const float maximumFreq);
     float getFreqMax() const;
 
+    /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
 
 private:
@@ -306,7 +307,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
         p.startNewSubPath (x[i], toPxFromLinear (y[i]));
         ++i;
         
-        // Iterate through x and plot each point, but use max y if x interval is less than a pixel
+        // Iterate through x and plot each point, but aggregate across y if x interval is less than a pixel
         auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
         while (xPx < getWidth() && i <= n)
         {
@@ -321,7 +322,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
                     ySum += y[i];
                     count++;
                 }
-                p.lineTo (x[i], toPxFromLinear (ySum/count));
+                p.lineTo (x[i], toPxFromLinear (ySum / static_cast<float> (count)));
             }
             else
             {
