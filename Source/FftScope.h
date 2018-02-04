@@ -204,11 +204,32 @@ void FftScope<Order>::paintFft (Graphics& g) const
 
         // Draw a line representing the freq data for this channel
         Path p;
-        p.preallocateSpace ((n + 1) * 3);
-        p.startNewSubPath (0, toPxFromLinear (y[0]));
-        for (auto i = 1; i <= n; ++i)
-            p.lineTo (x[i], toPxFromLinear (y[i]));
-        p.lineTo (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
+        
+        // Deprecated code for plotting each point on path (including subpixel resolution)
+        //p.preallocateSpace ((n + 1) * 3);
+        //p.startNewSubPath (0, toPxFromLinear (y[0]));
+        //for (auto i = 1; i <= n; ++i)
+        //{
+        //    p.lineTo (x[i], toPxFromLinear (y[i]));
+        //}
+        //p.lineTo (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
+
+        p.preallocateSpace ((getWidth() + 1) * 3); // Will generally be a lot less than this for log frequency scale
+        p.startNewSubPath (x[0], toPxFromLinear (y[0]));
+        auto i = 1;
+        auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
+        // Iterate through x and plot each point, but use max y if x interval is less than a pixel
+        while (xPx < getWidth() && i <= n)
+        {
+            const auto xPxNext = xPx + 1; // next pixel along on x-axis
+            auto yMax = y[i];
+            while (i < n && x[i+1] < xPxNext)
+                yMax = jmax (yMax, y[++i]);
+            p.lineTo (x[i], toPxFromLinear (yMax));
+            ++i;
+            xPx = static_cast<int> (x[i]);
+        }
+        
         const auto pst = PathStrokeType (1.0f);
         g.setColour (getColourForChannel (ch));
         g.strokePath(p, pst);
