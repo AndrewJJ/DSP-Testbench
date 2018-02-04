@@ -13,6 +13,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FftProcessor.h"
 #include "FftScope.h"
+#include "OscilloscopeProcessor.h"
+#include "Oscilloscope.h"
 
 class AnalyserComponent  :  public Component, public dsp::ProcessorBase
 {
@@ -30,7 +32,6 @@ public:
 
     bool isActive() const noexcept;
 
-    // TODO - add waveform display
     // TODO - add detailed metering (peak, RMS, VU)
     // TODO - add phase scope
 
@@ -41,6 +42,9 @@ private:
 
     FftProcessor<12> fftMult;
     FftScope<12> fftScope;
+
+    OscilloscopeProcessor oscProcessor;
+    Oscilloscope oscilloscope;
 
     Atomic<bool> statusActive = true;
 

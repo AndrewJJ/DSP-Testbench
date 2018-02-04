@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A08B8472-334E-315F-0AE8-E0191FBC2842}</ProjectGuid>
+    <ProjectGuid>{F4ACEB09-A636-61AF-A0A1-6F5E644AEFEE}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -152,6 +152,7 @@
     <ClCompile Include="..\..\Source\AnalyserComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Oscilloscope.cpp"/>
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp"/>
     <ClCompile Include="..\..\Source\SimpleLevelMeterComponent.cpp"/>
     <ClCompile Include="..\..\Source\SourceComponent.cpp"/>
@@ -1831,6 +1832,7 @@
     <ClInclude Include="..\..\Source\FftScope.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\MonitoringComponent.h"/>
+    <ClInclude Include="..\..\Source\Oscilloscope.h"/>
     <ClInclude Include="..\..\Source\ProcessorComponent.h"/>
     <ClInclude Include="..\..\Source\SimpleLevelMeterComponent.h"/>
     <ClInclude Include="..\..\Source\SourceComponent.h"/>
@@ -1838,6 +1840,7 @@
     <ClInclude Include="..\..\Source\FftProcessor.h"/>
     <ClInclude Include="..\..\Source\MeteringProcessors.h"/>
     <ClInclude Include="..\..\Source\NoiseGenerators.h"/>
+    <ClInclude Include="..\..\Source\OscilloscopeProcessor.h"/>
     <ClInclude Include="..\..\Source\PolyBLEP.h"/>
     <ClInclude Include="..\..\Source\TestProcessor.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>

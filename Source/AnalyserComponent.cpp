@@ -29,6 +29,14 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftMult (&fftMult);
+    //fftScope.setAggregationMethod (FftScope<12>::AggregationMethod::average);
+
+    addAndMakeVisible (oscilloscope);
+    oscilloscope.assignOscProcessor (&oscProcessor);
+    //oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::average);
+    // TODO - set display time window so that performance doesn't choke
+    //oscilloscope.setTimeMin (2000);
+    //oscilloscope.setTimeMax (2500);
 }
 AnalyserComponent::~AnalyserComponent() = default;
 void AnalyserComponent::paint (Graphics& g)
@@ -57,7 +65,8 @@ void AnalyserComponent::resized()
 
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (btnDisable),
-                            GridItem (fftScope).withArea ({}, GridItem::Span (2))
+                            GridItem (fftScope).withArea ({}, GridItem::Span (2)),
+                            GridItem (oscilloscope).withArea ({}, GridItem::Span (2))
                         });
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
@@ -66,15 +75,23 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
     fftMult.prepare (spec);
     fftScope.prepare (spec);
+    oscProcessor.prepare (spec);
 }
 void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
     auto* inputBlock = &context.getInputBlock();
     for (size_t ch = 0; ch < inputBlock->getNumChannels(); ++ch)
-        fftMult.appendData (static_cast<int> (ch), static_cast<int> (inputBlock->getNumSamples()), inputBlock->getChannelPointer (ch));
+    {
+        const auto chNum = static_cast<int> (ch);
+        const auto numSamples = static_cast<int> (inputBlock->getNumSamples());
+        const auto* audioData = inputBlock->getChannelPointer (ch);
+        fftMult.appendData (chNum, numSamples, audioData);
+        oscProcessor.appendData (chNum, numSamples, audioData);
+    }
 }
 void AnalyserComponent::reset ()
 { }
+
 bool AnalyserComponent::isActive () const noexcept
 {
     return statusActive.get();

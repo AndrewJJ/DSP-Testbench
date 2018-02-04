@@ -391,6 +391,9 @@
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Oscilloscope.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
@@ -2235,6 +2238,9 @@
     <ClInclude Include="..\..\Source\MonitoringComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Oscilloscope.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ProcessorComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
@@ -2254,6 +2260,9 @@
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\NoiseGenerators.h">
+      <Filter>DSP Testbench\Source\Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\OscilloscopeProcessor.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PolyBLEP.h">
