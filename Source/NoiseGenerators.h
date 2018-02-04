@@ -366,17 +366,7 @@ class PinkNoiseGenerator
 public:
 
     PinkNoiseGenerator ()
-    {
-        // Pre-converged filter state to avoid the few seconds of quiet while filter gets going
-        // TODO - check amplitude of output compared to initialising to zero
-        b0 = 24.327182465295966;
-        b1 = 5.5803503181164595;
-        b2 = 2.3408779930175299;
-        b3 = 1.0355841373756416;
-        b4 = 0.58692709672325516;
-        b5 = -0.00099608953917843836;
-        b6 = 0.051101836973369119;
-    }
+    { }
 
     ~PinkNoiseGenerator()
     = default;
@@ -420,7 +410,13 @@ public:
 
 private:
     rand31dc    prng;
-    double      b0, b1, b2, b3, b4, b5, b6;
+    double      b0 = 0.0;
+    double      b1 = 0.0;
+    double      b2 = 0.0;
+    double      b3 = 0.0;
+    double      b4 = 0.0;
+    double      b5 = 0.0;
+    double      b6 = 0.0;
 };
 } // namespace dsp
 } // namespace juce
