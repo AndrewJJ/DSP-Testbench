@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.2.0"
+<JUCERPROJECT name="DSP Testbench" projectType="guiapp" jucerVersion="5.3.1"
               reportAppUsage="0">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
