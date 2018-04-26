@@ -79,7 +79,7 @@ void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::Oscillos
 {
     if (oscProcessor->ownsProbe (audioProbe))
     {
-        repaint();
+        repaint(); // TODO - consider decoupling repaints from frame delivery
         const ScopedLock copyLock (critSection);
         for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
             oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
@@ -126,8 +126,6 @@ void Oscilloscope::paintWaveform (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
 
-    const auto n = oscProcessor->getMaximumBlockSize() / 2;
-
     for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
     {
         auto* y = buffer.getReadPointer (ch);
@@ -167,7 +165,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
                 {
                     i++;
                     curPx = toPxFromTime (i);
-                    if (abs(y[i]) > abs(yMax))
+                    if (std::abs(y[i]) > std::abs(yMax))
                         yMax = y[i];
                 }
                 i++;
@@ -220,7 +218,7 @@ void Oscilloscope::paintScale (Graphics& g) const
 
     // Plot amplitude scale (just halves, quarters or eighths)
     auto maxTicks = getHeight() / GUI_SIZE_I(2);
-    auto numTicks = 0;
+    int numTicks;
     if (maxTicks >= 8)
         numTicks = 8;
     else if (maxTicks >= 4)

@@ -216,7 +216,7 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
     }
     else
     {
-        // TODO - implement impulse and step functions
+        // TODO - implement impulse and step functions with configurable pre-delay
 
         // TODO - delete once impulse and step functions have been implemented
         context.getOutputBlock().clear();

@@ -35,8 +35,8 @@ AnalyserComponent::AnalyserComponent()
     oscilloscope.assignOscProcessor (&oscProcessor);
     //oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::average);
     // TODO - set oscilloscope x axis so that performance doesn't choke
-    //oscilloscope.setTimeMin (2000);
-    //oscilloscope.setTimeMax (2500);
+    //oscilloscope.setXmin (2000);
+    oscilloscope.setXmax (2500);
 }
 AnalyserComponent::~AnalyserComponent() = default;
 void AnalyserComponent::paint (Graphics& g)

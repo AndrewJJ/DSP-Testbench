@@ -83,6 +83,7 @@ private:
     ScopedPointer<TextButton> btnMute;
 
     // TODO - add a bypass button to allow direct analysis of a source?
+    // TODO - add variable delay so that signals can be time aligned?
 
     Atomic<bool> statusSourceA = true;
     Atomic<bool> statusSourceB = false;
