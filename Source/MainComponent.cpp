@@ -180,7 +180,12 @@ void MainContentComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    if (srcWidth * 4 < getWidth())
+    const auto margin = GUI_GAP_I(2);
+    auto requiredWidthForSourcesAndProcessors = srcWidth * 4;
+    requiredWidthForSourcesAndProcessors += GUI_GAP_I(2) * 3; // Gaps between components
+    requiredWidthForSourcesAndProcessors += margin * 2; // Gaps at edges
+
+    if (requiredWidthForSourcesAndProcessors < getWidth())
     {
         // Put sources and processors on first row
         grid.templateRows = {   Track (srcComponentHeight),
@@ -220,8 +225,7 @@ void MainContentComponent::resized()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-
-    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+    grid.performLayout (getLocalBounds().reduced (margin, margin));
 }
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
