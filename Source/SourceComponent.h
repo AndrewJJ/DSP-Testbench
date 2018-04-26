@@ -93,7 +93,7 @@ private:
     double getSweepFrequency() const;
     void calculateNumSweepSteps();
 
-    dsp::PolyBlepOscillator<float> oscillators[4] =
+    dsp::PolyBlepOscillator<float> oscillators[4]
     {
         dsp::PolyBlepOscillator<float>::sine,
         dsp::PolyBlepOscillator<float>::triangle,

@@ -66,9 +66,8 @@ public:
         initialise (lookupTableNumPoints);
     }
 
-    /**  Default destructor */
-    ~PolyBlepOscillator() 
-    = default;
+    // Note that we do not define a default constructor as that means copy-assigment operator won't be generated
+    //  by some compilers and therefore list initialisation won't work.
 
     /** Sets the frequency of the oscillator. */
     void setFrequency (NumericType newFrequency, bool force = false) noexcept
