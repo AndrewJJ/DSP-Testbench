@@ -227,6 +227,12 @@ namespace dsp {
 //    ranf     Provides the next pseudorandom number as a float between
 //             nearly 0 and nearly 1.0.
 //
+//////////////////////////////////////////////////////////////////////////////
+//
+// Code below has been adapted slightly by  Andrew Jerrim for C++11 compatibility
+//
+//////////////////////////////////////////////////////////////////////////////
+
 class rand31dc {
     
     // The sole item of state - a 32 bit integer.
@@ -238,34 +244,34 @@ public:
     rand31dc() {seed31 = 1;}                                    
                                     
     // Set the seed from a long unsigned integer.  If zero is used, then the seed will be set to 1.
-    void rand31dc::seedi(long unsigned int seedin)
+    void seedi(long unsigned int seedin)
     {
         if (seedin == 0) seedin = 1;
         seed31 = seedin;
     }
                                     
     // Return next pseudo-random value as a long unsigned integer.
-    long unsigned int rand31dc::ranlui(void)  
+    long unsigned int ranlui(void)  
     {
         return nextrand();
     }
 
     // Return next pseudo-random value as a double value in the range 0.0f to 1.0f
-    double rand31dc::rand(void)
+    double rand(void)
     {
         // 1 / 2147483647 = 4.656612875245796924105750827168e-10
         return static_cast<double> (nextrand()) * 4.656612875245796924105750827168E-10;
     }    
 
     // Return next pseudo-random value as a double value in the range -1.0f to 1.0f
-    double rand31dc::rand2(void)  
+    double rand2(void)  
     {
         // 2 / 2147483647 = 9.31322574615478515625e-10
         return static_cast<double> (nextrand()) * 9.31322574615478515625E-10 - 1.0;
     }    
 
     // Return next pseudo-random value as a floating point value in the range 0.0f to 1.0f
-    float rand31dc::ranf(void)  
+    float ranf(void)  
     {
         return static_cast<float> (rand());
     }    
