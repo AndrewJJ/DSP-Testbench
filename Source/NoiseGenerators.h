@@ -277,7 +277,7 @@ public:
     }    
 
     // Return next pseudo-random value as a floating point value in the range -1.0f to 1.0f
-    float rand31dc::ranf2(void)  
+    float ranf2(void)  
     {
         return static_cast<float> (rand2());
     }    
