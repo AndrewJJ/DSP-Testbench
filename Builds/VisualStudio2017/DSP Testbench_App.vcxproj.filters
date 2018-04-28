@@ -382,10 +382,10 @@
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\AnalyserComponent.cpp">
+    <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MainComponent.cpp">
+    <ClCompile Include="..\..\Source\AnalyserComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
@@ -2244,13 +2244,13 @@
     <ClInclude Include="..\..\Source\Main.h">
       <Filter>DSP Testbench\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\MainComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\AnalyserComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\FftScope.h">
-      <Filter>DSP Testbench\Source\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MonitoringComponent.h">
