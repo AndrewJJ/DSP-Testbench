@@ -278,8 +278,8 @@ void FftScope<Order>::paintFft (Graphics& g) const
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
 
     const auto n = fftProcessor->getMaximumBlockSize() / 2;
-    const auto amplitudeCorrection = 2.0f / static_cast<float> (n); // For Hann window
-    const auto bottomY = static_cast<float> (getHeight() - 1);
+    //const auto amplitudeCorrection = 2.0f / static_cast<float> (n); // For Hann window
+    //const auto bottomY = static_cast<float> (getHeight() - 1);
 
     for (auto ch = 0; ch < fftProcessor->getNumChannels(); ++ch)
     {

@@ -145,7 +145,7 @@ String get_buffer_alignment_status (AudioBuffer<float>& buffer)
 	for (auto ch = 0; ch < buffer.getNumChannels(); ++ch)
 		bufIsAligned = bufIsAligned && is_sse_aligned (buffer.getArrayOfReadPointers ()[ch]);
 
-	String alignmentMsg = "AudioSampleBuffer should ";
+	String alignmentMsg;
 	if (bufIsAligned)
 		alignmentMsg = "AudioSampleBuffer is aligned";
 	else
