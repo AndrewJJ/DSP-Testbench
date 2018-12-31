@@ -16,7 +16,7 @@ class MonitoringComponent  : public Component, public Slider::Listener, public d
 {
 public:
 
-    MonitoringComponent ();
+    MonitoringComponent (AudioDeviceManager* audioDeviceManager);
     ~MonitoringComponent();
 
     void paint (Graphics& g) override;
@@ -34,11 +34,16 @@ public:
 
 private:
 
+    AudioDeviceManager* deviceManager;
+
     ScopedPointer<Label> lblTitle;
     ScopedPointer<Slider> sldGain;
+    ScopedPointer<TextButton> btnConfig;
     ScopedPointer<TextButton> btnLimiter;
     ScopedPointer<TextButton> btnMute;
-    
+
+    ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
+
     bool statusLimiter = true;
     bool statusMute = false;
     dsp::Gain<float> gain;

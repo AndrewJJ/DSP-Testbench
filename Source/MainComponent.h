@@ -28,7 +28,7 @@ class MainContentComponent : public AudioAppComponent
 {
 public:
 
-    MainContentComponent();
+    MainContentComponent(AudioDeviceManager& deviceManager);
     ~MainContentComponent();
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
@@ -37,22 +37,12 @@ public:
     
     void paint (Graphics& g) override;
     void resized() override;
-    void mouseDown(const MouseEvent&) override
-    {
-        srcComponentA->reset();
-
-        AudioIODevice* currentDevice = deviceManager.getCurrentAudioDevice();
-        dsp::ProcessSpec spec;
-        spec.maximumBlockSize = currentDevice->getCurrentBufferSizeSamples();
-        spec.numChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
-        spec.sampleRate = currentDevice->getCurrentSampleRate();
-        srcComponentA->prepare (spec);
-    };
 
 private:
 
     DspTestBenchLnF dspTestBenchLnF;
     OpenGLContext oglContext;
+    AudioDeviceManager* customDeviceManager;
 
     ScopedPointer<SourceComponent> srcComponentA;
     ScopedPointer<SourceComponent> srcComponentB;

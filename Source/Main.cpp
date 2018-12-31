@@ -18,7 +18,6 @@ DSPTestbenchApplication::DSPTestbenchApplication ()
 
 void DSPTestbenchApplication::initialise (const String&)
 {
-    formatManager.registerBasicFormats();
     mainWindow = new MainWindow (getApplicationName());
     startThread();
 }
@@ -56,37 +55,23 @@ Component& DSPTestbenchApplication::getMainComponent ()
     jassert (comp != nullptr);
     return *comp;
 }
-AudioFormatManager& DSPTestbenchApplication::getFormatManager()
-{
-    return formatManager;
-}
-AudioDeviceManager* DSPTestbenchApplication::getDeviceManager()
-{
-    if (mainWindow)
-        return &(dynamic_cast<MainContentComponent*> (mainWindow->getContentComponent())->deviceManager);
-    else
-        return nullptr;
-}
-AudioIODevice* DSPTestbenchApplication::getCurrentAudioDevice ()
-{
-    auto* mgr = DSPTestbenchApplication::getApp().getDeviceManager();
-    if (mgr)
-        return mgr->getCurrentAudioDevice();
-    else
-        return nullptr;
-}
 DSPTestbenchApplication::MainWindow::MainWindow (String name)
     : DocumentWindow (name,
                       Desktop::getInstance().getDefaultLookAndFeel().findColour (ResizableWindow::backgroundColourId),
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (false);
-    setContentOwned (new MainContentComponent(), true);
+    setContentOwned (new MainContentComponent(deviceManager), true);
     setResizable (true, false);
     setResizeLimits(992, 768, 10000, 10000);
     
     centreWithSize (getWidth(), getHeight());
     Component::setVisible (true);    
+}
+DSPTestbenchApplication::MainWindow::~MainWindow()
+{
+    // This ensures that we shutdown audio before deviceManager is removed, thus preventing an access violation
+    dynamic_cast<AudioAppComponent*>(getContentComponent())->shutdownAudio();
 }
 void DSPTestbenchApplication::MainWindow::closeButtonPressed()
 {

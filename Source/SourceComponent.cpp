@@ -124,7 +124,7 @@ float SynthesisTab::getMinimumHeight()
 void SynthesisTab::performSynch ()
 {
     // Required to ensure synching with other source
-    ScopedLock sl (synthesiserCriticalSection);
+    const ScopedLock sl (synthesiserCriticalSection);
 
     otherSource->getSynthesisTab()->syncAndResetOscillator( currentWaveform,
                                                             currentFrequency,
@@ -225,7 +225,7 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 void SynthesisTab::reset()
 {
     // Required to ensure synching with other source
-    ScopedLock sl (synthesiserCriticalSection);
+    const ScopedLock sl (synthesiserCriticalSection);
 
     for (auto&& oscillator : oscillators)
     {
@@ -343,9 +343,11 @@ void SynthesisTab::calculateNumSweepSteps()
 //void SampleTab::reset()
 //{ }
 
-WaveTab::AudioThumbnailComponent::AudioThumbnailComponent()
-    : thumbnailCache (5),
-      thumbnail (128, DSPTestbenchApplication::getApp().getFormatManager(), thumbnailCache)
+WaveTab::AudioThumbnailComponent::AudioThumbnailComponent(AudioDeviceManager* deviceManager, AudioFormatManager* formatManager)
+    : audioDeviceManager (deviceManager),
+      audioFormatManager (formatManager),
+      thumbnailCache (5),
+      thumbnail (128, *formatManager, thumbnailCache)
 {
     thumbnail.addChangeListener (this);
 }
@@ -451,8 +453,7 @@ void WaveTab::AudioThumbnailComponent::mouseDrag (const MouseEvent& e)
 {
     if (transportSource != nullptr)
     {
-        AudioDeviceManager* adm = DSPTestbenchApplication::getApp().getDeviceManager();
-        const ScopedLock sl (adm->getAudioCallbackLock());
+        const ScopedLock sl (audioDeviceManager->getAudioCallbackLock());
 
         transportSource->setPosition ((jmax (static_cast<double> (e.x), 0.0) / getWidth())
                                         * thumbnail.getTotalLength());
@@ -463,11 +464,14 @@ bool WaveTab::AudioThumbnailComponent::isFileLoaded() const
     return fileLoaded;
 }
 
-WaveTab::WaveTab()
-    :   sampleRate(0.0),
-        maxBlockSize(0)
+WaveTab::WaveTab(AudioDeviceManager* deviceManager)
+    :   audioDeviceManager (deviceManager),
+        sampleRate (0.0),
+        maxBlockSize (0)
 {
-    addAndMakeVisible(audioThumbnailComponent = new AudioThumbnailComponent());
+    formatManager.registerBasicFormats();
+
+    addAndMakeVisible(audioThumbnailComponent = new AudioThumbnailComponent (audioDeviceManager, &formatManager));
     audioThumbnailComponent->addChangeListener (this);
 
     addAndMakeVisible (btnLoad = new TextButton ("Load"));
@@ -604,7 +608,7 @@ bool WaveTab::loadFile (const File& fileToPlay)
     transportSource.reset();
     readerSource.reset();
 
-    reader = DSPTestbenchApplication::getApp().getFormatManager().createReaderFor (fileToPlay);
+    reader = formatManager.createReaderFor (fileToPlay);
     if (reader != nullptr)
     {
         readerSource = new AudioFormatReaderSource (reader, false);
@@ -639,7 +643,7 @@ void WaveTab::init()
 
         if (readerSource != nullptr)
         {
-            if (auto* device = DSPTestbenchApplication::getApp().getCurrentAudioDevice())
+            if (auto* device = audioDeviceManager->getCurrentAudioDevice())
             {
                 transportSource->setSource (readerSource, roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
                 // tell the main window about this so that it can do the seeking behaviour...
@@ -676,7 +680,7 @@ void WaveTab::stop ()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex)
+AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex)
     :   meterProcessor (meterProcessorToQuery),
         numOutputs (numberOfOutputChannels),
         channel (channelIndex)
@@ -773,7 +777,7 @@ void AudioTab::ChannelComponent::setActive (bool shouldBeActive)
 {
     active = shouldBeActive;
 }
-void AudioTab::ChannelComponent::setNumOutputChannels (const size_t numberOfOutputChannels)
+void AudioTab::ChannelComponent::setNumOutputChannels (const int numberOfOutputChannels)
 {
     numOutputs = numberOfOutputChannels;
 }
@@ -788,7 +792,7 @@ void AudioTab::ChannelComponent::toggleOutputSelection (const int channelNumber)
     else
         selectedOutputChannels.setBit (channelNumber);
 }
-bool AudioTab::ChannelComponent::isOutputSelected (const size_t channelNumer) const
+bool AudioTab::ChannelComponent::isOutputSelected (const int channelNumer) const
 {
     return selectedOutputChannels[static_cast<int> (channelNumer)];
 }
@@ -814,8 +818,8 @@ AudioTab::ChannelComponent::MenuCallback::MenuCallback (ChannelComponent* parent
 PopupMenu AudioTab::ChannelComponent::getOutputMenu() const
 {
     PopupMenu menu;
-    for (size_t ch = 0; ch < numOutputs; ++ch)
-        menu.addItem (static_cast<int> (ch + 1), "Output " + String (ch), true, isOutputSelected (ch));
+    for (int ch = 0; ch < numOutputs; ++ch)
+        menu.addItem (ch + 1, "Output " + String (ch), true, isOutputSelected (ch));
     return menu;
 }
 void AudioTab::ChannelComponent::MenuCallback::modalStateFinished (int returnValue)
@@ -927,12 +931,11 @@ void AudioTab::timerCallback ()
     for (auto ch : channelComponents)
         ch->refresh();
 }
-void AudioTab::setNumChannels (const size_t numberOfInputChannels, const size_t numberOfOutputChannels)
+void AudioTab::setNumChannels (const int numberOfInputChannels, const int numberOfOutputChannels)
 {
     channelComponents.clear();
 
-    const auto numInputs = static_cast<int> (numberOfInputChannels);
-    for (auto ch  = 0; ch < numInputs; ++ ch)
+    for (auto ch  = 0; ch < numberOfInputChannels; ++ ch)
         inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
         
     // Use this code to test the case where there are more channels that can fit within the parent
@@ -966,7 +969,8 @@ void AudioTab::setRefresh (const bool shouldRefresh)
     }
 }
 
-SourceComponent::SourceComponent (String sourceId)
+SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* deviceManager)
+    : audioDeviceManager(deviceManager)
 {
     gain.setRampDurationSeconds (0.01);
     
@@ -1004,7 +1008,7 @@ SourceComponent::SourceComponent (String sourceId)
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(), false, Mode:: WaveFile);
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(audioDeviceManager), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
     tabbedComponent->setCurrentTabIndex (0);
     tabbedComponent->getTabbedButtonBar().addChangeListener(this);
@@ -1091,8 +1095,6 @@ void SourceComponent::prepare (const dsp::ProcessSpec& spec)
 }
 void SourceComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    dsp::AudioBlock<float> inputBlock;
-
     if (!isMuted)
     {
         // Process currently selected source

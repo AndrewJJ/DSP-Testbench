@@ -9,7 +9,6 @@
 */
 
 #include "MainComponent.h"
-#include "Main.h"
 
 void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
@@ -48,16 +47,18 @@ void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, in
 	}
 }
 
-MainContentComponent::MainContentComponent()
+MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
+    : AudioAppComponent (deviceManager),
+      customDeviceManager (&deviceManager)
 {
     LookAndFeel::setDefaultLookAndFeel (&dspTestBenchLnF);
 
-    addAndMakeVisible (srcComponentA = new SourceComponent ("A"));
-    addAndMakeVisible (srcComponentB = new SourceComponent ("B"));
+    addAndMakeVisible (srcComponentA = new SourceComponent ("A", &deviceManager));
+    addAndMakeVisible (srcComponentB = new SourceComponent ("B", &deviceManager));
     addAndMakeVisible (procComponentA = new ProcessorComponent ("A", 3));
     addAndMakeVisible (procComponentB = new ProcessorComponent ("B", 3));
     addAndMakeVisible (analyserComponent = new AnalyserComponent());
-    addAndMakeVisible (monitoringComponent = new MonitoringComponent());
+    addAndMakeVisible (monitoringComponent = new MonitoringComponent(customDeviceManager));
 
     srcComponentA->setOtherSource (srcComponentB);
     srcComponentB->setOtherSource (srcComponentA);
@@ -68,13 +69,11 @@ MainContentComponent::MainContentComponent()
 
     oglContext.attachTo (*this);
 
-    // specify the number of input and output channels that we want to open
+    // Specify the number of input and output channels that we want to open
     setAudioChannels (2, 2);
 }
 MainContentComponent::~MainContentComponent()  // NOLINT
 {
-    shutdownAudio();
-
     srcComponentA = nullptr;
     srcComponentB = nullptr;
     procComponentA = nullptr;
@@ -92,7 +91,7 @@ void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sa
     srcBufferB = dsp::AudioBlock<float> (srcBufferMemoryB, numOutputChannels, samplesPerBlockExpected);
     tempBuffer = dsp::AudioBlock<float> (tempBufferMemory, numOutputChannels, samplesPerBlockExpected);
 
-    dsp::ProcessSpec spec;
+    dsp::ProcessSpec spec {};
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlockExpected;
     spec.numChannels = jmax (numInputChannels, numOutputChannels);
@@ -158,8 +157,9 @@ void MainContentComponent::releaseResources()
 {
     // This will be called when the audio device stops, or when it is being
     // restarted due to a setting change.
-
-    // For more details, see the help for AudioProcessor::releaseResources()
+    srcBufferA.clear();
+    srcBufferB.clear();
+    tempBuffer.clear();
 }
 void MainContentComponent::paint (Graphics& g)
 {

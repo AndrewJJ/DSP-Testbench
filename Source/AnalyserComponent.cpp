@@ -73,10 +73,13 @@ void AnalyserComponent::resized()
 }
 void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    fftMult.prepare (spec);
-    fftScope.prepare (spec);
-    oscProcessor.prepare (spec);
-    oscilloscope.prepare();
+    if (spec.numChannels > 0)
+    {
+        fftMult.prepare (spec);
+        fftMult.prepare (spec);
+        oscProcessor.prepare (spec);
+        oscilloscope.prepare();
+    }
 }
 void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {

@@ -71,9 +71,9 @@ private:
     ScopedPointer<TextButton> btnSweepReset;
     ScopedPointer<TextButton> btnSynchWithOther;
 
-    SourceComponent* otherSource;
+    SourceComponent* otherSource {};
     CriticalSection synthesiserCriticalSection;
-    Waveform currentWaveform;
+    Waveform currentWaveform = Waveform::sine;
     double sampleRate = 0.0;
     uint32 maxBlockSize = 0;
     long numSweepSteps = 0;
@@ -134,7 +134,7 @@ private:
 class WaveTab : public Component, public dsp::ProcessorBase, public ChangeListener
 {
 public:
-    WaveTab();
+    WaveTab(AudioDeviceManager* deviceManager);
     ~WaveTab();
 
     void paint (Graphics& g) override;
@@ -156,7 +156,7 @@ public:
                                     private Timer
     {
     public:
-        AudioThumbnailComponent();
+        AudioThumbnailComponent(AudioDeviceManager* deviceManager, AudioFormatManager* formatManager);
         ~AudioThumbnailComponent();
 
         void paint (Graphics& g) override;
@@ -171,6 +171,8 @@ public:
         bool isFileLoaded() const;
 
     private:
+        AudioDeviceManager* audioDeviceManager = nullptr;
+        AudioFormatManager* audioFormatManager = nullptr;
         AudioThumbnailCache thumbnailCache;
         AudioThumbnail thumbnail;
         AudioTransportSource* transportSource = nullptr;
@@ -190,12 +192,14 @@ public:
     };
 
 private:
+    AudioDeviceManager* audioDeviceManager = nullptr;
     ScopedPointer<AudioThumbnailComponent> audioThumbnailComponent;
     ScopedPointer<TextButton> btnLoad;
     ScopedPointer<TextButton> btnPlay;
     ScopedPointer<TextButton> btnStop;
     ScopedPointer<TextButton> btnLoop;
 
+    AudioFormatManager formatManager;
     ScopedPointer<AudioFormatReader> reader;
     ScopedPointer<AudioFormatReaderSource> readerSource;
     ScopedPointer<AudioTransportSource> transportSource;
@@ -230,7 +234,7 @@ public:
     void reset() override;
     void timerCallback () override;
     
-    void setNumChannels (const size_t  numberOfInputChannels, const size_t numberOfOutputChannels);
+    void setNumChannels (const int  numberOfInputChannels, const int numberOfOutputChannels);
     void setRefresh (const bool shouldRefresh);
 
 private:
@@ -238,7 +242,7 @@ private:
     class ChannelComponent : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, size_t numberOfOutputChannels, size_t channelIndex);;
+        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
@@ -249,9 +253,9 @@ private:
         void sliderValueChanged (Slider* slider) override;
 
         void setActive (bool shouldBeActive);
-        void setNumOutputChannels (const size_t numberOfOutputChannels);
+        void setNumOutputChannels (const int numberOfOutputChannels);
         BigInteger getSelectedOutputs() const;
-        bool isOutputSelected (const size_t channelNumer) const;
+        bool isOutputSelected (const int channelNumer) const;
         // Resets
         void reset();
         // Queries meter processor to update meter value
@@ -273,15 +277,15 @@ private:
         };
 
         Label lblChannel;
-        SimplePeakMeterComponent meterBar;
+        SimplePeakMeterComponent meterBar{};
         Slider sldGain;
         TextButton btnOutputSelection;
 
         bool active = true;
         SimplePeakMeterProcessor* meterProcessor;
-        size_t numOutputs = 0;
+        int numOutputs = 0;
         BigInteger selectedOutputChannels = 0;
-        size_t channel = 0;
+        int channel = 0;
         Atomic<float> currentLinearGain = 1.0f;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
@@ -324,7 +328,7 @@ public:
         AudioIn
     };
 
-    SourceComponent (String sourceId);
+    SourceComponent (const String& sourceId, AudioDeviceManager* deviceManager);
     ~SourceComponent();
 
     void paint (Graphics& g) override;
@@ -349,6 +353,8 @@ public:
 
 private:
 
+    AudioDeviceManager* audioDeviceManager;
+
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
 
@@ -362,7 +368,7 @@ private:
     ScopedPointer<WaveTab> waveTab;
     ScopedPointer<AudioTab> audioTab;
 
-    SourceComponent* otherSource;
+    SourceComponent* otherSource = nullptr;
     bool isInverted = false;
     bool isMuted = false;
 

@@ -39,6 +39,7 @@ public:
     public:
 
         MainWindow (String name);
+        ~MainWindow();
         void closeButtonPressed() override;
 
         /* Note: Be careful if you override any DocumentWindow methods - the base
@@ -48,19 +49,16 @@ public:
            subclass also calls the superclass's method.
         */
 
-    private:
+        private:
+        AudioDeviceManager deviceManager;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
     static DSPTestbenchApplication& getApp();
     MainWindow& getMainWindow();
     Component& getMainComponent();
-    AudioFormatManager& getFormatManager();
-    AudioDeviceManager* getDeviceManager();
-    AudioIODevice* getCurrentAudioDevice();
 
 private:
     ScopedPointer<MainWindow> mainWindow;
     TooltipWindow tooltipWindow;
-    AudioFormatManager formatManager;
 };
