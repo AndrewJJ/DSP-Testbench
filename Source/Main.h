@@ -57,6 +57,7 @@ public:
     static DSPTestbenchApplication& getApp();
     MainWindow& getMainWindow();
     Component& getMainComponent();
+    ApplicationProperties appProperties;
 
 private:
     ScopedPointer<MainWindow> mainWindow;

@@ -36,7 +36,6 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     btnConfig->setButtonText (TRANS("Config"));
     btnConfig->onClick = [this]
     {
-        //deviceSelector = new AudioDeviceSelectorComponent (*deviceManager, 1, 1024, 1, 1024, false, false, false, false);
         deviceSelector = new AudioDeviceSelectorComponent (*deviceManager, 1, 1024, 1, 1024, false, false, false, false);
         deviceSelector->setSize(500,300);
         DialogWindow::showDialog("Audio device settings", deviceSelector, nullptr, Colours::darkgrey, true);

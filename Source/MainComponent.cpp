@@ -9,6 +9,7 @@
 */
 
 #include "MainComponent.h"
+#include "Main.h"
 
 void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
@@ -62,15 +63,30 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
 
     srcComponentA->setOtherSource (srcComponentB);
     srcComponentB->setOtherSource (srcComponentA);
-    procComponentB->mute();
-    
+    procComponentB->mute(); // TODO - delete this once configuration restoration is supported
+
+    // TODO - configure components according to state saved in user settings
+    // TODO - add configure methods to each component class
+    //srcComponentA->configure(savedState);
+    //srcComponentB->configure(savedState);
+    //procComponentA->configure(savedState);
+    //procComponentB->configure(savedState);
+    //analyserComponent->configure(savedState);
+    //monitoringComponent->configure(savedState);
+
     // Set small to force resize to minimum resize limit
     setSize (1, 1);
 
     oglContext.attachTo (*this);
 
+    // Listen for changes to audio device so we can save the state
+    customDeviceManager->addChangeListener(this);
+
+    // Read saved audio device state from user settings
+    std::unique_ptr<XmlElement> savedAudioDeviceState (DSPTestbenchApplication::getApp().appProperties.getUserSettings()->getXmlValue("AudioDeviceState"));
+
     // Specify the number of input and output channels that we want to open
-    setAudioChannels (2, 2);
+    setAudioChannels (2, 2, savedAudioDeviceState.get());
 }
 MainContentComponent::~MainContentComponent()  // NOLINT
 {
@@ -84,17 +100,18 @@ MainContentComponent::~MainContentComponent()  // NOLINT
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     const auto currentDevice = deviceManager.getCurrentAudioDevice();
-	const auto numInputChannels = currentDevice->getActiveInputChannels().countNumberOfSetBits();
-    const auto numOutputChannels = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
-   
+	const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
+    const auto numOutputChannels = static_cast<uint32> (currentDevice->getActiveOutputChannels().countNumberOfSetBits());
+
     srcBufferA = dsp::AudioBlock<float> (srcBufferMemoryA, numOutputChannels, samplesPerBlockExpected);
     srcBufferB = dsp::AudioBlock<float> (srcBufferMemoryB, numOutputChannels, samplesPerBlockExpected);
     tempBuffer = dsp::AudioBlock<float> (tempBufferMemory, numOutputChannels, samplesPerBlockExpected);
 
-    dsp::ProcessSpec spec {};
-    spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlockExpected;
-    spec.numChannels = jmax (numInputChannels, numOutputChannels);
+    const dsp::ProcessSpec spec {
+        sampleRate,
+        static_cast<uint32> (samplesPerBlockExpected),
+        jmax (numInputChannels, numOutputChannels)
+    };
     
     srcComponentA->setNumChannels (numInputChannels, numOutputChannels);
     srcComponentB->setNumChannels (numInputChannels, numOutputChannels);
@@ -227,6 +244,17 @@ void MainContentComponent::resized()
 
     grid.performLayout (getLocalBounds().reduced (margin, margin));
 }
+
+void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
+{
+    //if (dynamic_cast<AudioDeviceManager*>(source) == &deviceManager)
+    if (source== &deviceManager)
+    {
+        std::unique_ptr<XmlElement> xml(deviceManager.createStateXml());
+        DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
+    }
+}
+
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
     if (processor->isProcessorEnabled())

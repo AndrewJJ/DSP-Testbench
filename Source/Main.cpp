@@ -18,6 +18,13 @@ DSPTestbenchApplication::DSPTestbenchApplication ()
 
 void DSPTestbenchApplication::initialise (const String&)
 {
+    PropertiesFile::Options options;
+    options.applicationName = "DSP Testbench";
+    options.filenameSuffix = ".settings";
+    options.folderName = "DSP Testbench";
+    options.osxLibrarySubFolder = "Application Support";
+    appProperties.setStorageParameters(options);
+
     mainWindow = new MainWindow (getApplicationName());
     startThread();
 }

@@ -24,7 +24,7 @@ public:
                            const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
 };
 
-class MainContentComponent : public AudioAppComponent
+class MainContentComponent : public AudioAppComponent, public ChangeListener
 {
 public:
 
@@ -38,6 +38,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
+    void changeListenerCallback (ChangeBroadcaster* source) override;
+
 private:
 
     DspTestBenchLnF dspTestBenchLnF;
@@ -46,10 +48,10 @@ private:
 
     ScopedPointer<SourceComponent> srcComponentA;
     ScopedPointer<SourceComponent> srcComponentB;
-    ScopedPointer<ProcessorComponent> procComponentA;
-    ScopedPointer<ProcessorComponent> procComponentB;
-    ScopedPointer<AnalyserComponent> analyserComponent;
-    ScopedPointer<MonitoringComponent> monitoringComponent;
+    ScopedPointer<ProcessorComponent> procComponentA{};
+    ScopedPointer<ProcessorComponent> procComponentB{};
+    ScopedPointer<AnalyserComponent> analyserComponent{};
+    ScopedPointer<MonitoringComponent> monitoringComponent{};
 
     HeapBlock<char> srcBufferMemoryA{}, srcBufferMemoryB{}, tempBufferMemory{};
     dsp::AudioBlock<float> srcBufferA, srcBufferB, tempBuffer;
