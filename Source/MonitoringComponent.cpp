@@ -12,8 +12,21 @@
 #include "Main.h"
 
 MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager)
-    : deviceManager (audioDeviceManager)
+    : deviceManager (audioDeviceManager),
+    keyName ("Monitoring")
 {
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+    {
+        // Define default properties to be used if user settings not already saved
+        config.reset(new XmlElement (keyName));
+        config->setAttribute ("OutputGain", 0.0);
+        config->setAttribute ("OutputLimiter", true);
+        config->setAttribute ("OutputMute", false);
+    }
+
     gain.setRampDurationSeconds (0.01);
 
     addAndMakeVisible (lblTitle = new Label ("Monitoring label", TRANS("Monitoring")));
@@ -29,6 +42,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     sldGain->setDoubleClickReturnValue (true, 0.0);
     sldGain->setSliderStyle (Slider::LinearHorizontal);
     sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldGain->setValue (config->getDoubleAttribute ("OutputGain"));
     sldGain->addListener (this);
 
     addAndMakeVisible (btnConfig = new TextButton ("Config button"));
@@ -37,26 +51,39 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     btnConfig->onClick = [this]
     {
         deviceSelector = new AudioDeviceSelectorComponent (*deviceManager, 1, 1024, 1, 1024, false, false, false, false);
-        deviceSelector->setSize(500,300);
-        DialogWindow::showDialog("Audio device settings", deviceSelector, nullptr, Colours::darkgrey, true);
+        deviceSelector->setSize (500,300);
+        DialogWindow::showDialog ("Audio device settings", deviceSelector, nullptr, Colours::darkgrey, true);
     };
     
     addAndMakeVisible (btnLimiter = new TextButton ("Limiter button"));
     btnLimiter->setTooltip (TRANS("Activate limiter on output"));
     btnLimiter->setButtonText (TRANS("Limiter"));
     btnLimiter->setClickingTogglesState (true);
-    btnLimiter->setColour(TextButton::buttonOnColourId, Colours::darkorange);
+    btnLimiter->setColour (TextButton::buttonOnColourId, Colours::darkorange);
+    statusLimiter = config->getBoolAttribute ("OutputLimiter");
+    btnLimiter->setToggleState (statusLimiter, dontSendNotification);
     btnLimiter->onClick = [this] { statusLimiter = btnLimiter->getToggleState(); };
-    btnLimiter->setToggleState (true, dontSendNotification);
     
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText ("Mute");
     btnMute->setClickingTogglesState (true);
-    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnMute->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    statusMute = config->getBoolAttribute ("OutputMute");
+    btnMute->setToggleState (statusMute, dontSendNotification);
     btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
 }
 MonitoringComponent::~MonitoringComponent()
 {
+    // Update configuration from class state
+    config->setAttribute ("OutputGain", sldGain->getValue());
+    config->setAttribute ("OutputLimiter", statusLimiter);
+    config->setAttribute ("OutputMute", statusMute);
+
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue (keyName, config.get());
+    propertiesFile->saveIfNeeded();
+
     lblTitle = nullptr;
     sldGain = nullptr;
     btnLimiter = nullptr;

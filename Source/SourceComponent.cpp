@@ -970,8 +970,22 @@ void AudioTab::setRefresh (const bool shouldRefresh)
 }
 
 SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* deviceManager)
-    : audioDeviceManager(deviceManager)
+    : audioDeviceManager (deviceManager),
+      keyName ("Source" + sourceId)
 {
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+    {
+        // Define default properties to be used if user settings not already saved
+        config.reset(new XmlElement (keyName));
+        config->setAttribute ("SourceGain", 0.0);
+        config->setAttribute ("Invert", false);
+        config->setAttribute ("Mute", false);
+        config->setAttribute ("TabIndex", 0);
+    }
+
     gain.setRampDurationSeconds (0.01);
     
     addAndMakeVisible (lblTitle = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
@@ -981,28 +995,33 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     lblTitle->setColour (TextEditor::textColourId, Colours::black);
     lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (sldGain = new Slider ("Input gain slider"));
+    addAndMakeVisible (sldGain = new Slider ("Source gain slider"));
     sldGain->setTooltip (TRANS("Adjusts the gain of this source"));
     sldGain->setRange (-100, 50, 0.1);
     sldGain->setDoubleClickReturnValue (true, 0.0);
     sldGain->setSliderStyle (Slider::LinearHorizontal);
     sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldGain->setValue (config->getDoubleAttribute ("SourceGain"));
     sldGain->addListener (this);
 
     addAndMakeVisible (btnInvert = new TextButton ("Invert Source button"));
     btnInvert->setButtonText (TRANS("Invert"));
-    btnInvert->onClick = [this] { isInverted = btnInvert->getToggleState(); };
     btnInvert->setClickingTogglesState (true);
     btnInvert->setColour(TextButton::buttonOnColourId, Colours::green);
+    isInverted = config->getBoolAttribute ("Invert");
+    btnInvert->setToggleState (isInverted, dontSendNotification);
+    btnInvert->onClick = [this] { isInverted = btnInvert->getToggleState(); };
 
     addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
     btnMute->setButtonText (TRANS("Mute"));
+    btnMute->setClickingTogglesState (true);
+    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    isMuted = config->getBoolAttribute ("Mute");
+    btnMute->setToggleState (isMuted, dontSendNotification);
     btnMute->onClick = [this] {
         isMuted = btnMute->getToggleState();
         audioTab->setRefresh (!isMuted);
     };
-    btnMute->setClickingTogglesState (true);
-    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
 
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
@@ -1010,11 +1029,22 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(audioDeviceManager), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
-    tabbedComponent->setCurrentTabIndex (0);
+    tabbedComponent->setCurrentTabIndex (config->getIntAttribute("TabIndex"));
     tabbedComponent->getTabbedButtonBar().addChangeListener(this);
 }
 SourceComponent::~SourceComponent()
 {
+    // Update configuration from class state
+    config->setAttribute ("SourceGain", sldGain->getValue());
+    config->setAttribute ("Invert", isInverted);
+    config->setAttribute ("Mute", isMuted);
+    config->setAttribute ("TabIndex", tabbedComponent->getCurrentTabIndex());
+    
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue(keyName, config.get());
+    propertiesFile->saveIfNeeded();
+
     lblTitle = nullptr;
     sldGain = nullptr;
     btnMute = nullptr;

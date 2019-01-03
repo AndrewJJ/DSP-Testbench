@@ -9,9 +9,21 @@
 */
 
 #include "AnalyserComponent.h"
+#include "Main.h"
 
 AnalyserComponent::AnalyserComponent()
+    : keyName ("Analyser")
 {
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+    {
+        // Define default properties to be used if user settings not already saved
+        config.reset(new XmlElement (keyName));
+        config->setAttribute ("Active", true);
+    }
+
     lblTitle.setName ("Analyser label");
     lblTitle.setText ("Analyser", dontSendNotification);
     lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
@@ -24,6 +36,8 @@ AnalyserComponent::AnalyserComponent()
     btnDisable.setButtonText ("Disable");
     btnDisable.setClickingTogglesState (true);
     btnDisable.setColour(TextButton::buttonOnColourId, Colours::darkred);
+    statusActive.set (config->getBoolAttribute ("Active"));
+    btnDisable.setToggleState (!statusActive.get(), dontSendNotification);
     btnDisable.onClick = [this] { statusActive = !btnDisable.getToggleState(); };
     addAndMakeVisible (btnDisable);
 
@@ -38,7 +52,16 @@ AnalyserComponent::AnalyserComponent()
     //oscilloscope.setXmin (2000);
     oscilloscope.setXmax (2500);
 }
-AnalyserComponent::~AnalyserComponent() = default;
+AnalyserComponent::~AnalyserComponent()
+{
+    // Update configuration from class state
+    config->setAttribute ("Active", statusActive.get());
+
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue(keyName, config.get());
+    propertiesFile->saveIfNeeded();    
+}
 void AnalyserComponent::paint (Graphics& g)
 {
     g.setColour (Colours::black);

@@ -75,6 +75,9 @@ private:
         OwnedArray<ControlComponent>* controlComponents {};
     };
 
+    String keyName;
+    std::unique_ptr<XmlElement> config;
+
     ScopedPointer<Label> lblTitle;
     ScopedPointer<TextButton> btnSourceA;
     ScopedPointer<TextButton> btnSourceB;

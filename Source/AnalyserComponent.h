@@ -38,6 +38,9 @@ public:
 
 private:
 
+    String keyName;
+    std::unique_ptr<XmlElement> config;
+
     Label lblTitle;
     TextButton btnDisable;
 

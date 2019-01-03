@@ -35,6 +35,8 @@ public:
 private:
 
     AudioDeviceManager* deviceManager;
+    String keyName;
+    std::unique_ptr<XmlElement> config;
 
     ScopedPointer<Label> lblTitle;
     ScopedPointer<Slider> sldGain;
@@ -44,8 +46,8 @@ private:
 
     ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
 
-    bool statusLimiter = true;
-    bool statusMute = false;
+    bool statusLimiter;
+    bool statusMute;
     dsp::Gain<float> gain;
 
     bool isLimited() const;

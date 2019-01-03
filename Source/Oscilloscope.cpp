@@ -79,7 +79,8 @@ void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::Oscillos
 {
     if (oscProcessor->ownsProbe (audioProbe))
     {
-        repaint(); // TODO - consider decoupling repaints from frame delivery
+        // TODO - consider decoupling repaints from frame delivery for smaller blocksizes
+        repaint();
         const ScopedLock copyLock (critSection);
         for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
             oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
@@ -125,6 +126,10 @@ void Oscilloscope::setAggregationMethod (const AggregationMethod method)
 void Oscilloscope::paintWaveform (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
+    
+    // TODO - note that this is quite slow if drawing high frequency periodic waves
+    // TODO - If multiple frames fit within the same plot, then we might be able to save time by saving to bitmap and shifting to the left.
+    // However this would require us to keep track of the sampleIndexes (would need to add this to AudioProbe and FixedBlockProcessor classes for referencing here).
 
     for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
     {

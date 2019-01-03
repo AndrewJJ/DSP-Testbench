@@ -9,10 +9,26 @@
 */
 
 #include "ProcessorComponent.h"
+#include "Main.h"
 
 ProcessorComponent::ProcessorComponent (const String processorId, const int numberOfControls)
-    :   controlArrayComponent (&controlArray)
+    :   keyName ("Processor" + processorId),
+        controlArrayComponent (&controlArray)
 {
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+    {
+        // Define default properties to be used if user settings not already saved
+        config.reset(new XmlElement (keyName));
+        config->setAttribute ("SourceA", true);
+        config->setAttribute ("SourceB", false);
+        config->setAttribute ("Disable", false);
+        config->setAttribute ("Invert", false);
+        config->setAttribute ("Mute", true);
+    }
+
     addAndMakeVisible (lblTitle = new Label ("Processor label", TRANS("Processor") + " " + processorId));
     lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle->setJustificationType (Justification::topLeft);
@@ -24,34 +40,42 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     btnSourceA->setTooltip (TRANS("Process input from source A"));
     btnSourceA->setClickingTogglesState (true);
     btnSourceA->setButtonText (TRANS("Src A"));
-    btnSourceA->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSourceA->setColour (TextButton::buttonOnColourId, Colours::green);
+    statusSourceA.set (config->getBoolAttribute ("SourceA"));
+    btnSourceA->setToggleState (statusSourceA.get(), dontSendNotification);
     btnSourceA->onClick = [this] { statusSourceA = btnSourceA->getToggleState(); };
-    btnSourceA->setToggleState(true, dontSendNotification);
 
     addAndMakeVisible (btnSourceB = new TextButton ("Source B button"));
     btnSourceB->setTooltip (TRANS("Process input from source B"));
     btnSourceB->setClickingTogglesState (true);
     btnSourceB->setButtonText (TRANS("Src B"));
-    btnSourceB->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnSourceB->setColour (TextButton::buttonOnColourId, Colours::green);
+    statusSourceB.set (config->getBoolAttribute ("SourceB"));
+    btnSourceB->setToggleState (statusSourceB.get(), dontSendNotification);
     btnSourceB->onClick = [this] { statusSourceB = btnSourceB->getToggleState(); };
-    btnSourceB->setToggleState(false, dontSendNotification);
 
     addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
     btnDisable->setButtonText (TRANS("Disable"));
     btnDisable->setClickingTogglesState (true);
-    btnDisable->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnDisable->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    statusDisable.set (config->getBoolAttribute ("Disable"));
+    btnDisable->setToggleState (statusDisable.get(), dontSendNotification);
     btnDisable->onClick = [this] { statusDisable = btnDisable->getToggleState(); };
 
     addAndMakeVisible (btnInvert = new TextButton ("Invert button"));
     btnInvert->setButtonText (TRANS("Invert"));
     btnInvert->setClickingTogglesState (true);
-    btnInvert->setColour(TextButton::buttonOnColourId, Colours::green);
+    btnInvert->setColour (TextButton::buttonOnColourId, Colours::green);
+    statusInvert.set (config->getBoolAttribute ("Invert"));
+    btnInvert->setToggleState (statusInvert.get(), dontSendNotification);
     btnInvert->onClick = [this] { statusInvert = btnInvert->getToggleState(); };
 
     addAndMakeVisible (btnMute = new TextButton ("Mute button"));
     btnMute->setButtonText (TRANS("Mute"));
     btnMute->setClickingTogglesState (true);
-    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnMute->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    statusMute.set (config->getBoolAttribute ("Mute"));
+    btnMute->setToggleState (statusMute.get(), dontSendNotification);
     btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
 
     for (auto i = 0; i < numberOfControls; ++i)
@@ -64,6 +88,18 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
 }
 ProcessorComponent::~ProcessorComponent()
 {
+    // Update configuration from class state
+    config->setAttribute ("SourceA", statusSourceA.get());
+    config->setAttribute ("SourceB", statusSourceB.get());
+    config->setAttribute ("Disable", statusDisable.get());
+    config->setAttribute ("Invert", statusInvert.get());
+    config->setAttribute ("Mute", statusMute.get());
+
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue(keyName, config.get());
+    propertiesFile->saveIfNeeded();
+
     lblTitle = nullptr;
     btnSourceA = nullptr;
     btnSourceB = nullptr;

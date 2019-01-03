@@ -66,7 +66,12 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
     procComponentB->mute(); // TODO - delete this once configuration restoration is supported
 
     // TODO - configure components according to state saved in user settings
-    // TODO - add configure methods to each component class
+    // TODO - add configure methods to each component class (inherit from ConfigurationClient)
+    //        - XmlElement* getConfig() - used at application exit to save state
+    //        - void setConfig(XmlElement* config) - used at application start to load previously saved state
+    // TODO - do we want to register each client with a manager class which automatically takes care of loading and saving?
+
+
     //srcComponentA->configure(savedState);
     //srcComponentB->configure(savedState);
     //procComponentA->configure(savedState);
@@ -244,7 +249,6 @@ void MainContentComponent::resized()
 
     grid.performLayout (getLocalBounds().reduced (margin, margin));
 }
-
 void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
     //if (dynamic_cast<AudioDeviceManager*>(source) == &deviceManager)
@@ -254,7 +258,6 @@ void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
         DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
     }
 }
-
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
     if (processor->isProcessorEnabled())

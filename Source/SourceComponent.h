@@ -354,6 +354,8 @@ public:
 private:
 
     AudioDeviceManager* audioDeviceManager;
+    String keyName;
+    std::unique_ptr<XmlElement> config{};
 
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
