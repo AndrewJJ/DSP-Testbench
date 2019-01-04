@@ -14,15 +14,15 @@
 #include "FastApproximations.h"
 
 template <int Order>
-class FftScope : public Component, public AudioProbe <typename FftProcessor<Order>::FftFrame>::Listener
+class FftScope final : public Component, public AudioProbe <typename FftProcessor<Order>::FftFrame>::Listener
 {
 public:
 
     /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
     enum AggregationMethod
     {
-        maximum = 1,    // This will better show the peak value of a harmonic, but will make white noise looks like it tails upwards
-        average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
+        Maximum = 1,    // This will better show the peak value of a harmonic, but will make white noise looks like it tails upwards
+        Average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
     };
 
     FftScope ();
@@ -59,7 +59,7 @@ public:
 
 private:
     
-    class Background : public Component
+    class Background final : public Component
     {
     public:
         explicit Background (FftScope* parentFftScope);
@@ -68,7 +68,7 @@ private:
         FftScope* parentScope;
     };
 
-    class Foreground : public Component
+    class Foreground final : public Component
     {
     public:
         explicit Foreground (FftScope<Order>* parentFftScope);
@@ -96,8 +96,8 @@ private:
 	FftProcessor<Order>* fftProcessor;
     HeapBlock<float> x, y;
 	double samplingFreq = 48000; // will be set correctly in prepare()
-    float dBmax = 0.0f;
-    float dBmin = -80.0f;
+    float dbMax = 0.0f;
+    float dbMin = -80.0f;
     float minFreq = 10.0f;
     float maxFreq = 0.0f;
     float minLogFreq = 0.0f;
@@ -108,10 +108,12 @@ private:
     float yRatioInv = 1.0f;
     int currentX = -1;
     int currentY = -1;
-    AggregationMethod aggregationMethod = AggregationMethod::maximum;
+    AggregationMethod aggregationMethod = AggregationMethod::Maximum;
     
     // Candidate frequencies for drawing the grid on the background
     Array<float> gridFrequencies = { 20.0f, 50.0f, 125.0f, 250.0f, 500.0f, 1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f, 32000.0f, 64000.0f };
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FftScope);
 };
 
 
@@ -221,25 +223,25 @@ void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 template <int Order>
 void FftScope<Order>::setDbMin (const float minimumDb)
 {
-    dBmin = minimumDb;
+    dbMin = minimumDb;
 }
 
 template <int Order>
 float FftScope<Order>::getDbMin () const
 {
-    return dBmin;
+    return dbMin;
 }
 
 template <int Order>
 void FftScope<Order>::setDbMax (const float maximumDb)
 {
-    dBmax = maximumDb;
+    dbMax = maximumDb;
 }
 
 template <int Order>
 float FftScope<Order>::getDbMax () const
 {
-    return dBmax;
+    return dbMax;
 }
 
 template <int Order>
@@ -312,7 +314,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
         while (xPx < getWidth() && i <= n)
         {
             const auto xPxNext = xPx + 1; // next pixel along on x-axis
-            if (aggregationMethod == AggregationMethod::average)
+            if (aggregationMethod == AggregationMethod::Average)
             {
                 auto ySum = y[i];
                 auto count = 1;
@@ -438,10 +440,10 @@ template <int Order>
 inline float FftScope<Order>::toDbVFromLinear (const float linear) const
 {
     if (linear <= 0.0f)
-        return dBmin;
+        return dbMin;
     else
         //return log10(x) * 20.0f;
-        return jmax (dBmin, fasterlog2 (linear) * 6.0206f);
+        return jmax (dbMin, fasterlog2 (linear) * 6.0206f);
 }
 
 template <int Order>
@@ -453,13 +455,13 @@ inline float FftScope<Order>::toPxFromLinear (const float linear) const
 template <int Order>
 inline float FftScope<Order>::toPxFromDbV(const float dB) const
 {
-    return jmax (1.0f, (dB - dBmax) * yRatio) - 1.0f;
+    return jmax (1.0f, (dB - dbMax) * yRatio) - 1.0f;
 }
 
 template <int Order>
 inline float FftScope<Order>::toDbVFromPx (const float yInPixels) const
 {
-    return (yInPixels + 1.0f) * yRatioInv  + dBmax;
+    return (yInPixels + 1.0f) * yRatioInv  + dbMax;
 }
 
 template <int Order>
@@ -535,6 +537,6 @@ void FftScope<Order>::initialise()
     for (auto i = 1; i <= n; ++i)
         x[i] = toPxFromHz (static_cast<float> (i) * binToHz);
 
-    yRatio = static_cast<float> (getHeight()) / (dBmin - dBmax);
+    yRatio = static_cast<float> (getHeight()) / (dbMin - dbMax);
     yRatioInv = 1.0f / yRatio;
 }

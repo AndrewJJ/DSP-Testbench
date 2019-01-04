@@ -804,7 +804,7 @@ void AudioTab::ChannelComponent::refresh ()
 {
     auto dB = -100.0f;
     if (active)
-        dB = meterProcessor->getLeveldB (static_cast<int> (channel));
+        dB = meterProcessor->getLevelDb (static_cast<int> (channel));
     meterBar.setLevel (dB);
 }
 float AudioTab::ChannelComponent::getLinearGain() const

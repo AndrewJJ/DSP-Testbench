@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class ProcessorComponent  : public Component, dsp::ProcessorBase
+class ProcessorComponent final : public Component, dsp::ProcessorBase
 {
 public:
     

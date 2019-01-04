@@ -49,8 +49,8 @@ AnalyserComponent::AnalyserComponent()
     oscilloscope.assignOscProcessor (&oscProcessor);
     //oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::average);
     // TODO - set oscilloscope x axis so that performance doesn't choke
-    //oscilloscope.setXmin (2000);
-    oscilloscope.setXmax (2500);
+    //oscilloscope.setXMin (2000);
+    oscilloscope.setXMax (2500);
 }
 AnalyserComponent::~AnalyserComponent()
 {

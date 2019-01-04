@@ -12,11 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class MonitoringComponent  : public Component, public Slider::Listener, public dsp::ProcessorBase
+class MonitoringComponent final : public Component, public Slider::Listener, public dsp::ProcessorBase
 {
 public:
 
-    MonitoringComponent (AudioDeviceManager* audioDeviceManager);
+    explicit MonitoringComponent (AudioDeviceManager* audioDeviceManager);
     ~MonitoringComponent();
 
     void paint (Graphics& g) override;

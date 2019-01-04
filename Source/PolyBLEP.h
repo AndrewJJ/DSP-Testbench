@@ -16,7 +16,7 @@ namespace juce {
 namespace dsp {
 
 template <typename SampleType>
-class PolyBlepOscillator
+class PolyBlepOscillator final
 {
 public:
 
@@ -66,8 +66,8 @@ public:
         initialise (lookupTableNumPoints);
     }
 
-    // Note that we do not define a default constructor as that means copy-assigment operator won't be generated
-    //  by some compilers and therefore list initialisation won't work.
+    // Note that we do not define a default constructor as that means copy-assignment operator won't be generated
+    // by some compilers and therefore list initialisation won't work.
 
     /** Sets the frequency of the oscillator. */
     void setFrequency (NumericType newFrequency, bool force = false) noexcept
@@ -294,7 +294,7 @@ private:
     }
     NumericType PolyBLAMP (NumericType t, NumericType dt)
     {
-        // Adapated to scale the output by 4 * dt
+        // Adapted to scale the output by 4 * dt
         if (t < dt)
         {
             t = t/dt - one;

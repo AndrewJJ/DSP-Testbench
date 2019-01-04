@@ -233,7 +233,8 @@ namespace dsp {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-class rand31dc {
+class rand31dc final
+{
     
     // The sole item of state - a 32 bit integer.
     long unsigned int seed31;   
@@ -340,12 +341,12 @@ private:
 /** White noise generator posted by Robin Whittle at http://www.firstpr.com.au/dsp/rand31/
  * Based on work by Park, Miller & Carta (see rand31pmc notes above.)
  */
-class WhiteNoiseGenerator
+class WhiteNoiseGenerator final
 {
 public:
 
     WhiteNoiseGenerator ()
-    { }
+    = default;
 
     ~WhiteNoiseGenerator()
     = default;
@@ -380,12 +381,12 @@ private:
   *     
   *     Note that this generator may very occasionally produce samples outside the range of -1.0 to +1.0
   */
-class PinkNoiseGenerator
+class PinkNoiseGenerator final
 {
 public:
 
-    PinkNoiseGenerator ()
-    { }
+    PinkNoiseGenerator()
+    = default;
 
     ~PinkNoiseGenerator()
     = default;

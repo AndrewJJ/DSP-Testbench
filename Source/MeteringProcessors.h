@@ -16,7 +16,7 @@
 #include <mm_malloc.h>
 #endif
 
-class SimplePeakMeterProcessor : public dsp::ProcessorBase
+class SimplePeakMeterProcessor final : public dsp::ProcessorBase
 {
 public:
 
@@ -27,7 +27,7 @@ public:
     = default;
 
 	float getLevel (const int channelNum) const;
-	float getLeveldB (const int channelNum) const;
+	float getLevelDb (const int channelNum) const;
 	size_t getNumChannels () const;
 
     void prepare (const dsp::ProcessSpec& spec) override;

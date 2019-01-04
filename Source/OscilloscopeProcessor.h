@@ -18,7 +18,7 @@
 	be plotted at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
 	is then used to make the processed data available for use on other threads.
 */
-class OscilloscopeProcessor : public FixedBlockProcessor
+class OscilloscopeProcessor final : public FixedBlockProcessor
 {
 private:
 
@@ -26,7 +26,7 @@ private:
 
 public:
 
-    struct OscilloscopeFrame
+    struct OscilloscopeFrame final
     {
 	    alignas(16) float f[frame_size];
     };

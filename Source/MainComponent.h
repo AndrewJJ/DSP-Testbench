@@ -24,11 +24,11 @@ public:
                            const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
 };
 
-class MainContentComponent : public AudioAppComponent, public ChangeListener
+class MainContentComponent final : public AudioAppComponent, public ChangeListener
 {
 public:
 
-    MainContentComponent(AudioDeviceManager& deviceManager);
+    explicit MainContentComponent(AudioDeviceManager& deviceManager);
     ~MainContentComponent();
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;

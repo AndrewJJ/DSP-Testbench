@@ -56,7 +56,7 @@ DSPTestbenchApplication::MainWindow& DSPTestbenchApplication::getMainWindow()
     jassert(mainWindow != nullptr);
     return *mainWindow;
 }
-Component& DSPTestbenchApplication::getMainComponent ()
+Component& DSPTestbenchApplication::getMainComponent()
 {
     auto* comp = getMainWindow().getContentComponent();
     jassert (comp != nullptr);

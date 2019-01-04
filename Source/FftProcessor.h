@@ -19,12 +19,12 @@
 	is then used to make the processed data available for use on other threads.
 */
 template <int Order>
-class FftProcessor : public FixedBlockProcessor
+class FftProcessor final : public FixedBlockProcessor
 {
 public:
 
 	// This FftFrame is necessary for us to use the AudioProbe class and is why this class (& therefore FftScope) is templated.
-    struct FftFrame
+    struct FftFrame final
     {
 		alignas(16) float f[1 << Order];
 	};

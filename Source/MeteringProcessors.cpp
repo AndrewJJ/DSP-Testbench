@@ -17,7 +17,7 @@ float SimplePeakMeterProcessor::getLevel (const int channelNum) const
     else
         return 0.0f;
 }
-float SimplePeakMeterProcessor::getLeveldB (const int channelNum) const
+float SimplePeakMeterProcessor::getLevelDb (const int channelNum) const
 {
     if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
     {

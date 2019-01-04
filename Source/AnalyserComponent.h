@@ -16,7 +16,7 @@
 #include "OscilloscopeProcessor.h"
 #include "Oscilloscope.h"
 
-class AnalyserComponent  :  public Component, public dsp::ProcessorBase
+class AnalyserComponent final :  public Component, public dsp::ProcessorBase
 {
 public:
 

@@ -70,8 +70,8 @@ void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr)
 {
     jassert (oscProcessorPtr != nullptr);
     oscProcessor = oscProcessorPtr;
-    if (maxXsamples == 0)
-        maxXsamples = oscProcessor->getMaximumBlockSize();
+    if (maxXSamples == 0)
+        maxXSamples = oscProcessor->getMaximumBlockSize();
     prepare();
     oscProcessor->addListener (this);
 }
@@ -81,7 +81,7 @@ void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::Oscillos
     {
         // TODO - consider decoupling repaints from frame delivery for smaller blocksizes
         repaint();
-        const ScopedLock copyLock (critSection);
+        const ScopedLock copyLock (criticalSection);
         for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
             oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
     }
@@ -101,23 +101,23 @@ float Oscilloscope::getMaxAmplitude () const
 {
     return amplitudeMax;
 }
-void Oscilloscope::setXmin (const int minimumX)
+void Oscilloscope::setXMin (const int minimumX)
 {
-    minXsamples = minimumX;
+    minXSamples = minimumX;
     calculateRatios();
 }
-int Oscilloscope::getXmin () const
+int Oscilloscope::getXMin () const
 {
-    return minXsamples;
+    return minXSamples;
 }
-void Oscilloscope::setXmax (const int maximumX)
+void Oscilloscope::setXMax (const int maximumX)
 {
-    maxXsamples = maximumX;
+    maxXSamples = maximumX;
     calculateRatios();
 }
-int Oscilloscope::getXmax () const
+int Oscilloscope::getXMax () const
 {
-    return maxXsamples;
+    return maxXSamples;
 }
 void Oscilloscope::setAggregationMethod (const AggregationMethod method)
 {
@@ -140,8 +140,8 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         p.preallocateSpace ((getWidth() + 1) * 3);
 
         // Start path at first value
-        auto i = minXsamples;
-        const auto limit = maxXsamples - 1; // Reduce by 1 because of way while loop is structured
+        auto i = minXSamples;
+        const auto limit = maxXSamples - 1; // Reduce by 1 because of way while loop is structured
         auto curPx = toPxFromTime (i);
         p.startNewSubPath (curPx, toPxFromAmp (y[i]));
 
@@ -149,7 +149,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         while (i < limit)
         {
             const auto nextPx = curPx + 1;
-            if (aggregationMethod == AggregationMethod::average)
+            if (aggregationMethod == AggregationMethod::Average)
             {
                 auto ySum = y[i];
                 auto count = 1;
@@ -283,11 +283,11 @@ inline float Oscilloscope::toPxFromAmp(const float amplitude) const
 }
 inline int Oscilloscope::toTimeFromPx (const float xInPixels) const
 {
-    return static_cast<int> (xInPixels * xRatioInv) + minXsamples;
+    return static_cast<int> (xInPixels * xRatioInv) + minXSamples;
 }
 inline float Oscilloscope::toPxFromTime (const int xInSamples) const
 {
-    return (xInSamples - minXsamples) * xRatio;
+    return (xInSamples - minXSamples) * xRatio;
 }
 Colour Oscilloscope::getColourForChannel (const int channel)
 {
@@ -304,8 +304,8 @@ Colour Oscilloscope::getColourForChannel (const int channel)
 }
 void Oscilloscope::calculateRatios()
 {
-    maxXsamples = jmin (maxXsamples, oscProcessor->getMaximumBlockSize());
-    xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXsamples - minXsamples);
+    maxXSamples = jmin (maxXSamples, oscProcessor->getMaximumBlockSize());
+    xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXSamples - minXSamples);
     xRatioInv = 1.0f / xRatio;
     yRatio = static_cast<float> (getHeight()) / (amplitudeMax * 2.0f);
     yRatioInv = 1.0f / yRatio;

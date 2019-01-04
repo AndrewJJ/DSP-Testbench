@@ -37,7 +37,7 @@ enum SweepMode
     Wrap    
 };
 
-class SynthesisTab : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
+class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
 {
 public:
     SynthesisTab();
@@ -107,7 +107,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };
 
-//class SampleTab : public Component, public dsp::ProcessorBase
+//class SampleTab final : public Component, public dsp::ProcessorBase
 //{
 //public:
 //    SampleTab();
@@ -131,10 +131,10 @@ private:
 //    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
 //};
 
-class WaveTab : public Component, public dsp::ProcessorBase, public ChangeListener
+class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener
 {
 public:
-    WaveTab(AudioDeviceManager* deviceManager);
+    explicit WaveTab(AudioDeviceManager* deviceManager);
     ~WaveTab();
 
     void paint (Graphics& g) override;
@@ -218,7 +218,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
 
-class AudioTab : public Component, public dsp::ProcessorBase, public Timer
+class AudioTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
     AudioTab();
@@ -239,7 +239,7 @@ public:
 
 private:
 
-    class ChannelComponent : public Component, public Slider::Listener
+    class ChannelComponent final : public Component, public Slider::Listener
     {
     public:
         ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex);;
@@ -267,10 +267,10 @@ private:
         void toggleOutputSelection (const int channelNumber);
         PopupMenu getOutputMenu() const;
 
-        class MenuCallback : public ModalComponentManager::Callback
+        class MenuCallback final : public ModalComponentManager::Callback
         {
         public:
-            MenuCallback (ChannelComponent* parentComponent);
+            explicit MenuCallback (ChannelComponent* parentComponent);
             void modalStateFinished (int returnValue) override;
         private:
             ChannelComponent* parent;
@@ -291,10 +291,10 @@ private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
 
-    class InputArrayComponent : public Component
+    class InputArrayComponent final : public Component
     {
     public:
-        InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo);
+        explicit InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo);
         ~InputArrayComponent();
 
         void paint (Graphics& g) override;
@@ -316,7 +316,7 @@ private:
 
 //==============================================================================
 
-class SourceComponent  : public Component, public Slider::Listener, public ChangeListener, public dsp::ProcessorBase
+class SourceComponent final : public Component, public Slider::Listener, public ChangeListener, public dsp::ProcessorBase
 {
 public:
 

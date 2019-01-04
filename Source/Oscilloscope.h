@@ -12,15 +12,15 @@
 
 #include "OscilloscopeProcessor.h"
 
-class Oscilloscope : public Component, public AudioProbe <OscilloscopeProcessor::OscilloscopeFrame>::Listener
+class Oscilloscope final : public Component, public AudioProbe <OscilloscopeProcessor::OscilloscopeFrame>::Listener
 {
 public:
 
     /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
     enum AggregationMethod
     {
-        maximum = 1,
-        average
+        Maximum = 1,
+        Average
     };
 
     Oscilloscope();
@@ -40,13 +40,13 @@ public:
     float getMaxAmplitude() const;
 
     // Set minimum time value for x-axis in samples (defaults to 0 otherwise)
-    void setXmin (const int minimumX);
-    int getXmin() const;
+    void setXMin (const int minimumX);
+    int getXMin() const;
 
     // Set maximum time value for x-axis in samples (defaults to max buffer size otherwise)
     // Will be limited to max buffer size if set too high
-    void setXmax (const int maximumX);
-    int getXmax() const;
+    void setXMax (const int maximumX);
+    int getXMax() const;
 
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
@@ -55,7 +55,7 @@ public:
 
 private:
 
-    class Background : public Component
+    class Background final : public Component
     {
     public:
         explicit Background (Oscilloscope* parentOscilloscope);
@@ -64,7 +64,7 @@ private:
         Oscilloscope* parentScope;
     };
 
-    class Foreground : public Component
+    class Foreground final : public Component
     {
     public:
         explicit Foreground (Oscilloscope* parentOscilloscope);
@@ -89,15 +89,17 @@ private:
 	OscilloscopeProcessor* oscProcessor;
     
     float amplitudeMax = 1.0f;
-    int minXsamples = 0;
-    int maxXsamples = 0;
+    int minXSamples = 0;
+    int maxXSamples = 0;
     float xRatio = 1.0f;
     float yRatio = 1.0f;
     float xRatioInv = 1.0f;
     float yRatioInv = 1.0f;
     int currentX = -1;
     int currentY = -1;
-    AggregationMethod aggregationMethod = AggregationMethod::maximum;
+    AggregationMethod aggregationMethod = AggregationMethod::Maximum;
     AudioBuffer<float> buffer;
-    CriticalSection critSection;
+    CriticalSection criticalSection;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscilloscope);
 };

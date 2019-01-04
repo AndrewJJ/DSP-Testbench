@@ -15,7 +15,7 @@
 
 //Component* createMainContentComponent();
 
-class DSPTestbenchApplication  : public JUCEApplication, public TimeSliceThread
+class DSPTestbenchApplication final : public JUCEApplication, public TimeSliceThread
 {
 public:
 
@@ -34,7 +34,7 @@ public:
         This class implements the desktop window that contains an instance of
         our MainContentComponent class.
     */
-    class MainWindow    : public DocumentWindow
+    class MainWindow final : public DocumentWindow
     {
     public:
 
