@@ -13,6 +13,7 @@
 Oscilloscope::Background::Background (Oscilloscope* parentOscilloscope)
     :   parentScope (parentOscilloscope)
 {
+    this->setOpaque (true);
     setBufferedToImage (true);
 }
 void Oscilloscope::Background::paint (Graphics& g)
@@ -22,7 +23,9 @@ void Oscilloscope::Background::paint (Graphics& g)
 
 Oscilloscope::Foreground::Foreground (Oscilloscope* parentOscilloscope)
     :   parentScope (parentOscilloscope)
-{ }
+{
+    this->setPaintingIsUnclipped (true);
+}
 void Oscilloscope::Foreground::paint (Graphics& g)
 {
     parentScope->paintWaveform (g);
@@ -34,7 +37,6 @@ Oscilloscope::Oscilloscope ()
         oscProcessor (nullptr)
 {
     this->setOpaque (true);
-    this->setPaintingIsUnclipped (true);
 
     addAndMakeVisible (background);
     addAndMakeVisible (foreground);
@@ -79,7 +81,8 @@ void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::Oscillos
 {
     if (oscProcessor->ownsProbe (audioProbe))
     {
-        // TODO - consider decoupling repaints from frame delivery for smaller blocksizes
+        // As the frame size for the oscProcessor is set to 8192, updates arrive at ~5 Hz for a sample rate of 44.1 KHz,
+        // hence there is no point using timers to repaint at say 50 Hz.
         repaint();
         const ScopedLock copyLock (criticalSection);
         for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
@@ -127,10 +130,6 @@ void Oscilloscope::paintWaveform (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
     
-    // TODO - note that this is quite slow if drawing high frequency periodic waves
-    // TODO - If multiple frames fit within the same plot, then we might be able to save time by saving to bitmap and shifting to the left.
-    // However this would require us to keep track of the sampleIndexes (would need to add this to AudioProbe and FixedBlockProcessor classes for referencing here).
-
     for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
     {
         auto* y = buffer.getReadPointer (ch);
