@@ -20,7 +20,8 @@ public:
     enum AggregationMethod
     {
         Maximum = 1,
-        Average
+        Average,
+        Sample
     };
 
     Oscilloscope();

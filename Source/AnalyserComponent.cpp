@@ -47,7 +47,7 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignOscProcessor (&oscProcessor);
-    //oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::average);
+    oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::Sample);
     // TODO - set oscilloscope x axis so that performance doesn't choke
     //oscilloscope.setXMin (2000);
     oscilloscope.setXMax (500);

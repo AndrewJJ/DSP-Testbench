@@ -137,43 +137,64 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         // Draw a line representing the freq data for this channel
         Path p;
         p.preallocateSpace ((getWidth() + 1) * 3);
+        p.startNewSubPath (0.0f, toPxFromAmp (y[minXSamples]));
 
-        // Start path at first value
-        auto i = minXSamples;
-        const auto limit = maxXSamples - 1; // Reduce by 1 because of way while loop is structured
-        auto curPx = toPxFromTime (i);
-        p.startNewSubPath (curPx, toPxFromAmp (y[i]));
-
-        // Iterate through x and plot each point, but aggregate across y if x interval is less than a pixel
-        while (i < limit)
+        if (aggregationMethod == AggregationMethod::Sample)
         {
-            const auto nextPx = curPx + 1;
-            if (aggregationMethod == AggregationMethod::Average)
+            // Iterate through pixels on x axis, plotting nearest sample
+            auto lastXInSamples = -1;
+            for (auto xPx = 1; xPx < getWidth(); xPx++)
             {
-                auto ySum = y[i];
-                auto count = 1;
-                while (i < limit && curPx < nextPx)
-                {
-                    i++;
-                    curPx = toPxFromTime (i);
-                    ySum += y[i];
-                    count++;
-                }
-                i++;
-                p.lineTo (curPx, toPxFromAmp (ySum / static_cast<float> (count)));
+                const auto xInSamples = toTimeFromPx (static_cast<float> (xPx));
+                // Avoid stair-casing by omitting points where x sample hasn't advanced from last pixel
+                if (xInSamples != lastXInSamples)
+                    p.lineTo (static_cast<float> (xPx), toPxFromAmp (y[xInSamples]));
+                lastXInSamples = xInSamples;
             }
-            else
+        }
+        else
+        {
+            // Start path at first value
+            auto i = minXSamples;
+            const auto limit = maxXSamples - 1; // Reduce by 1 because of way while loop is structured
+            auto curPx = toPxFromTime (i);
+
+            // Iterate through samples, aggregating to pixels if sample interval is less than a pixel
+            while (i < limit)
             {
-                auto yMax = y[i];
-                while (i < limit && curPx < nextPx)
+                const auto nextPx = curPx + 1;
+                if (aggregationMethod == AggregationMethod::Average)
                 {
+                    auto ySum = y[i];
+                    auto count = 1;
+                    while (i < limit && curPx < nextPx)
+                    {
+                        i++;
+                        curPx = toPxFromTime (i);
+                        ySum += y[i];
+                        count++;
+                    }
                     i++;
-                    curPx = toPxFromTime (i);
-                    if (std::abs(y[i]) > std::abs(yMax))
-                        yMax = y[i];
+                    p.lineTo (curPx, toPxFromAmp (ySum / static_cast<float> (count)));
                 }
-                i++;
-                p.lineTo (curPx, toPxFromAmp (yMax));
+                else //if (aggregationMethod == AggregationMethod::Maximum)
+                {
+                    auto yMax = y[i];
+                    auto yMaxAbs = std::abs(y[i]);
+
+                    while (i < limit && curPx < nextPx)
+                    {
+                        i++;
+                        curPx = toPxFromTime (i);
+                        if (std::abs(y[i]) > yMaxAbs)
+                        {
+                            yMax = y[i];
+                            yMaxAbs = std::abs(y[i]);
+                        }
+                    }
+                    i++;
+                    p.lineTo (curPx, toPxFromAmp (yMax));
+                }
             }
         }
         const auto pst = PathStrokeType (1.0f);
