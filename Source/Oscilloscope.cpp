@@ -266,12 +266,18 @@ void Oscilloscope::paintScale (Graphics& g) const
         if (t > 0)
             g.drawHorizontalLine (static_cast<int> (scaleY), 0.0f, static_cast<float> (getWidth()));
         g.setColour (textColour);
-        const auto ampStr = String (toAmpFromPx (scaleY), 1);
+
+        const auto yAmp = toAmpFromPx (scaleY);
+        const auto yAmpDb = Decibels::gainToDecibels (std::abs(yAmp), -100.0f);
+        const auto ampStrDb = String (static_cast<int> (yAmpDb)) + "dB";
+        String lbl = "0";
+        if (yAmpDb >-100.0f)
+            lbl = String (yAmp) + ", " + ampStrDb;
         const auto lblX = GUI_SIZE_I(0.1);
         const auto lblY = static_cast<int> (scaleY) + GUI_SIZE_I(0.1);
-        const auto lblW = GUI_SIZE_I(1.1);
+        const auto lblW = GUI_SIZE_I(3.0);
         const auto lblH = static_cast<int> (scaleY) + GUI_SIZE_I(0.6);
-        g.drawText (ampStr, lblX, lblY, lblW, lblH, Justification::topLeft, false);
+        g.drawText (lbl, lblX, lblY, lblW, lblH, Justification::topLeft, false);
     }
    
     // Plot time scale (in samples)
