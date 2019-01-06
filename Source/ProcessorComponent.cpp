@@ -126,7 +126,7 @@ void ProcessorComponent::resized()
                             Track (1_fr)                // Remainder used for viewport
                         };
     
-    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track (1_fr), Track (GUI_SIZE_PX(2.1)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
+    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track (1_fr), Track (GUI_SIZE_PX(2.2)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
