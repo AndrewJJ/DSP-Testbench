@@ -99,6 +99,7 @@ void Oscilloscope::setMaxAmplitude(const float maximumAmplitude)
 {
     amplitudeMax = maximumAmplitude;
     calculateRatios();
+    background.repaint();
 }
 float Oscilloscope::getMaxAmplitude () const
 {
@@ -108,6 +109,7 @@ void Oscilloscope::setXMin (const int minimumX)
 {
     minXSamples = minimumX;
     calculateRatios();
+    background.repaint();
 }
 int Oscilloscope::getXMin () const
 {
@@ -117,10 +119,15 @@ void Oscilloscope::setXMax (const int maximumX)
 {
     maxXSamples = maximumX;
     calculateRatios();
+    background.repaint();
 }
 int Oscilloscope::getXMax () const
 {
     return maxXSamples;
+}
+Oscilloscope::AggregationMethod Oscilloscope::getAggregationMethod () const
+{
+    return aggregationMethod;
 }
 void Oscilloscope::setAggregationMethod (const AggregationMethod method)
 {
@@ -139,7 +146,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         p.preallocateSpace ((getWidth() + 1) * 3);
         p.startNewSubPath (0.0f, toPxFromAmp (y[minXSamples]));
 
-        if (aggregationMethod == AggregationMethod::Sample)
+        if (aggregationMethod == AggregationMethod::NearestSample)
         {
             // Iterate through pixels on x axis, plotting nearest sample
             auto lastXInSamples = -1;
@@ -285,12 +292,12 @@ void Oscilloscope::paintScale (Graphics& g) const
         if (t > 0)
             g.drawVerticalLine (static_cast<int> (scaleX), 0.0f, static_cast<float> (getWidth()));
         g.setColour (textColour);
-        const auto dBStr = String (static_cast<int> (toTimeFromPx (scaleX)));
+        const auto timeStr = String (static_cast<int> (toTimeFromPx (scaleX)));
         const auto lblX = static_cast<int> (scaleX) + GUI_SIZE_I(0.1);
         const auto lblY = getHeight() - GUI_SIZE_I(0.6);
         const auto lblW = GUI_BASE_SIZE_I;
         const auto lblH = GUI_SIZE_I(0.5);
-        g.drawText (dBStr, lblX, lblY, lblW, lblH, Justification::topLeft, false);
+        g.drawText (timeStr, lblX, lblY, lblW, lblH, Justification::topLeft, false);
     }
 }
 inline float Oscilloscope::toAmpFromPx (const float yInPixels) const

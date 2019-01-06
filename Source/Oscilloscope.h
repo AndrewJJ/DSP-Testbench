@@ -19,9 +19,9 @@ public:
     /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
     enum AggregationMethod
     {
-        Maximum = 1,
-        Average,
-        Sample
+        NearestSample = 1,
+        Maximum,
+        Average
     };
 
     Oscilloscope();
@@ -48,6 +48,9 @@ public:
     // Will be limited to max buffer size if set too high
     void setXMax (const int maximumX);
     int getXMax() const;
+
+    /** Get aggregation method for sub-pixel x values */
+    AggregationMethod getAggregationMethod() const;
 
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
@@ -98,7 +101,7 @@ private:
     float yRatioInv = 1.0f;
     int currentX = -1;
     int currentY = -1;
-    AggregationMethod aggregationMethod = AggregationMethod::Maximum;
+    AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
 

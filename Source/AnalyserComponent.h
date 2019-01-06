@@ -38,11 +38,32 @@ public:
 
 private:
 
+    class AnalyserConfigComponent : public Component
+    {
+    public:
+        explicit AnalyserConfigComponent (AnalyserComponent* analyserToConfigure);
+        ~AnalyserConfigComponent()
+        = default;
+
+        //void paint (Graphics& g) override;
+        void resized () override;
+
+    private:
+        AnalyserComponent* analyserComponent;
+        Label lblAggregation;
+        ComboBox cmbAggregation;
+        Label lblScaleX;
+        Slider sldScaleX;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AnalyserConfigComponent);
+    };
+
     String keyName;
     std::unique_ptr<XmlElement> config;
 
     Label lblTitle;
+    TextButton btnConfig;
     TextButton btnDisable;
+    std::unique_ptr<AnalyserConfigComponent> configComponent;
 
     FftProcessor<12> fftMult;
     FftScope<12> fftScope;
