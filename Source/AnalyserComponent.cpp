@@ -139,6 +139,7 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
     auto* osc = &analyserComponent->oscilloscope;
 
     lblAggregation.setText("Oscilloscope aggregation method", dontSendNotification);
+    lblAggregation.setJustificationType (Justification::centredRight);
     addAndMakeVisible(lblAggregation);
 
     cmbAggregation.setTooltip ("Defines how to aggregate samples if there are more than one per pixel in the plot (listed in order of computation cost)");
@@ -152,14 +153,15 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
         osc->setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod>(cmbAggregation.getSelectedId()));
     };
 
-    lblScaleX.setText ("Oscilloscope X scale", dontSendNotification);
+    lblScaleX.setText ("Oscilloscope time scale (samples)", dontSendNotification);
+    lblScaleX.setJustificationType (Justification::centredRight);
     addAndMakeVisible (lblScaleX);
 
     sldScaleX.setSliderStyle (Slider::SliderStyle::TwoValueHorizontal);
     sldScaleX.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
     sldScaleX.setNumDecimalPlacesToDisplay (0);
     sldScaleX.setPopupDisplayEnabled (true, true, this);
-    sldScaleX.setTooltip ("Select range of samples from each 8192 sample frame for display in oscilloscope");
+    sldScaleX.setTooltip ("Select range of samples from each 8192 sample frame for oscilloscope");
     sldScaleX.setRange (0.0, 8192.0, 128.0);
     sldScaleX.setMinAndMaxValues (osc->getXMin(), osc->getXMax(), dontSendNotification);
     addAndMakeVisible (sldScaleX);
@@ -167,6 +169,26 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
     {
         osc->setXMin(static_cast<int> (sldScaleX.getMinValue()));
         osc->setXMax(static_cast<int> (sldScaleX.getMaxValue()));
+    };
+
+    lblScaleY.setText ("Oscilloscope amplitude scale (dB)", dontSendNotification);
+    lblScaleY.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblScaleY);
+
+    sldScaleY.setSliderStyle (Slider::SliderStyle::LinearHorizontal);
+    sldScaleY.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
+    sldScaleY.setNumDecimalPlacesToDisplay (0);
+    sldScaleY.setTextValueSuffix(" dB");
+    sldScaleY.setPopupDisplayEnabled (true, true, this);
+    sldScaleY.setTooltip ("Select maximum amplitude for oscilloscope");
+    sldScaleY.setRange (-100.0, 0.0, 1.0);
+    // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
+    sldScaleY.setValue (Decibels::decibelsToGain (osc->getMaxAmplitude(), -150.0f), dontSendNotification);
+    addAndMakeVisible (sldScaleY);
+    sldScaleY.onValueChange = [this, osc]
+    {
+        // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
+        osc->setMaxAmplitude(Decibels::decibelsToGain (static_cast<float> (sldScaleY.getValue()), -150.0f));
     };
 
     setSize (800, 300);
@@ -183,6 +205,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     grid.templateRows = {
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
+        Track(GUI_BASE_SIZE_PX),
         Track(1_fr)
     };
 
@@ -192,10 +215,9 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({
-        GridItem(lblAggregation),
-        GridItem(cmbAggregation),
-        GridItem(lblScaleX),
-        GridItem(sldScaleX)
+        GridItem(lblAggregation), GridItem(cmbAggregation),
+        GridItem(lblScaleX), GridItem(sldScaleX),
+        GridItem(lblScaleY), GridItem(sldScaleY)
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));

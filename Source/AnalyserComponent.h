@@ -54,6 +54,8 @@ private:
         ComboBox cmbAggregation;
         Label lblScaleX;
         Slider sldScaleX;
+        Label lblScaleY;
+        Slider sldScaleY;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AnalyserConfigComponent);
     };
 
