@@ -489,7 +489,7 @@ template <int Order>
 String FftScope<Order>::hertzToString (const double frequencyInHz, const int numDecimals, const bool appendHz, const bool includeSpace) const
 {
     String space(includeSpace ? " " : "");
-    String units("");
+    String units;
     String frequency;
 
     if (frequencyInHz < 1000.0)
