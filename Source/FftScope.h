@@ -56,6 +56,7 @@ public:
 
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
+    AggregationMethod getAggregationMethod() const;
 
 private:
     
@@ -274,6 +275,12 @@ void FftScope<Order>::setAggregationMethod (const AggregationMethod method)
     aggregationMethod = method;
 }
 
+template<int Order>
+typename FftScope<Order>::AggregationMethod FftScope<Order>::getAggregationMethod() const
+{
+    return aggregationMethod;
+}
+
 template <int Order>
 void FftScope<Order>::paintFft (Graphics& g) const
 {
@@ -308,7 +315,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
             ++i;
         p.startNewSubPath (x[i], toPxFromLinear (y[i]));
         ++i;
-        
+
         // Iterate through x and plot each point, but aggregate across y if x interval is less than a pixel
         auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
         while (xPx < getWidth() && i <= n)

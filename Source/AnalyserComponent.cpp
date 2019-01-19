@@ -18,11 +18,7 @@ AnalyserComponent::AnalyserComponent()
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
     if (!config)
-    {
-        // Define default properties to be used if user settings not already saved
         config.reset(new XmlElement (keyName));
-        config->setAttribute ("Active", true);
-    }
 
     lblTitle.setName ("Analyser label");
     lblTitle.setText ("Analyser", dontSendNotification);
@@ -40,21 +36,21 @@ AnalyserComponent::AnalyserComponent()
     btnDisable.setButtonText ("Disable");
     btnDisable.setClickingTogglesState (true);
     btnDisable.setColour(TextButton::buttonOnColourId, Colours::darkred);
-    statusActive.set (config->getBoolAttribute ("Active"));
+    statusActive.set (config->getBoolAttribute ("Active", true));
     btnDisable.setToggleState (!statusActive.get(), dontSendNotification);
     btnDisable.onClick = [this] { statusActive = !btnDisable.getToggleState(); };
     addAndMakeVisible (btnDisable);
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftMult (&fftMult);
-    //fftScope.setAggregationMethod (FftScope<12>::AggregationMethod::average);
+    fftScope.setAggregationMethod(static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignOscProcessor (&oscProcessor);
-    oscilloscope.setAggregationMethod (Oscilloscope::AggregationMethod::NearestSample);
-    // TODO - set oscilloscope x axis so that performance doesn't choke
-    //oscilloscope.setXMin (2000);
-    oscilloscope.setXMax (500);
+    oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
+    oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", 512));
+    oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
+    oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
 
     // Construct config component last so it picks up the correct values
     configComponent.reset(new AnalyserConfigComponent(this));
@@ -66,6 +62,11 @@ AnalyserComponent::~AnalyserComponent()
 {
     // Update configuration from class state
     config->setAttribute ("Active", statusActive.get());
+    config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
+    config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
+    config->setAttribute ("ScopeXMax", oscilloscope.getXMax());
+    config->setAttribute ("ScopeMaxAmplitude", oscilloscope.getMaxAmplitude());
+    config->setAttribute ("ScopeAggregationMethod", oscilloscope.getAggregationMethod());
 
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
@@ -136,64 +137,78 @@ bool AnalyserComponent::isActive () const noexcept
 
 AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserComponent* analyserToConfigure): analyserComponent(analyserToConfigure)
 {
+    auto* fft = &analyserComponent->fftScope;
     auto* osc = &analyserComponent->oscilloscope;
 
-    lblAggregation.setText("Oscilloscope aggregation method", dontSendNotification);
-    lblAggregation.setJustificationType (Justification::centredRight);
-    addAndMakeVisible(lblAggregation);
+    lblFftAggregation.setText("FFT scope aggregation method", dontSendNotification);
+    lblFftAggregation.setJustificationType (Justification::centredRight);
+    addAndMakeVisible(lblFftAggregation);
 
-    cmbAggregation.setTooltip ("Defines how to aggregate samples if there are more than one per pixel in the plot (listed in order of computation cost)");
-    cmbAggregation.addItem ("Nearest sample", Oscilloscope::AggregationMethod::NearestSample);
-    cmbAggregation.addItem ("Maximum", Oscilloscope::AggregationMethod::Maximum);
-    cmbAggregation.addItem ("Average", Oscilloscope::AggregationMethod::Average);
-    addAndMakeVisible (cmbAggregation);
-    cmbAggregation.setSelectedId (osc->getAggregationMethod(), dontSendNotification);
-    cmbAggregation.onChange = [this, osc]
+    cmbFftAggregation.setTooltip ("Defines how to aggregate samples if there are more than one per pixel in the plot.\n\nThe maximum method will better show the peak value of a harmonic, but will make white noise looks like it tails upwards. The average method will make white noise look flat but is more computationally intensive.");
+    cmbFftAggregation.addItem ("Maximum", FftScope<12>::AggregationMethod::Maximum);
+    cmbFftAggregation.addItem ("Average", FftScope<12>::AggregationMethod::Average);
+    addAndMakeVisible (cmbFftAggregation);
+    cmbFftAggregation.setSelectedId (fft->getAggregationMethod(), dontSendNotification);
+    cmbFftAggregation.onChange = [this, fft]
     {
-        osc->setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod>(cmbAggregation.getSelectedId()));
+        fft->setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod>(cmbFftAggregation.getSelectedId()));
     };
 
-    lblScaleX.setText ("Oscilloscope time scale (samples)", dontSendNotification);
-    lblScaleX.setJustificationType (Justification::centredRight);
-    addAndMakeVisible (lblScaleX);
+    lblScopeAggregation.setText("Oscilloscope aggregation method", dontSendNotification);
+    lblScopeAggregation.setJustificationType (Justification::centredRight);
+    addAndMakeVisible(lblScopeAggregation);
 
-    sldScaleX.setSliderStyle (Slider::SliderStyle::TwoValueHorizontal);
-    sldScaleX.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
-    sldScaleX.setNumDecimalPlacesToDisplay (0);
-    sldScaleX.setPopupDisplayEnabled (true, true, this);
-    sldScaleX.setTooltip ("Select range of samples from each 8192 sample frame for oscilloscope");
-    sldScaleX.setRange (0.0, 8192.0, 128.0);
-    sldScaleX.setMinAndMaxValues (osc->getXMin(), osc->getXMax(), dontSendNotification);
-    addAndMakeVisible (sldScaleX);
-    sldScaleX.onValueChange = [this, osc]
+    cmbScopeAggregation.setTooltip ("Defines how to aggregate samples if there are more than one per pixel in the plot (listed in order of computation cost).\n\nThe nearest sample method offers the best performance, but shows variable amplitude for higher frequency content. The maximum method better represents the envelope of higher frequency content but is more computationally intensive. The average method tends to show even lower amplitudes for higher frequency content than nearest sample and is most intensive.");
+    cmbScopeAggregation.addItem ("Nearest sample", Oscilloscope::AggregationMethod::NearestSample);
+    cmbScopeAggregation.addItem ("Maximum", Oscilloscope::AggregationMethod::Maximum);
+    cmbScopeAggregation.addItem ("Average", Oscilloscope::AggregationMethod::Average);
+    addAndMakeVisible (cmbScopeAggregation);
+    cmbScopeAggregation.setSelectedId (osc->getAggregationMethod(), dontSendNotification);
+    cmbScopeAggregation.onChange = [this, osc]
     {
-        osc->setXMin(static_cast<int> (sldScaleX.getMinValue()));
-        osc->setXMax(static_cast<int> (sldScaleX.getMaxValue()));
+        osc->setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod>(cmbScopeAggregation.getSelectedId()));
     };
 
-    lblScaleY.setText ("Oscilloscope amplitude scale (dB)", dontSendNotification);
-    lblScaleY.setJustificationType (Justification::centredRight);
-    addAndMakeVisible (lblScaleY);
+    lblScopeScaleX.setText ("Oscilloscope time scale (samples)", dontSendNotification);
+    lblScopeScaleX.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblScopeScaleX);
 
-    sldScaleY.setSliderStyle (Slider::SliderStyle::LinearHorizontal);
-    sldScaleY.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
-    sldScaleY.setNumDecimalPlacesToDisplay (0);
-    sldScaleY.setTextValueSuffix(" dB");
-    sldScaleY.setPopupDisplayEnabled (true, true, this);
-    sldScaleY.setTooltip ("Select maximum amplitude for oscilloscope");
-    sldScaleY.setRange (-100.0, 0.0, 1.0);
+    sldScopeScaleX.setSliderStyle (Slider::SliderStyle::TwoValueHorizontal);
+    sldScopeScaleX.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
+    sldScopeScaleX.setNumDecimalPlacesToDisplay (0);
+    sldScopeScaleX.setPopupDisplayEnabled (true, true, this);
+    sldScopeScaleX.setTooltip ("Select range of samples from each 8192 sample frame for oscilloscope");
+    sldScopeScaleX.setRange (0.0, 8192.0, 128.0);
+    sldScopeScaleX.setMinAndMaxValues (osc->getXMin(), osc->getXMax(), dontSendNotification);
+    addAndMakeVisible (sldScopeScaleX);
+    sldScopeScaleX.onValueChange = [this, osc]
+    {
+        osc->setXMin(static_cast<int> (sldScopeScaleX.getMinValue()));
+        osc->setXMax(static_cast<int> (sldScopeScaleX.getMaxValue()));
+    };
+
+    lblScopeScaleY.setText ("Oscilloscope amplitude scale (dB)", dontSendNotification);
+    lblScopeScaleY.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblScopeScaleY);
+
+    sldScopeScaleY.setSliderStyle (Slider::SliderStyle::LinearHorizontal);
+    sldScopeScaleY.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
+    sldScopeScaleY.setNumDecimalPlacesToDisplay (0);
+    sldScopeScaleY.setTextValueSuffix(" dB");
+    sldScopeScaleY.setPopupDisplayEnabled (true, true, this);
+    sldScopeScaleY.setTooltip ("Select maximum amplitude for oscilloscope");
+    sldScopeScaleY.setRange (-100.0, 0.0, 1.0);
     // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
-    sldScaleY.setValue (Decibels::decibelsToGain (osc->getMaxAmplitude(), -150.0f), dontSendNotification);
-    addAndMakeVisible (sldScaleY);
-    sldScaleY.onValueChange = [this, osc]
+    sldScopeScaleY.setValue (Decibels::decibelsToGain (osc->getMaxAmplitude(), -150.0f), dontSendNotification);
+    addAndMakeVisible (sldScopeScaleY);
+    sldScopeScaleY.onValueChange = [this, osc]
     {
         // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
-        osc->setMaxAmplitude(Decibels::decibelsToGain (static_cast<float> (sldScaleY.getValue()), -150.0f));
+        osc->setMaxAmplitude(Decibels::decibelsToGain (static_cast<float> (sldScopeScaleY.getValue()), -150.0f));
     };
 
     setSize (800, 300);
 }
-
 void AnalyserComponent::AnalyserConfigComponent::resized ()
 {
     Grid grid;
@@ -206,6 +221,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
+        Track(GUI_BASE_SIZE_PX),
         Track(1_fr)
     };
 
@@ -215,9 +231,10 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({
-        GridItem(lblAggregation), GridItem(cmbAggregation),
-        GridItem(lblScaleX), GridItem(sldScaleX),
-        GridItem(lblScaleY), GridItem(sldScaleY)
+        GridItem(lblFftAggregation), GridItem(cmbFftAggregation),
+        GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation),
+        GridItem(lblScopeScaleX), GridItem(sldScopeScaleX),
+        GridItem(lblScopeScaleY), GridItem(sldScopeScaleY)
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));

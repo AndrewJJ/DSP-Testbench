@@ -19,9 +19,9 @@ public:
     /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
     enum AggregationMethod
     {
-        NearestSample = 1,
-        Maximum,
-        Average
+        NearestSample = 1,  // This offers the best performance, but shows variable amplitude for higher frequency content
+        Maximum,            // This better represents the envelope of higher frequency content - uses max amplitude (i.e. takes absolute value)
+        Average             // This tends to show even lower amplitudes for higher frequency content than the NearestSample method
     };
 
     Oscilloscope();

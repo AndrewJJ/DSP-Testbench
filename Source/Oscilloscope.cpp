@@ -141,7 +141,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
     {
         auto* y = buffer.getReadPointer (ch);
 
-        // Draw a line representing the freq data for this channel
+        // Draw a line representing the wave data for this channel
         Path p;
         p.preallocateSpace ((getWidth() + 1) * 3);
         p.startNewSubPath (0.0f, toPxFromAmp (y[minXSamples]));

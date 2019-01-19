@@ -50,12 +50,14 @@ private:
 
     private:
         AnalyserComponent* analyserComponent;
-        Label lblAggregation;
-        ComboBox cmbAggregation;
-        Label lblScaleX;
-        Slider sldScaleX;
-        Label lblScaleY;
-        Slider sldScaleY;
+        Label lblFftAggregation;
+        ComboBox cmbFftAggregation;
+        Label lblScopeAggregation;
+        ComboBox cmbScopeAggregation;
+        Label lblScopeScaleX;
+        Slider sldScopeScaleX;
+        Label lblScopeScaleY;
+        Slider sldScopeScaleY;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AnalyserConfigComponent);
     };
 
