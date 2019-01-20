@@ -236,8 +236,7 @@ void MainContentComponent::resized()
 }
 void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
-    //if (dynamic_cast<AudioDeviceManager*>(source) == &deviceManager)
-    if (source== &deviceManager)
+    if (source == &deviceManager)
     {
         std::unique_ptr<XmlElement> xml(deviceManager.createStateXml());
         DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
