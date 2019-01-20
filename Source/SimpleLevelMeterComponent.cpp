@@ -12,8 +12,9 @@
 
 SimplePeakMeterComponent::SimplePeakMeterComponent()
 {
-    this->setOpaque (true);
+    this->setPaintingIsUnclipped(true);
 }
+
 SimplePeakMeterComponent::SimplePeakMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
                                                       const float alertLevelDb, const float maximumLevelDb)
 {
@@ -22,15 +23,13 @@ SimplePeakMeterComponent::SimplePeakMeterComponent (const float minimumLevelDb, 
     alertDb     = alertLevelDb;
     maxDb       = maximumLevelDb;
     rangeDb     = maximumLevelDb - minimumLevelDb;
-    this->setOpaque (true);
 }
+
 SimplePeakMeterComponent::~SimplePeakMeterComponent()
-{
-}
+= default;
+
 void SimplePeakMeterComponent::paint (Graphics& g)
 {
-    g.fillAll(Colours::black);
-
     auto colourNormal  = Colour (0xff00ff00);
 	auto colourCaution = Colours::yellow;
 	auto colourAlert   = Colour (0xffff0000);
@@ -38,7 +37,7 @@ void SimplePeakMeterComponent::paint (Graphics& g)
     const auto fullHeight = static_cast<float> (getHeight());
 	const auto gradientHeight = fullHeight * 0.5f;
 	const auto fullWidth = static_cast<float> (getWidth());
-	const auto darkShadow = 0.2f;
+	const auto darkShadow = 0.5f;
 
 	auto h = jmin (currentLevelY, cautionY);
 	//g.setColour (colourNormal);
@@ -69,6 +68,7 @@ void SimplePeakMeterComponent::paint (Graphics& g)
 }
 void SimplePeakMeterComponent::resized ()
 {
+    rangeDb = maxDb - minDb;
     conversionFactor    = static_cast<float> (getHeight()) / rangeDb;
     currentLevelY       = dBtoPx (currentLevelDb);
     cautionY            = dBtoPx (cautionDb);
@@ -80,9 +80,19 @@ void SimplePeakMeterComponent::setLevel (const float dB)
     currentLevelY = dBtoPx (dB);
     repaint();
 }
+void SimplePeakMeterComponent::setMinDb (const float dB)
+{
+    minDb = dB;
+    resized();
+}
+void SimplePeakMeterComponent::setMaxDb (const float dB)
+{
+    maxDb = dB;
+    resized();
+}
 float SimplePeakMeterComponent::dBtoPx (const float dB) const
 {
-    if (dB <= -100.0f)
+    if (dB <= minDb)
         return 0.0f;
     else
         return (jlimit (minDb, maxDb, dB) - minDb) * conversionFactor;

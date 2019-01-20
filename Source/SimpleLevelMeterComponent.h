@@ -32,6 +32,8 @@ public:
     void resized() override;
 
     void setLevel (const float dB);
+    void setMinDb (const float dB);
+    void setMaxDb (const float dB);
 
 private:
 
@@ -42,9 +44,10 @@ private:
     float alertDb     = -3.0f;
     float maxDb       = 0.0f;
     float rangeDb     = maxDb - minDb;
-    float cautionY, alertY;
+    float cautionY {};
+    float alertY {};
     float conversionFactor = 1.0f;
-    float currentLevelDb = -100.0f;
+    float currentLevelDb = -150.0f;
     float currentLevelY = 0.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimplePeakMeterComponent)
