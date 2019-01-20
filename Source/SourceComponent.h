@@ -207,9 +207,9 @@ private:
     bool loadFile (const File& fileToPlay);
     void chooseFile();
     void init();
-    void play();
-    void pause();
-    void stop();
+    void play() const;
+    void pause() const;
+    void stop() const;
 
     AudioBuffer<float> fileReadBuffer;
     double sampleRate;

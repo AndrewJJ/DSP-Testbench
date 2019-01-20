@@ -643,6 +643,9 @@ void WaveTab::init()
 
         if (readerSource != nullptr)
         {
+            if (btnLoop != nullptr)
+                readerSource->setLooping (btnLoop->getToggleState());
+
             if (auto* device = audioDeviceManager->getCurrentAudioDevice())
             {
                 transportSource->setSource (readerSource, roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
@@ -652,7 +655,7 @@ void WaveTab::init()
         }
     }
 }
-void WaveTab::play()
+void WaveTab::play() const
 {
     if (readerSource == nullptr)
         return;
@@ -664,12 +667,12 @@ void WaveTab::play()
     }
     transportSource->start();
 }
-void WaveTab::pause ()
+void WaveTab::pause () const
 {
     if (transportSource != nullptr)
         transportSource->stop();
 }
-void WaveTab::stop ()
+void WaveTab::stop () const
 {
     btnPlay->setToggleState (false, dontSendNotification);
     
