@@ -12,7 +12,8 @@
 
 SimplePeakMeterComponent::SimplePeakMeterComponent()
 {
-    this->setPaintingIsUnclipped(true);
+    setPaintingIsUnclipped(true);
+    setOpaque (backgroundColour.isOpaque());
 }
 
 SimplePeakMeterComponent::SimplePeakMeterComponent (const float minimumLevelDb, const float cautionLevelDb,
@@ -38,6 +39,9 @@ void SimplePeakMeterComponent::paint (Graphics& g)
 	const auto gradientHeight = fullHeight * 0.5f;
 	const auto fullWidth = static_cast<float> (getWidth());
 	const auto darkShadow = 0.5f;
+
+    g.setColour (backgroundColour);
+    g.fillRect (0.0f, 0.0f, fullWidth, fullHeight);
 
 	auto h = jmin (currentLevelY, cautionY);
 	//g.setColour (colourNormal);
@@ -89,6 +93,11 @@ void SimplePeakMeterComponent::setMaxDb (const float dB)
 {
     maxDb = dB;
     resized();
+}
+void SimplePeakMeterComponent::setBackgroundColour (const Colour newBackgroundColour)
+{
+    backgroundColour = newBackgroundColour;
+    setOpaque (backgroundColour.isOpaque());
 }
 float SimplePeakMeterComponent::dBtoPx (const float dB) const
 {

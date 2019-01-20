@@ -34,6 +34,7 @@ public:
     void setLevel (const float dB);
     void setMinDb (const float dB);
     void setMaxDb (const float dB);
+    void setBackgroundColour (const Colour newBackgroundColour);
 
 private:
 
@@ -49,6 +50,7 @@ private:
     float conversionFactor = 1.0f;
     float currentLevelDb = -150.0f;
     float currentLevelY = 0.0f;
+    Colour backgroundColour = Colours::black;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimplePeakMeterComponent)
 };

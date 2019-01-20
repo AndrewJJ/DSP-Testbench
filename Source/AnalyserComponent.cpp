@@ -136,6 +136,7 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
                 addAndMakeVisible (meterBars.add (new SimplePeakMeterComponent()));
                 meterBars[ch]->setMaxDb(meterBackground.getScaleMax());
                 meterBars[ch]->setMinDb(meterBackground.getScaleMin());
+                meterBars[ch]->setBackgroundColour(Colours::transparentBlack);
             }
             resized();
         }
