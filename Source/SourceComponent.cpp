@@ -795,9 +795,9 @@ void AudioTab::ChannelComponent::toggleOutputSelection (const int channelNumber)
     else
         selectedOutputChannels.setBit (channelNumber);
 }
-bool AudioTab::ChannelComponent::isOutputSelected (const int channelNumer) const
+bool AudioTab::ChannelComponent::isOutputSelected (const int channelNumber) const
 {
-    return selectedOutputChannels[static_cast<int> (channelNumer)];
+    return selectedOutputChannels[static_cast<int> (channelNumber)];
 }
 void AudioTab::ChannelComponent::reset()
 {
@@ -858,12 +858,13 @@ float AudioTab::InputArrayComponent::getMinimumWidth() const
     const auto channelWidth = ChannelComponent::getMinimumWidth();
     const auto channelGap = GUI_BASE_GAP_I;    // Set in ChannelComponent resized()
     const auto margins = GUI_GAP_I(2);         // Set in InputArrayComponent::resized()
-    const auto numInputs = channelComponents->size();
-    return numInputs * channelWidth + jmax (0, numInputs - 1) * channelGap + margins;
+    const auto numIns = channelComponents->size();
+    return numIns * channelWidth + jmax (0, numIns - 1) * channelGap + margins;
 }
 
-AudioTab::AudioTab ()
-    : inputArrayComponent (&channelComponents)
+AudioTab::AudioTab (AudioDeviceManager* deviceManager)
+    : inputArrayComponent (&channelComponents),
+      audioDeviceManager (deviceManager)
 {
     viewport.setScrollBarsShown (false, true);
     viewport.setViewedComponent (&inputArrayComponent);
@@ -890,6 +891,7 @@ void AudioTab::prepare (const dsp::ProcessSpec& spec)
 {
     meterProcessor.prepare (spec);
     tempBuffer.setSize (spec.numChannels, spec.maximumBlockSize);
+    channelsChanged();
 }
 void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -904,7 +906,9 @@ void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
     // Apply gains to input channels
     for (auto ch = 0; ch < numInputChannels; ++ch)
     {
-        const auto linearGain = channelComponents[ch]->getLinearGain();
+        auto linearGain = 0.0f;
+        if (channelComponents[ch] != nullptr)
+            linearGain = channelComponents[ch]->getLinearGain();
         for (auto i = 0; i < input.getNumSamples(); ++i)
             input.getChannelPointer (ch)[i] *= linearGain;
     }
@@ -917,7 +921,7 @@ void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
         for (auto inCh = 0; inCh < numInputChannels; ++inCh)
         {
             auto outputChannel = output.getSingleChannelBlock (outCh);
-            if (channelComponents[inCh]->isOutputSelected (outCh))
+            if (channelComponents[inCh] != nullptr && channelComponents[inCh]->isOutputSelected (outCh))
                 outputChannel.add(temp.getSingleChannelBlock(inCh));
         }
     }
@@ -934,24 +938,35 @@ void AudioTab::timerCallback ()
     for (auto ch : channelComponents)
         ch->refresh();
 }
-void AudioTab::setNumChannels (const int numberOfInputChannels, const int numberOfOutputChannels)
+void AudioTab::channelsChanged()
 {
-    channelComponents.clear();
+    const auto currentDevice = audioDeviceManager->getCurrentAudioDevice();
+    const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
+    const auto numOutputChannels = static_cast<uint32> (currentDevice->getActiveOutputChannels().countNumberOfSetBits());
 
-    for (auto ch  = 0; ch < numberOfInputChannels; ++ ch)
-        inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
+    if (static_cast<int> (numInputChannels) != numInputs || static_cast<int> (numOutputChannels) != numOutputs)
+    {
+        numInputs = static_cast<int> (numInputChannels);
+        numOutputs = static_cast<int> (numOutputChannels);
+
+        inputArrayComponent.removeAllChildren();
+        channelComponents.clear();
+
+        for (auto ch  = 0; ch < numInputs; ++ ch)
+            inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numOutputChannels, ch)));
+            
+        // Use this code to test the case where there are more channels that can fit within the parent
+        //for (auto ch = numInputs; ch < 32; ++ ch)
+        //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numOutputChannels, ch)));
+
+        const auto viewWidth = inputArrayComponent.getMinimumWidth();
+        auto viewHeight = getHeight();
+        if (viewWidth>getWidth())
+            viewHeight -= viewport.getLookAndFeel().getDefaultScrollbarWidth();
+        inputArrayComponent.setSize (static_cast<int> (viewWidth), static_cast<int> (viewHeight));
         
-    // Use this code to test the case where there are more channels that can fit within the parent
-    //for (auto ch = numInputs; ch < 32; ++ ch)
-    //    inputArrayComponent.addAndMakeVisible (channelComponents.add (new ChannelComponent (&meterProcessor, numberOfOutputChannels, ch)));
-
-    const auto viewWidth = inputArrayComponent.getMinimumWidth();
-    auto viewHeight = getHeight();
-    if (viewWidth>getWidth())
-        viewHeight -= viewport.getLookAndFeel().getDefaultScrollbarWidth();
-    inputArrayComponent.setSize (static_cast<int> (viewWidth), static_cast<int> (viewHeight));
-    
-    resized();
+        resized();
+    }
 }
 void AudioTab::setRefresh (const bool shouldRefresh)
 {
@@ -1030,10 +1045,10 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab(audioDeviceManager), false, Mode:: WaveFile);
-    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab(), false, Mode::AudioIn);
-    tabbedComponent->setCurrentTabIndex (config->getIntAttribute("TabIndex"));
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab (audioDeviceManager), false, Mode:: WaveFile);
+    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab (audioDeviceManager), false, Mode::AudioIn);
     tabbedComponent->getTabbedButtonBar().addChangeListener(this);
+    tabbedComponent->setCurrentTabIndex (config->getIntAttribute("TabIndex")); // Need to set tab after change listener added
 }
 SourceComponent::~SourceComponent()
 {
@@ -1164,10 +1179,6 @@ void SourceComponent::reset ()
     waveTab->reset();
     audioTab->reset();
     gain.reset();
-}
-void SourceComponent::setNumChannels (int numInputChannels, int numOutputChannels)
-{
-    audioTab->setNumChannels (numInputChannels, numOutputChannels);
 }
 SourceComponent::Mode SourceComponent::getMode() const
 {

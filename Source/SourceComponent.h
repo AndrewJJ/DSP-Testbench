@@ -221,7 +221,7 @@ private:
 class AudioTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
-    AudioTab();
+    AudioTab (AudioDeviceManager* deviceManager);
     ~AudioTab();
 
     void paint (Graphics& g) override;
@@ -233,8 +233,7 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
     void timerCallback () override;
-    
-    void setNumChannels (const int  numberOfInputChannels, const int numberOfOutputChannels);
+
     void setRefresh (const bool shouldRefresh);
 
 private:
@@ -305,11 +304,16 @@ private:
         OwnedArray<ChannelComponent>* channelComponents {};
     };
 
+    void channelsChanged();
+
     SimplePeakMeterProcessor meterProcessor;
     Viewport viewport;
     OwnedArray <ChannelComponent> channelComponents {};
     InputArrayComponent inputArrayComponent;
     AudioBuffer<float> tempBuffer;
+    AudioDeviceManager* audioDeviceManager;
+    int numInputs = 0;
+    int numOutputs = 0;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioTab)
 };
@@ -342,9 +346,6 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
-
-    // Should be called before prepare is called
-    void setNumChannels (int numInputChannels, int numOutputChannels);
 
     Mode getMode() const;
     void setOtherSource (SourceComponent* otherSourceComponent);

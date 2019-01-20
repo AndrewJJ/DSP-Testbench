@@ -103,8 +103,6 @@ void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sa
         jmax (numInputChannels, numOutputChannels)
     };
     
-    srcComponentA->setNumChannels (numInputChannels, numOutputChannels);
-    srcComponentB->setNumChannels (numInputChannels, numOutputChannels);
     srcComponentA->prepare (spec);
     srcComponentB->prepare (spec);
     procComponentA->prepare (spec);
