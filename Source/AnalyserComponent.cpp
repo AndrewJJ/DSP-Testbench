@@ -97,7 +97,7 @@ void AnalyserComponent::resized()
     analyserGrid.rowGap = GUI_GAP_PX(2);
     analyserGrid.columnGap = GUI_GAP_PX(2);
     analyserGrid.templateRows = { Track (1_fr), Track (1_fr) };
-    // TODO: calculate desired meter width
+    // TODO - calculate desired meter width
     analyserGrid.templateColumns = { Track (1_fr), Track (meterBackground.getDesiredWidth (numChannels)) };
     analyserGrid.items.addArray({
                             GridItem (fftScope).withArea (1, 1),

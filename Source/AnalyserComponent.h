@@ -36,7 +36,8 @@ public:
     bool isActive() const noexcept;
 
     // TODO - build synch trigger functionality throughout the app (hosted in MainComponent::getNextAudioBlock()
-    // TODO - add detailed metering (peak, RMS, VU)
+    // TODO - add RMS & VU metering?
+    // TODO - add clearable clip indicator?
     // TODO - add phase scope
 
 private:
