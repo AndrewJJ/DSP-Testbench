@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PolyBLEP.h"
+#include "PulseFunctions.h"
 #include "NoiseGenerators.h"
 #include "MeteringProcessors.h"
 #include "SimpleLevelMeterComponent.h"
@@ -63,6 +64,7 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 private:
+
     ScopedPointer<ComboBox> cmbWaveform;
     ScopedPointer<Slider> sldFrequency;
     ScopedPointer<Slider> sldSweepDuration;
@@ -103,6 +105,8 @@ private:
 
     dsp::WhiteNoiseGenerator whiteNoise;
     dsp::PinkNoiseGenerator pinkNoise;
+    dsp::PulseFunctionBase<float> impulseFunction;
+    dsp::StepFunction<float> stepFunction;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };

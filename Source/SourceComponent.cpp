@@ -66,6 +66,8 @@ SynthesisTab::SynthesisTab ()
     addAndMakeVisible (btnSynchWithOther = new TextButton ("Synch"));
     btnSynchWithOther->setTooltip ("Synch other source oscillator with this");
     btnSynchWithOther->onClick = [this] { performSynch(); };
+
+    // TODO - add controls for pulse functions (preDelay, pulseWidth, maxPulseWidth for step, retrigger?)
 }
 SynthesisTab::~SynthesisTab ()
 {
@@ -171,6 +173,9 @@ void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
 
     calculateNumSweepSteps();
     resetSweep();
+
+    impulseFunction.prepare (spec);
+    stepFunction.prepare (spec);
 }
 void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -214,11 +219,17 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
     {
         pinkNoise.process (context);
     }
+    else if (currentWaveform == Waveform::impulse)
+    {
+        impulseFunction.process (context);
+    }
+    else if (currentWaveform == Waveform::step)
+    {
+        stepFunction.process (context);
+    }
     else
     {
-        // TODO - implement impulse and step functions with configurable pre-delay
-
-        // TODO - delete once impulse and step functions have been implemented
+        // Catch all in case waveform undefined at some point
         context.getOutputBlock().clear();
     }
 }
@@ -234,6 +245,9 @@ void SynthesisTab::reset()
     }
 
     resetSweep();
+
+    impulseFunction.reset();
+    stepFunction.reset();
 }
 void SynthesisTab::timerCallback ()
 {
@@ -254,6 +268,7 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
         calculateNumSweepSteps();
     }
 }
+
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
     return (    currentWaveform == Waveform::sine 

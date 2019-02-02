@@ -50,6 +50,8 @@
         <FILE id="sl0iD1" name="OscilloscopeProcessor.h" compile="0" resource="0"
               file="Source/OscilloscopeProcessor.h"/>
         <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>
+        <FILE id="i22995" name="PulseFunctions.h" compile="0" resource="0"
+              file="Source/PulseFunctions.h"/>
         <FILE id="uNS7YK" name="TestProcessor.cpp" compile="1" resource="0"
               file="Source/TestProcessor.cpp"/>
         <FILE id="z3PBri" name="TestProcessor.h" compile="0" resource="0" file="Source/TestProcessor.h"/>

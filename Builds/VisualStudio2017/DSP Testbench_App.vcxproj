@@ -1952,6 +1952,7 @@
     <ClInclude Include="..\..\Source\NoiseGenerators.h"/>
     <ClInclude Include="..\..\Source\OscilloscopeProcessor.h"/>
     <ClInclude Include="..\..\Source\PolyBLEP.h"/>
+    <ClInclude Include="..\..\Source\PulseFunctions.h"/>
     <ClInclude Include="..\..\Source\TestProcessor.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

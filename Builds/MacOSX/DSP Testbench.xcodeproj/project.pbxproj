@@ -597,6 +597,13 @@
 			path = "../../JuceLibraryCode/include_juce_audio_basics.mm";
 			sourceTree = "SOURCE_ROOT";
 		};
+		D5A204FC49FC303F8E85AB18 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = PulseFunctions.h;
+			path = ../../Source/PulseFunctions.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		DB014A6625DD5C768B4DB1A7 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
@@ -664,6 +671,7 @@
 				F06CF79E7E23D319382B60CC,
 				C188008C47A5BB77EA1D0159,
 				3EAA28994203F8FE7BD0860D,
+				D5A204FC49FC303F8E85AB18,
 				0EC888D60D720F3802B6A82F,
 				1FA67A2A9EDA46C16E7702F4,
 			);
