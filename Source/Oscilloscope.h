@@ -55,8 +55,6 @@ public:
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
 
-    // TODO - lengthen buffer but don't allow full zoom (perhaps use audiothumbnail?)
-
 private:
 
     class Background final : public Component
