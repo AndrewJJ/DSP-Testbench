@@ -131,23 +131,24 @@ private:
 //    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
 //};
 
-class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener
+class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener, public Timer
 {
 public:
-    explicit WaveTab(AudioDeviceManager* deviceManager);
+    explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig);
     ~WaveTab();
 
     void paint (Graphics& g) override;
     void resized() override;
     static float getMinimumWidth();
     static float getMinimumHeight();
-
-
+    
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
     void changeListenerCallback (ChangeBroadcaster* source) override;
+    void timerCallback() override;
+    String getFilePath() const;
 
     class AudioThumbnailComponent : public Component,
                                     public FileDragAndDropTarget,
@@ -214,6 +215,7 @@ private:
     AudioBuffer<float> fileReadBuffer;
     double sampleRate;
     uint32 maxBlockSize;
+    String initialFilePath;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
@@ -356,7 +358,7 @@ private:
 
     AudioDeviceManager* audioDeviceManager;
     String keyName;
-    std::unique_ptr<XmlElement> config{};
+    std::unique_ptr<XmlElement>  config{};
 
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
