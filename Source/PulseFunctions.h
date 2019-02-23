@@ -131,7 +131,8 @@ public:
 
     void setPreDelay (const size_t numSamples) override
     {
-        PulseFunctionBase<SampleType>::preDelay = numSamples;
+        // Ensure minimum pre delay of 1 sample so signal has a chance to start from zero!
+        PulseFunctionBase<SampleType>::preDelay = jmax (size_t (1), numSamples);
         PulseFunctionBase<SampleType>::pulseWidth = std::numeric_limits<size_t>::max() - PulseFunctionBase<SampleType>::preDelay;
     }
 };
