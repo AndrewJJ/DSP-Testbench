@@ -70,9 +70,12 @@ public:
     // by some compilers and therefore list initialisation won't work.
 
     /** Sets the frequency of the oscillator. */
-    void setFrequency (NumericType newFrequency, bool force = false) noexcept
+    void setFrequency (const NumericType newFrequency, const bool force = false) noexcept
     {
-        frequency.setValue (newFrequency, force);
+        if (force)
+                frequency.setCurrentAndTargetValue (newFrequency);
+        else
+            frequency.setTargetValue (newFrequency);
     }
 
     /** Returns the current frequency of the oscillator. */
