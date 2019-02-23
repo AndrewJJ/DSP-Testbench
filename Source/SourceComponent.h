@@ -41,7 +41,7 @@ enum SweepMode
 class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
 {
 public:
-    SynthesisTab();
+    SynthesisTab (String sourceName /**< Specifies the name of the Source being used */);
     ~SynthesisTab();
 
     void paint (Graphics& g) override;
@@ -64,6 +64,9 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 private:
+
+    String keyName;
+    std::unique_ptr<XmlElement> config {};
 
     ScopedPointer<ComboBox> cmbWaveform;
     ScopedPointer<Slider> sldFrequency;
@@ -368,7 +371,7 @@ private:
 
     AudioDeviceManager* audioDeviceManager;
     String keyName;
-    std::unique_ptr<XmlElement>  config{};
+    std::unique_ptr<XmlElement> config {};
 
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;

@@ -11,10 +11,28 @@
 #include "SourceComponent.h"
 #include "Main.h"
 
-SynthesisTab::SynthesisTab ()
+SynthesisTab::SynthesisTab (String sourceName)
+    : keyName (sourceName + "_Synthesis")
 {
     // Assume sample rate of 48K - this will be corrected when prepare() is called
     const auto nyquist = 24000.0;
+
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+    {
+        // Define default properties to be used if user settings not already saved
+        config.reset(new XmlElement (keyName));
+        config->setAttribute ("WaveForm", Waveform::sine);
+        config->setAttribute ("Frequency", 440.0);
+        config->setAttribute ("SweepDuration", 1.0);
+        config->setAttribute ("SweepMode", SweepMode::Reverse);
+        config->setAttribute ("SweepEnabled", false);
+        config->setAttribute ("PreDelay", 100);
+        config->setAttribute ("PulseWidth", 1);
+        config->setAttribute ("PulsePolarity", true);
+    }
 
     addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
     cmbWaveform->setTooltip ("Select a waveform");
@@ -27,7 +45,7 @@ SynthesisTab::SynthesisTab ()
     cmbWaveform->addItem ("White Noise", Waveform::whiteNoise);
     cmbWaveform->addItem ("Pink Noise", Waveform::pinkNoise);
     cmbWaveform->onChange = [this] { waveformUpdated(); };
-    cmbWaveform->setSelectedId (Waveform::sine);
+    cmbWaveform->setSelectedId (config->getIntAttribute ("WaveForm"), sendNotificationAsync);
 
     addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
     sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
@@ -35,29 +53,30 @@ SynthesisTab::SynthesisTab ()
     sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
     sldFrequency->setRange (10.0, nyquist, 1.0);
     sldFrequency->setMinAndMaxValues (10.0, nyquist, dontSendNotification);
-    sldFrequency->addListener (this);
-    sldFrequency->setValue (440.0, sendNotificationSync);
     sldFrequency->setSkewFactor (0.5);
+    sldFrequency->addListener (this);
+    sldFrequency->setValue (config->getDoubleAttribute ("Frequency"), sendNotificationSync);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
     sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldSweepDuration->setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
     sldSweepDuration->setRange (0.5, 5.0, 0.1);
     sldSweepDuration->addListener (this);
-    sldSweepDuration->setValue (1.0, sendNotificationSync);
+    sldSweepDuration->setValue (config->getDoubleAttribute ("SweepDuration"), sendNotificationSync);
     
     addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
     cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
     cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
     cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
     cmbSweepMode->onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode->getSelectedId()); };
-    cmbSweepMode->setSelectedId (SweepMode::Reverse);
+    cmbSweepMode->setSelectedId (config->getIntAttribute ("SweepMode"), sendNotificationSync);
 
     addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
     btnSweepEnabled->setTooltip ("Enable sweeping from start frequency to end frequency");
     btnSweepEnabled->setClickingTogglesState (true);
     btnSweepEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
     btnSweepEnabled->onStateChange = [this] { updateSweepEnablement(); };
+    btnSweepEnabled->setToggleState (config->getBoolAttribute ("SweepEnabled"), sendNotificationSync);
 
     addAndMakeVisible (btnSweepReset = new TextButton ("Reset"));
     btnSweepReset->setTooltip ("Reset/restart the frequency sweep");
@@ -73,16 +92,15 @@ SynthesisTab::SynthesisTab ()
 
     addAndMakeVisible (sldPreDelay = new Slider ("PulsePreDelay"));
     sldPreDelay->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldPreDelay->setTooltip ("Sets the pre-delay for pulse step/impulse functions in samples.\n\nNote that if you set this to zero for a step function then you won't ever see the value go to zero!");
+    sldPreDelay->setTooltip ("Sets the pre-delay for pulse step/impulse functions in samples.\n\nNote that step function has it's minimum pre-delay clamped to 1 so that the first sample is zero.");
     sldPreDelay->setRange (0.0, 1000.0, 1.0);
     sldPreDelay->addListener (this);
     sldPreDelay->onValueChange = [this] {
-        if (currentWaveform == Waveform::impulse)
-            impulseFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
-        else if (currentWaveform == Waveform::step)
-            stepFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
+        impulseFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
+        stepFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
     };
-
+    sldPreDelay->setValue (static_cast<double> (config->getIntAttribute ("PreDelay")), sendNotificationSync);
+    
     addAndMakeVisible (lblPulseWidth = new Label());
     lblPulseWidth->setText("Pulse Width", dontSendNotification);
     lblPulseWidth->setJustificationType (Justification::centredRight);
@@ -92,11 +110,11 @@ SynthesisTab::SynthesisTab ()
     sldPulseWidth->setTooltip ("Sets the pulse width for the step function in samples");
     sldPulseWidth->setRange (1.0, 1000.0, 1.0);
     sldPulseWidth->addListener (this);
-    sldPulseWidth->setValue (static_cast<double> (impulseFunction.getPulseWidth()), sendNotificationSync);
     sldPulseWidth->onValueChange = [this] {
         impulseFunction.setPulseWidth (static_cast<size_t> (sldPulseWidth->getValue()));
     };
-
+    sldPulseWidth->setValue (static_cast<double> (config->getIntAttribute ("PulseWidth")), sendNotificationSync);
+    
     addAndMakeVisible (btnPulsePolarity = new TextButton ("Polarity"));
     btnPulsePolarity->setTooltip ("Set leading edge of pulse to transition from zero to either full scale positive or negative");
     btnPulsePolarity->setClickingTogglesState (true);
@@ -110,12 +128,25 @@ SynthesisTab::SynthesisTab ()
         else
             btnPulsePolarity->setButtonText ("-ve Polarity");
     };
-    btnPulsePolarity->setToggleState (true, sendNotificationSync);
-
-    // TODO - add synthesis control settings to app properties (remember to add separate pre-delays for step/impulse)
+    btnPulsePolarity->setToggleState (config->getBoolAttribute ("PulsePolarity"), sendNotificationSync);
 }
 SynthesisTab::~SynthesisTab ()
 {
+    // Update configuration from class state
+    config->setAttribute ("WaveForm", cmbWaveform->getSelectedId());
+    config->setAttribute ("Frequency", sldFrequency->getValue());
+    config->setAttribute ("SweepDuration", sldSweepDuration->getValue());
+    config->setAttribute ("SweepMode",cmbSweepMode->getSelectedId());
+    config->setAttribute ("SweepEnabled", btnSweepEnabled->getToggleState());
+    config->setAttribute ("PreDelay", static_cast<int> (sldPreDelay->getValue()));
+    config->setAttribute ("PulseWidth", static_cast<int> (sldPulseWidth->getValue()));
+    config->setAttribute ("PulsePolarity", btnPulsePolarity->getToggleState());
+    
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue(keyName, config.get());
+    propertiesFile->saveIfNeeded();
+
     cmbWaveform = nullptr;
     sldFrequency = nullptr;
     sldSweepDuration = nullptr;
@@ -1157,7 +1188,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
 
     addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
-    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab(), false, Mode::Synthesis);
+    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab (keyName), false, Mode::Synthesis);
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
     tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath")), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab (audioDeviceManager), false, Mode::AudioIn);
