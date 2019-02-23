@@ -66,8 +66,53 @@ SynthesisTab::SynthesisTab ()
     addAndMakeVisible (btnSynchWithOther = new TextButton ("Synch"));
     btnSynchWithOther->setTooltip ("Synch other source oscillator with this");
     btnSynchWithOther->onClick = [this] { performSynch(); };
+    
+    addAndMakeVisible (lblPreDelay = new Label());
+    lblPreDelay->setText("Pre Delay", dontSendNotification);
+    lblPreDelay->setJustificationType (Justification::centredRight);
 
-    // TODO - add controls for pulse functions (preDelay, pulseWidth, maxPulseWidth for step, retrigger?)
+    addAndMakeVisible (sldPreDelay = new Slider ("PulsePreDelay"));
+    sldPreDelay->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldPreDelay->setTooltip ("Sets the pre-delay for pulse step/impulse functions in samples.\n\nNote that if you set this to zero for a step function then you won't ever see the value go to zero!");
+    sldPreDelay->setRange (0.0, 1000.0, 1.0);
+    sldPreDelay->addListener (this);
+    sldPreDelay->onValueChange = [this] {
+        if (currentWaveform == Waveform::impulse)
+            impulseFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
+        else if (currentWaveform == Waveform::step)
+            stepFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
+    };
+
+    addAndMakeVisible (lblPulseWidth = new Label());
+    lblPulseWidth->setText("Pulse Width", dontSendNotification);
+    lblPulseWidth->setJustificationType (Justification::centredRight);
+    
+    addAndMakeVisible (sldPulseWidth = new Slider ("PulseWidth"));
+    sldPulseWidth->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldPulseWidth->setTooltip ("Sets the pulse width for the step function in samples");
+    sldPulseWidth->setRange (1.0, 1000.0, 1.0);
+    sldPulseWidth->addListener (this);
+    sldPulseWidth->setValue (static_cast<double> (impulseFunction.getPulseWidth()), sendNotificationSync);
+    sldPulseWidth->onValueChange = [this] {
+        impulseFunction.setPulseWidth (static_cast<size_t> (sldPulseWidth->getValue()));
+    };
+
+    addAndMakeVisible (btnPulsePolarity = new TextButton ("Polarity"));
+    btnPulsePolarity->setTooltip ("Set leading edge of pulse to transition from zero to either full scale positive or negative");
+    btnPulsePolarity->setClickingTogglesState (true);
+    btnPulsePolarity->setColour (TextButton::buttonOnColourId, Colours::green);
+    btnPulsePolarity->setColour (TextButton::buttonColourId, Colours::darkred);
+    btnPulsePolarity->onStateChange = [this] {
+        stepFunction.setPositivePolarity (btnPulsePolarity->getToggleState());
+        impulseFunction.setPositivePolarity (btnPulsePolarity->getToggleState());
+        if (btnPulsePolarity->getToggleState())
+            btnPulsePolarity->setButtonText ("+ve Polarity");
+        else
+            btnPulsePolarity->setButtonText ("-ve Polarity");
+    };
+    btnPulsePolarity->setToggleState (true, sendNotificationSync);
+
+    // TODO - add synthesis control settings to app properties (remember to add separate pre-delays for step/impulse)
 }
 SynthesisTab::~SynthesisTab ()
 {
@@ -96,14 +141,28 @@ void SynthesisTab::resized ()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
-                            GridItem (sldFrequency).withArea ({ }, GridItem::Span (4)),
-                            GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (4)),
-                            GridItem (cmbSweepMode),
-                            GridItem (btnSweepEnabled),
-                            GridItem (btnSweepReset),
-                            GridItem (btnSynchWithOther)
-                        });
+    if (isSelectedWaveformOscillatorBased())
+    {
+        grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
+                                GridItem (sldFrequency).withArea ({ }, GridItem::Span (4)),
+                                GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (4)),
+                                GridItem (cmbSweepMode),
+                                GridItem (btnSweepEnabled),
+                                GridItem (btnSweepReset),
+                                GridItem (btnSynchWithOther)
+                            });
+    }
+    else
+    {
+        grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
+                                GridItem (lblPreDelay),
+                                GridItem (sldPreDelay).withArea ({ }, GridItem::Span (3)),
+                                GridItem (lblPulseWidth),
+                                GridItem (sldPulseWidth).withArea ({ }, GridItem::Span (3)),
+                                GridItem (btnPulsePolarity).withArea ({ }, GridItem::Span (3)),
+                                GridItem (btnSynchWithOther)
+                            });        
+    }
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
@@ -282,11 +341,35 @@ void SynthesisTab::waveformUpdated()
     // Store locally so audio routines can check value safely
     currentWaveform = static_cast<Waveform> (cmbWaveform->getSelectedId());
 
-    // Only enable sweep controls for oscillator based waveforms
+    // Set control enablement based on waveform type
+    cmbSweepMode->setEnabled (isSelectedWaveformOscillatorBased());
     sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased());
     btnSweepEnabled->setEnabled (isSelectedWaveformOscillatorBased());
     btnSweepReset->setEnabled (isSelectedWaveformOscillatorBased());
     sldFrequency->setEnabled (isSelectedWaveformOscillatorBased());
+    sldPreDelay->setEnabled (!isSelectedWaveformOscillatorBased());
+    sldPulseWidth->setEnabled (currentWaveform == Waveform::impulse);
+    btnPulsePolarity->setEnabled (!isSelectedWaveformOscillatorBased());
+
+    // Set control visibility based on waveform type
+    cmbSweepMode->setVisible (isSelectedWaveformOscillatorBased());
+    sldSweepDuration->setVisible (isSelectedWaveformOscillatorBased());
+    btnSweepEnabled->setVisible (isSelectedWaveformOscillatorBased());
+    btnSweepReset->setVisible (isSelectedWaveformOscillatorBased());
+    sldFrequency->setVisible (isSelectedWaveformOscillatorBased());
+    lblPreDelay->setVisible (!isSelectedWaveformOscillatorBased());
+    sldPreDelay->setVisible (!isSelectedWaveformOscillatorBased());
+    lblPulseWidth->setVisible (currentWaveform == Waveform::impulse);
+    sldPulseWidth->setVisible (currentWaveform == Waveform::impulse);
+    btnPulsePolarity->setVisible (!isSelectedWaveformOscillatorBased());
+
+    if (currentWaveform == Waveform::impulse)
+        sldPreDelay->setValue (static_cast<double> (impulseFunction.getPreDelay()), dontSendNotification);
+    else if (currentWaveform == Waveform::step)
+        sldPreDelay->setValue (static_cast<double> (stepFunction.getPreDelay()), dontSendNotification);
+
+    // Trigger resized so we redraw the layout grid with different controls
+    resized();
 }
 void SynthesisTab::updateSweepEnablement ()
 {

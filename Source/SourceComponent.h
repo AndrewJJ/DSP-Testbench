@@ -72,6 +72,12 @@ private:
     ScopedPointer<TextButton> btnSweepEnabled;
     ScopedPointer<TextButton> btnSweepReset;
     ScopedPointer<TextButton> btnSynchWithOther;
+    ScopedPointer<Label> lblPreDelay;
+    ScopedPointer<Slider> sldPreDelay;
+    ScopedPointer<Label> lblPulseWidth;
+    ScopedPointer<Slider> sldPulseWidth;
+    ScopedPointer<TextButton> btnPulsePolarity;
+
 
     SourceComponent* otherSource {};
     CriticalSection synthesiserCriticalSection;

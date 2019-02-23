@@ -34,18 +34,27 @@ public:
     virtual void reset () override
     { sampleIndex = 0; }
 
-    void setPreDelay (const size_t numSamples)
+    /**
+     * Set pre delay in samples
+     */
+    virtual void setPreDelay (const size_t numSamples)
     { preDelay = numSamples; }
     
     size_t getPreDelay() const
     { return preDelay; }
 
-    void setPulseWidth (const size_t numSamples)
+    /**
+     * Set pulse width in samples
+     */
+    virtual void setPulseWidth (const size_t numSamples)
     { pulseWidth = numSamples; }
     
     size_t getPulseWidth() const
     { return pulseWidth; }
-    
+
+    /**
+     * Set leading edge of pulse to transition from zero to either full scale positive or negative
+     */
     void setPositivePolarity (const bool positive)
     { positivePolarity = positive; }
     
@@ -113,13 +122,17 @@ public:
     StepFunction()
     {
         PulseFunctionBase<SampleType> ();
-        setMaxPulseWidth();
+        PulseFunctionBase<SampleType>::pulseWidth = std::numeric_limits<size_t>::max() - PulseFunctionBase<SampleType>::preDelay;
     }
     ~StepFunction() = default;
-    void setMaxPulseWidth()
+
+    void setPulseWidth (const size_t) override
+    { }
+
+    void setPreDelay (const size_t numSamples) override
     {
-        size_t maxWidth = std::numeric_limits<size_t>::max() - PulseFunctionBase<SampleType>::getPreDelay();
-        PulseFunctionBase<SampleType>::setPulseWidth (maxWidth);
+        PulseFunctionBase<SampleType>::preDelay = numSamples;
+        PulseFunctionBase<SampleType>::pulseWidth = std::numeric_limits<size_t>::max() - PulseFunctionBase<SampleType>::preDelay;
     }
 };
 
