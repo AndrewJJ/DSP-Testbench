@@ -41,7 +41,7 @@ enum SweepMode
 class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
 {
 public:
-    SynthesisTab (String sourceName /**< Specifies the name of the Source being used */);
+    SynthesisTab (String& sourceName /**< Specifies the name of the Source being used */);
     ~SynthesisTab();
 
     void paint (Graphics& g) override;
@@ -233,6 +233,13 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
 
+
+/**
+ * NOTE that properties have not been implemented to retain settings for the AudioTab because:
+ * - the number of channels can vary between devices on same machine
+ * - things will get a bit messy with devices with dozens of channels
+ * - this feature isn't expected to be in high demand :)
+ */
 class AudioTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
@@ -370,7 +377,7 @@ public:
 private:
 
     AudioDeviceManager* audioDeviceManager;
-    String keyName;
+    String sourceName;
     std::unique_ptr<XmlElement> config {};
 
     float getDesiredTabComponentWidth() const;
