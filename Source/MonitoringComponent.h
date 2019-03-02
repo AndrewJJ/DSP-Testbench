@@ -40,11 +40,8 @@ private:
 
     ScopedPointer<Label> lblTitle;
     ScopedPointer<Slider> sldGain;
-    ScopedPointer<TextButton> btnConfig;
     ScopedPointer<TextButton> btnLimiter;
     ScopedPointer<TextButton> btnMute;
-
-    ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
 
     bool statusLimiter;
     bool statusMute;

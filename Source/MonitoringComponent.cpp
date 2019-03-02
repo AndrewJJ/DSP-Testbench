@@ -45,16 +45,6 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     sldGain->setValue (config->getDoubleAttribute ("OutputGain"));
     sldGain->addListener (this);
 
-    addAndMakeVisible (btnConfig = new TextButton ("Config button"));
-    btnConfig->setTooltip (TRANS("Configure audio device"));
-    btnConfig->setButtonText (TRANS("Config"));
-    btnConfig->onClick = [this]
-    {
-        deviceSelector = new AudioDeviceSelectorComponent (*deviceManager, 1, 1024, 1, 1024, false, false, false, false);
-        deviceSelector->setSize (500,300);
-        DialogWindow::showDialog ("Audio device settings", deviceSelector, nullptr, Colours::darkgrey, true);
-    };
-    
     addAndMakeVisible (btnLimiter = new TextButton ("Limiter button"));
     btnLimiter->setTooltip (TRANS("Activate limiter on output"));
     btnLimiter->setButtonText (TRANS("Limiter"));
@@ -105,13 +95,12 @@ void MonitoringComponent::resized()
     grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
                         };
 
-    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(1.7)) };
+    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(1.7)) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
-                            GridItem (btnConfig),
                             GridItem (btnLimiter),
                             GridItem (btnMute)
                         });
