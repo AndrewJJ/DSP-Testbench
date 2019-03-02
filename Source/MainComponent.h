@@ -16,14 +16,6 @@
 #include "MonitoringComponent.h"
 #include "AnalyserComponent.h"
 
-class DspTestBenchLnF : public LookAndFeel_V4
-{
-public:
-
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
-};
-
 class MainContentComponent final : public AudioAppComponent, public ChangeListener
 {
 public:
@@ -42,7 +34,6 @@ public:
 
 private:
 
-    DspTestBenchLnF dspTestBenchLnF;
     OpenGLContext oglContext;
     AudioDeviceManager* customDeviceManager;
 
