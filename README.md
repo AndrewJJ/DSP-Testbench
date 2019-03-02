@@ -1,2 +1,3 @@
-# DSP-testbench
+# DSP Testbench
 A testbench for DSP routines for users of the [JUCE framework](https://juce.com)
+
