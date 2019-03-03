@@ -32,10 +32,13 @@ public:
 
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
+    void triggerHoldMode();
+    void resumeStreaming();
+
 private:
 
+    ThreadPool threadPool;
     OpenGLContext oglContext;
-    AudioDeviceManager* customDeviceManager;
 
     ScopedPointer<SourceComponent> srcComponentA;
     ScopedPointer<SourceComponent> srcComponentB;
@@ -43,6 +46,10 @@ private:
     ScopedPointer<ProcessorComponent> procComponentB{};
     ScopedPointer<AnalyserComponent> analyserComponent{};
     ScopedPointer<MonitoringComponent> monitoringComponent{};
+
+    Atomic<bool> holdAudio;
+    Atomic<long> sampleCounter;
+    Atomic<long> holdSize;
 
     HeapBlock<char> srcBufferMemoryA{}, srcBufferMemoryB{}, tempBufferMemory{};
     dsp::AudioBlock<float> srcBufferA, srcBufferB, tempBuffer;

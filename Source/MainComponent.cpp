@@ -12,15 +12,16 @@
 #include "Main.h"
 
 MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
-    : AudioAppComponent (deviceManager),
-      customDeviceManager (&deviceManager)
+    : AudioAppComponent (deviceManager)
 {
+    holdAudio.set (false);
+
     addAndMakeVisible (srcComponentA = new SourceComponent ("A", &deviceManager));
     addAndMakeVisible (srcComponentB = new SourceComponent ("B", &deviceManager));
     addAndMakeVisible (procComponentA = new ProcessorComponent ("A", 3));
     addAndMakeVisible (procComponentB = new ProcessorComponent ("B", 3));
     addAndMakeVisible (analyserComponent = new AnalyserComponent());
-    addAndMakeVisible (monitoringComponent = new MonitoringComponent(customDeviceManager));
+    addAndMakeVisible (monitoringComponent = new MonitoringComponent(&deviceManager));
 
     srcComponentA->setOtherSource (srcComponentB);
     srcComponentB->setOtherSource (srcComponentA);
@@ -31,7 +32,7 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
     oglContext.attachTo (*this);
 
     // Listen for changes to audio device so we can save the state
-    customDeviceManager->addChangeListener(this);
+    deviceManager.addChangeListener(this);
 
     // Read saved audio device state from user settings
     std::unique_ptr<XmlElement> savedAudioDeviceState (DSPTestbenchApplication::getApp().appProperties.getUserSettings()->getXmlValue("AudioDeviceState"));
@@ -50,6 +51,11 @@ MainContentComponent::~MainContentComponent()  // NOLINT
 }
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
+    sampleCounter.set(0);
+    //holdSize.set (jmax (samplesPerBlockExpected - 1, (1 << 12) - samplesPerBlockExpected));
+    //TODO: try just one block
+    holdSize.set (samplesPerBlockExpected - 1);
+
     const auto currentDevice = deviceManager.getCurrentAudioDevice();
 	const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
     const auto numOutputChannels = static_cast<uint32> (currentDevice->getActiveOutputChannels().countNumberOfSetBits());
@@ -118,6 +124,16 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
         outputBlock.clear();
     else
         monitoringComponent->process (dsp::ProcessContextReplacing<float> (outputBlock));
+
+    if (holdAudio.get())
+    {
+        sampleCounter.set (sampleCounter.get() + bufferToFill.numSamples);
+        if (sampleCounter.get() > holdSize.get())
+        {
+            // Close audio device from another thread
+            threadPool.addJob([this] { deviceManager.closeAudioDevice(); });
+        }
+    }
 }
 void MainContentComponent::releaseResources()
 {
@@ -201,6 +217,32 @@ void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
         DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
     }
 }
+void MainContentComponent::triggerHoldMode ()
+{
+    deviceManager.closeAudioDevice();
+    
+    // Reset components to ensure consistent behaviour for hold function
+    // TODO: this doesn't work!
+    srcComponentA->reset();
+    srcComponentB->reset();
+    procComponentA->reset();
+    procComponentB->reset();
+    analyserComponent->reset();
+    monitoringComponent->reset();
+
+    // Set a flag & sample counter so we can stop the device again once a certain number of samples have been processed        
+    holdAudio.set (true);
+    sampleCounter.set (0);
+
+    // Note that restarting the audio device will cause prepare to be called
+    deviceManager.restartLastAudioDevice();
+}
+void MainContentComponent::resumeStreaming()
+{
+    holdAudio.set (false);
+    deviceManager.restartLastAudioDevice();
+}
+
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
     if (processor->isProcessorEnabled())

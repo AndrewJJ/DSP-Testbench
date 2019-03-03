@@ -12,6 +12,7 @@
 
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MainComponent.h"
 
 //Component* createMainContentComponent();
 class DspTestBenchLnF : public LookAndFeel_V4
@@ -45,11 +46,12 @@ public:
     class DspTestBenchMenuComponent : public Component
     {
     public:
-        DspTestBenchMenuComponent();
+        DspTestBenchMenuComponent (MainContentComponent* mainContentComponent);
         void paint (Graphics& g) override;
         void resized() override;
 
     private:
+        MainContentComponent* mainContentComponent;
         ScopedPointer<Label> lblTitle;
         ScopedPointer<Button> btnClose;
         ScopedPointer<Button> btnMinimise;
@@ -58,9 +60,6 @@ public:
         ScopedPointer<TextButton> btnHold;
         ScopedPointer<TextButton> btnResume;
         ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
-
-        bool holdAudio = false;
-        long sampleHoldIndex = 0;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
     };
@@ -95,7 +94,7 @@ public:
            subclass also calls the superclass's method.
         */
 
-        private:
+    private:
         AudioDeviceManager deviceManager;
         ScopedPointer<DummyMenuBarModel> dummyMenuBarModel;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)

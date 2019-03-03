@@ -93,7 +93,8 @@ void DSPTestbenchApplication::anotherInstanceStarted (const String&)
     // the other instance's command-line arguments were.
 }
 
-DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent ()
+DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* mainContentComponent_)
+    : mainContentComponent (mainContentComponent_)
 {
     addAndMakeVisible (lblTitle = new Label());
     lblTitle->setText(getApp().getApplicationName(), dontSendNotification);
@@ -123,16 +124,12 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent ()
     // TODO: picture button for hold
     addAndMakeVisible (btnHold = new TextButton("Hold"));
     btnHold->setTooltip("Send audio test signals for a short while, then hold the result for analysis");
+    btnHold->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    btnHold->setClickingTogglesState(true);
     btnHold->onClick = [this]
     {
-        AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
-        deviceMgr->closeAudioDevice();
-        // Restarting the audio device will cause prepare to be called again on all sources, so this is where we ensure we start from known & desired state
-        deviceMgr->restartLastAudioDevice();
-        // TODO: set a flag & sample counter so we can stop the device again once a certain number of samples have been processed        
-        holdAudio = true;
-        sampleHoldIndex = 0; // TODO: get current sample index then add the length we need to hold
-        // TODO: implement button state & logic with visual feedback
+        if (btnHold->getToggleState())
+            mainContentComponent->triggerHoldMode();
     };
 
     // TODO: picture button for resume
@@ -140,10 +137,8 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent ()
     btnResume->setTooltip("Resume normal audio streaming");
     btnResume->onClick = [this]
     {
-        AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
-        deviceMgr->restartLastAudioDevice();
-        holdAudio = false;
-        // TODO: implement button state & logic with visual feedback
+        mainContentComponent->resumeStreaming();
+        btnHold->setToggleState (false, sendNotificationSync);
     };
 
     // TODO: picture button for audio settings
@@ -222,6 +217,7 @@ Component& DSPTestbenchApplication::getMainComponent()
     jassert (comp != nullptr);
     return *comp;
 }
+
 DSPTestbenchApplication::MainWindow::MainWindow (String name)
     : DocumentWindow (name,
                       Desktop::getInstance().getDefaultLookAndFeel().findColour (ResizableWindow::backgroundColourId),
@@ -229,12 +225,13 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
 {
     setUsingNativeTitleBar (false);
     setTitleBarHeight (0);
-    setContentOwned (new MainContentComponent(deviceManager), true);
+    MainContentComponent* mainContentComponent;
+    setContentOwned (mainContentComponent = new MainContentComponent(deviceManager), true);
     setResizable (true, false);
     setResizeLimits(992, 768, 10000, 10000);
     // Need to dummy this up so we can change the menu component height
     setMenuBar(dummyMenuBarModel = new DummyMenuBarModel);
-    setMenuBarComponent (new DspTestBenchMenuComponent());
+    setMenuBarComponent (new DspTestBenchMenuComponent (mainContentComponent));
     
     centreWithSize (getWidth(), getHeight());
     Component::setVisible (true);    
