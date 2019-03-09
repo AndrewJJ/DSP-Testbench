@@ -136,7 +136,6 @@
     <ClCompile Include="..\..\Source\AnalyserComponent.cpp" />
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp" />
     <ClCompile Include="..\..\Source\Oscilloscope.cpp" />
-    <ClCompile Include="..\..\Source\OscilloscopeProcessor.cpp" />
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp" />
     <ClCompile Include="..\..\Source\SimpleLevelMeterComponent.cpp" />
     <ClCompile Include="..\..\Source\SourceComponent.cpp" />

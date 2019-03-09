@@ -2271,7 +2271,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_opengl.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\OscilloscopeProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\FastApproximations.h">

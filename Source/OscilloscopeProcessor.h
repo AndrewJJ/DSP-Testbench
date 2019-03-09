@@ -14,7 +14,7 @@
 #include "AudioDataTransfer.h"
 
 /**
-	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow am oscilloscope
+	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow an oscilloscope
 	be plotted at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
 	is then used to make the processed data available for use on other threads.
 */
@@ -22,7 +22,7 @@ class OscilloscopeProcessor final : public FixedBlockProcessor
 {
 private:
 
-    static const int frame_size = 8192;
+    static const int frame_size = 4096;
 
 public:
 

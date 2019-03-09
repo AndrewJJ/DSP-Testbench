@@ -52,9 +52,9 @@ MainContentComponent::~MainContentComponent()  // NOLINT
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     sampleCounter.set(0);
-    //holdSize.set (jmax (samplesPerBlockExpected - 1, (1 << 12) - samplesPerBlockExpected));
-    //TODO: try just one block
-    holdSize.set (samplesPerBlockExpected - 1);
+    // Oscilloscope and FftScope use 4096 sample frames
+    // If we want to have a bigger scope buffer then we would need to devise a fancier hold mechanism inside the AnalyserComponent
+    holdSize.set (4096);
 
     const auto currentDevice = deviceManager.getCurrentAudioDevice();
 	const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
@@ -84,7 +84,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     jassert (bufferToFill.numSamples <= srcBufferB.getNumSamples());
     jassert (bufferToFill.numSamples <= tempBuffer.getNumSamples());
 
-    dsp::AudioBlock<float> outputBlock (*bufferToFill.buffer, (size_t) bufferToFill.startSample);
+    dsp::AudioBlock<float> outputBlock (*bufferToFill.buffer, static_cast<size_t>(bufferToFill.startSample));
     
     // Copy current block into source buffers if needed
     if (srcComponentA->getMode() == SourceComponent::Mode::AudioIn)
@@ -131,7 +131,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
         if (sampleCounter.get() > holdSize.get())
         {
             // Close audio device from another thread
-            threadPool.addJob([this] { deviceManager.closeAudioDevice(); });
+            threadPool.addJob ([this] { deviceManager.closeAudioDevice(); });
         }
     }
 }
@@ -222,7 +222,6 @@ void MainContentComponent::triggerHoldMode ()
     deviceManager.closeAudioDevice();
     
     // Reset components to ensure consistent behaviour for hold function
-    // TODO: this doesn't work!
     srcComponentA->reset();
     srcComponentB->reset();
     procComponentA->reset();
