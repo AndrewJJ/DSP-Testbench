@@ -43,14 +43,21 @@ Oscilloscope::Oscilloscope ()
 
     addMouseListener (this, true);
     foreground.setMouseCursor (MouseCursor::CrosshairCursor);
+
+    dataFrameReady.set(false);
+    startTimer (5);
 }
 Oscilloscope::~Oscilloscope ()
 {
-    if (oscProcessor != nullptr)
-        oscProcessor->removeListener (this);
+    // Remove listener callbacks so we don't leave anything hanging if we pop up an Oscilloscope then remove it
+    if (removeListenerCallback)
+        removeListenerCallback();
 }
 void Oscilloscope::paint (Graphics&)
-{ }
+{
+    for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
+        oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
+}
 void Oscilloscope::resized ()
 {
     calculateRatios();
@@ -68,26 +75,27 @@ void Oscilloscope::mouseExit (const MouseEvent&)
     currentX = -1;
     currentY = -1;
 }
+void Oscilloscope::timerCallback()
+{
+    // Only repaint if a new data frame is ready
+    if (dataFrameReady.get())
+    {
+        repaint();
+        dataFrameReady.set (false);
+    }
+}
 void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr)
 {
     jassert (oscProcessorPtr != nullptr);
     oscProcessor = oscProcessorPtr;
     if (maxXSamples == 0)
         maxXSamples = oscProcessor->getMaximumBlockSize();
+
     prepare();
-    oscProcessor->addListener (this);
-}
-void Oscilloscope::audioProbeUpdated (AudioProbe<OscilloscopeProcessor::OscilloscopeFrame>* audioProbe)
-{
-    if (oscProcessor->ownsProbe (audioProbe))
-    {
-        // As the frame size for the oscProcessor is set to 8192, updates arrive at ~5 Hz for a sample rate of 44.1 KHz,
-        // hence there is no point using timers to repaint at say 50 Hz.
-        repaint();
-        const ScopedLock copyLock (criticalSection);
-        for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
-            oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
-    }
+
+    // As the frame size for the oscProcessor is set to 4096, updates arrive at ~11 Hz for a sample rate of 44.1 KHz.
+    // Instead of repainting with a fixed timer we'll make a callback whenever a new data frame is delivered.
+    removeListenerCallback = oscProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
 }
 void Oscilloscope::prepare()
 {

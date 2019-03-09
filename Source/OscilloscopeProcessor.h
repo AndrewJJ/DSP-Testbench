@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
 #include "AudioDataTransfer.h"
 
 /**
@@ -21,74 +20,60 @@
 class OscilloscopeProcessor final : public FixedBlockProcessor
 {
 private:
-
     static const int frame_size = 4096;
 
 public:
-
     struct OscilloscopeFrame final
     {
 	    alignas(16) float f[frame_size];
     };
 
-    explicit OscilloscopeProcessor()
-        :   FixedBlockProcessor (frame_size)
-    { }
-
+    explicit OscilloscopeProcessor();
     ~OscilloscopeProcessor() = default;
 
-    void prepare (const dsp::ProcessSpec& spec) override
-    {
-        FixedBlockProcessor::prepare (spec);
-
-        audioProbes.clear();
-
-        // Add probes for each channel to transfer audio data to the GUI
-        for (auto ch = 0; ch < static_cast<int> (spec.numChannels); ++ch)
-            audioProbes.add(new AudioProbe<OscilloscopeFrame>());
-
-        // But add listeners to the last channel only (prevents excessive paint calls)
-        const auto lastChannel = static_cast<int>(spec.numChannels) - 1;
-        for (auto i = 0; i < listeners.size(); ++i)
-            audioProbes[lastChannel]->addListener(listeners.getListeners()[i]);
-    }
-
-    void performProcessing (const int channel) override
-    {
-        audioProbes[channel]->writeFrame (reinterpret_cast<const OscilloscopeFrame*>(buffer.getReadPointer(channel)));
-    }
-    
-    void addListener (typename AudioProbe<OscilloscopeFrame>::Listener* listener)
-    {
-        listeners.add(listener);
-    }
-    
-    void removeListener (typename AudioProbe<OscilloscopeFrame>::Listener* listener)
-    {
-        listeners.remove(listener);
-    }
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void performProcessing (const int channel) override;
 
     /** Copy frame of audio data */
-    void copyFrame (float* dest, const int channel) const
-    {
-        audioProbes[channel]->copyFrame(reinterpret_cast<OscilloscopeFrame*>(dest));
-    }
-
-    /** Returns true if the referenced probe is owned by this object */
-    bool ownsProbe (AudioProbe<OscilloscopeFrame>* audioProbe) const
-    {
-        auto owned = false;
-        for (auto p : audioProbes)
-            if (audioProbe == p)
-            {
-                owned = true;
-                break;
-            }        
-        return owned;
-    }
+    void copyFrame (float* dest, const int channel) const;
 
 private:
+    OwnedArray <AudioProbe <OscilloscopeFrame>> audioProbes;
 
-    OwnedArray <AudioProbe <OscilloscopeFrame>> audioProbes;;
-    ListenerList<typename AudioProbe<OscilloscopeFrame>::Listener> listeners;
+public:
+    // Declare non-copyable, non-movable
+    OscilloscopeProcessor (const OscilloscopeProcessor&) = delete;
+    OscilloscopeProcessor& operator= (const OscilloscopeProcessor&) = delete;
+    OscilloscopeProcessor (OscilloscopeProcessor&& other) = delete;
+    OscilloscopeProcessor& operator=(OscilloscopeProcessor&& other) = delete;
 };
+
+
+// ===========================================================================================
+//  Implementation
+// ===========================================================================================
+
+inline OscilloscopeProcessor::OscilloscopeProcessor (): FixedBlockProcessor(frame_size)
+{
+}
+
+inline void OscilloscopeProcessor::prepare (const dsp::ProcessSpec& spec)
+{
+    FixedBlockProcessor::prepare(spec);
+
+    audioProbes.clear();
+
+    // Add probes for each channel to transfer audio data to the GUI
+    for (auto ch = 0; ch < static_cast<int>(spec.numChannels); ++ch)
+        audioProbes.add(new AudioProbe<OscilloscopeFrame>());
+}
+
+inline void OscilloscopeProcessor::performProcessing (const int channel)
+{
+    audioProbes[channel]->writeFrame(reinterpret_cast<const OscilloscopeFrame*>(buffer.getReadPointer(channel)));
+}
+
+inline void OscilloscopeProcessor::copyFrame (float* dest, const int channel) const
+{
+    audioProbes[channel]->copyFrame(reinterpret_cast<OscilloscopeFrame*>(dest));
+}

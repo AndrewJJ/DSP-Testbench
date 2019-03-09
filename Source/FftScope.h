@@ -14,7 +14,7 @@
 #include "FastApproximations.h"
 
 template <int Order>
-class FftScope final : public Component, public AudioProbe <typename FftProcessor<Order>::FftFrame>::Listener
+class FftScope final : public Component, public Timer
 {
 public:
 
@@ -32,9 +32,9 @@ public:
     void resized() override;
     void mouseMove(const MouseEvent& event) override;
     void mouseExit(const MouseEvent& event) override;
+    void timerCallback() override;
 
     void assignFftMult (FftProcessor<Order>* fftMultPtr);
-    void audioProbeUpdated (AudioProbe<typename FftProcessor<Order>::FftFrame>* audioProbe) override;
     void prepare (const dsp::ProcessSpec& spec);
 
     // Set minimum dB value for y-axis (defaults to -80dB otherwise)
@@ -110,7 +110,9 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::Maximum;
-    
+    RemoveListenerCallback removeListenerCallback;
+    Atomic<bool> dataFrameReady;
+
     // Candidate frequencies for drawing the grid on the background
     Array<float> gridFrequencies = { 20.0f, 50.0f, 125.0f, 250.0f, 500.0f, 1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f, 32000.0f, 64000.0f };
 
@@ -160,13 +162,17 @@ FftScope<Order>::FftScope ()
 
     addMouseListener (this, true);
     foreground.setMouseCursor (MouseCursor::CrosshairCursor);
+
+    dataFrameReady.set(false);
+    startTimer (5);
 }
 
 template <int Order>
 FftScope<Order>::~FftScope ()
 {
-    if (fftProcessor != nullptr)
-        fftProcessor->removeListener (this);
+    // Remove listener callbacks so we don't leave anything hanging if we pop up an FftScope then remove it
+    if (removeListenerCallback)
+        removeListenerCallback();
 }
 
 template <int Order>
@@ -196,22 +202,25 @@ void FftScope<Order>::mouseExit (const MouseEvent&)
     currentY = -1;
 }
 
+template<int Order>
+inline void FftScope<Order>::timerCallback()
+{
+    // Only repaint if a new data frame is ready
+    if (dataFrameReady.get())
+    {
+        repaint();
+        dataFrameReady.set (false);
+    }
+}
+
 template <int Order>
 void FftScope<Order>::assignFftMult (FftProcessor<Order>* fftMultPtr)
 {
     jassert (fftMultPtr != nullptr);
     fftProcessor = fftMultPtr;
-    fftProcessor->addListener (this);
+    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set(true); });
     x.allocate (fftProcessor->getMaximumBlockSize(), true);
     y.allocate (fftProcessor->getMaximumBlockSize(), true);
-
-}
-
-template <int Order>
-void FftScope<Order>::audioProbeUpdated (AudioProbe<typename FftProcessor<Order>::FftFrame>* audioProbe)
-{
-    if (fftProcessor->ownsProbe (audioProbe))
-        repaint();
 }
 
 template <int Order>

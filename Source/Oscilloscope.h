@@ -12,7 +12,7 @@
 
 #include "OscilloscopeProcessor.h"
 
-class Oscilloscope final : public Component, public AudioProbe <OscilloscopeProcessor::OscilloscopeFrame>::Listener
+class Oscilloscope final : public Component, public Timer
 {
 public:
 
@@ -31,9 +31,9 @@ public:
     void resized() override;
     void mouseMove(const MouseEvent& event) override;
     void mouseExit(const MouseEvent& event) override;
+    void timerCallback() override;
 
     void assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr);
-    void audioProbeUpdated (AudioProbe<OscilloscopeProcessor::OscilloscopeFrame>* audioProbe) override;
     void prepare();
 
     // Set maximum amplitude scale for y-axis (defaults to 1.0 otherwise)
@@ -105,6 +105,8 @@ private:
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
+    RemoveListenerCallback removeListenerCallback;
+    Atomic<bool> dataFrameReady;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscilloscope);
 };

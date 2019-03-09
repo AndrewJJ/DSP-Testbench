@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <list>
 
 /*  
 	This file contains utility classes designed for data transfer applications involving real time audio.
@@ -48,6 +49,12 @@
 
 */
 
+
+/** These definitions improve readability for our lambda-based listener/callback implementation. */
+using ListenerCallback = std::function<void()>;
+using RemoveListenerCallback = std::function<void()>;
+
+
 /**
 *   This class is designed to be used by a real time audio process which needs to safely and asynchronously transfer non-POD data to one or many 
 *	observers. A series of objects of the templated type are written to a lock-free queue for later reading by the observers. This pattern
@@ -74,21 +81,6 @@ class AudioProbe
 {
 public:
 
-	/** AudioProbe::Listener class - inherit from this in order to be able to register as a listener. Objects
-    *   inheriting from this should add themselves as a listener by calling addListener() on the parent AudioProbe<> object.
-	*	Similarly, the listener should remove itself by calling removeListener() on the parent (typically done during destruction). */
-	class Listener
-	{
-	public:
-
-        /** Default destructor */
-	    virtual ~Listener () = default;
-
-	    /** Callback for whenever an AudioProbe is updated. This callback should never attempt to remove a listener
-		*	(bailout checking not implemented). */
-		virtual void audioProbeUpdated (AudioProbe *const audioProbeThatUpdated) = 0;
-	};
-
     /* Constructor. Optionally specify the length of the queue. */
 	explicit AudioProbe(const int queueLengthInFrames = 3	/**< Number of frames in queue. Higher values have lower risk of data tearing. */)
         : numFramesInQueue (queueLengthInFrames),
@@ -102,15 +94,12 @@ public:
 		writeQueue[readIndex] = FrameType ();
     }
 
-    /* Destructor. */
-    ~AudioProbe()
-	{
-		// Naturally, the AudioProcessor shouldn't keep trying to write to this object once it has been destroyed! If it attempts to, then behaviour
-		// is undefined.
-			
-		// For audio plugins, we shouldn't need to worry about delayed reads from listeners arriving during destruction because the AudioProcessorEditor
-		// should always be destroyed before it's parent AudioProcessor
-	}
+    /* 
+     * Naturally, the AudioProcessor shouldn't keep trying to write to this object once it has been destroyed! If it attempts to, then behaviour
+     * is undefined. For audio plugins, we shouldn't need to worry about delayed reads from listeners arriving during destruction because the
+     * AudioProcessorEditor should always be destroyed before it's parent AudioProcessor.
+     */
+    ~AudioProbe() = default;
 
     /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer(). */
     void writeFrame (const FrameType* source)
@@ -130,28 +119,22 @@ public:
         std::memcpy (destination, &writeQueue[readIndex], frameSize);
     }
 
-	/*	Indicates whether the probe has any listeners.
+	/** Allows a listener to add a lambda function as a callback.
+     *  Returns a function which allows the listener to de-register it's callback.
+     */
+    std::function<void()> addListenerCallback(ListenerCallback &&listenerCallback)
+    {
+        auto thisListener = listenerCallbacks.emplace (listenerCallbacks.begin(), listenerCallback);
+        return [this, thisListener]() { listenerCallbacks.erase (thisListener); };
+    }
+
+	/**	Indicates whether the probe has any listeners.
 	*	In the case where all observers are listeners, this can be used by the sender to choose whether to suspend non-essential processing
 	*	(e.g. don't bother computing an FFT for a GUI if there are no GUIs attached). This is of no use if the observers call copyFrame() 
 	*	of their own volition (e.g. during a timerCallback). */
-	inline bool hasListeners () const
+	inline bool hasListeners() const
 	{
-		return listeners.size() > 0;
-	}
-
-	/** Adds a listener to the list. A listener can only be added once, so if the listener is already in the list,
-	*	this method has no effect. */
-	void addListener(Listener *const listener			/*<< Listener to add. */)
-	{
-		listeners.add(listener);
-	}
-
-	/** Removes a listener from the list. If the listener wasn't in the list, this has no effect.
-	*	If this call is causing errors when called from a destructor then you probably haven't checked to make sure your
-	*	AudioProbe* is not already a nullptr. */
-	void removeListener(Listener *const listener		/*<< Listener to remove. */)
-	{
-		listeners.remove(listener);
+		return !listenerCallbacks.empty();
 	}
 
 private:
@@ -164,24 +147,19 @@ private:
         writeIndex++;
         if (writeIndex == numFramesInQueue)
             writeIndex = 0;
-		if (hasListeners())
-		{
-			// Post callback on message thread to notify listeners
-			auto notifyListeners = [this] { this->notifyAllListeners(); };
-			juce::MessageManager::callAsync(notifyListeners);
-		}
+        
+        // Perform registered callbacks
+        for (auto &&callback : listenerCallbacks)
+        {
+            if (callback)
+                callback();
+        }
     }
-
-    /** Iterates through all listeners, calling AsyncProbeUpdated(). */
-	void notifyAllListeners ()
-	{
-		listeners.call (&Listener::audioProbeUpdated, this);
-	}
 
     const int numFramesInQueue; // In units of frame size
     int writeIndex, readIndex;  // In units of frame size
     int frameSize;              // In bytes
-	ListenerList <Listener> listeners;
+    std::list<ListenerCallback> listenerCallbacks{};
 	HeapBlock <FrameType> writeQueue;
 
 public:
@@ -287,6 +265,7 @@ public:
                 const auto rem = currentBlockSize - currentIndex[channel];
                 buffer.copyFrom (channel, currentIndex[channel], data, rem);
                 performProcessing (channel);
+                callAllListeners (channel);
                 currentIndex[channel] = 0;
                 samplesRemaining -= rem;
                 dataOffset += rem;
@@ -296,6 +275,7 @@ public:
                 {
                     buffer.copyFrom (channel, currentIndex[channel], data + dataOffset, currentBlockSize);
                     performProcessing (channel);
+                    callAllListeners (channel);
                     samplesRemaining -= currentBlockSize;
                     dataOffset += currentBlockSize;
                 }
@@ -313,6 +293,24 @@ public:
 	/** Abstract function which is called whenever the fixed size buffer has been filled. */
 	virtual void performProcessing (const int channel	/**< Channel for which processing is to be performed */ ) = 0;
 
+	/** Allows a listener to add a lambda function as a callback.
+     *  Returns a function which allows the listener to de-register it's callback.
+     */
+    std::function<void()> addListenerCallback (ListenerCallback &&listenerCallback)
+    {
+        auto thisListener = listenerCallbacks.emplace (listenerCallbacks.begin(), listenerCallback);
+        return [this, thisListener]() { listenerCallbacks.erase (thisListener); };
+    }
+
+    /**
+     * Use this to set whether you want listeners to be called back each time a channel is processed.
+     * The class defaults to only calling after the last channel is processed.
+     */
+    void setCallListenersOnLastChannelOnly (const bool shouldOnlyCallListenersOnLastChannel)
+    {
+        callListenersOnLastChannelOnly = shouldOnlyCallListenersOnLastChannel;
+    }
+    
 protected:
 
 	/** Internal buffer */
@@ -322,6 +320,20 @@ protected:
     HeapBlock<int> currentIndex { };
 
 private:
+
+    /** Each time performProcessing() is called in this implementation, this should be called immediately after. */
+    void callAllListeners (const int channel) const
+    {
+        if (channel == numChannels - 1 || !callListenersOnLastChannelOnly)
+        {
+            // Perform registered callbacks
+            for (auto &&callback : listenerCallbacks)
+            {
+                if (callback)
+                    callback();
+            }
+        }
+    }
 
 	/** Resizes buffer - this always allocates sufficient memory to hold the maximum block size. */
     void resizeBuffer()
@@ -333,6 +345,8 @@ private:
 	int numChannels = 0;
     int maxBlockSize = 0;
 	int currentBlockSize = 0;
+    bool callListenersOnLastChannelOnly = true;
+    std::list<ListenerCallback> listenerCallbacks{};
 
 public:
     // Declare non-copyable, non-movable

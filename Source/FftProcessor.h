@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
 #include "AudioDataTransfer.h"
 
 /**
@@ -26,7 +25,7 @@ public:
 	// This FftFrame is necessary for us to use the AudioProbe class and is why this class (& therefore FftScope) is templated.
     struct FftFrame final
     {
-		alignas(16) float f[1 << Order];
+		alignas(16) float f [1 << Order];
 	};
 
     explicit FftProcessor();
@@ -35,9 +34,6 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void performProcessing (const int channel) override;
     
-    void addListener (typename AudioProbe<FftFrame>::Listener* listener);
-    void removeListener (typename AudioProbe<FftFrame>::Listener* listener);
-
     /** Copy frame of FFT frequency data */
     void copyFrequencyFrame (float* dest, const int channel) const;
 
@@ -46,9 +42,6 @@ public:
 
     /** Call this to choose a different windowing method (class is initialised with Hann) */
     void setWindowingMethod (dsp::WindowingFunction<float>::WindowingMethod);
-
-    /** Returns true if the referenced probe is owned by this object */
-    bool ownsProbe (AudioProbe<FftFrame>* audioProbe) const;
 
 private:
 
@@ -60,17 +53,15 @@ private:
 
     OwnedArray <AudioProbe <FftFrame>> freqProbes;;
     OwnedArray <AudioProbe <FftFrame>> phaseProbes;
-
-    ListenerList<typename AudioProbe<FftFrame>::Listener> listeners;
 };
 
 
 // ===========================================================================================
-// Template implementations
+//  Template implementations
 // ===========================================================================================
 
 template <int Order>
-FftProcessor<Order>::FftProcessor (): FixedBlockProcessor (1 << Order),
+FftProcessor<Order>::FftProcessor(): FixedBlockProcessor (1 << Order),
                                       fft (Order),
                                       size (1 << Order)
 {
@@ -93,14 +84,6 @@ void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
     {
         freqProbes.add(new AudioProbe<FftFrame>());
         phaseProbes.add (new AudioProbe<FftFrame>());
-    }
-
-    // But add listeners to the last channel only (prevents excessive paint calls)
-    const auto lastChannel = static_cast<int>(spec.numChannels) - 1;
-    for (auto i = 0; i < listeners.size(); ++i)
-    {
-        freqProbes[lastChannel]->addListener(listeners.getListeners()[i]);
-        phaseProbes[lastChannel]->addListener (listeners.getListeners()[i]);
     }
 }
 
@@ -138,38 +121,4 @@ void FftProcessor<Order>::setWindowingMethod (dsp::WindowingFunction<float>::Win
         windowIntegral += window.getWritePointer(0)[i];
 
     amplitudeCorrectionFactor = 2.0f / windowIntegral;
-}
-
-template <int Order>
-void FftProcessor<Order>::addListener (typename AudioProbe<FftFrame>::Listener* listener)
-{
-    listeners.add(listener);
-}
-
-template <int Order>
-void FftProcessor<Order>::removeListener (typename AudioProbe<FftFrame>::Listener* listener)
-{
-    listeners.remove(listener);
-}
-
-template <int Order>
-bool FftProcessor<Order>::ownsProbe (AudioProbe<FftFrame>* audioProbe) const
-{
-    auto owned = false;
-    for (auto p : freqProbes)
-        if (audioProbe == p)
-        {
-            owned = true;
-            break;
-        }
-    if (!owned)
-    {
-        for (auto p : phaseProbes)
-            if (audioProbe == p)
-            {
-                owned = true;
-                break;
-            }
-    }
-    return owned;
 }
