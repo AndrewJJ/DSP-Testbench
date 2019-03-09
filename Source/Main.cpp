@@ -126,13 +126,13 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     };
 
     // TODO: picture button for hold
-    addAndMakeVisible (btnHold = new TextButton("Hold"));
-    btnHold->setTooltip("Send audio test signals for a short while, then hold the result for analysis");
-    btnHold->setColour (TextButton::buttonOnColourId, Colours::darkred);
-    btnHold->setClickingTogglesState(true);
-    btnHold->onClick = [this]
+    addAndMakeVisible (btnOneShot = new TextButton("One Shot"));
+    btnOneShot->setTooltip("Restart audio briefly, then hold the result for analysis");
+    btnOneShot->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    btnOneShot->setClickingTogglesState(true);
+    btnOneShot->onClick = [this]
     {
-        if (btnHold->getToggleState())
+        if (btnOneShot->getToggleState())
             mainContentComponent->triggerHoldMode();
     };
 
@@ -142,7 +142,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     btnResume->onClick = [this]
     {
         mainContentComponent->resumeStreaming();
-        btnHold->setToggleState (false, sendNotificationSync);
+        btnOneShot->setToggleState (false, sendNotificationSync);
     };
 
     // TODO: picture button for audio settings
@@ -164,7 +164,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
 {
     using Track = Grid::TrackInfo;
     const auto margin = 2;
-    const auto holdButtonSize = GUI_SIZE_PX (1.9);
+    const auto oneShotButtonSize = GUI_SIZE_PX (2.7);
     const auto resumeButtonSize = GUI_SIZE_PX (2.4);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (3.6);
     const auto windowButtonSize = GUI_BASE_SIZE_PX;
@@ -174,12 +174,12 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
     Grid grid;
 
     grid.templateRows = { Track (1_fr) };
-    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (holdButtonSize), gap, Track (resumeButtonSize), gap, Track (audioDeviceBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
+    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (oneShotButtonSize), gap, Track (resumeButtonSize), gap, Track (audioDeviceBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
 
     grid.items.addArray({   
                             GridItem (lblTitle),
                             GridItem (), // expander
-                            GridItem (btnHold),
+                            GridItem (btnOneShot),
                             GridItem (), // gap
                             GridItem (btnResume),
                             GridItem (), // gap

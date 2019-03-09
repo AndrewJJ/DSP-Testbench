@@ -57,7 +57,7 @@ public:
         ScopedPointer<Button> btnMinimise;
         ScopedPointer<Button> btnMaximise;
         ScopedPointer<TextButton> btnAudioDevice;
-        ScopedPointer<TextButton> btnHold;
+        ScopedPointer<TextButton> btnOneShot;
         ScopedPointer<TextButton> btnResume;
         ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
 
