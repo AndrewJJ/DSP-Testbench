@@ -100,6 +100,10 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     lblTitle->setText(getApp().getApplicationName(), dontSendNotification);
     lblTitle->setColour(Label::ColourIds::textColourId, Colours::white);
     lblTitle->setFont(dynamic_cast<DspTestBenchLnF*> (&getLookAndFeel())->getTitleFont());
+
+    // Allow dragging of the window via the underlying functionality from ResizableWindow
+    this->setInterceptsMouseClicks (false, true);
+    lblTitle->setInterceptsMouseClicks (false, false);
     
     addAndMakeVisible (btnClose = getLookAndFeel().createDocumentWindowButton(4));
     btnClose->onClick = [this]
