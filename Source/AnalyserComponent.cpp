@@ -168,6 +168,11 @@ bool AnalyserComponent::isActive () const noexcept
     return statusActive.get();
 }
 
+int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
+{
+    return oscilloscope.getMaximumBlockSize();
+}
+
 AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserComponent* analyserToConfigure): analyserComponent(analyserToConfigure)
 {
     auto* fft = &analyserComponent->fftScope;
@@ -210,8 +215,9 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
     sldScopeScaleX.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
     sldScopeScaleX.setNumDecimalPlacesToDisplay (0);
     sldScopeScaleX.setPopupDisplayEnabled (true, true, this);
-    sldScopeScaleX.setTooltip ("Select range of samples from each 8192 sample frame for oscilloscope");
-    sldScopeScaleX.setRange (0.0, 8192.0, 128.0);
+    const auto xMax = analyserToConfigure->getOscilloscopeMaximumBlockSize();
+    sldScopeScaleX.setTooltip ("Select range of samples from each " + String(xMax) + " sample frame for oscilloscope");
+    sldScopeScaleX.setRange (0.0, static_cast<double> (xMax), 128.0);
     sldScopeScaleX.setMinAndMaxValues (osc->getXMin(), osc->getXMax(), dontSendNotification);
     addAndMakeVisible (sldScopeScaleX);
     sldScopeScaleX.onValueChange = [this, osc]

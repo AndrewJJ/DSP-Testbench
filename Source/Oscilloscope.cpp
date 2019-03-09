@@ -125,6 +125,10 @@ int Oscilloscope::getXMax () const
 {
     return maxXSamples;
 }
+int Oscilloscope::getMaximumBlockSize() const
+{
+    return oscProcessor->getMaximumBlockSize();
+}
 Oscilloscope::AggregationMethod Oscilloscope::getAggregationMethod () const
 {
     return aggregationMethod;

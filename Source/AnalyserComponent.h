@@ -42,6 +42,8 @@ public:
 
 private:
 
+    int getOscilloscopeMaximumBlockSize() const;
+
     class AnalyserConfigComponent : public Component
     {
     public:

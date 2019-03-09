@@ -49,6 +49,9 @@ public:
     void setXMax (const int maximumX);
     int getXMax() const;
 
+    // Get the maximum block size (as defined by the processor)
+    int getMaximumBlockSize() const;
+
     /** Get aggregation method for sub-pixel x values */
     AggregationMethod getAggregationMethod() const;
 
