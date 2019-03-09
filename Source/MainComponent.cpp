@@ -130,7 +130,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
         sampleCounter.set (sampleCounter.get() + bufferToFill.numSamples);
         if (sampleCounter.get() > holdSize.get())
         {
-            // Close audio device from another thread
+            // Close audio device from another thread (note that addJob isn't usually safe on the audio thread - but we're closing it anyway!)
             threadPool.addJob ([this] { deviceManager.closeAudioDevice(); });
         }
     }
