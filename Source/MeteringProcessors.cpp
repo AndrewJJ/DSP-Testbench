@@ -37,7 +37,7 @@ void SimplePeakMeterProcessor::prepare (const dsp::ProcessSpec& spec)
 
 	envelopeContinuation.allocate (numChannels, true);
     
-    const auto releaseTime = 0.650f * static_cast<float> (spec.sampleRate); // 650 msec in samples
+    const auto releaseTime = 0.300f * static_cast<float> (spec.sampleRate); // 300 msec in samples
     releaseTimeConstant =  1.0f - exp (-1.0f / releaseTime);
 }
 void SimplePeakMeterProcessor::process (const dsp::ProcessContextReplacing<float>& context)
