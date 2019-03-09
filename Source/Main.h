@@ -57,8 +57,7 @@ public:
         ScopedPointer<Button> btnMinimise;
         ScopedPointer<Button> btnMaximise;
         ScopedPointer<TextButton> btnAudioDevice;
-        ScopedPointer<TextButton> btnOneShot;
-        ScopedPointer<TextButton> btnResume;
+        ScopedPointer<TextButton> btnSnapshot;
         ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
