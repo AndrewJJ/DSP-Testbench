@@ -229,6 +229,9 @@ void MainContentComponent::triggerSnapshot ()
     analyserComponent->reset();
     monitoringComponent->reset();
 
+    // Ensure the analyser isn't paused
+    analyserComponent->activate();
+
     // Set a flag & sample counter so we can stop the device again once a certain number of samples have been processed        
     holdAudio.set (true);
     sampleCounter.set (0);

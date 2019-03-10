@@ -167,6 +167,11 @@ bool AnalyserComponent::isActive () const noexcept
 {
     return statusActive.get();
 }
+void AnalyserComponent::activate()
+{
+    statusActive.set (true);
+    btnPause->setToggleState(false, dontSendNotification);
+}
 
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {

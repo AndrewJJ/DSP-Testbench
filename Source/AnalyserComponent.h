@@ -34,6 +34,7 @@ public:
     void reset () override;
 
     bool isActive() const noexcept;
+    void activate();
 
     // TODO - build synch trigger functionality throughout the app (hosted in MainComponent::getNextAudioBlock()
     // TODO - add RMS & VU metering?
