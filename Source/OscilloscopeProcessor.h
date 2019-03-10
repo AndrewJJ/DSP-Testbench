@@ -37,6 +37,15 @@ public:
     /** Copy frame of audio data */
     void copyFrame (float* dest, const int channel) const;
 
+    /** Allows a listener to add a lambda function as a callback to the AudioProbe assigned to the last channel.
+     *  Listener callbacks are cleared each time prepare() is called on this class, so they must be added after this.
+     *  
+     *  Returns a function which allows the listener to de-register it's callback. The listener must remove any references
+     *  to de-register functions that have become invalid.
+     */
+    std::function<void ()> addListenerCallback (ListenerCallback&& listenerCallback) const;
+
+
 private:
     OwnedArray <AudioProbe <OscilloscopeFrame>> audioProbes;
 
@@ -76,4 +85,15 @@ inline void OscilloscopeProcessor::performProcessing (const int channel)
 inline void OscilloscopeProcessor::copyFrame (float* dest, const int channel) const
 {
     audioProbes[channel]->copyFrame(reinterpret_cast<OscilloscopeFrame*>(dest));
+}
+
+inline std::function<void ()> OscilloscopeProcessor::addListenerCallback (ListenerCallback&& listenerCallback) const
+{
+    // If this asserts then you're trying to add the listener before the AudioProbes are set up
+    jassert (getNumChannels()>0);
+
+    if (audioProbes.size() == getNumChannels() && audioProbes[getNumChannels() - 1])
+        return audioProbes[getNumChannels() - 1]->addListenerCallback(std::forward<ListenerCallback>(listenerCallback));
+
+    return {};
 }

@@ -60,7 +60,7 @@ void Oscilloscope::paint (Graphics&)
 }
 void Oscilloscope::resized ()
 {
-    calculateRatios();
+    preCalculateVariables();
     background.setBounds (getLocalBounds());
     foreground.setBounds (getLocalBounds());
 }
@@ -77,7 +77,7 @@ void Oscilloscope::mouseExit (const MouseEvent&)
 }
 void Oscilloscope::timerCallback()
 {
-    // Only repaint if a new data frame is ready
+    // Only repaint if a new data frame is ready (flag is set by a listener callback from the audio thread)
     if (dataFrameReady.get())
     {
         repaint();
@@ -90,23 +90,18 @@ void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr)
     oscProcessor = oscProcessorPtr;
     if (maxXSamples == 0)
         maxXSamples = oscProcessor->getMaximumBlockSize();
-
-    prepare();
-
-    // As the frame size for the oscProcessor is set to 4096, updates arrive at ~11 Hz for a sample rate of 44.1 KHz.
-    // Instead of repainting with a fixed timer we'll make a callback whenever a new data frame is delivered.
-    removeListenerCallback = oscProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
 }
 void Oscilloscope::prepare()
 {
     jassert (oscProcessor != nullptr); // oscProcessor should be assigned & prepared first
     buffer.setSize (oscProcessor->getNumChannels(), oscProcessor->getMaximumBlockSize());
-    calculateRatios();
+    preCalculateVariables();
+    removeListenerCallback = oscProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
 }
 void Oscilloscope::setMaxAmplitude(const float maximumAmplitude)
 {
     amplitudeMax = maximumAmplitude;
-    calculateRatios();
+    preCalculateVariables();
     background.repaint();
 }
 float Oscilloscope::getMaxAmplitude () const
@@ -116,7 +111,7 @@ float Oscilloscope::getMaxAmplitude () const
 void Oscilloscope::setXMin (const int minimumX)
 {
     minXSamples = minimumX;
-    calculateRatios();
+    preCalculateVariables();
     background.repaint();
 }
 int Oscilloscope::getXMin () const
@@ -126,7 +121,7 @@ int Oscilloscope::getXMin () const
 void Oscilloscope::setXMax (const int maximumX)
 {
     maxXSamples = maximumX;
-    calculateRatios();
+    preCalculateVariables();
     background.repaint();
 }
 int Oscilloscope::getXMax () const
@@ -347,7 +342,7 @@ Colour Oscilloscope::getColourForChannel (const int channel)
         default: return Colours::red;
     }
 }
-void Oscilloscope::calculateRatios()
+void Oscilloscope::preCalculateVariables()
 {
     maxXSamples = jmin (maxXSamples, oscProcessor->getMaximumBlockSize());
     xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXSamples - minXSamples);

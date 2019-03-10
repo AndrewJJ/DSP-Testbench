@@ -104,7 +104,7 @@ private:
     ScopedPointer<DrawableButton> btnExpand;
     std::unique_ptr<AnalyserConfigComponent> configComponent;
 
-    FftProcessor<12> fftMult;
+    FftProcessor<12> fftProcessor;
     FftScope<12> fftScope;
 
     OscilloscopeProcessor oscProcessor;

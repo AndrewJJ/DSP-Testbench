@@ -52,7 +52,7 @@ AnalyserComponent::AnalyserComponent()
     };
 
     addAndMakeVisible (fftScope);
-    fftScope.assignFftMult (&fftMult);
+    fftScope.assignFftMult (&fftProcessor);
     fftScope.setAggregationMethod(static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
 
     addAndMakeVisible (oscilloscope);
@@ -134,10 +134,10 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
     if (spec.numChannels > 0)
     {
-        fftMult.prepare (spec);
-        fftMult.prepare (spec);
+        fftProcessor.prepare (spec);
+        fftScope.prepare (spec); // Must be called after fftProcessor.prepare() so that the listeners are set up properly
         oscProcessor.prepare (spec);
-        oscilloscope.prepare();
+        oscilloscope.prepare(); // Must be called after oscProcessor.prepare() so that the listeners are set up properly
         peakMeterProcessor.prepare (spec);
         // If number of channels has changed, then re-initialise the meter bar components
         if (static_cast<int> (spec.numChannels) != numChannels)
@@ -169,7 +169,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         const auto chNum = static_cast<int> (ch);
         const auto numSamples = static_cast<int> (inputBlock->getNumSamples());
         const auto* audioData = inputBlock->getChannelPointer (ch);
-        fftMult.appendData (chNum, numSamples, audioData);
+        fftProcessor.appendData (chNum, numSamples, audioData);
         oscProcessor.appendData (chNum, numSamples, audioData);
         peakMeterProcessor.process (context);
     }

@@ -90,7 +90,7 @@ private:
 
     String hertzToString (const double frequencyInHz, const int numDecimals, const bool appendHz, const bool includeSpace) const;
     static Colour getColourForChannel (const int channel);
-    void initialise();
+    void preCalculateVariables();
 
     Background background;
     Foreground foreground;
@@ -116,7 +116,7 @@ private:
     // Candidate frequencies for drawing the grid on the background
     Array<float> gridFrequencies = { 20.0f, 50.0f, 125.0f, 250.0f, 500.0f, 1000.0f, 2000.0f, 4000.0f, 8000.0f, 16000.0f, 32000.0f, 64000.0f };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FftScope);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FftScope);
 };
 
 
@@ -182,7 +182,7 @@ void FftScope<Order>::paint (Graphics&)
 template <int Order>
 void FftScope<Order>::resized ()
 {
-    initialise();
+    preCalculateVariables();
     background.setBounds (getLocalBounds());
     foreground.setBounds (getLocalBounds());
 }
@@ -205,7 +205,7 @@ void FftScope<Order>::mouseExit (const MouseEvent&)
 template<int Order>
 inline void FftScope<Order>::timerCallback()
 {
-    // Only repaint if a new data frame is ready
+    // Only repaint if a new data frame is ready (flag is set by a listener callback from the audio thread)
     if (dataFrameReady.get())
     {
         repaint();
@@ -218,7 +218,6 @@ void FftScope<Order>::assignFftMult (FftProcessor<Order>* fftMultPtr)
 {
     jassert (fftMultPtr != nullptr);
     fftProcessor = fftMultPtr;
-    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set(true); });
     x.allocate (fftProcessor->getMaximumBlockSize(), true);
     y.allocate (fftProcessor->getMaximumBlockSize(), true);
 }
@@ -227,7 +226,8 @@ template <int Order>
 void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 {
     samplingFreq = spec.sampleRate;
-    initialise();
+    preCalculateVariables();
+    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set(true); });
 }
 
 template <int Order>
@@ -536,7 +536,7 @@ Colour FftScope<Order>::getColourForChannel (const int channel)
 }
 
 template <int Order>
-void FftScope<Order>::initialise()
+void FftScope<Order>::preCalculateVariables()
 {
     const auto nyquist = static_cast<float> (samplingFreq * 0.5);
     if (maxFreq == 0.0f)

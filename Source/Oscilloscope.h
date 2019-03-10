@@ -31,6 +31,9 @@ public:
     void resized() override;
     void mouseMove(const MouseEvent& event) override;
     void mouseExit(const MouseEvent& event) override;
+    
+    // As the frame size for the oscProcessor is set to 4096, updates arrive at ~11 Hz for a sample rate of 44.1 KHz.
+    // Instead of repainting on a fixed timer we poll an atomic flag set from the audio thread to see if there is fresh data.
     void timerCallback() override;
 
     void assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr);
@@ -87,7 +90,7 @@ private:
     inline float toPxFromTime (const int xInSamples) const;
 
     static Colour getColourForChannel (const int channel);
-    void calculateRatios();
+    void preCalculateVariables();
 
     Background background;
     Foreground foreground;

@@ -52,12 +52,13 @@
 
 /** These definitions improve readability for our lambda-based listener/callback implementation. */
 using ListenerCallback = std::function<void()>;
+// TODO: can we return a WeakReference for the following to make it safer (will need to add locks)
 using RemoveListenerCallback = std::function<void()>;
 
 
 /**
 *   This class is designed to be used by a real time audio process which needs to safely and asynchronously transfer non-POD data to one or many 
-*	observers. A series of objects of the templated type are written to a lock-free queue for later reading by the observers. This pattern
+*	observers. A series of objects of the template type are written to a lock-free queue for later reading by the observers. This pattern
 *	is useful for communication between an AudioProcessor and it's AudioProcessorEditor(s) because we can't guarantee how many editors exist
 *	at any point in time.
 *
@@ -69,7 +70,7 @@ using RemoveListenerCallback = std::function<void()>;
 *   for reading minimises the risk of data tearing. Tearing can only occur if the write method overwrites the read
 *   position during the non-atomic copy operation. Hence the risk is a function of the queue length.
 *  
-*   The FrameType used for the dataframe must be of fixed size at compile time. For example:
+*   The FrameType used for the data frame must be of fixed size at compile time. For example:
 *  
 *   struct SimpleDataFrame
 *	{
@@ -265,7 +266,6 @@ public:
                 const auto rem = currentBlockSize - currentIndex[channel];
                 buffer.copyFrom (channel, currentIndex[channel], data, rem);
                 performProcessing (channel);
-                callAllListeners (channel);
                 currentIndex[channel] = 0;
                 samplesRemaining -= rem;
                 dataOffset += rem;
@@ -275,7 +275,6 @@ public:
                 {
                     buffer.copyFrom (channel, currentIndex[channel], data + dataOffset, currentBlockSize);
                     performProcessing (channel);
-                    callAllListeners (channel);
                     samplesRemaining -= currentBlockSize;
                     dataOffset += currentBlockSize;
                 }
@@ -292,25 +291,7 @@ public:
 
 	/** Abstract function which is called whenever the fixed size buffer has been filled. */
 	virtual void performProcessing (const int channel	/**< Channel for which processing is to be performed */ ) = 0;
-
-	/** Allows a listener to add a lambda function as a callback.
-     *  Returns a function which allows the listener to de-register it's callback.
-     */
-    std::function<void()> addListenerCallback (ListenerCallback &&listenerCallback)
-    {
-        auto thisListener = listenerCallbacks.emplace (listenerCallbacks.begin(), listenerCallback);
-        return [this, thisListener]() { listenerCallbacks.erase (thisListener); };
-    }
-
-    /**
-     * Use this to set whether you want listeners to be called back each time a channel is processed.
-     * The class defaults to only calling after the last channel is processed.
-     */
-    void setCallListenersOnLastChannelOnly (const bool shouldOnlyCallListenersOnLastChannel)
-    {
-        callListenersOnLastChannelOnly = shouldOnlyCallListenersOnLastChannel;
-    }
-    
+   
 protected:
 
 	/** Internal buffer */
@@ -320,20 +301,6 @@ protected:
     HeapBlock<int> currentIndex { };
 
 private:
-
-    /** Each time performProcessing() is called in this implementation, this should be called immediately after. */
-    void callAllListeners (const int channel) const
-    {
-        if (channel == numChannels - 1 || !callListenersOnLastChannelOnly)
-        {
-            // Perform registered callbacks
-            for (auto &&callback : listenerCallbacks)
-            {
-                if (callback)
-                    callback();
-            }
-        }
-    }
 
 	/** Resizes buffer - this always allocates sufficient memory to hold the maximum block size. */
     void resizeBuffer()
@@ -345,8 +312,6 @@ private:
 	int numChannels = 0;
     int maxBlockSize = 0;
 	int currentBlockSize = 0;
-    bool callListenersOnLastChannelOnly = true;
-    std::list<ListenerCallback> listenerCallbacks{};
 
 public:
     // Declare non-copyable, non-movable
