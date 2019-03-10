@@ -41,9 +41,9 @@ SynthesisTab::SynthesisTab (String& sourceName)
     sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
     sldFrequency->setRange (10.0, nyquist, 1.0);
-    sldFrequency->setMinAndMaxValues (10.0, nyquist, dontSendNotification);
     sldFrequency->setSkewFactor (0.5);
     sldFrequency->addListener (this);
+    sldFrequency->setMinAndMaxValues (config->getDoubleAttribute ("SweepMin", 10.0), config->getDoubleAttribute ("SweepMax", nyquist), dontSendNotification);
     sldFrequency->setValue (config->getDoubleAttribute ("Frequency", 440.0), sendNotificationSync);
 
     addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
@@ -124,6 +124,8 @@ SynthesisTab::~SynthesisTab ()
     // Update configuration from class state
     config->setAttribute ("WaveForm", cmbWaveform->getSelectedId());
     config->setAttribute ("Frequency", sldFrequency->getValue());
+    config->setAttribute ("SweepMin", sldFrequency->getMinValue());
+    config->setAttribute ("SweepMax", sldFrequency->getMaxValue());
     config->setAttribute ("SweepDuration", sldSweepDuration->getValue());
     config->setAttribute ("SweepMode",cmbSweepMode->getSelectedId());
     config->setAttribute ("SweepEnabled", btnSweepEnabled->getToggleState());
@@ -223,7 +225,7 @@ void SynthesisTab::setOtherSource (SourceComponent* otherSourceComponent)
 }
 void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double freq,
                                            const double sweepStart, const double sweepEnd,
-                                           const double newSweepDuration, SweepMode sweepMode, const bool sweepEnabled)
+                                           const double newSweepDuration, const SweepMode sweepMode, const bool sweepEnabled)
 {
     cmbWaveform->setSelectedId (waveform, sendNotificationSync);
     sldFrequency->setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
