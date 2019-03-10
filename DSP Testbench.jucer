@@ -8,8 +8,6 @@
             file="Resources/audio_settings.svg"/>
       <FILE id="RqOm85" name="camera.svg" compile="0" resource="1" file="Resources/camera.svg"/>
       <FILE id="oxrZc5" name="configure.svg" compile="0" resource="1" file="Resources/configure.svg"/>
-      <FILE id="FkrauH" name="configure_small.svg" compile="0" resource="1"
-            file="Resources/configure_small.svg"/>
       <FILE id="BWpEYx" name="expand.svg" compile="0" resource="1" file="Resources/expand.svg"/>
       <FILE id="oN8B0r" name="mute.svg" compile="0" resource="1" file="Resources/mute.svg"/>
       <FILE id="Dk9plj" name="pause.svg" compile="0" resource="1" file="Resources/pause.svg"/>

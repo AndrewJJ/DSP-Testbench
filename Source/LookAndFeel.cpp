@@ -10,44 +10,6 @@
 
 #include "LookAndFeel.h"
 
-
-//void setImagesForDrawableButton(DrawableButton * button, const void * imageData, const size_t imageDataSize, const Colour original,
-//                                const Colour normal, const Colour over, const Colour down, const Colour disabled)
-//{
-//    OwnedArray<Drawable> drawableArray;
-//    drawableArray.add (Drawable::createFromImageData (imageData, imageDataSize));
-//    for (auto i = 0; i < 3; i++)
-//        drawableArray.add (drawableArray[0]->createCopy ());
-//    
-//    drawableArray[0]->replaceColour (original, normal);
-//    drawableArray[1]->replaceColour (original, over);
-//    drawableArray[2]->replaceColour (original, down);
-//    drawableArray[3]->replaceColour (original, disabled);
-//    
-//    button->setImages (drawableArray[0], drawableArray[1], drawableArray[2], drawableArray[3]);
-//}
-//
-//void setImagesForDrawableButton(DrawableButton * button, const void * imageData, const size_t imageDataSize, const Colour original,
-//                                const Colour normal, const Colour over, const Colour down, const Colour disabled,
-//                                const Colour normalOn, const Colour overOn, const Colour downOn, const Colour disabledOn)
-//{
-//    OwnedArray<Drawable> drawableArray;
-//    drawableArray.add (Drawable::createFromImageData (imageData, imageDataSize));
-//    for (auto i = 0; i < 7; i++)
-//        drawableArray.add (drawableArray[0]->createCopy ());
-//    
-//    drawableArray[0]->replaceColour (original, normal);
-//    drawableArray[1]->replaceColour (original, over);
-//    drawableArray[2]->replaceColour (original, down);
-//    drawableArray[3]->replaceColour (original, disabled);
-//    drawableArray[4]->replaceColour (original, normalOn);
-//    drawableArray[5]->replaceColour (original, overOn);
-//    drawableArray[6]->replaceColour (original, downOn);
-//    drawableArray[7]->replaceColour (original, disabledOn);
-//    
-//    button->setImages (drawableArray[0], drawableArray[1], drawableArray[2], drawableArray[3], drawableArray[4], drawableArray[5], drawableArray[6], drawableArray[7]);
-//}
-
 void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
                                         const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
 {
@@ -93,6 +55,28 @@ int DspTestBenchLnF::getDefaultMenuBarHeight()
 Font DspTestBenchLnF::getTitleFont() const
 {
     return Font (GUI_SIZE_F (titleMenuScalingFactor));
+}
+
+void DspTestBenchLnF::drawDrawableButton (Graphics& g, DrawableButton& button,
+                                         bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
+{
+    const auto toggleState = button.getToggleState();
+
+    g.fillAll (button.findColour (DrawableButton::backgroundColourId));
+
+    const auto textH = (button.getStyle() == DrawableButton::ImageAboveTextLabel)
+                        ? jmin (16, button.proportionOfHeight (0.25f)) : 0;
+
+    if (textH > 0)
+    {
+        g.setFont (static_cast<float> (textH));
+        g.setColour (button.findColour (toggleState ? DrawableButton::textColourOnId : DrawableButton::textColourId)
+                        .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.4f));
+        g.drawFittedText (button.getButtonText(),
+                          2, button.getHeight() - textH - 1,
+                          button.getWidth() - 4, textH,
+                          Justification::centred, 1);
+    }
 }
 
 void DspTestBenchLnF::drawStretchableLayoutResizerBar (Graphics& g, int w, int h, bool, bool isMouseOver, bool isMouseDragging)

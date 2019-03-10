@@ -4625,9 +4625,6 @@
     <None Include="..\..\Resources\configure.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\configure_small.svg">
-      <Filter>DSP Testbench\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\expand.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>

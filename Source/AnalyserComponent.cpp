@@ -30,10 +30,8 @@ AnalyserComponent::AnalyserComponent()
     addAndMakeVisible (lblTitle);
 
     addAndMakeVisible (btnConfig = new DrawableButton ("Config", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnConfig, BinaryData::configure_small_svg, BinaryData::configure_small_svgSize, Colours::black);
+    DspTestBenchLnF::setImagesForDrawableButton (btnConfig, BinaryData::configure_svg, BinaryData::configure_svgSize, Colours::black);
     btnConfig->setTooltip ("Configure analyser settings");
-    btnConfig->setButtonText ("Config");
-    btnConfig->setToggleState (!statusActive.get(), dontSendNotification);
     
     addAndMakeVisible (btnPause = new DrawableButton ("Disable", DrawableButton::ImageFitted));
     DspTestBenchLnF::setImagesForDrawableButton (btnPause, BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
@@ -42,6 +40,16 @@ AnalyserComponent::AnalyserComponent()
     statusActive.set (config->getBoolAttribute ("Active", true));
     btnPause->setToggleState (!statusActive.get(), dontSendNotification);
     btnPause->onClick = [this] { statusActive = !btnPause->getToggleState(); };
+
+    addAndMakeVisible (btnExpand = new DrawableButton ("Expand", DrawableButton::ImageFitted));
+    DspTestBenchLnF::setImagesForDrawableButton (btnExpand, BinaryData::expand_svg, BinaryData::expand_svgSize, Colours::black, Colours::yellow);
+    btnExpand->setTooltip ("Expand analyser");
+    btnExpand->setClickingTogglesState (true);
+    btnExpand->onClick = [this] 
+    {
+        auto* parent = dynamic_cast<MainContentComponent*> (this->getParentComponent());
+        parent->setAnalyserExpanded (btnExpand->getToggleState());
+    };
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftMult (&fftMult);
@@ -90,8 +98,12 @@ void AnalyserComponent::resized()
 
     Grid titleBarGrid;
     titleBarGrid.templateRows = { Track (1_fr) };
-    titleBarGrid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)) };
-    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause), GridItem (btnConfig) });
+    //titleBarGrid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)) };
+    titleBarGrid.templateColumns = { Track (1_fr) };
+    titleBarGrid.autoColumns = Track (GUI_SIZE_PX (0.7));
+    titleBarGrid.columnGap = GUI_GAP_PX (1);
+    titleBarGrid.autoFlow = Grid::AutoFlow::column;
+    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause), GridItem (btnExpand), GridItem (btnConfig) });
     titleBarGrid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)).withHeight(GUI_BASE_SIZE_I));
 
     Grid analyserGrid;
@@ -173,7 +185,6 @@ void AnalyserComponent::activate()
     statusActive.set (true);
     btnPause->setToggleState(false, dontSendNotification);
 }
-
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {
     return oscilloscope.getMaximumBlockSize();

@@ -34,6 +34,7 @@ public:
 
     void triggerSnapshot();
     void resumeStreaming();
+    void setAnalyserExpanded (bool shouldBeExpanded);
 
 private:
 
@@ -50,6 +51,7 @@ private:
     Atomic<bool> holdAudio;
     Atomic<long> sampleCounter;
     Atomic<long> holdSize;
+    bool analyserIsExpanded = false;
 
     HeapBlock<char> srcBufferMemoryA{}, srcBufferMemoryB{}, tempBufferMemory{};
     dsp::AudioBlock<float> srcBufferA, srcBufferB, tempBuffer;

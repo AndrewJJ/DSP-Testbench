@@ -12,31 +12,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-//extern void setImagesForDrawableButton (
-//    DrawableButton* button,                 /**< DrawableButton to setup. */
-//    const void* imageData,			    	/**< Binary image data (typically SVG, but can be anything that juce:::ImageFileFormat understands. */
-//    const size_t imageDataSize, 			/**< Size of the binary image data (in bytes). */
-//    const Colour original,                  /**< Determines which colour to replace in the original image. */
-//    const Colour normal,                	/**< Replacement colour for normal state. */
-//    const Colour over,                    	/**< Replacement colour for over state. */
-//    const Colour down,                  	/**< Replacement colour for down state. */
-//    const Colour disabled                	/**< Replacement colour for disabled state. */
-//);
-//extern void setImagesForDrawableButton (
-//    DrawableButton* button,                 /**< DrawableButton to setup. */
-//    const void* imageData,			    	/**< Binary image data (typically SVG, but can be anything that juce:::ImageFileFormat understands. */
-//    const size_t imageDataSize, 			/**< Size of the binary image data (in bytes). */
-//    const Colour original,                  /**< Determines which colour to replace in the original image. */
-//    const Colour normal,                	/**< Replacement colour for normal state. */
-//    const Colour over,                    	/**< Replacement colour for over state. */
-//    const Colour down,                  	/**< Replacement colour for down state. */
-//    const Colour disabled,                	/**< Replacement colour for disabled state. */
-//    const Colour normalOn,                	/**< Replacement colour for normal/on state. */
-//    const Colour overOn,                   	/**< Replacement colour for over/on state. */
-//    const Colour downOn,                  	/**< Replacement colour for down/on state. */
-//    const Colour disabledOn                	/**< Replacement colour for disabled/on state. */
-//);
-
 class DspTestBenchLnF final : public LookAndFeel_V4
 {
 public:
@@ -46,7 +21,10 @@ public:
     int getDefaultMenuBarHeight() override;
     
     Font getTitleFont() const;
-    
+
+    void drawDrawableButton (Graphics&, DrawableButton&,
+                             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+        
     /** Draws a StretchableLayoutResizerBar. */
 	void drawStretchableLayoutResizerBar (Graphics&, int w, int h, bool isVerticalBar, bool isMouseOver, bool isMouseDragging) override;
 

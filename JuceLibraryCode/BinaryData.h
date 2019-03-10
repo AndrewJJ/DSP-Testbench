@@ -17,9 +17,6 @@ namespace BinaryData
     extern const char*   configure_svg;
     const int            configure_svgSize = 1950;
 
-    extern const char*   configure_small_svg;
-    const int            configure_small_svgSize = 2189;
-
     extern const char*   expand_svg;
     const int            expand_svgSize = 1044;
 
@@ -27,10 +24,10 @@ namespace BinaryData
     const int            mute_svgSize = 1242;
 
     extern const char*   pause_svg;
-    const int            pause_svgSize = 169;
+    const int            pause_svgSize = 781;
 
     extern const char*   play_svg;
-    const int            play_svgSize = 151;
+    const int            play_svgSize = 767;
 
     extern const char*   phase_invert_svg;
     const int            phase_invert_svgSize = 1256;
@@ -42,7 +39,7 @@ namespace BinaryData
     const int            zoom_out_svgSize = 933;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 11;
+    const int namedResourceListSize = 10;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

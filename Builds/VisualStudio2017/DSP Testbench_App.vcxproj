@@ -2695,7 +2695,6 @@
     <None Include="..\..\Resources\audio_settings.svg"/>
     <None Include="..\..\Resources\camera.svg"/>
     <None Include="..\..\Resources\configure.svg"/>
-    <None Include="..\..\Resources\configure_small.svg"/>
     <None Include="..\..\Resources\expand.svg"/>
     <None Include="..\..\Resources\mute.svg"/>
     <None Include="..\..\Resources\pause.svg"/>

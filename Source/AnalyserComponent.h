@@ -101,6 +101,7 @@ private:
     Label lblTitle;
     ScopedPointer<DrawableButton> btnConfig;
     ScopedPointer<DrawableButton> btnPause;
+    ScopedPointer<DrawableButton> btnExpand;
     std::unique_ptr<AnalyserConfigComponent> configComponent;
 
     FftProcessor<12> fftMult;

@@ -535,13 +535,6 @@
 			path = "../../Resources/zoom_out.svg";
 			sourceTree = "SOURCE_ROOT";
 		};
-		A1CEA691F17D2C776CA5AD97 = {
-			isa = PBXFileReference;
-			lastKnownFileType = file.svg;
-			name = "configure_small.svg";
-			path = "../../Resources/configure_small.svg";
-			sourceTree = "SOURCE_ROOT";
-		};
 		A34483B06D1B6F39F642005A = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -758,7 +751,6 @@
 				E47B7D632DABF2F0EA52CD5A,
 				3CA13771774AA0BBBD335B20,
 				3E3981955075B1EC86979ADD,
-				A1CEA691F17D2C776CA5AD97,
 				CE928AD52C0E01910D1E0A35,
 				B50A5EC0AAF5E1F36C224F5B,
 				76365AD4F7DF4ABC70F4F74B,

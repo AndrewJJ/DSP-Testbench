@@ -137,81 +137,18 @@ static const unsigned char temp_binary_data_2[] =
 
 const char* configure_svg = (const char*) temp_binary_data_2;
 
-//================== configure_small.svg ==================
-static const unsigned char temp_binary_data_3[] =
-"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-"<svg\n"
-"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
-"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
-"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
-"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
-"   xmlns=\"http://www.w3.org/2000/svg\"\n"
-"   width=\"301.17145mm\"\n"
-"   height=\"301.17145mm\"\n"
-"   viewBox=\"0 0 301.17145 301.17145\"\n"
-"   version=\"1.1\"\n"
-"   id=\"svg8\">\n"
-"  <defs\n"
-"     id=\"defs2\" />\n"
-"  <metadata\n"
-"     id=\"metadata5\">\n"
-"    <rdf:RDF>\n"
-"      <cc:Work\n"
-"         rdf:about=\"\">\n"
-"        <dc:format>image/svg+xml</dc:format>\n"
-"        <dc:type\n"
-"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
-"        <dc:title></dc:title>\n"
-"      </cc:Work>\n"
-"    </rdf:RDF>\n"
-"  </metadata>\n"
-"  <rect\n"
-"     y=\"0.045711506\"\n"
-"     x=\"-0.46220374\"\n"
-"     height=\"301.81906\"\n"
-"     width=\"301.81903\"\n"
-"     id=\"rect3690\"\n"
-"     style=\"fill:none;stroke-width:0.27480623\" />\n"
-"  <g\n"
-"     id=\"layer1\"\n"
-"     transform=\"translate(263.22262,78.859528)\">\n"
-"    <g\n"
-"       id=\"Page-1\"\n"
-"       transform=\"matrix(9.0776965,0,0,9.0776965,-203.98782,-18.596884)\"\n"
-"       style=\"fill:none;fill-rule:evenodd;stroke:none;stroke-width:1\">\n"
-"      <g\n"
-"         transform=\"translate(-464,-380)\"\n"
-"         id=\"Core\"\n"
-"         style=\"fill:#000000\">\n"
-"        <g\n"
-"           transform=\"translate(464,380)\"\n"
-"           id=\"settings\">\n"
-"          <path\n"
-"             id=\"Shape\"\n"
-"             d=\"m 17.4,11 c 0,-0.3 0.1,-0.6 0.1,-1 0,-0.4 0,-0.7 -0.1,-1 l 2.1,-1.7 c 0.2,-0.2 0.2,-0.4 0.1,-0.6 l -2,-3.5 C 17.5,3.1 17.3,3 17,3.1 l -2.5,1 C 14,3.7 13.4,3.4 12.8,3.1 L 12.4,0.5 C 12.5,0.2 12.2,0 12,0 H 8 C 7.8,0 7.5,0.2 7.5,0.4 L 7"
-".1,3.1 C 6.5,3.3 6,3.7 5.4,4.1 L 3,3.1 C 2.7,3 2.5,3.1 2.3,3.3 l -2,3.5 c -0.1,0.1 0,0.4 0.2,0.6 L 2.6,9 c 0,0.3 -0.1,0.6 -0.1,1 0,0.4 0,0.7 0.1,1 l -2.1,1.7 c -0.2,0.2 -0.2,0.4 -0.1,0.6 l 2,3.5 C 2.5,16.9 2.7,17 3,16.9 l 2.5,-1 c 0.5,0.4 1.1,0.7 1.7"
-",1 l 0.4,2.6 c 0,0.2 0.2,0.4 0.5,0.4 h 4 c 0.2,0 0.5,-0.2 0.5,-0.4 L 13,16.9 c 0.6,-0.3 1.2,-0.6 1.7,-1 l 2.5,1 c 0.2,0.1 0.5,0 0.6,-0.2 l 2,-3.5 C 19.9,13 19.9,12.7 19.7,12.6 Z M 10,13.5 C 8.1,13.5 6.5,11.9 6.5,10 6.5,8.1 8.1,6.5 10,6.5 c 1.9,0 3.5,"
-"1.6 3.5,3.5 0,1.9 -1.6,3.5 -3.5,3.5 z\" />\n"
-"        </g>\n"
-"      </g>\n"
-"    </g>\n"
-"  </g>\n"
-"</svg>\n";
-
-const char* configure_small_svg = (const char*) temp_binary_data_3;
-
 //================== expand.svg ==================
-static const unsigned char temp_binary_data_4[] =
+static const unsigned char temp_binary_data_3[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><g><g><path d=\"M178.375,287.812L73.094,393.094L32,352c-17.688,0-32,14.312-32,32v96c0,17.688,14.312,32,32,32h96    c17.688,0,32-14.312,32-32"
 "l-41.095-41.062l105.281-105.312L178.375,287.812z M480,0h-96c-17.688,0-32,14.328-32,32l41.094,41.094    L287.812,178.375l45.812,45.812l105.281-105.266L480,160c17.688,0,32-14.312,32-32V32C512,14.328,497.688,0,480,0z M480,352    l-41.095,41.094l-105.28-"
 "105.281l-45.812,45.812l105.281,105.312L352,480c0,17.688,14.312,32,32,32h96c17.688,0,32-14.312,32-32    v-96C512,366.312,497.688,352,480,352z M160,32c0-17.672-14.312-32-32-32H32C14.312,0,0,14.328,0,32v96c0,17.688,14.312,32,32,32    l41.094-41.078l105."
 "281,105.266l45.812-45.812L118.906,73.094L160,32z\"/></g></g></svg>";
 
-const char* expand_svg = (const char*) temp_binary_data_4;
+const char* expand_svg = (const char*) temp_binary_data_3;
 
 //================== mute.svg ==================
-static const unsigned char temp_binary_data_5[] =
+static const unsigned char temp_binary_data_4[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -236,22 +173,80 @@ static const unsigned char temp_binary_data_5[] =
 "     d=\"M 256.266,511.868 128.332,383.936 H 32.381 c -17.678,0 -31.983,-14.307 -31.983,-31.983 V 160.05 c 0,-17.679 14.307,-31.983 31.983,-31.983 h 95.951 L 256.266,0.133 c 0,0 31.983,-3.998 31.983,31.983 0,173.535 0,425.718 0,447.769 0,35.981 -31.9"
 "83,31.983 -31.983,31.983 z\" /></svg>";
 
-const char* mute_svg = (const char*) temp_binary_data_5;
+const char* mute_svg = (const char*) temp_binary_data_4;
 
 //================== pause.svg ==================
-static const unsigned char temp_binary_data_6[] =
-"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M6 19h4V5H6v14zm8-14v14h4V5h-4z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>";
+static const unsigned char temp_binary_data_5[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   width=\"12\"\n"
+"   height=\"14\"\n"
+"   viewBox=\"0 0 12 14\"\n"
+"   version=\"1.1\"\n"
+"   id=\"svg14\">\n"
+"  <metadata\n"
+"     id=\"metadata20\">\n"
+"    <rdf:RDF>\n"
+"      <cc:Work\n"
+"         rdf:about=\"\">\n"
+"        <dc:format>image/svg+xml</dc:format>\n"
+"        <dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
+"        <dc:title></dc:title>\n"
+"      </cc:Work>\n"
+"    </rdf:RDF>\n"
+"  </metadata>\n"
+"  <defs\n"
+"     id=\"defs18\" />\n"
+"  <path\n"
+"     d=\"M 0,14 H 4 V 0 H 0 Z M 8,0 v 14 h 4 V 0 Z\"\n"
+"     id=\"path10\" />\n"
+"</svg>\n";
 
-const char* pause_svg = (const char*) temp_binary_data_6;
+const char* pause_svg = (const char*) temp_binary_data_5;
 
 //================== play.svg ==================
-static const unsigned char temp_binary_data_7[] =
-"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M8 5v14l11-7z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>";
+static const unsigned char temp_binary_data_6[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   id=\"svg3697\"\n"
+"   version=\"1.1\"\n"
+"   viewBox=\"0 0 11 14\"\n"
+"   height=\"14\"\n"
+"   width=\"11\">\n"
+"  <metadata\n"
+"     id=\"metadata3703\">\n"
+"    <rdf:RDF>\n"
+"      <cc:Work\n"
+"         rdf:about=\"\">\n"
+"        <dc:format>image/svg+xml</dc:format>\n"
+"        <dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
+"        <dc:title></dc:title>\n"
+"      </cc:Work>\n"
+"    </rdf:RDF>\n"
+"  </metadata>\n"
+"  <defs\n"
+"     id=\"defs3701\" />\n"
+"  <path\n"
+"     id=\"path3693\"\n"
+"     d=\"M 0,0 V 14 L 11,7 Z\" />\n"
+"</svg>\n";
 
-const char* play_svg = (const char*) temp_binary_data_7;
+const char* play_svg = (const char*) temp_binary_data_6;
 
 //================== phase_invert.svg ==================
-static const unsigned char temp_binary_data_8[] =
+static const unsigned char temp_binary_data_7[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -294,25 +289,25 @@ static const unsigned char temp_binary_data_8[] =
 "  </g>\n"
 "</svg>\n";
 
-const char* phase_invert_svg = (const char*) temp_binary_data_8;
+const char* phase_invert_svg = (const char*) temp_binary_data_7;
 
 //================== zoom_in.svg ==================
-static const unsigned char temp_binary_data_9[] =
+static const unsigned char temp_binary_data_8[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><path d=\"M497.913,497.914c-18.782,18.781-49.226,18.781-68.008,0l-84.862-84.864c-34.89,22.366-76.131,35.718-120.66,35.718  C100.468,448.768,"
 "0,348.314,0,224.384C0,100.454,100.468,0,224.383,0c123.931,0,224.384,100.453,224.384,224.384  c0,44.529-13.353,85.771-35.718,120.675l84.863,84.849C516.695,448.689,516.695,479.131,497.913,497.914z M224.383,64.11  c-88.511,0-160.274,71.763-160.274,160.2"
 "74c0,88.526,71.764,160.274,160.274,160.274c88.526,0,160.273-71.748,160.273-160.274  C384.656,135.873,312.909,64.11,224.383,64.11z M256.438,320.548h-64.108v-64.109H128.22V192.33h64.109v-64.11h64.108v64.11h64.11  v64.109h-64.11V320.548z\"/></svg>";
 
-const char* zoom_in_svg = (const char*) temp_binary_data_9;
+const char* zoom_in_svg = (const char*) temp_binary_data_8;
 
 //================== zoom_out.svg ==================
-static const unsigned char temp_binary_data_10[] =
+static const unsigned char temp_binary_data_9[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><g><g><path d=\"M497.913,429.906l-84.863-84.848c22.365-34.903,35.718-76.146,35.718-120.676C448.768,100.453,348.314,0,224.383,0    C100.468,0"
 ",0,100.453,0,224.384s100.468,224.384,224.383,224.384c44.529,0,85.771-13.352,120.66-35.718l84.862,84.864    c18.782,18.781,49.226,18.781,68.008,0C516.695,479.131,516.695,448.689,497.913,429.906z M224.383,384.658    c-88.511,0-160.274-71.748-160.274-16"
 "0.274c0-88.511,71.764-160.274,160.274-160.274c88.526,0,160.273,71.763,160.273,160.274    C384.656,312.91,312.909,384.658,224.383,384.658z M128.219,256.438h192.329v-64.109H128.219V256.438z\"/></g></g></svg>";
 
-const char* zoom_out_svg = (const char*) temp_binary_data_10;
+const char* zoom_out_svg = (const char*) temp_binary_data_9;
 
 
 const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
@@ -328,11 +323,10 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
         case 0xe28b1a11:  numBytes = 2554; return audio_settings_svg;
         case 0x8816964a:  numBytes = 759; return camera_svg;
         case 0x73626d8b:  numBytes = 1950; return configure_svg;
-        case 0x7c391d13:  numBytes = 2189; return configure_small_svg;
         case 0x2030ef3f:  numBytes = 1044; return expand_svg;
         case 0x33c78b3e:  numBytes = 1242; return mute_svg;
-        case 0x3175289b:  numBytes = 169; return pause_svg;
-        case 0x7000bed9:  numBytes = 151; return play_svg;
+        case 0x3175289b:  numBytes = 781; return pause_svg;
+        case 0x7000bed9:  numBytes = 767; return play_svg;
         case 0xa60d53bf:  numBytes = 1256; return phase_invert_svg;
         case 0xc0395636:  numBytes = 972; return zoom_in_svg;
         case 0x91678d87:  numBytes = 933; return zoom_out_svg;
@@ -348,7 +342,6 @@ const char* namedResourceList[] =
     "audio_settings_svg",
     "camera_svg",
     "configure_svg",
-    "configure_small_svg",
     "expand_svg",
     "mute_svg",
     "pause_svg",
@@ -363,7 +356,6 @@ const char* originalFilenames[] =
     "audio_settings.svg",
     "camera.svg",
     "configure.svg",
-    "configure_small.svg",
     "expand.svg",
     "mute.svg",
     "pause.svg",
