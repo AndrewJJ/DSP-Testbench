@@ -32,7 +32,7 @@ public:
 
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
-    void triggerHoldMode();
+    void triggerSnapshot();
     void resumeStreaming();
 
 private:

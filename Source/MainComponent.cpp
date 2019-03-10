@@ -217,7 +217,7 @@ void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
         DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
     }
 }
-void MainContentComponent::triggerHoldMode ()
+void MainContentComponent::triggerSnapshot ()
 {
     deviceManager.closeAudioDevice();
     
@@ -241,7 +241,6 @@ void MainContentComponent::resumeStreaming()
     holdAudio.set (false);
     deviceManager.restartLastAudioDevice();
 }
-
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
     if (processor->isProcessorEnabled())
