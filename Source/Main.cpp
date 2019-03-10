@@ -11,53 +11,6 @@
 #include "Main.h"
 #include "MainComponent.h"
 
-void DspTestBenchLnF::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                        const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
-{
-	const auto radius = static_cast<float> (jmin (width, height)) * 0.48f;
-	const auto centreX = static_cast<float> (x) + static_cast<float> (width) * 0.5f;
-	const auto centreY = static_cast<float> (y) + static_cast<float> (height) * 0.5f;
-    const auto rx = centreX - radius;
-    const auto ry = centreY - radius;
-    const auto rw = radius * 2.0f;
-    const auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-	const auto isEnabled = slider.isEnabled();
-    const auto isMouseOver = slider.isMouseOverOrDragging() && isEnabled;
-
-	const auto fillColour = isEnabled ? Colours::black : Colours::black.brighter();
-	const auto outlineColour = isEnabled ? (isMouseOver ? Colours::white.withAlpha (0.7f) : Colours::black) : Colours::grey.darker (0.6f);
-    const auto indicatorColour = isEnabled ? Colours::white : Colours::grey;
-
-	// Draw knob body
-	{
-		Path  p;
-		p.addEllipse (rx, ry, rw, rw);
-        g.setColour (fillColour);
-		g.fillPath (p);
-		g.setColour (outlineColour);
-		g.strokePath (p, PathStrokeType (radius * 0.075f));
-	}
-
-	// Draw rotating pointer
-	{
-		Path l;
-		l.startNewSubPath (0.0f, radius * -0.95f);
-		l.lineTo (0.0f, radius * -0.50f);
-		g.setColour (indicatorColour);
-		g.strokePath (l, PathStrokeType (2.5f), AffineTransform::rotation (angle).translated (centreX, centreY));
-	}
-}
-
-int DspTestBenchLnF::getDefaultMenuBarHeight()
-{
-    return GUI_SIZE_I (titleMenuScalingFactor) + GUI_GAP_I (2.0 * titleMenuScalingFactor);
-}
-
-Font DspTestBenchLnF::getTitleFont() const
-{
-    return Font (GUI_SIZE_F (titleMenuScalingFactor));
-}
-
 DSPTestbenchApplication::DSPTestbenchApplication ()
     : TimeSliceThread ("Audio File Reader Thread")
 {
@@ -125,21 +78,20 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
         getApp().getMainWindow().setFullScreen (shouldBeFullScreen);
     };
 
-    // TODO: picture button for hold
-    addAndMakeVisible (btnSnapshot = new TextButton("Snapshot"));
-    btnSnapshot->setTooltip("Restart audio briefly, then hold the result for analysis");
-    btnSnapshot->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnSnapshot = new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
+    DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot, BinaryData::camera_svg, BinaryData::camera_svgSize, Colours::black, Colours::red);
+    btnSnapshot->setTooltip("Restart audio briefly, then hold a snapshot of the result for analysis");
     btnSnapshot->setClickingTogglesState(true);
     btnSnapshot->onClick = [this]
     {
         if (btnSnapshot->getToggleState())
-            mainContentComponent->triggerHoldMode();
+            mainContentComponent->triggerSnapshot();
         else
             mainContentComponent->resumeStreaming();
     };
 
-    // TODO: picture button for audio settings
-    addAndMakeVisible (btnAudioDevice = new TextButton("Audio Settings"));
+    addAndMakeVisible (btnAudioDevice = new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
+    DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice, BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
     btnAudioDevice->setTooltip("Configure audio device settings");
     btnAudioDevice->onClick = [this]
     {
@@ -157,22 +109,21 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
 {
     using Track = Grid::TrackInfo;
     const auto margin = 2;
-    const auto snapshotButtonSize = GUI_SIZE_PX (2.7);
-    const auto audioDeviceBtnSize = GUI_SIZE_PX (3.6);
+    const auto snapshotButtonSize = GUI_SIZE_PX (1.1);
+    const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
     const auto windowButtonSize = GUI_BASE_SIZE_PX;
-    const auto gap = Track(GUI_BASE_GAP_PX);
-    const auto windowButtonGap = Track(GUI_GAP_PX (5));
+    //const auto separatingGap = Track(GUI_BASE_GAP_PX);
+    const auto windowButtonGap = Track(GUI_GAP_PX (4));
 
     Grid grid;
 
     grid.templateRows = { Track (1_fr) };
-    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (snapshotButtonSize), gap, Track (audioDeviceBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
+    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (snapshotButtonSize), Track (audioDeviceBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
 
     grid.items.addArray({   
                             GridItem (lblTitle),
                             GridItem (), // expander
                             GridItem (btnSnapshot),
-                            GridItem (), // gap
                             GridItem (btnAudioDevice),
                             GridItem (), // windowButtonGap
                             GridItem (btnMinimise), GridItem (btnMaximise), GridItem (btnClose)

@@ -26,20 +26,22 @@ AnalyserComponent::AnalyserComponent()
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);
-    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    lblTitle.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
     addAndMakeVisible (lblTitle);
+
+    addAndMakeVisible (btnConfig = new DrawableButton ("Config", DrawableButton::ImageFitted));
+    DspTestBenchLnF::setImagesForDrawableButton (btnConfig, BinaryData::configure_small_svg, BinaryData::configure_small_svgSize, Colours::black);
+    btnConfig->setTooltip ("Configure analyser settings");
+    btnConfig->setButtonText ("Config");
+    btnConfig->setToggleState (!statusActive.get(), dontSendNotification);
     
-    btnConfig.setButtonText ("Config");
-    btnConfig.setToggleState (!statusActive.get(), dontSendNotification);
-    addAndMakeVisible (btnConfig);
-    
-    btnDisable.setButtonText ("Disable");
-    btnDisable.setClickingTogglesState (true);
-    btnDisable.setColour(TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnPause = new DrawableButton ("Disable", DrawableButton::ImageFitted));
+    DspTestBenchLnF::setImagesForDrawableButton (btnPause, BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
+    btnPause->setTooltip ("Pause the analyser");
+    btnPause->setClickingTogglesState (true);
     statusActive.set (config->getBoolAttribute ("Active", true));
-    btnDisable.setToggleState (!statusActive.get(), dontSendNotification);
-    btnDisable.onClick = [this] { statusActive = !btnDisable.getToggleState(); };
-    addAndMakeVisible (btnDisable);
+    btnPause->setToggleState (!statusActive.get(), dontSendNotification);
+    btnPause->onClick = [this] { statusActive = !btnPause->getToggleState(); };
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftMult (&fftMult);
@@ -56,7 +58,7 @@ AnalyserComponent::AnalyserComponent()
 
     // Construct config component last so it picks up the correct values
     configComponent.reset(new AnalyserConfigComponent(this));
-    btnConfig.onClick = [this] { 
+    btnConfig->onClick = [this] { 
         DialogWindow::showDialog ("Analyser configuration", configComponent.get(), nullptr, Colours::darkgrey, true);
     };
 
@@ -87,10 +89,9 @@ void AnalyserComponent::resized()
     using Track = Grid::TrackInfo;
 
     Grid titleBarGrid;
-    titleBarGrid.columnGap = GUI_BASE_GAP_PX;
     titleBarGrid.templateRows = { Track (1_fr) };
-    titleBarGrid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(2.2)), Track (GUI_SIZE_PX(2.3)) };
-    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnConfig), GridItem (btnDisable) });
+    titleBarGrid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)) };
+    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause), GridItem (btnConfig) });
     titleBarGrid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)).withHeight(GUI_BASE_SIZE_I));
 
     Grid analyserGrid;

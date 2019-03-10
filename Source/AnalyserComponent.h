@@ -99,8 +99,8 @@ private:
     std::unique_ptr<XmlElement> config;
 
     Label lblTitle;
-    TextButton btnConfig;
-    TextButton btnDisable;
+    ScopedPointer<DrawableButton> btnConfig;
+    ScopedPointer<DrawableButton> btnPause;
     std::unique_ptr<AnalyserConfigComponent> configComponent;
 
     FftProcessor<12> fftMult;

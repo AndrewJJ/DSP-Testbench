@@ -61,6 +61,10 @@
 			isa = PBXBuildFile;
 			fileRef = 0D00FB15737917AC925255EF;
 		};
+		78CF12ECA08677F4152B529C = {
+			isa = PBXBuildFile;
+			fileRef = BE48E32A7AAD0E2016977876;
+		};
 		A1BA0D72ADB896FF98E61FA7 = {
 			isa = PBXBuildFile;
 			fileRef = C8FA8D0D7E3913E62EE1B60B;
@@ -96,6 +100,10 @@
 		DB8A429734D0A5DE97CFEEAD = {
 			isa = PBXBuildFile;
 			fileRef = 0EC888D60D720F3802B6A82F;
+		};
+		25C8A9B51C871B3FBF0ED9A2 = {
+			isa = PBXBuildFile;
+			fileRef = 6C44818A48F672B5E8D7F1B5;
 		};
 		8EAB6C6F6517013DE91521FA = {
 			isa = PBXBuildFile;
@@ -268,6 +276,20 @@
 			path = System/Library/Frameworks/IOKit.framework;
 			sourceTree = SDKROOT;
 		};
+		3CA13771774AA0BBBD335B20 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = camera.svg;
+			path = ../../Resources/camera.svg;
+			sourceTree = "SOURCE_ROOT";
+		};
+		3E3981955075B1EC86979ADD = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = configure.svg;
+			path = ../../Resources/configure.svg;
+			sourceTree = "SOURCE_ROOT";
+		};
 		3E3D73BFFE6E76E49C1EE681 = {
 			isa = PBXFileReference;
 			lastKnownFileType = file;
@@ -301,6 +323,13 @@
 			lastKnownFileType = sourcecode.cpp.cpp;
 			name = Oscilloscope.cpp;
 			path = ../../Source/Oscilloscope.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
+		4A8C1A1EC0EE440AF360F9FD = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "phase_invert.svg";
+			path = "../../Resources/phase_invert.svg";
 			sourceTree = "SOURCE_ROOT";
 		};
 		4CA1C21427CF58EA4E80A519 = {
@@ -373,6 +402,13 @@
 			path = System/Library/Frameworks/OpenGL.framework;
 			sourceTree = SDKROOT;
 		};
+		6C44818A48F672B5E8D7F1B5 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = BinaryData.cpp;
+			path = ../../JuceLibraryCode/BinaryData.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
 		6F6F8C021069916C87A3DDFC = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -387,12 +423,26 @@
 			path = System/Library/Frameworks/Cocoa.framework;
 			sourceTree = SDKROOT;
 		};
+		72B1A16E4F24E7903A7AB9F6 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = BinaryData.h;
+			path = ../../JuceLibraryCode/BinaryData.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		7618C0F23346E577D64A40A2 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Carbon.framework;
 			path = System/Library/Frameworks/Carbon.framework;
 			sourceTree = SDKROOT;
+		};
+		76365AD4F7DF4ABC70F4F74B = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = pause.svg;
+			path = ../../Resources/pause.svg;
+			sourceTree = "SOURCE_ROOT";
 		};
 		767339650AC8626218DA75EA = {
 			isa = PBXFileReference;
@@ -478,11 +528,32 @@
 			path = RecentFilesMenuTemplate.nib;
 			sourceTree = "SOURCE_ROOT";
 		};
+		9D020790DB67647ABF63F3A6 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "zoom_out.svg";
+			path = "../../Resources/zoom_out.svg";
+			sourceTree = "SOURCE_ROOT";
+		};
+		A1CEA691F17D2C776CA5AD97 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "configure_small.svg";
+			path = "../../Resources/configure_small.svg";
+			sourceTree = "SOURCE_ROOT";
+		};
 		A34483B06D1B6F39F642005A = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
 			name = AudioDataTransfer.h;
 			path = ../../Source/AudioDataTransfer.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		A9A5C812AB383BA1CB7FBB64 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = play.svg;
+			path = ../../Resources/play.svg;
 			sourceTree = "SOURCE_ROOT";
 		};
 		B16B8A655A5C64B77A62BC33 = {
@@ -504,6 +575,13 @@
 			lastKnownFileType = sourcecode.c.h;
 			name = Main.h;
 			path = ../../Source/Main.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		B50A5EC0AAF5E1F36C224F5B = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = mute.svg;
+			path = ../../Resources/mute.svg;
 			sourceTree = "SOURCE_ROOT";
 		};
 		B7C78C78B12A6171F3D6850C = {
@@ -533,6 +611,13 @@
 			name = Accelerate.framework;
 			path = System/Library/Frameworks/Accelerate.framework;
 			sourceTree = SDKROOT;
+		};
+		BE48E32A7AAD0E2016977876 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = LookAndFeel.cpp;
+			path = ../../Source/LookAndFeel.cpp;
+			sourceTree = "SOURCE_ROOT";
 		};
 		C089FE9CD966EABB6FBFC788 = {
 			isa = PBXFileReference;
@@ -583,6 +668,20 @@
 			path = System/Library/Frameworks/DiscRecording.framework;
 			sourceTree = SDKROOT;
 		};
+		CAE1B11543E67924A4A41A50 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = LookAndFeel.h;
+			path = ../../Source/LookAndFeel.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		CE928AD52C0E01910D1E0A35 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = expand.svg;
+			path = ../../Resources/expand.svg;
+			sourceTree = "SOURCE_ROOT";
+		};
 		D08C8F0FD169CDC72740ECBE = {
 			isa = PBXFileReference;
 			lastKnownFileType = file;
@@ -609,6 +708,20 @@
 			lastKnownFileType = sourcecode.cpp.objcpp;
 			name = "include_juce_gui_basics.mm";
 			path = "../../JuceLibraryCode/include_juce_gui_basics.mm";
+			sourceTree = "SOURCE_ROOT";
+		};
+		E47B7D632DABF2F0EA52CD5A = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "audio_settings.svg";
+			path = "../../Resources/audio_settings.svg";
+			sourceTree = "SOURCE_ROOT";
+		};
+		E80BE21542A984DBDFB630DE = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "zoom_in.svg";
+			path = "../../Resources/zoom_in.svg";
 			sourceTree = "SOURCE_ROOT";
 		};
 		EE37E93158A394F0070B2700 = {
@@ -639,9 +752,29 @@
 			path = ../../Source/Oscilloscope.h;
 			sourceTree = "SOURCE_ROOT";
 		};
+		9D48298B61E6233F76C50CC1 = {
+			isa = PBXGroup;
+			children = (
+				E47B7D632DABF2F0EA52CD5A,
+				3CA13771774AA0BBBD335B20,
+				3E3981955075B1EC86979ADD,
+				A1CEA691F17D2C776CA5AD97,
+				CE928AD52C0E01910D1E0A35,
+				B50A5EC0AAF5E1F36C224F5B,
+				76365AD4F7DF4ABC70F4F74B,
+				A9A5C812AB383BA1CB7FBB64,
+				4A8C1A1EC0EE440AF360F9FD,
+				E80BE21542A984DBDFB630DE,
+				9D020790DB67647ABF63F3A6,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		63CA99DE58C1C1191DB04C32 = {
 			isa = PBXGroup;
 			children = (
+				BE48E32A7AAD0E2016977876,
+				CAE1B11543E67924A4A41A50,
 				6F6F8C021069916C87A3DDFC,
 				C8FA8D0D7E3913E62EE1B60B,
 				C56E9B67CB0C10D156B8D1AA,
@@ -665,6 +798,7 @@
 			isa = PBXGroup;
 			children = (
 				A34483B06D1B6F39F642005A,
+				240662947DAE42D9C731890A,
 				8214C9F6F738324825B6B797,
 				01A58540D890CE30D29B7C6F,
 				B16B8A655A5C64B77A62BC33,
@@ -681,7 +815,6 @@
 		00B26DFA8B8ED89E4E53B8FB = {
 			isa = PBXGroup;
 			children = (
-				240662947DAE42D9C731890A,
 				B49EE278C142623EB6A1B5D7,
 				0D00FB15737917AC925255EF,
 				63CA99DE58C1C1191DB04C32,
@@ -693,6 +826,7 @@
 		BB90BA20ED6A63902192710A = {
 			isa = PBXGroup;
 			children = (
+				9D48298B61E6233F76C50CC1,
 				00B26DFA8B8ED89E4E53B8FB,
 			);
 			name = "DSP Testbench";
@@ -722,6 +856,8 @@
 			isa = PBXGroup;
 			children = (
 				3F3DAC937149249AFB538E5F,
+				6C44818A48F672B5E8D7F1B5,
+				72B1A16E4F24E7903A7AB9F6,
 				D2197B6DA08D7CD09F15729D,
 				5CD9E5DC1C42AAE4479DDDF0,
 				C50335A7AEE81AC526323239,
@@ -896,7 +1032,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
@@ -915,7 +1051,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "DSP Testbench";
-				WARNING_CFLAGS = -Wreorder;
+				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
 			name = Debug;
@@ -942,7 +1078,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
@@ -959,7 +1095,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PRODUCT_NAME = "DSP Testbench";
-				WARNING_CFLAGS = -Wreorder;
+				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -999,6 +1135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9455D39755C38DFF4907B998,
+				78CF12ECA08677F4152B529C,
 				A1BA0D72ADB896FF98E61FA7,
 				99465B5EFCACAC1FA5A5A5DE,
 				39FCFA73BF04527FF80EC50A,
@@ -1008,6 +1145,7 @@
 				7C708D011C95F47E45B825FD,
 				A44FDB87495CD5A09DECE3C3,
 				DB8A429734D0A5DE97CFEEAD,
+				25C8A9B51C871B3FBF0ED9A2,
 				8EAB6C6F6517013DE91521FA,
 				FBA7BBAE58DB45DB8B80D850,
 				A78316FA49B28EC40A31C82A,
@@ -1060,13 +1198,14 @@
 		F2A9DE01DFF5477FEC460E6D = {
 			isa = PBXProject;
 			buildConfigurationList = 9791B1BE43C32DCAD26E259A;
-			attributes = { LastUpgradeCheck = 0930; ORGANIZATIONNAME = ""; TargetAttributes = { 1E8BD9C55163E95FC2D87C16 = { SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; }; }; }; };
+			attributes = { LastUpgradeCheck = 0930; ORGANIZATIONNAME = ""; TargetAttributes = { 1E8BD9C55163E95FC2D87C16 = { SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 0; }; }; }; }; };
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
 			mainGroup = 4EB71E97261909607E3138AA;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (1E8BD9C55163E95FC2D87C16);
+			knownRegions = (en, Base);
 		};
 	};
 	rootObject = F2A9DE01DFF5477FEC460E6D;

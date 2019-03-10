@@ -13,19 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
-
-//Component* createMainContentComponent();
-class DspTestBenchLnF : public LookAndFeel_V4
-{
-public:
-
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                           const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override;
-    int getDefaultMenuBarHeight() override;
-    Font getTitleFont() const;
-private:
-    const double titleMenuScalingFactor = 0.75;
-};
+#include "LookAndFeel.h"
 
 class DSPTestbenchApplication final : public JUCEApplication, public TimeSliceThread
 {
@@ -56,15 +44,15 @@ public:
         ScopedPointer<Button> btnClose;
         ScopedPointer<Button> btnMinimise;
         ScopedPointer<Button> btnMaximise;
-        ScopedPointer<TextButton> btnAudioDevice;
-        ScopedPointer<TextButton> btnSnapshot;
+        ScopedPointer<DrawableButton> btnAudioDevice;
+        ScopedPointer<DrawableButton> btnSnapshot;
         ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
     };
 
     // Dummy menu bar model that we use to trick the menu system into setting the menu height
-    class DummyMenuBarModel : public MenuBarModel
+    class DummyMenuBarModel final : public MenuBarModel
     {
     public:
         StringArray getMenuBarNames() override;
