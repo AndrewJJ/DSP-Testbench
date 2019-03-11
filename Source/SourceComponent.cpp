@@ -329,6 +329,7 @@ void SynthesisTab::reset()
 
     impulseFunction.reset();
     stepFunction.reset();
+    resetSweep();
 }
 void SynthesisTab::timerCallback ()
 {
@@ -408,6 +409,7 @@ void SynthesisTab::resetSweep ()
 {
     sweepStepIndex = 0;
     sweepStepDelta = 1;
+    currentFrequency = sweepStartFrequency;
 }
 double SynthesisTab::getSweepFrequency() const
 {
