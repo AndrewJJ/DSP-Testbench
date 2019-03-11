@@ -52,7 +52,7 @@ AnalyserComponent::AnalyserComponent()
     };
 
     addAndMakeVisible (fftScope);
-    fftScope.assignFftMult (&fftProcessor);
+    fftScope.assignFftProcessor (&fftProcessor);
     fftScope.setAggregationMethod(static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
 
     addAndMakeVisible (oscilloscope);
@@ -135,9 +135,9 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
     if (spec.numChannels > 0)
     {
         fftProcessor.prepare (spec);
-        fftScope.prepare (spec); // Must be called after fftProcessor.prepare() so that the listeners are set up properly
+        fftScope.prepare (spec);
         oscProcessor.prepare (spec);
-        oscilloscope.prepare(); // Must be called after oscProcessor.prepare() so that the listeners are set up properly
+        oscilloscope.prepare();
         peakMeterProcessor.prepare (spec);
         // If number of channels has changed, then re-initialise the meter bar components
         if (static_cast<int> (spec.numChannels) != numChannels)

@@ -52,8 +52,7 @@
 
 /** These definitions improve readability for our lambda-based listener/callback implementation. */
 using ListenerCallback = std::function<void()>;
-// TODO: can we return a WeakReference for the following to make it safer (will need to add locks)
-using RemoveListenerCallback = std::function<void()>;
+using ListenerRemovalCallback = std::function<void()>;
 
 
 /**
@@ -100,7 +99,10 @@ public:
      * is undefined. For audio plugins, we shouldn't need to worry about delayed reads from listeners arriving during destruction because the
      * AudioProcessorEditor should always be destroyed before it's parent AudioProcessor.
      */
-    ~AudioProbe() = default;
+    ~AudioProbe()
+	{
+	    masterReference.clear();
+	}
 
     /** Writes a data frame to the queue and will thus overwrite anything altered using getWritePointer(). */
     void writeFrame (const FrameType* source)
@@ -120,19 +122,32 @@ public:
         std::memcpy (destination, &writeQueue[readIndex], frameSize);
     }
 
-	/** Allows a listener to add a lambda function as a callback.
-     *  Returns a function which allows the listener to de-register it's callback.
+	/**
+	 *  Allows a listener to add a lambda function as a callback. This function is called on the audio thread so it should not
+	 *  perform any allocations, acquire any locks or do anything else which might cause blocking. So either use an atomic flag as
+	 *  a semaphore or implement a lock-free function call queue for signalling back to other threads.
+	 *
+     *  Returns a ListenerRemovalCallback which allows the listener to de-register the callback that was just added. It's probably
+     *  worth initialising any ListenerRemovalCallback class members used to hold this return value to an empty function.
      */
-    std::function<void()> addListenerCallback(ListenerCallback &&listenerCallback)
+    ListenerRemovalCallback addListenerCallback (ListenerCallback &&listenerCallback)
     {
+        WeakReference<AudioProbe<FrameType>> weakThis = this;
         auto thisListener = listenerCallbacks.emplace (listenerCallbacks.begin(), listenerCallback);
-        return [this, thisListener]() { listenerCallbacks.erase (thisListener); };
+        return [this, weakThis, thisListener] ()
+        {
+            // Check the WeakReference because the callback may live longer than this AudioProbe
+            if (weakThis)
+                listenerCallbacks.erase (thisListener);
+        };
     }
 
-	/**	Indicates whether the probe has any listeners.
-	*	In the case where all observers are listeners, this can be used by the sender to choose whether to suspend non-essential processing
-	*	(e.g. don't bother computing an FFT for a GUI if there are no GUIs attached). This is of no use if the observers call copyFrame() 
-	*	of their own volition (e.g. during a timerCallback). */
+	/**
+    *   Indicates whether the probe has any listeners. In the case where all observers are listeners, this can be used by the sender to
+																																	  
+    *   choose whether to suspend non-essential processing (e.g. don't bother computing an FFT for a GUI if there are no GUIs attached).
+    *   This is of no use if the observers call copyFrame() of their own volition (e.g. during a timerCallback).
+    */
 	inline bool hasListeners() const
 	{
 		return !listenerCallbacks.empty();
@@ -162,6 +177,9 @@ private:
     int frameSize;              // In bytes
     std::list<ListenerCallback> listenerCallbacks{};
 	HeapBlock <FrameType> writeQueue;
+
+    typename WeakReference<AudioProbe<FrameType>>::Master masterReference;
+    friend class WeakReference<AudioProbe<FrameType>>;
 
 public:
     // Declare non-copyable, non-movable

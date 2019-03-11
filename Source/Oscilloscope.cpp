@@ -51,8 +51,7 @@ Oscilloscope::Oscilloscope ()
 Oscilloscope::~Oscilloscope ()
 {
     // Remove listener callbacks so we don't leave anything hanging if we pop up an Oscilloscope then remove it
-    if (removeListenerCallback)
-        removeListenerCallback();
+    removeListenerCallback();
 }
 void Oscilloscope::paint (Graphics&)
 {

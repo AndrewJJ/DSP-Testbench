@@ -37,6 +37,7 @@ public:
     void timerCallback() override;
 
     void assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr);
+    // Must be called after OscilloscopeProcessor:prepare() so that the AudioProbe listeners can be set up properly
     void prepare();
 
     // Set maximum amplitude scale for y-axis (defaults to 1.0 otherwise)
@@ -108,7 +109,7 @@ private:
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
-    RemoveListenerCallback removeListenerCallback;
+    ListenerRemovalCallback removeListenerCallback = {};
     Atomic<bool> dataFrameReady;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscilloscope);

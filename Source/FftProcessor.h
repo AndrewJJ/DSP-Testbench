@@ -51,7 +51,7 @@ public:
      *  Returns a function which allows the listener to de-register it's callback. The listener must remove any references
      *  to de-register functions that have become invalid.
      */
-    std::function<void ()> addListenerCallback (ListenerCallback&& listenerCallback) const;
+    ListenerRemovalCallback addListenerCallback (ListenerCallback&& listenerCallback) const;
 
 private:
 
@@ -134,7 +134,7 @@ void FftProcessor<Order>::setWindowingMethod (dsp::WindowingFunction<float>::Win
 }
 
 template <int Order>
-std::function<void ()> FftProcessor<Order>::addListenerCallback (ListenerCallback&& listenerCallback) const
+ListenerRemovalCallback FftProcessor<Order>::addListenerCallback (ListenerCallback&& listenerCallback) const
 {
     // If this asserts then you're trying to add the listener before the AudioProbes are set up
     jassert (getNumChannels()>0);

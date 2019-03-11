@@ -26,8 +26,8 @@ public:
         Average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
     };
 
-    FftScope ();
-    ~FftScope ();
+    FftScope();
+    ~FftScope();
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -35,7 +35,8 @@ public:
     void mouseExit(const MouseEvent& event) override;
     void timerCallback() override;
 
-    void assignFftMult (FftProcessor<Order>* fftMultPtr);
+    void assignFftProcessor (FftProcessor<Order>* fftMultPtr);
+    // Must be called after FftProcessor:prepare() so that the AudioProbe listeners can be set up properly
     void prepare (const dsp::ProcessSpec& spec);
 
     // Set minimum dB value for y-axis (defaults to -80dB otherwise)
@@ -111,7 +112,7 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::Maximum;
-    RemoveListenerCallback removeListenerCallback;
+    ListenerRemovalCallback removeListenerCallback = {};
     Atomic<bool> dataFrameReady;
 
     // Candidate frequencies for drawing the grid on the background
@@ -172,8 +173,7 @@ template <int Order>
 FftScope<Order>::~FftScope ()
 {
     // Remove listener callbacks so we don't leave anything hanging if we pop up an FftScope then remove it
-    if (removeListenerCallback)
-        removeListenerCallback();
+    removeListenerCallback();
 }
 
 template <int Order>
@@ -220,7 +220,7 @@ inline void FftScope<Order>::timerCallback()
 }
 
 template <int Order>
-void FftScope<Order>::assignFftMult (FftProcessor<Order>* fftMultPtr)
+void FftScope<Order>::assignFftProcessor (FftProcessor<Order>* fftMultPtr)
 {
     jassert (fftMultPtr != nullptr);
     fftProcessor = fftMultPtr;
@@ -233,7 +233,7 @@ void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 {
     samplingFreq = spec.sampleRate;
     preCalculateVariables();
-    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set(true); });
+    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
 }
 
 template <int Order>
