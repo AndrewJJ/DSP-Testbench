@@ -12,6 +12,7 @@
 
 #include "FftProcessor.h"
 #include "FastApproximations.h"
+#include "AnalyserComponent.h"
 
 template <int Order>
 class FftScope final : public Component, public Timer
@@ -192,6 +193,11 @@ void FftScope<Order>::mouseMove (const MouseEvent& event)
 {
     currentX = event.x;
     currentY = event.y;
+
+    // Ensure mouse co-ordinates shown if scope processing suspended
+    AnalyserComponent* analyserComponent = dynamic_cast<AnalyserComponent*> (getParentComponent());
+    if (!analyserComponent->isProcessing())
+        repaint();
 }
 
 template <int Order>

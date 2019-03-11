@@ -116,7 +116,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
         outputBlock.clear();
 
     // Run audio through analyser (note that the analyser isn't expected to alter the outputBlock)
-    if (analyserComponent->isActive())
+    if (analyserComponent->isProcessing())
         analyserComponent->process (dsp::ProcessContextReplacing<float> (outputBlock));
 
     // Run audio through monitoring section
@@ -130,7 +130,8 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
         sampleCounter.set (sampleCounter.get() + bufferToFill.numSamples);
         if (sampleCounter.get() > holdSize.get())
         {
-            // Close audio device from another thread (note that addJob isn't usually safe on the audio thread - but we're closing it anyway!)
+            analyserComponent->suspendProcessing();
+            // Close audio device from another thread (note that calling addJob isn't usually safe on the audio thread - but we're closing it anyway!)
             threadPool.addJob ([this] { deviceManager.closeAudioDevice(); });
         }
     }
@@ -252,7 +253,7 @@ void MainContentComponent::triggerSnapshot ()
     monitoringComponent->reset();
 
     // Ensure the analyser isn't paused
-    analyserComponent->activate();
+    analyserComponent->activateProcessing();
 
     // Set a flag & sample counter so we can stop the device again once a certain number of samples have been processed        
     holdAudio.set (true);
@@ -263,6 +264,7 @@ void MainContentComponent::triggerSnapshot ()
 }
 void MainContentComponent::resumeStreaming()
 {
+    analyserComponent->activateProcessing();
     holdAudio.set (false);
     deviceManager.restartLastAudioDevice();
 }

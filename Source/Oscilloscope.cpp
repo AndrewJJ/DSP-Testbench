@@ -9,6 +9,7 @@
 */
 
 #include "Oscilloscope.h"
+#include "AnalyserComponent.h"
 
 Oscilloscope::Background::Background (Oscilloscope* parentOscilloscope)
     :   parentScope (parentOscilloscope)
@@ -68,6 +69,11 @@ void Oscilloscope::mouseMove (const MouseEvent& event)
 {
     currentX = event.x;
     currentY = event.y;
+
+    // Ensure mouse co-ordinates shown if scope processing suspended
+    AnalyserComponent* analyserComponent = dynamic_cast<AnalyserComponent*> (getParentComponent());
+    if (!analyserComponent->isProcessing())
+        repaint();
 }
 void Oscilloscope::mouseExit (const MouseEvent&)
 {

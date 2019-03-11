@@ -124,7 +124,7 @@ void AnalyserComponent::resized()
         if (meterBars[ch] != nullptr)
             meterBars[ch]->setBounds (meterBackground.getBarBoundsInParent (ch, numChannels));
 }
-void AnalyserComponent::timerCallback ()
+void AnalyserComponent::timerCallback()
 {
     for (auto ch = 0; ch < numChannels; ++ch)
         if (meterBars[ch] != nullptr)
@@ -174,16 +174,23 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         peakMeterProcessor.process (context);
     }
 }
-void AnalyserComponent::reset ()
+void AnalyserComponent::reset()
 { }
-bool AnalyserComponent::isActive () const noexcept
+bool AnalyserComponent::isProcessing() const noexcept
 {
     return statusActive.get();
 }
-void AnalyserComponent::activate()
+void AnalyserComponent::activateProcessing()
 {
     statusActive.set (true);
+    const MessageManagerLock mmLock;
     btnPause->setToggleState(false, dontSendNotification);
+}
+void AnalyserComponent::suspendProcessing()
+{
+    statusActive.set (false);
+    const MessageManagerLock mmLock;
+    btnPause->setToggleState(true, dontSendNotification);
 }
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {

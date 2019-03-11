@@ -33,8 +33,9 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
 
-    bool isActive() const noexcept;
-    void activate();
+    bool isProcessing() const noexcept;
+    void activateProcessing();
+    void suspendProcessing();
 
     // TODO - build synch trigger functionality throughout the app (hosted in MainComponent::getNextAudioBlock()
     // TODO - add RMS & VU metering?
@@ -96,13 +97,13 @@ private:
     };
 
     String keyName;
-    std::unique_ptr<XmlElement> config;
+    std::unique_ptr<XmlElement> config{};
 
     Label lblTitle;
     ScopedPointer<DrawableButton> btnConfig;
     ScopedPointer<DrawableButton> btnPause;
     ScopedPointer<DrawableButton> btnExpand;
-    std::unique_ptr<AnalyserConfigComponent> configComponent;
+    std::unique_ptr<AnalyserConfigComponent> configComponent{};
 
     FftProcessor<12> fftProcessor;
     FftScope<12> fftScope;
@@ -112,7 +113,7 @@ private:
 
     SimplePeakMeterProcessor peakMeterProcessor;
     MeterBackground meterBackground;
-    OwnedArray<SimplePeakMeterComponent> meterBars;
+    OwnedArray<SimplePeakMeterComponent> meterBars{};
     int numChannels = 0;
 
     Atomic<bool> statusActive = true;
