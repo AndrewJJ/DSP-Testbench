@@ -112,7 +112,11 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::Maximum;
+    
     ListenerRemovalCallback removeListenerCallback = {};
+    typename WeakReference<FftScope<Order>>::Master masterReference;
+    friend class WeakReference<FftScope<Order>>;
+
     Atomic<bool> dataFrameReady;
 
     // Candidate frequencies for drawing the grid on the background
@@ -172,6 +176,7 @@ FftScope<Order>::FftScope ()
 template <int Order>
 FftScope<Order>::~FftScope ()
 {
+    masterReference.clear();
     // Remove listener callbacks so we don't leave anything hanging if we pop up an FftScope then remove it
     removeListenerCallback();
 }
@@ -233,7 +238,13 @@ void FftScope<Order>::prepare (const dsp::ProcessSpec& spec)
 {
     samplingFreq = spec.sampleRate;
     preCalculateVariables();
-    removeListenerCallback = fftProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
+    WeakReference<FftScope<Order>> weakThis = this;
+    removeListenerCallback = fftProcessor->addListenerCallback ([this, weakThis]
+    {
+        // Check the WeakReference because the callback may live longer than this FftScope
+        if (weakThis)
+            dataFrameReady.set (true);
+    });
 }
 
 template <int Order>

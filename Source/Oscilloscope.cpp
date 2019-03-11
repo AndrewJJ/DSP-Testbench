@@ -50,6 +50,7 @@ Oscilloscope::Oscilloscope ()
 }
 Oscilloscope::~Oscilloscope ()
 {
+    masterReference.clear();
     // Remove listener callbacks so we don't leave anything hanging if we pop up an Oscilloscope then remove it
     removeListenerCallback();
 }
@@ -101,7 +102,13 @@ void Oscilloscope::prepare()
     jassert (oscProcessor != nullptr); // oscProcessor should be assigned & prepared first
     buffer.setSize (oscProcessor->getNumChannels(), oscProcessor->getMaximumBlockSize());
     preCalculateVariables();
-    removeListenerCallback = oscProcessor->addListenerCallback ([this] { dataFrameReady.set (true); });
+    WeakReference<Oscilloscope> weakThis = this;
+    removeListenerCallback = oscProcessor->addListenerCallback ([this, weakThis]
+    {
+        // Check the WeakReference because the callback may live longer than this Oscilloscope
+        if (weakThis)
+            dataFrameReady.set (true);
+    });
 }
 void Oscilloscope::setMaxAmplitude(const float maximumAmplitude)
 {

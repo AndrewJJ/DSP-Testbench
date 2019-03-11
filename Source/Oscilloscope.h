@@ -109,7 +109,11 @@ private:
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
+
     ListenerRemovalCallback removeListenerCallback = {};
+    WeakReference<Oscilloscope>::Master masterReference;
+    friend class WeakReference<Oscilloscope>;
+
     Atomic<bool> dataFrameReady;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscilloscope);

@@ -125,7 +125,8 @@ public:
 	/**
 	 *  Allows a listener to add a lambda function as a callback. This function is called on the audio thread so it should not
 	 *  perform any allocations, acquire any locks or do anything else which might cause blocking. So either use an atomic flag as
-	 *  a semaphore or implement a lock-free function call queue for signalling back to other threads.
+	 *  a semaphore or implement a lock-free function call queue for signalling back to other threads. The callback should also
+	 *  make sure that it's owner still exists before it attempts to do anything (e.g. check a WeakReference to itself).
 	 *
      *  Returns a ListenerRemovalCallback which allows the listener to de-register the callback that was just added. It's probably
      *  worth initialising any ListenerRemovalCallback class members used to hold this return value to an empty function.
