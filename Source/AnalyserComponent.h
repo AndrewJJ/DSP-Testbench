@@ -89,10 +89,10 @@ private:
 
         int desiredBarWidth = GUI_BASE_SIZE_I;
         int gap = GUI_BASE_GAP_I;
-        int dBScaleWidth = GUI_SIZE_I(1.2);
+        int dBScaleWidth = GUI_SIZE_I (0.9);
 
         const float scaleMax = 0.0f;
-        const float scaleMin = -100.0f;
+        const float scaleMin = -60.0f;
 	    const float stepSize = 10.0f;
     };
 

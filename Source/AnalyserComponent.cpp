@@ -343,7 +343,10 @@ float AnalyserComponent::MeterBackground::getScaleMin() const
 }
 Rectangle<int> AnalyserComponent::MeterBackground::getBarMeterAreaInParent() const
 {
-    return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
+    if (dBScaleWidth == 0)
+        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5));
+    else
+        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
 }
 Rectangle<int> AnalyserComponent::MeterBackground::getBarMeterArea() const
 {
@@ -357,27 +360,31 @@ void AnalyserComponent::MeterBackground::drawScale (Graphics& g) const
 	const auto heightStep = static_cast<float> (channelHeight) / static_cast<float> (numSteps);
     const auto labelHeight = heightStep / 2;
     const auto fontHeight = jmin (static_cast<float> (dBScaleWidth) * 0.5f, static_cast<float> (labelHeight));
-    const auto scaleColour = Colours::white;
+    const auto scaleColour = Colours::white.withAlpha (0.5f);
+    const auto textColour = Colours::grey;
     const auto tickWidth = backingWidth - static_cast<float> (gap * 2);
     const auto textX = getWidth() - dBScaleWidth + gap;
     const auto textWidth = dBScaleWidth - 2 * gap;
 
-    g.setColour(Colour::fromRGB (30, 30, 30));
-    g.fillRoundedRectangle(0.0f, 0.0f, backingWidth, static_cast<float> (getHeight()), static_cast<float> (gap) * 0.5f);
+    g.setColour(Colour::fromRGB (20, 20, 20));
+    g.fillRoundedRectangle (0.0f, 0.0f, backingWidth, static_cast<float> (getHeight()), static_cast<float> (gap) * 0.5f);
 
 	g.setFont (fontHeight);
 	for (auto i = 0; i <= numSteps; ++i)
 	{
-        g.setColour (scaleColour.withAlpha(0.5f));
+        g.setColour (scaleColour);
         const auto tickY = static_cast<float> (gap) * 1.5f + static_cast<float>(i) * heightStep;
         g.drawRect (static_cast<float> (gap), tickY - 0.5f, tickWidth, 1.0f);
-        g.setColour (scaleColour);
-        g.drawFittedText (String (scaleMax - i * stepSize),
-            textX,
-            static_cast<int> (tickY - labelHeight * 0.5f),
-            textWidth,
-            static_cast<int> (labelHeight),
-            Justification::centred,
-            1);
+        if (dBScaleWidth > 0)
+        {
+            g.setColour (textColour);
+            g.drawFittedText (String (scaleMax - i * stepSize),
+                textX,
+                static_cast<int> (tickY - labelHeight * 0.5f),
+                textWidth,
+                static_cast<int> (labelHeight),
+                Justification::centredLeft,
+                1);
+        }
 	}
 }
