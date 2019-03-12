@@ -147,7 +147,7 @@ private:
 class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener, public Timer
 {
 public:
-    explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig);
+    explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise);
     ~WaveTab();
 
     void paint (Graphics& g) override;
@@ -162,6 +162,7 @@ public:
     void changeListenerCallback (ChangeBroadcaster* source) override;
     void timerCallback() override;
     String getFilePath() const;
+    bool isPlaying() const;
 
     class AudioThumbnailComponent : public Component,
                                     public FileDragAndDropTarget,
@@ -229,6 +230,7 @@ private:
     double sampleRate;
     uint32 maxBlockSize;
     String initialFilePath;
+    bool shouldPlayOnInitialise;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };

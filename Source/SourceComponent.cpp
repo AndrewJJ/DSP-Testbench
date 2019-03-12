@@ -350,7 +350,6 @@ void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
         calculateNumSweepSteps();
     }
 }
-
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
     return (    currentWaveform == Waveform::sine 
@@ -585,11 +584,12 @@ bool WaveTab::AudioThumbnailComponent::isFileLoaded() const
     return fileLoaded;
 }
 
-WaveTab::WaveTab(AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig)
+WaveTab::WaveTab(AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise_)
     :   audioDeviceManager (deviceManager),
         sampleRate (0.0),
         maxBlockSize (0),
-        initialFilePath (initialFilePathFromConfig)
+        initialFilePath (initialFilePathFromConfig),
+        shouldPlayOnInitialise (shouldPlayOnInitialise_)
 {
     formatManager.registerBasicFormats();
 
@@ -730,12 +730,21 @@ void WaveTab::timerCallback ()
         const File file (initialFilePath);
         if (loadFile (file))
             audioThumbnailComponent->setCurrentFile (file);
+        if (shouldPlayOnInitialise)
+        {
+            btnPlay->setToggleState(true, dontSendNotification);
+            play();
+        }
     }
     stopTimer();
 }
 String WaveTab::getFilePath() const
 {
     return audioThumbnailComponent->getCurrentFile().getFullPathName();
+}
+bool WaveTab::isPlaying() const
+{
+    return btnPlay->getToggleState();
 }
 bool WaveTab::loadFile (const File& fileToPlay)
 {
@@ -1175,7 +1184,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab (sourceName), false, Mode::Synthesis);
     //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath")), false, Mode:: WaveFile);
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying")), false, Mode:: WaveFile);
     tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab (audioDeviceManager), false, Mode::AudioIn);
     tabbedComponent->getTabbedButtonBar().addChangeListener(this);
     tabbedComponent->setCurrentTabIndex (config->getIntAttribute("TabIndex")); // Need to set tab after change listener added
@@ -1188,6 +1197,7 @@ SourceComponent::~SourceComponent()
     config->setAttribute ("Mute", isMuted);
     config->setAttribute ("TabIndex", tabbedComponent->getCurrentTabIndex());
     config->setAttribute ("WaveFilePath", waveTab->getFilePath());
+    config->setAttribute ("WaveFilePlaying", waveTab->isPlaying());
     
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
