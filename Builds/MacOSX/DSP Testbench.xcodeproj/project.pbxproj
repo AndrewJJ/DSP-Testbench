@@ -479,6 +479,13 @@
 			path = "../../../JUCE/modules/juce_gui_basics";
 			sourceTree = "SOURCE_ROOT";
 		};
+		85E0422BB39E278B95AF5FC8 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = AudioScopeProcessor.h;
+			path = ../../Source/AudioScopeProcessor.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		8766E077953EFDE6045854F4 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
@@ -617,13 +624,6 @@
 			lastKnownFileType = sourcecode.cpp.objcpp;
 			name = "include_juce_audio_utils.mm";
 			path = "../../JuceLibraryCode/include_juce_audio_utils.mm";
-			sourceTree = "SOURCE_ROOT";
-		};
-		C188008C47A5BB77EA1D0159 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.h;
-			name = OscilloscopeProcessor.h;
-			path = ../../Source/OscilloscopeProcessor.h;
 			sourceTree = "SOURCE_ROOT";
 		};
 		C50335A7AEE81AC526323239 = {
@@ -795,7 +795,7 @@
 				01A58540D890CE30D29B7C6F,
 				B16B8A655A5C64B77A62BC33,
 				F06CF79E7E23D319382B60CC,
-				C188008C47A5BB77EA1D0159,
+				85E0422BB39E278B95AF5FC8,
 				3EAA28994203F8FE7BD0860D,
 				D5A204FC49FC303F8E85AB18,
 				0EC888D60D720F3802B6A82F,

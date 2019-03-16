@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "OscilloscopeProcessor.h"
+#include "AudioScopeProcessor.h"
 
 class Oscilloscope final : public Component, public Timer
 {
@@ -36,8 +36,8 @@ public:
     // Instead of repainting on a fixed timer we poll an atomic flag set from the audio thread to see if there is fresh data.
     void timerCallback() override;
 
-    void assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr);
-    // Must be called after OscilloscopeProcessor:prepare() so that the AudioProbe listeners can be set up properly
+    void assignOscProcessor (AudioScopeProcessor* oscProcessorPtr);
+    // Must be called after AudioScopeProcessor:prepare() so that the AudioProbe listeners can be set up properly
     void prepare();
 
     // Set maximum amplitude scale for y-axis (defaults to 1.0 otherwise)
@@ -95,7 +95,7 @@ private:
 
     Background background;
     Foreground foreground;
-	OscilloscopeProcessor* oscProcessor;
+	AudioScopeProcessor* oscProcessor;
     
     float amplitudeMax = 1.0f;
     int minXSamples = 0;

@@ -1974,7 +1974,7 @@
     <ClInclude Include="..\..\Source\FftProcessor.h"/>
     <ClInclude Include="..\..\Source\MeteringProcessors.h"/>
     <ClInclude Include="..\..\Source\NoiseGenerators.h"/>
-    <ClInclude Include="..\..\Source\OscilloscopeProcessor.h"/>
+    <ClInclude Include="..\..\Source\AudioScopeProcessor.h"/>
     <ClInclude Include="..\..\Source\PolyBLEP.h"/>
     <ClInclude Include="..\..\Source\PulseFunctions.h"/>
     <ClInclude Include="..\..\Source\TestProcessor.h"/>

@@ -63,8 +63,8 @@
               file="Source/MeteringProcessors.h"/>
         <FILE id="UeLa0S" name="NoiseGenerators.h" compile="0" resource="0"
               file="Source/NoiseGenerators.h"/>
-        <FILE id="sl0iD1" name="OscilloscopeProcessor.h" compile="0" resource="0"
-              file="Source/OscilloscopeProcessor.h"/>
+        <FILE id="sl0iD1" name="AudioScopeProcessor.h" compile="0" resource="0"
+              file="Source/AudioScopeProcessor.h"/>
         <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>
         <FILE id="i22995" name="PulseFunctions.h" compile="0" resource="0"
               file="Source/PulseFunctions.h"/>

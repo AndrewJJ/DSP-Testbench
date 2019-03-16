@@ -2466,7 +2466,7 @@
     <ClInclude Include="..\..\Source\NoiseGenerators.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\OscilloscopeProcessor.h">
+    <ClInclude Include="..\..\Source\AudioScopeProcessor.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PolyBLEP.h">

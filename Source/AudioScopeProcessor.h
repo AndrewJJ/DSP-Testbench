@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    OscilloscopeProcessor.h
+    AudioScopeProcessor.h
     Created: 4 Feb 2018 1:40:18pm
     Author:  Andrew
 
@@ -13,11 +13,11 @@
 #include "AudioDataTransfer.h"
 
 /**
-	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow an oscilloscope
-	be plotted at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
+	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow an audio scope
+	do be delivered data at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
 	is then used to make the processed data available for use on other threads.
 */
-class OscilloscopeProcessor final : public FixedBlockProcessor
+class AudioScopeProcessor final : public FixedBlockProcessor
 {
 private:
     static const int frame_size = 4096;
@@ -28,8 +28,8 @@ public:
 	    alignas(16) float f[frame_size];
     };
 
-    explicit OscilloscopeProcessor();
-    ~OscilloscopeProcessor() = default;
+    explicit AudioScopeProcessor();
+    ~AudioScopeProcessor() = default;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void performProcessing (const int channel) override;
@@ -51,10 +51,10 @@ private:
 
 public:
     // Declare non-copyable, non-movable
-    OscilloscopeProcessor (const OscilloscopeProcessor&) = delete;
-    OscilloscopeProcessor& operator= (const OscilloscopeProcessor&) = delete;
-    OscilloscopeProcessor (OscilloscopeProcessor&& other) = delete;
-    OscilloscopeProcessor& operator=(OscilloscopeProcessor&& other) = delete;
+    AudioScopeProcessor (const AudioScopeProcessor&) = delete;
+    AudioScopeProcessor& operator= (const AudioScopeProcessor&) = delete;
+    AudioScopeProcessor (AudioScopeProcessor&& other) = delete;
+    AudioScopeProcessor& operator=(AudioScopeProcessor&& other) = delete;
 };
 
 
@@ -62,11 +62,11 @@ public:
 //  Implementation
 // ===========================================================================================
 
-inline OscilloscopeProcessor::OscilloscopeProcessor (): FixedBlockProcessor(frame_size)
+inline AudioScopeProcessor::AudioScopeProcessor (): FixedBlockProcessor(frame_size)
 {
 }
 
-inline void OscilloscopeProcessor::prepare (const dsp::ProcessSpec& spec)
+inline void AudioScopeProcessor::prepare (const dsp::ProcessSpec& spec)
 {
     FixedBlockProcessor::prepare(spec);
 
@@ -77,17 +77,17 @@ inline void OscilloscopeProcessor::prepare (const dsp::ProcessSpec& spec)
         audioProbes.add(new AudioProbe<OscilloscopeFrame>());
 }
 
-inline void OscilloscopeProcessor::performProcessing (const int channel)
+inline void AudioScopeProcessor::performProcessing (const int channel)
 {
     audioProbes[channel]->writeFrame(reinterpret_cast<const OscilloscopeFrame*>(buffer.getReadPointer(channel)));
 }
 
-inline void OscilloscopeProcessor::copyFrame (float* dest, const int channel) const
+inline void AudioScopeProcessor::copyFrame (float* dest, const int channel) const
 {
     audioProbes[channel]->copyFrame(reinterpret_cast<OscilloscopeFrame*>(dest));
 }
 
-inline ListenerRemovalCallback OscilloscopeProcessor::addListenerCallback (ListenerCallback&& listenerCallback) const
+inline ListenerRemovalCallback AudioScopeProcessor::addListenerCallback (ListenerCallback&& listenerCallback) const
 {
     // If this asserts then you're trying to add the listener before the AudioProbes are set up
     jassert (getNumChannels()>0);

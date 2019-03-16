@@ -13,7 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FftProcessor.h"
 #include "FftScope.h"
-#include "OscilloscopeProcessor.h"
+#include "AudioScopeProcessor.h"
 #include "Oscilloscope.h"
 #include "MeteringProcessors.h"
 #include "SimpleLevelMeterComponent.h"
@@ -108,7 +108,7 @@ private:
     FftProcessor<12> fftProcessor;
     FftScope<12> fftScope;
 
-    OscilloscopeProcessor oscProcessor;
+    AudioScopeProcessor oscProcessor;
     Oscilloscope oscilloscope;
 
     SimplePeakMeterProcessor peakMeterProcessor;

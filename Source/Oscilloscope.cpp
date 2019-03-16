@@ -90,7 +90,7 @@ void Oscilloscope::timerCallback()
         dataFrameReady.set (false);
     }
 }
-void Oscilloscope::assignOscProcessor (OscilloscopeProcessor* oscProcessorPtr)
+void Oscilloscope::assignOscProcessor (AudioScopeProcessor* oscProcessorPtr)
 {
     jassert (oscProcessorPtr != nullptr);
     oscProcessor = oscProcessorPtr;
