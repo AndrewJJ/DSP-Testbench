@@ -16,15 +16,22 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
 {
     holdAudio.set (false);
 
-    addAndMakeVisible (srcComponentA = new SourceComponent ("A", &deviceManager));
-    addAndMakeVisible (srcComponentB = new SourceComponent ("B", &deviceManager));
-    addAndMakeVisible (procComponentA = new ProcessorComponent ("A", 3));
-    addAndMakeVisible (procComponentB = new ProcessorComponent ("B", 3));
-    addAndMakeVisible (analyserComponent = new AnalyserComponent());
-    addAndMakeVisible (monitoringComponent = new MonitoringComponent(&deviceManager));
+    srcComponentA.reset (new SourceComponent ("A", &deviceManager));
+    srcComponentB.reset (new SourceComponent ("B", &deviceManager));
+    procComponentA.reset (new ProcessorComponent ("A", 3));
+    procComponentB.reset (new ProcessorComponent ("B", 3));
+    analyserComponent.reset (new AnalyserComponent());
+    monitoringComponent.reset (new MonitoringComponent(&deviceManager));
 
-    srcComponentA->setOtherSource (srcComponentB);
-    srcComponentB->setOtherSource (srcComponentA);
+    addAndMakeVisible (srcComponentA.get());
+    addAndMakeVisible (srcComponentB.get());
+    addAndMakeVisible (procComponentA.get());
+    addAndMakeVisible (procComponentB.get());
+    addAndMakeVisible (analyserComponent.get());
+    addAndMakeVisible (monitoringComponent.get());
+
+    srcComponentA->setOtherSource (srcComponentB.get());
+    srcComponentB->setOtherSource (srcComponentA.get());
 
     // Set small to force resize to minimum resize limit
     setSize (1, 1);
@@ -39,15 +46,6 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
 
     // Specify the number of input and output channels that we want to open
     setAudioChannels (2, 2, savedAudioDeviceState.get());
-}
-MainContentComponent::~MainContentComponent()  // NOLINT
-{
-    srcComponentA = nullptr;
-    srcComponentB = nullptr;
-    procComponentA = nullptr;
-    procComponentB = nullptr;
-    analyserComponent = nullptr;
-    monitoringComponent = nullptr;
 }
 void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
@@ -99,17 +97,17 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     // Run audio through processors
     if (procComponentA->isActive())
     {
-        routeSourcesAndProcess (procComponentA, tempBuffer);
+        routeSourcesAndProcess (procComponentA.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
         if (procComponentB->isActive()) // both active
         {
-            routeSourcesAndProcess (procComponentB, tempBuffer);
+            routeSourcesAndProcess (procComponentB.get(), tempBuffer);
             outputBlock.add (tempBuffer);
         }
     }
     else if (procComponentB->isActive()) // processor A inactive
     {
-        routeSourcesAndProcess (procComponentB, tempBuffer);
+        routeSourcesAndProcess (procComponentB.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
     }
     else // neither is active
@@ -172,7 +170,7 @@ void MainContentComponent::resized()
                                 Track (monitoringComponentHeight)
                             };
         grid.templateColumns = { Track (1_fr) };
-        grid.items.addArray ({ GridItem (analyserComponent), GridItem (monitoringComponent) });
+        grid.items.addArray ({ GridItem (analyserComponent.get()), GridItem (monitoringComponent.get()) });
     }
     else
     {
@@ -201,12 +199,12 @@ void MainContentComponent::resized()
 
             grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (1_fr) };
 
-            grid.items.addArray({   GridItem (srcComponentA), 
-                                    GridItem (srcComponentB),
-                                    GridItem (procComponentA),
-                                    GridItem (procComponentB).withWidth(srcWidth), // set width to prevent stretching
-                                    GridItem (analyserComponent).withArea ({ }, GridItem::Span (4)),
-                                    GridItem (monitoringComponent).withArea ({ }, GridItem::Span (4))
+            grid.items.addArray({   GridItem (srcComponentA.get()), 
+                                    GridItem (srcComponentB.get()),
+                                    GridItem (procComponentA.get()),
+                                    GridItem (procComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
+                                    GridItem (analyserComponent.get()).withArea ({ }, GridItem::Span (4)),
+                                    GridItem (monitoringComponent.get()).withArea ({ }, GridItem::Span (4))
                                 });
         }
         else
@@ -220,12 +218,12 @@ void MainContentComponent::resized()
 
             grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (1_fr) };
 
-            grid.items.addArray({   GridItem (srcComponentA), 
-                                    GridItem (srcComponentB).withWidth(srcWidth), // set width to prevent stretching
-                                    GridItem (procComponentA),
-                                    GridItem (procComponentB).withWidth(srcWidth), // set width to prevent stretching
-                                    GridItem (analyserComponent).withArea ({ }, GridItem::Span (2)),
-                                    GridItem (monitoringComponent).withArea ({}, GridItem::Span (2))
+            grid.items.addArray({   GridItem (srcComponentA.get()), 
+                                    GridItem (srcComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
+                                    GridItem (procComponentA.get()),
+                                    GridItem (procComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
+                                    GridItem (analyserComponent.get()).withArea ({ }, GridItem::Span (2)),
+                                    GridItem (monitoringComponent.get()).withArea ({}, GridItem::Span (2))
                                 });
         }
     }

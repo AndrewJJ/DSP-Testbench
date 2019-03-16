@@ -20,8 +20,8 @@ class MainContentComponent final : public AudioAppComponent, public ChangeListen
 {
 public:
 
-    explicit MainContentComponent(AudioDeviceManager& deviceManager);
-    ~MainContentComponent();
+    explicit MainContentComponent (AudioDeviceManager& deviceManager);
+    ~MainContentComponent() = default;
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
@@ -41,12 +41,12 @@ private:
     ThreadPool threadPool;
     OpenGLContext oglContext;
 
-    ScopedPointer<SourceComponent> srcComponentA;
-    ScopedPointer<SourceComponent> srcComponentB;
-    ScopedPointer<ProcessorComponent> procComponentA{};
-    ScopedPointer<ProcessorComponent> procComponentB{};
-    ScopedPointer<AnalyserComponent> analyserComponent{};
-    ScopedPointer<MonitoringComponent> monitoringComponent{};
+    std::unique_ptr<SourceComponent> srcComponentA;
+    std::unique_ptr<SourceComponent> srcComponentB;
+    std::unique_ptr<ProcessorComponent> procComponentA;
+    std::unique_ptr<ProcessorComponent> procComponentB;
+    std::unique_ptr<AnalyserComponent> analyserComponent;
+    std::unique_ptr<MonitoringComponent> monitoringComponent;
 
     Atomic<bool> holdAudio;
     Atomic<long> sampleCounter;

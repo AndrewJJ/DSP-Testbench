@@ -29,43 +29,44 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
 
     gain.setRampDurationSeconds (0.01);
 
-    addAndMakeVisible (lblTitle = new Label ("Monitoring label", TRANS("Monitoring")));
-    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
-    lblTitle->setJustificationType (Justification::topLeft);
-    lblTitle->setEditable (false, false, false);
-    lblTitle->setColour (TextEditor::textColourId, Colours::black);
-    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle);
+    lblTitle.setText (TRANS("Monitoring"), dontSendNotification);
+    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setJustificationType (Justification::topLeft);
+    lblTitle.setEditable (false, false, false);
+    lblTitle.setColour (TextEditor::textColourId, Colours::black);
+    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (sldGain = new Slider ("Output gain slider"));
-    sldGain->setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
-    sldGain->setRange (-100, 0, 0.1);
-    sldGain->setDoubleClickReturnValue (true, 0.0);
-    sldGain->setSliderStyle (Slider::LinearHorizontal);
-    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldGain->setValue (config->getDoubleAttribute ("OutputGain"));
-    sldGain->addListener (this);
+    addAndMakeVisible (sldGain);
+    sldGain.setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
+    sldGain.setRange (-100, 0, 0.1);
+    sldGain.setDoubleClickReturnValue (true, 0.0);
+    sldGain.setSliderStyle (Slider::LinearHorizontal);
+    sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldGain.setValue (config->getDoubleAttribute ("OutputGain"));
+    sldGain.onValueChange = [this] { gain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
-    addAndMakeVisible (btnLimiter = new TextButton ("Limiter button"));
-    btnLimiter->setTooltip (TRANS("Activate limiter on output"));
-    btnLimiter->setButtonText (TRANS("Limiter"));
-    btnLimiter->setClickingTogglesState (true);
-    btnLimiter->setColour (TextButton::buttonOnColourId, Colours::darkorange);
+    addAndMakeVisible (btnLimiter);
+    btnLimiter.setTooltip (TRANS("Activate limiter on output"));
+    btnLimiter.setButtonText (TRANS("Limiter"));
+    btnLimiter.setClickingTogglesState (true);
+    btnLimiter.setColour (TextButton::buttonOnColourId, Colours::darkorange);
     statusLimiter = config->getBoolAttribute ("OutputLimiter");
-    btnLimiter->setToggleState (statusLimiter, dontSendNotification);
-    btnLimiter->onClick = [this] { statusLimiter = btnLimiter->getToggleState(); };
+    btnLimiter.setToggleState (statusLimiter, dontSendNotification);
+    btnLimiter.onClick = [this] { statusLimiter = btnLimiter.getToggleState(); };
     
-    addAndMakeVisible (btnMute = new TextButton ("Mute button"));
-    btnMute->setButtonText ("Mute");
-    btnMute->setClickingTogglesState (true);
-    btnMute->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnMute);
+    btnMute.setButtonText ("Mute");
+    btnMute.setClickingTogglesState (true);
+    btnMute.setColour (TextButton::buttonOnColourId, Colours::darkred);
     statusMute = config->getBoolAttribute ("OutputMute");
-    btnMute->setToggleState (statusMute, dontSendNotification);
-    btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
+    btnMute.setToggleState (statusMute, dontSendNotification);
+    btnMute.onClick = [this] { statusMute = btnMute.getToggleState(); };
 }
 MonitoringComponent::~MonitoringComponent()
 {
     // Update configuration from class state
-    config->setAttribute ("OutputGain", sldGain->getValue());
+    config->setAttribute ("OutputGain", sldGain.getValue());
     config->setAttribute ("OutputLimiter", statusLimiter);
     config->setAttribute ("OutputMute", statusMute);
 
@@ -73,11 +74,6 @@ MonitoringComponent::~MonitoringComponent()
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     propertiesFile->setValue (keyName, config.get());
     propertiesFile->saveIfNeeded();
-
-    lblTitle = nullptr;
-    sldGain = nullptr;
-    btnLimiter = nullptr;
-    btnMute = nullptr;
 }
 void MonitoringComponent::paint (Graphics& g)
 {
@@ -119,20 +115,10 @@ float MonitoringComponent::getMinimumHeight()
     const auto totalItemHeight = GUI_BASE_SIZE_F;
     return innerMargin + totalItemHeight;
 }
-void MonitoringComponent::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-    if (sliderThatWasMoved == sldGain)
-    {
-        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
-    }
-}
 void MonitoringComponent::prepare (const dsp::ProcessSpec& spec)
 {
     gain.prepare (spec);
-
-    jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
-    if (sldGain != nullptr)
-        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
+    gain.setGainDecibels (static_cast<float> (sldGain.getValue()));
 }
 void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -155,12 +141,12 @@ void MonitoringComponent::reset ()
 {
     gain.reset();
 }
-bool MonitoringComponent::isMuted () const
+bool MonitoringComponent::isMuted() const
 {
     // For safe audio processing, we use local variable rather than accessing button toggle state
     return statusMute;
 }
-bool MonitoringComponent::isLimited () const
+bool MonitoringComponent::isLimited() const
 {
     // For safe audio processing, we use local variable rather than accessing button toggle state
     return statusLimiter;

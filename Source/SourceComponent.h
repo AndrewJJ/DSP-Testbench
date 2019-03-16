@@ -38,7 +38,7 @@ enum SweepMode
     Wrap    
 };
 
-class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer, public Slider::Listener
+class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
     SynthesisTab (String& sourceName /**< Specifies the name of the Source being used */);
@@ -58,30 +58,27 @@ public:
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset() override;
-    
+    void reset() override;    
     void timerCallback() override;
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
 
 private:
 
     String keyName;
     std::unique_ptr<XmlElement> config {};
 
-    ScopedPointer<ComboBox> cmbWaveform;
-    ScopedPointer<Slider> sldFrequency;
-    ScopedPointer<Slider> sldSweepDuration;
-    ScopedPointer<ComboBox> cmbSweepMode;
-    ScopedPointer<TextButton> btnSweepEnabled;
-    ScopedPointer<TextButton> btnSweepReset;
-    ScopedPointer<TextButton> btnSynchWithOther;
-    ScopedPointer<Label> lblPreDelay;
-    ScopedPointer<Slider> sldPreDelay;
-    ScopedPointer<Label> lblPulseWidth;
-    ScopedPointer<Slider> sldPulseWidth;
-    ScopedPointer<TextButton> btnPulsePolarity;
-
-
+    ComboBox cmbWaveform;
+    Slider sldFrequency;
+    Slider sldSweepDuration;
+    ComboBox cmbSweepMode;
+    TextButton btnSweepEnabled;
+    TextButton btnSweepReset;
+    TextButton btnSynchWithOther;
+    Label lblPreDelay;
+    Slider sldPreDelay;
+    Label lblPulseWidth;
+    Slider sldPulseWidth;
+    TextButton btnPulsePolarity;
+    
     SourceComponent* otherSource {};
     CriticalSection synthesiserCriticalSection;
     Waveform currentWaveform = Waveform::sine;
@@ -124,7 +121,7 @@ private:
 //{
 //public:
 //    SampleTab();
-//    ~SampleTab();
+//    ~SampleTab() = default;
 //
 //    void paint (Graphics& g) override;
 //    void resized() override;
@@ -138,8 +135,8 @@ private:
 //    void selectedSampleChanged();
 //    void loopEnablementToggled();
 //
-//    ScopedPointer<ComboBox> cmbSample;
-//    ScopedPointer<TextButton> btnLoopEnabled;
+//    ComboBox cmbSample;
+//    TextButton btnLoopEnabled;
 //
 //    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SampleTab)
 //};
@@ -212,23 +209,23 @@ public:
 private:
 
     AudioDeviceManager* audioDeviceManager = nullptr;
-    ScopedPointer<AudioThumbnailComponent> audioThumbnailComponent;
-    ScopedPointer<TextButton> btnLoad;
-    ScopedPointer<TextButton> btnPlay;
-    ScopedPointer<TextButton> btnStop;
-    ScopedPointer<TextButton> btnLoop;
+    std::unique_ptr<AudioThumbnailComponent> audioThumbnailComponent;
+    TextButton btnLoad;
+    TextButton btnPlay;
+    TextButton btnStop;
+    TextButton btnLoop;
 
     AudioFormatManager formatManager;
-    ScopedPointer<AudioFormatReader> reader;
-    ScopedPointer<AudioFormatReaderSource> readerSource;
-    ScopedPointer<AudioTransportSource> transportSource;
+    std::unique_ptr<AudioFormatReader> reader;
+    std::unique_ptr<AudioFormatReaderSource> readerSource;
+    std::unique_ptr<AudioTransportSource> transportSource;
 
     bool loadFile (const File& fileToPlay);
     void chooseFile();
     void init();
-    void play() const;
-    void pause() const;
-    void stop() const;
+    void play();
+    void pause();
+    void stop();
 
     AudioBuffer<float> fileReadBuffer;
     double sampleRate;
@@ -348,7 +345,7 @@ private:
 
 //==============================================================================
 
-class SourceComponent final : public Component, public Slider::Listener, public ChangeListener, public dsp::ProcessorBase
+class SourceComponent final : public Component, public ChangeListener, public dsp::ProcessorBase
 {
 public:
 
@@ -368,12 +365,11 @@ public:
     float getMinimumWidth() const;
     float getMinimumHeight() const;
 
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset () override;
+    void reset() override;
     void prepForSnapShot();
 
     Mode getMode() const;
@@ -390,15 +386,15 @@ private:
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
 
-    ScopedPointer<Label> lblTitle;
-    ScopedPointer<Slider> sldGain;
-    ScopedPointer<TextButton> btnInvert;
-    ScopedPointer<TextButton> btnMute;
-    ScopedPointer<TabbedComponent> tabbedComponent;
-    ScopedPointer<SynthesisTab> synthesisTab;
-    //ScopedPointer<SampleTab> sampleTab;
-    ScopedPointer<WaveTab> waveTab;
-    ScopedPointer<AudioTab> audioTab;
+    Label lblTitle;
+    Slider sldGain;
+    TextButton btnInvert;
+    TextButton btnMute;
+    std::unique_ptr<TabbedComponent> tabbedComponent;
+    std::unique_ptr<SynthesisTab> synthesisTab;
+    //std::unique_ptr<SampleTab> sampleTab;
+    std::unique_ptr<WaveTab> waveTab;
+    std::unique_ptr<AudioTab> audioTab;
 
     SourceComponent* otherSource = nullptr;
     bool isInverted = false;

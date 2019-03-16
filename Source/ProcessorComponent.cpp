@@ -29,54 +29,55 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
         config->setAttribute ("Mute", true);
     }
 
-    addAndMakeVisible (lblTitle = new Label ("Processor label", TRANS("Processor") + " " + processorId));
-    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
-    lblTitle->setJustificationType (Justification::topLeft);
-    lblTitle->setEditable (false, false, false);
-    lblTitle->setColour (TextEditor::textColourId, Colours::black);
-    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle);
+    lblTitle.setText (TRANS("Processor") + " " + processorId, dontSendNotification);
+    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setJustificationType (Justification::topLeft);
+    lblTitle.setEditable (false, false, false);
+    lblTitle.setColour (TextEditor::textColourId, Colours::black);
+    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (btnSourceA = new TextButton ("Source A button"));
-    btnSourceA->setTooltip (TRANS("Process input from source A"));
-    btnSourceA->setClickingTogglesState (true);
-    btnSourceA->setButtonText (TRANS("Src A"));
-    btnSourceA->setColour (TextButton::buttonOnColourId, Colours::green);
+    addAndMakeVisible (btnSourceA);
+    btnSourceA.setTooltip (TRANS("Process input from source A"));
+    btnSourceA.setClickingTogglesState (true);
+    btnSourceA.setButtonText (TRANS("Src A"));
+    btnSourceA.setColour (TextButton::buttonOnColourId, Colours::green);
     statusSourceA.set (config->getBoolAttribute ("SourceA"));
-    btnSourceA->setToggleState (statusSourceA.get(), dontSendNotification);
-    btnSourceA->onClick = [this] { statusSourceA = btnSourceA->getToggleState(); };
+    btnSourceA.setToggleState (statusSourceA.get(), dontSendNotification);
+    btnSourceA.onClick = [this] { statusSourceA = btnSourceA.getToggleState(); };
 
-    addAndMakeVisible (btnSourceB = new TextButton ("Source B button"));
-    btnSourceB->setTooltip (TRANS("Process input from source B"));
-    btnSourceB->setClickingTogglesState (true);
-    btnSourceB->setButtonText (TRANS("Src B"));
-    btnSourceB->setColour (TextButton::buttonOnColourId, Colours::green);
+    addAndMakeVisible (btnSourceB);
+    btnSourceB.setTooltip (TRANS("Process input from source B"));
+    btnSourceB.setClickingTogglesState (true);
+    btnSourceB.setButtonText (TRANS("Src B"));
+    btnSourceB.setColour (TextButton::buttonOnColourId, Colours::green);
     statusSourceB.set (config->getBoolAttribute ("SourceB"));
-    btnSourceB->setToggleState (statusSourceB.get(), dontSendNotification);
-    btnSourceB->onClick = [this] { statusSourceB = btnSourceB->getToggleState(); };
+    btnSourceB.setToggleState (statusSourceB.get(), dontSendNotification);
+    btnSourceB.onClick = [this] { statusSourceB = btnSourceB.getToggleState(); };
 
-    addAndMakeVisible (btnDisable = new TextButton ("Disable button"));
-    btnDisable->setButtonText (TRANS("Disable"));
-    btnDisable->setClickingTogglesState (true);
-    btnDisable->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnDisable);
+    btnDisable.setButtonText (TRANS("Disable"));
+    btnDisable.setClickingTogglesState (true);
+    btnDisable.setColour (TextButton::buttonOnColourId, Colours::darkred);
     statusDisable.set (config->getBoolAttribute ("Disable"));
-    btnDisable->setToggleState (statusDisable.get(), dontSendNotification);
-    btnDisable->onClick = [this] { statusDisable = btnDisable->getToggleState(); };
+    btnDisable.setToggleState (statusDisable.get(), dontSendNotification);
+    btnDisable.onClick = [this] { statusDisable = btnDisable.getToggleState(); };
 
-    addAndMakeVisible (btnInvert = new TextButton ("Invert button"));
-    btnInvert->setButtonText (TRANS("Invert"));
-    btnInvert->setClickingTogglesState (true);
-    btnInvert->setColour (TextButton::buttonOnColourId, Colours::green);
+    addAndMakeVisible (btnInvert);
+    btnInvert.setButtonText (TRANS("Invert"));
+    btnInvert.setClickingTogglesState (true);
+    btnInvert.setColour (TextButton::buttonOnColourId, Colours::green);
     statusInvert.set (config->getBoolAttribute ("Invert"));
-    btnInvert->setToggleState (statusInvert.get(), dontSendNotification);
-    btnInvert->onClick = [this] { statusInvert = btnInvert->getToggleState(); };
+    btnInvert.setToggleState (statusInvert.get(), dontSendNotification);
+    btnInvert.onClick = [this] { statusInvert = btnInvert.getToggleState(); };
 
-    addAndMakeVisible (btnMute = new TextButton ("Mute button"));
-    btnMute->setButtonText (TRANS("Mute"));
-    btnMute->setClickingTogglesState (true);
-    btnMute->setColour (TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnMute);
+    btnMute.setButtonText (TRANS("Mute"));
+    btnMute.setClickingTogglesState (true);
+    btnMute.setColour (TextButton::buttonOnColourId, Colours::darkred);
     statusMute.set (config->getBoolAttribute ("Mute"));
-    btnMute->setToggleState (statusMute.get(), dontSendNotification);
-    btnMute->onClick = [this] { statusMute = btnMute->getToggleState(); };
+    btnMute.setToggleState (statusMute.get(), dontSendNotification);
+    btnMute.onClick = [this] { statusMute = btnMute.getToggleState(); };
 
     for (auto i = 0; i < numberOfControls; ++i)
         controlArray.add (new ControlComponent ("Control " + String (i+1)));
@@ -99,17 +100,10 @@ ProcessorComponent::~ProcessorComponent()
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     propertiesFile->setValue(keyName, config.get());
     propertiesFile->saveIfNeeded();
-
-    lblTitle = nullptr;
-    btnSourceA = nullptr;
-    btnSourceB = nullptr;
-    btnDisable = nullptr;
-    btnInvert = nullptr;
-    btnMute = nullptr;
 }
 void ProcessorComponent::paint (Graphics& g)
 {
-    const Colour fillColour = Colour (0x300081ff);
+    const auto fillColour = Colour (0x300081ff);
     g.setColour (fillColour);
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), GUI_GAP_F(2));
 }
@@ -203,7 +197,7 @@ bool ProcessorComponent::isActive () const noexcept
 }
 void ProcessorComponent::mute ()
 {
-    btnMute->setToggleState (true, sendNotificationSync);
+    btnMute.setToggleState (true, sendNotificationSync);
 }
 
 

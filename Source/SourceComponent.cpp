@@ -23,125 +23,131 @@ SynthesisTab::SynthesisTab (String& sourceName)
     if (!config)
         config.reset(new XmlElement (keyName));
 
-    addAndMakeVisible (cmbWaveform = new ComboBox ("Select Waveform"));
-    cmbWaveform->setTooltip ("Select a waveform");
-    cmbWaveform->addItem ("Sine", Waveform::sine);
-    cmbWaveform->addItem ("Triangle", Waveform::triangle);
-    cmbWaveform->addItem ("Square", Waveform::square);
-    cmbWaveform->addItem ("Saw", Waveform::saw);
-    cmbWaveform->addItem ("Impulse", Waveform::impulse);
-    cmbWaveform->addItem ("Step", Waveform::step);
-    cmbWaveform->addItem ("White Noise", Waveform::whiteNoise);
-    cmbWaveform->addItem ("Pink Noise", Waveform::pinkNoise);
-    cmbWaveform->onChange = [this] { waveformUpdated(); };
-    cmbWaveform->setSelectedId (config->getIntAttribute ("WaveForm", Waveform::sine), sendNotificationAsync);
+    addAndMakeVisible (cmbWaveform);
+    cmbWaveform.setTooltip ("Select a waveform");
+    cmbWaveform.addItem ("Sine", Waveform::sine);
+    cmbWaveform.addItem ("Triangle", Waveform::triangle);
+    cmbWaveform.addItem ("Square", Waveform::square);
+    cmbWaveform.addItem ("Saw", Waveform::saw);
+    cmbWaveform.addItem ("Impulse", Waveform::impulse);
+    cmbWaveform.addItem ("Step", Waveform::step);
+    cmbWaveform.addItem ("White Noise", Waveform::whiteNoise);
+    cmbWaveform.addItem ("Pink Noise", Waveform::pinkNoise);
+    cmbWaveform.onChange = [this] { waveformUpdated(); };
+    cmbWaveform.setSelectedId (config->getIntAttribute ("WaveForm", Waveform::sine), sendNotificationAsync);
 
-    addAndMakeVisible (sldFrequency = new Slider ("Frequency"));
-    sldFrequency->setSliderStyle (Slider::ThreeValueHorizontal);
-    sldFrequency->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldFrequency->setTooltip ("Sets the oscillator frequency in Hertz");
-    sldFrequency->setRange (10.0, nyquist, 1.0);
-    sldFrequency->setSkewFactor (0.5);
-    sldFrequency->addListener (this);
-    sldFrequency->setMinAndMaxValues (config->getDoubleAttribute ("SweepMin", 10.0), config->getDoubleAttribute ("SweepMax", nyquist), dontSendNotification);
-    sldFrequency->setValue (config->getDoubleAttribute ("Frequency", 440.0), sendNotificationSync);
-
-    addAndMakeVisible (sldSweepDuration = new Slider ("Sweep Duration"));
-    sldSweepDuration->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldSweepDuration->setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
-    sldSweepDuration->setRange (0.5, 5.0, 0.1);
-    sldSweepDuration->addListener (this);
-    sldSweepDuration->setValue (config->getDoubleAttribute ("SweepDuration", 1.0), sendNotificationSync);
-    
-    addAndMakeVisible (cmbSweepMode = new ComboBox ("Select Sweep Mode"));
-    cmbSweepMode->setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
-    cmbSweepMode->addItem ("Reverse", SweepMode::Reverse);
-    cmbSweepMode->addItem ("Wrap", SweepMode::Wrap);
-    cmbSweepMode->onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode->getSelectedId()); };
-    cmbSweepMode->setSelectedId (config->getIntAttribute ("SweepMode", SweepMode::Reverse), sendNotificationSync);
-
-    addAndMakeVisible (btnSweepEnabled = new TextButton ("Sweep"));
-    btnSweepEnabled->setTooltip ("Enable sweeping from start frequency to end frequency");
-    btnSweepEnabled->setClickingTogglesState (true);
-    btnSweepEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnSweepEnabled->onStateChange = [this] { updateSweepEnablement(); };
-    btnSweepEnabled->setToggleState (config->getBoolAttribute ("SweepEnabled"), sendNotificationSync);
-
-    addAndMakeVisible (btnSweepReset = new TextButton ("Reset"));
-    btnSweepReset->setTooltip ("Reset/restart the frequency sweep");
-    btnSweepReset->onClick = [this] { resetSweep(); };
-
-    addAndMakeVisible (btnSynchWithOther = new TextButton ("Synch"));
-    btnSynchWithOther->setTooltip ("Synch other source oscillator with this");
-    btnSynchWithOther->onClick = [this] { performSynch(); };
-    
-    addAndMakeVisible (lblPreDelay = new Label());
-    lblPreDelay->setText("Pre Delay", dontSendNotification);
-    lblPreDelay->setJustificationType (Justification::centredRight);
-
-    addAndMakeVisible (sldPreDelay = new Slider ("PulsePreDelay"));
-    sldPreDelay->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldPreDelay->setTooltip ("Sets the pre-delay for pulse step/impulse functions in samples.\n\nNote that step function has it's minimum pre-delay clamped to 1 so that the first sample is zero.");
-    sldPreDelay->setRange (0.0, 1000.0, 1.0);
-    sldPreDelay->addListener (this);
-    sldPreDelay->onValueChange = [this] {
-        impulseFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
-        stepFunction.setPreDelay (static_cast<size_t> (sldPreDelay->getValue()));
+    addAndMakeVisible (sldFrequency);
+    sldFrequency.setSliderStyle (Slider::ThreeValueHorizontal);
+    sldFrequency.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldFrequency.setTooltip ("Sets the oscillator frequency in Hertz");
+    sldFrequency.setRange (10.0, nyquist, 1.0);
+    sldFrequency.setSkewFactor (0.5);
+    sldFrequency.onValueChange = [this]
+    {
+        currentFrequency = sldFrequency.getValue();
+        sweepStartFrequency = sldFrequency.getMinValue();
+        sweepEndFrequency = sldFrequency.getMaxValue();
     };
-    sldPreDelay->setValue (static_cast<double> (config->getIntAttribute ("PreDelay", 100)), sendNotificationSync);
-    
-    addAndMakeVisible (lblPulseWidth = new Label());
-    lblPulseWidth->setText("Pulse Width", dontSendNotification);
-    lblPulseWidth->setJustificationType (Justification::centredRight);
-    
-    addAndMakeVisible (sldPulseWidth = new Slider ("PulseWidth"));
-    sldPulseWidth->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldPulseWidth->setTooltip ("Sets the pulse width for the step function in samples");
-    sldPulseWidth->setRange (1.0, 1000.0, 1.0);
-    sldPulseWidth->addListener (this);
-    sldPulseWidth->onValueChange = [this] {
-        impulseFunction.setPulseWidth (static_cast<size_t> (sldPulseWidth->getValue()));
+    sldFrequency.setMinAndMaxValues (config->getDoubleAttribute ("SweepMin", 10.0), config->getDoubleAttribute ("SweepMax", nyquist), dontSendNotification);
+    sldFrequency.setValue (config->getDoubleAttribute ("Frequency", 440.0), sendNotificationSync);
+
+    addAndMakeVisible (sldSweepDuration);
+    sldSweepDuration.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldSweepDuration.setTooltip ("Sets the duration of the logarithmic frequency sweep in seconds");
+    sldSweepDuration.setRange (0.5, 5.0, 0.1);
+    sldSweepDuration.onValueChange = [this]
+    {
+        sweepDuration = sldSweepDuration.getValue();
+        calculateNumSweepSteps();
     };
-    sldPulseWidth->setValue (static_cast<double> (config->getIntAttribute ("PulseWidth", 1)), sendNotificationSync);
+    sldSweepDuration.setValue (config->getDoubleAttribute ("SweepDuration", 1.0), sendNotificationSync);
     
-    addAndMakeVisible (btnPulsePolarity = new TextButton ("Polarity"));
-    btnPulsePolarity->setTooltip ("Set leading edge of pulse to transition from zero to either full scale positive or negative");
-    btnPulsePolarity->setClickingTogglesState (true);
-    btnPulsePolarity->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnPulsePolarity->setColour (TextButton::buttonColourId, Colours::darkred);
-    btnPulsePolarity->onStateChange = [this] {
-        stepFunction.setPositivePolarity (btnPulsePolarity->getToggleState());
-        impulseFunction.setPositivePolarity (btnPulsePolarity->getToggleState());
-        if (btnPulsePolarity->getToggleState())
-            btnPulsePolarity->setButtonText ("+ve Polarity");
+    addAndMakeVisible (cmbSweepMode);
+    cmbSweepMode.setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
+    cmbSweepMode.addItem ("Reverse", SweepMode::Reverse);
+    cmbSweepMode.addItem ("Wrap", SweepMode::Wrap);
+    cmbSweepMode.onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode.getSelectedId()); };
+    cmbSweepMode.setSelectedId (config->getIntAttribute ("SweepMode", SweepMode::Reverse), sendNotificationSync);
+
+    addAndMakeVisible (btnSweepEnabled);
+    btnSweepEnabled.setButtonText ("Sweep");
+    btnSweepEnabled.setTooltip ("Enable sweeping from start frequency to end frequency");
+    btnSweepEnabled.setClickingTogglesState (true);
+    btnSweepEnabled.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnSweepEnabled.onStateChange = [this] { updateSweepEnablement(); };
+    btnSweepEnabled.setToggleState (config->getBoolAttribute ("SweepEnabled"), sendNotificationSync);
+
+    addAndMakeVisible (btnSweepReset);
+    btnSweepReset.setButtonText ("Reset");
+    btnSweepReset.setTooltip ("Reset/restart the frequency sweep");
+    btnSweepReset.onClick = [this] { resetSweep(); };
+
+    addAndMakeVisible (btnSynchWithOther);
+    btnSynchWithOther.setButtonText ("Synch");
+    btnSynchWithOther.setTooltip ("Synch other source oscillator with this");
+    btnSynchWithOther.onClick = [this] { performSynch(); };
+    
+    addAndMakeVisible (lblPreDelay);
+    lblPreDelay.setText("Pre Delay", dontSendNotification);
+    lblPreDelay.setJustificationType (Justification::centredRight);
+
+    addAndMakeVisible (sldPreDelay);
+    sldPreDelay.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldPreDelay.setTooltip ("Sets the pre-delay for pulse step/impulse functions in samples.\n\nNote that step function has it's minimum pre-delay clamped to 1 so that the first sample is zero.");
+    sldPreDelay.setRange (0.0, 1000.0, 1.0);
+    sldPreDelay.onValueChange = [this]
+    {
+        impulseFunction.setPreDelay (static_cast<size_t> (sldPreDelay.getValue()));
+        stepFunction.setPreDelay (static_cast<size_t> (sldPreDelay.getValue()));
+    };
+    sldPreDelay.setValue (static_cast<double> (config->getIntAttribute ("PreDelay", 100)), sendNotificationSync);
+    
+    addAndMakeVisible (lblPulseWidth);
+    lblPulseWidth.setText("Pulse Width", dontSendNotification);
+    lblPulseWidth.setJustificationType (Justification::centredRight);
+    
+    addAndMakeVisible (sldPulseWidth);
+    sldPulseWidth.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldPulseWidth.setTooltip ("Sets the pulse width for the step function in samples");
+    sldPulseWidth.setRange (1.0, 1000.0, 1.0);
+    sldPulseWidth.onValueChange = [this] {
+        impulseFunction.setPulseWidth (static_cast<size_t> (sldPulseWidth.getValue()));
+    };
+    sldPulseWidth.setValue (static_cast<double> (config->getIntAttribute ("PulseWidth", 1)), sendNotificationSync);
+    
+    addAndMakeVisible (btnPulsePolarity);
+    btnPulsePolarity.setTooltip ("Set leading edge of pulse to transition from zero to either full scale positive or negative");
+    btnPulsePolarity.setClickingTogglesState (true);
+    btnPulsePolarity.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnPulsePolarity.setColour (TextButton::buttonColourId, Colours::darkred);
+    btnPulsePolarity.onStateChange = [this] {
+        stepFunction.setPositivePolarity (btnPulsePolarity.getToggleState());
+        impulseFunction.setPositivePolarity (btnPulsePolarity.getToggleState());
+        if (btnPulsePolarity.getToggleState())
+            btnPulsePolarity.setButtonText ("+ve Polarity");
         else
-            btnPulsePolarity->setButtonText ("-ve Polarity");
+            btnPulsePolarity.setButtonText ("-ve Polarity");
     };
-    btnPulsePolarity->setToggleState (config->getBoolAttribute ("PulsePolarity", true), sendNotificationSync);
+    btnPulsePolarity.setToggleState (config->getBoolAttribute ("PulsePolarity", true), sendNotificationSync);
 }
 SynthesisTab::~SynthesisTab ()
 {
     // Update configuration from class state
-    config->setAttribute ("WaveForm", cmbWaveform->getSelectedId());
-    config->setAttribute ("Frequency", sldFrequency->getValue());
-    config->setAttribute ("SweepMin", sldFrequency->getMinValue());
-    config->setAttribute ("SweepMax", sldFrequency->getMaxValue());
-    config->setAttribute ("SweepDuration", sldSweepDuration->getValue());
-    config->setAttribute ("SweepMode",cmbSweepMode->getSelectedId());
-    config->setAttribute ("SweepEnabled", btnSweepEnabled->getToggleState());
-    config->setAttribute ("PreDelay", static_cast<int> (sldPreDelay->getValue()));
-    config->setAttribute ("PulseWidth", static_cast<int> (sldPulseWidth->getValue()));
-    config->setAttribute ("PulsePolarity", btnPulsePolarity->getToggleState());
+    config->setAttribute ("WaveForm", cmbWaveform.getSelectedId());
+    config->setAttribute ("Frequency", sldFrequency.getValue());
+    config->setAttribute ("SweepMin", sldFrequency.getMinValue());
+    config->setAttribute ("SweepMax", sldFrequency.getMaxValue());
+    config->setAttribute ("SweepDuration", sldSweepDuration.getValue());
+    config->setAttribute ("SweepMode",cmbSweepMode.getSelectedId());
+    config->setAttribute ("SweepEnabled", btnSweepEnabled.getToggleState());
+    config->setAttribute ("PreDelay", static_cast<int> (sldPreDelay.getValue()));
+    config->setAttribute ("PulseWidth", static_cast<int> (sldPulseWidth.getValue()));
+    config->setAttribute ("PulsePolarity", btnPulsePolarity.getToggleState());
     
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     propertiesFile->setValue(keyName, config.get());
     propertiesFile->saveIfNeeded();
-
-    cmbWaveform = nullptr;
-    sldFrequency = nullptr;
-    sldSweepDuration = nullptr;
-    btnSweepEnabled = nullptr;
 }
 void SynthesisTab::paint (Graphics&)
 { }
@@ -227,19 +233,16 @@ void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double
                                            const double sweepStart, const double sweepEnd,
                                            const double newSweepDuration, const SweepMode sweepMode, const bool sweepEnabled)
 {
-    cmbWaveform->setSelectedId (waveform, sendNotificationSync);
-    sldFrequency->setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
-    sldFrequency->setValue(freq, sendNotificationSync);
-    cmbSweepMode->setSelectedId (sweepMode, sendNotificationSync);
-    btnSweepEnabled->setToggleState(sweepEnabled, sendNotificationSync);
-    sldSweepDuration->setValue(newSweepDuration, sendNotificationSync);
+    cmbWaveform.setSelectedId (waveform, sendNotificationSync);
+    sldFrequency.setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
+    sldFrequency.setValue(freq, sendNotificationSync);
+    cmbSweepMode.setSelectedId (sweepMode, sendNotificationSync);
+    btnSweepEnabled.setToggleState(sweepEnabled, sendNotificationSync);
+    sldSweepDuration.setValue(newSweepDuration, sendNotificationSync);
     this->reset();
 }
 void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
 {
-    // Assumes sliders are constructed before prepare is ever called and that audio is shutdown before sliders are destroyed
-    jassert (sldFrequency != nullptr && sldSweepDuration != nullptr);
-
     for (auto&& oscillator : oscillators)
     {
         oscillator.setFrequency (static_cast<float> (currentFrequency));
@@ -250,7 +253,7 @@ void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
     maxBlockSize = spec.maximumBlockSize;
     
     const auto nyquist = round (sampleRate / 2.0);
-    sldFrequency->setRange (10.0, nyquist, 1.0);
+    sldFrequency.setRange (10.0, nyquist, 1.0);
 
     calculateNumSweepSteps();
     resetSweep();
@@ -334,21 +337,7 @@ void SynthesisTab::reset()
 void SynthesisTab::timerCallback ()
 {
     jassert (isSweepEnabled);
-    sldFrequency->setValue (getSweepFrequency(), sendNotificationAsync);
-}
-void SynthesisTab::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-    if (sliderThatWasMoved == sldFrequency)
-    {
-        currentFrequency = sldFrequency->getValue();
-        sweepStartFrequency = sldFrequency->getMinValue();
-        sweepEndFrequency = sldFrequency->getMaxValue();
-    }
-    if (sliderThatWasMoved == sldSweepDuration)
-    {
-        sweepDuration = sldSweepDuration->getValue();
-        calculateNumSweepSteps();
-    }
+    sldFrequency.setValue (getSweepFrequency(), sendNotificationAsync);
 }
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
@@ -361,43 +350,43 @@ bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 void SynthesisTab::waveformUpdated()
 {
     // Store locally so audio routines can check value safely
-    currentWaveform = static_cast<Waveform> (cmbWaveform->getSelectedId());
+    currentWaveform = static_cast<Waveform> (cmbWaveform.getSelectedId());
 
     // Set control enablement based on waveform type
-    cmbSweepMode->setEnabled (isSelectedWaveformOscillatorBased());
-    sldSweepDuration->setEnabled (isSelectedWaveformOscillatorBased());
-    btnSweepEnabled->setEnabled (isSelectedWaveformOscillatorBased());
-    btnSweepReset->setEnabled (isSelectedWaveformOscillatorBased());
-    sldFrequency->setEnabled (isSelectedWaveformOscillatorBased());
-    sldPreDelay->setEnabled (!isSelectedWaveformOscillatorBased());
-    sldPulseWidth->setEnabled (currentWaveform == Waveform::impulse);
-    btnPulsePolarity->setEnabled (!isSelectedWaveformOscillatorBased());
+    cmbSweepMode.setEnabled (isSelectedWaveformOscillatorBased());
+    sldSweepDuration.setEnabled (isSelectedWaveformOscillatorBased());
+    btnSweepEnabled.setEnabled (isSelectedWaveformOscillatorBased());
+    btnSweepReset.setEnabled (isSelectedWaveformOscillatorBased());
+    sldFrequency.setEnabled (isSelectedWaveformOscillatorBased());
+    sldPreDelay.setEnabled (!isSelectedWaveformOscillatorBased());
+    sldPulseWidth.setEnabled (currentWaveform == Waveform::impulse);
+    btnPulsePolarity.setEnabled (!isSelectedWaveformOscillatorBased());
 
     // Set control visibility based on waveform type
-    cmbSweepMode->setVisible (isSelectedWaveformOscillatorBased());
-    sldSweepDuration->setVisible (isSelectedWaveformOscillatorBased());
-    btnSweepEnabled->setVisible (isSelectedWaveformOscillatorBased());
-    btnSweepReset->setVisible (isSelectedWaveformOscillatorBased());
-    sldFrequency->setVisible (isSelectedWaveformOscillatorBased());
-    lblPreDelay->setVisible (!isSelectedWaveformOscillatorBased());
-    sldPreDelay->setVisible (!isSelectedWaveformOscillatorBased());
-    lblPulseWidth->setVisible (currentWaveform == Waveform::impulse);
-    sldPulseWidth->setVisible (currentWaveform == Waveform::impulse);
-    btnPulsePolarity->setVisible (!isSelectedWaveformOscillatorBased());
+    cmbSweepMode.setVisible (isSelectedWaveformOscillatorBased());
+    sldSweepDuration.setVisible (isSelectedWaveformOscillatorBased());
+    btnSweepEnabled.setVisible (isSelectedWaveformOscillatorBased());
+    btnSweepReset.setVisible (isSelectedWaveformOscillatorBased());
+    sldFrequency.setVisible (isSelectedWaveformOscillatorBased());
+    lblPreDelay.setVisible (!isSelectedWaveformOscillatorBased());
+    sldPreDelay.setVisible (!isSelectedWaveformOscillatorBased());
+    lblPulseWidth.setVisible (currentWaveform == Waveform::impulse);
+    sldPulseWidth.setVisible (currentWaveform == Waveform::impulse);
+    btnPulsePolarity.setVisible (!isSelectedWaveformOscillatorBased());
 
     if (currentWaveform == Waveform::impulse)
-        sldPreDelay->setValue (static_cast<double> (impulseFunction.getPreDelay()), dontSendNotification);
+        sldPreDelay.setValue (static_cast<double> (impulseFunction.getPreDelay()), dontSendNotification);
     else if (currentWaveform == Waveform::step)
-        sldPreDelay->setValue (static_cast<double> (stepFunction.getPreDelay()), dontSendNotification);
+        sldPreDelay.setValue (static_cast<double> (stepFunction.getPreDelay()), dontSendNotification);
 
     // Trigger resized so we redraw the layout grid with different controls
     resized();
 }
 void SynthesisTab::updateSweepEnablement ()
 {
-    isSweepEnabled = btnSweepEnabled->getToggleState();
+    isSweepEnabled = btnSweepEnabled.getToggleState();
     
-    sldSweepDuration->setEnabled (isSweepEnabled);
+    sldSweepDuration.setEnabled (isSweepEnabled);
     
     if (isSweepEnabled)
         startTimerHz (50);
@@ -426,31 +415,26 @@ void SynthesisTab::calculateNumSweepSteps()
 
 //SampleTab::SampleTab ()
 //{
-//    addAndMakeVisible (cmbSample = new ComboBox ("Select Sample"));
-//    cmbSample->addItem ("None", 1);
-//    cmbSample->setSelectedId (1, dontSendNotification);
-//    cmbSample->onChange = [this] { selectedSampleChanged(); };
+//    addAndMakeVisible (cmbSample);
+//    cmbSample.addItem ("None", 1);
+//    cmbSample.setSelectedId (1, dontSendNotification);
+//    cmbSample.onChange = [this] { selectedSampleChanged(); };
 //
-//    addAndMakeVisible (btnLoopEnabled = new TextButton ("Loop Enabled"));
-//    btnLoopEnabled->setClickingTogglesState (true);
-//    //btnLoopEnabled->setToggleState (true, dontSendNotification);
-//    btnLoopEnabled->setColour (TextButton::buttonOnColourId, Colours::green);
-//    btnLoopEnabled->onClick = [this] { loopEnablementToggled(); };
+//    addAndMakeVisible (btnLoopEnabled);
+//    btnLoopEnabled.setButtonText ("Loop Enabled");
+//    btnLoopEnabled.setClickingTogglesState (true);
+//    //btnLoopEnabled.setToggleState (true, dontSendNotification);
+//    btnLoopEnabled.setColour (TextButton::buttonOnColourId, Colours::green);
+//    btnLoopEnabled.onClick = [this] { loopEnablementToggled(); };
 //
 //    // Add delay control to prevent machine gunning of sample?
 //}
-//SampleTab::~SampleTab ()
-//{
-//    cmbSample = nullptr;
-//    btnLoopEnabled = nullptr;
-//}
 //void SampleTab::paint (Graphics&)
-//{
-//}
+//{ }
 //void SampleTab::resized ()
 //{
-//    cmbSample->setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
-//    btnLoopEnabled->setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
+//    cmbSample.setBoundsRelative (0.1f, 0.2f, 0.8f, 0.2f);
+//    btnLoopEnabled.setBoundsRelative (0.1f, 0.5f, 0.8f, 0.2f);
 //}
 //void SampleTab::selectedSampleChanged()
 //{ }
@@ -601,36 +585,40 @@ WaveTab::WaveTab(AudioDeviceManager* deviceManager, const String& initialFilePat
 {
     formatManager.registerBasicFormats();
 
-    addAndMakeVisible(audioThumbnailComponent = new AudioThumbnailComponent (audioDeviceManager, &formatManager));
+    audioThumbnailComponent.reset (new AudioThumbnailComponent (audioDeviceManager, &formatManager));
+    addAndMakeVisible (audioThumbnailComponent.get());
     audioThumbnailComponent->addChangeListener (this);
 
-    addAndMakeVisible (btnLoad = new TextButton ("Load"));
-    btnLoad->setTooltip ("Load wave file");
-    btnLoad->onClick = [this] { chooseFile(); };
+    addAndMakeVisible (btnLoad);
+    btnLoad.setButtonText ("Load");
+    btnLoad.setTooltip ("Load wave file");
+    btnLoad.onClick = [this] { chooseFile(); };
 
-    addAndMakeVisible (btnPlay = new TextButton ("Play"));
-    btnPlay->setTooltip ("Play/pause (playing will loop once the end of the file is reached)");
-    btnPlay->setClickingTogglesState (true);
-    btnPlay->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnPlay->onClick = [this] {
+    addAndMakeVisible (btnPlay);
+    btnPlay.setButtonText ("Play");
+    btnPlay.setTooltip ("Play/pause (playing will loop once the end of the file is reached)");
+    btnPlay.setClickingTogglesState (true);
+    btnPlay.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnPlay.onClick = [this] {
         if (!audioThumbnailComponent->isFileLoaded())
-            btnPlay->setToggleState(false, dontSendNotification);
-        else if (btnPlay->getToggleState())
+            btnPlay.setToggleState(false, dontSendNotification);
+        else if (btnPlay.getToggleState())
             play();
         else
             pause();
     };
 
-    addAndMakeVisible (btnStop = new TextButton ("Stop"));
-    btnStop->onClick = [this] { stop(); };
+    addAndMakeVisible (btnStop);
+    btnStop.setButtonText ("Stop");
+    btnStop.onClick = [this] { stop(); };
 
-    addAndMakeVisible (btnLoop = new TextButton ("Loop"));
-    btnLoop->setClickingTogglesState (true);
-    btnLoop->setToggleState(true, dontSendNotification);
-    btnLoop->setColour (TextButton::buttonOnColourId, Colours::green);
-    btnLoop->onClick = [this] { 
-        if (readerSource != nullptr)
-            readerSource->setLooping (btnLoop->getToggleState());
+    addAndMakeVisible (btnLoop);
+    btnLoop.setButtonText ("Loop");
+    btnLoop.setClickingTogglesState (true);
+    btnLoop.setToggleState(true, dontSendNotification);
+    btnLoop.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnLoop.onClick = [this] { 
+        readerSource->setLooping (btnLoop.getToggleState());
     };
 
     // Delay load of initial file using timer so that audio device is set up
@@ -659,7 +647,7 @@ void WaveTab::resized ()
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (audioThumbnailComponent).withArea ({ }, GridItem::Span (4)),
+    grid.items.addArray({   GridItem (audioThumbnailComponent.get()).withArea ({ }, GridItem::Span (4)),
                             GridItem (btnLoad),
                             GridItem (btnPlay),
                             GridItem (btnStop),
@@ -693,37 +681,32 @@ void WaveTab::prepare (const dsp::ProcessSpec& spec)
 }
 void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    if (transportSource != nullptr)
-    {
-        const AudioSourceChannelInfo info (fileReadBuffer);
+    const AudioSourceChannelInfo info (fileReadBuffer);
 
-        // Always read next audio block so pause & stop methods doesn't have a one second time out
-        transportSource->getNextAudioBlock (info);
+    // Always read next audio block so pause & stop methods doesn't have a one second time out
+    transportSource->getNextAudioBlock (info);
 
-        // But only output the block if currently playing
-        if (transportSource->isPlaying())
-            context.getOutputBlock().copy(fileReadBuffer);
-        else
-            context.getOutputBlock().clear();
-    }
+    // But only output the block if currently playing
+    if (transportSource->isPlaying())
+        context.getOutputBlock().copy(fileReadBuffer);
     else
         context.getOutputBlock().clear();
 }
 void WaveTab::reset()
 {
-    btnPlay->setToggleState (false, dontSendNotification);
+    btnPlay.setToggleState (false, dontSendNotification);
     audioThumbnailComponent->clear();
-    transportSource.reset();
-    readerSource.reset();
+    transportSource->releaseResources();
+    readerSource->releaseResources();
     reader.reset();
     fileReadBuffer.clear();
     init();
 }
 void WaveTab::changeListenerCallback (ChangeBroadcaster* source)
 {
-    if (source == audioThumbnailComponent)
+    if (source == audioThumbnailComponent.get())
     {
-        if (btnPlay->getToggleState())
+        if (btnPlay.getToggleState())
             stop();
         loadFile (audioThumbnailComponent->getCurrentFile());
     }
@@ -740,7 +723,7 @@ void WaveTab::timerCallback ()
             audioThumbnailComponent->setCurrentFile (file);
         if (shouldPlayOnInitialise)
         {
-            btnPlay->setToggleState(true, dontSendNotification);
+            btnPlay.setToggleState(true, dontSendNotification);
             play();
         }
     }
@@ -752,7 +735,7 @@ String WaveTab::getFilePath() const
 }
 bool WaveTab::isPlaying() const
 {
-    return btnPlay->getToggleState();
+    return btnPlay.getToggleState();
 }
 void WaveTab::prepForSnapshot (const bool shouldPlayFromStart)
 {
@@ -770,10 +753,10 @@ bool WaveTab::loadFile (const File& fileToPlay)
     transportSource.reset();
     readerSource.reset();
 
-    reader = formatManager.createReaderFor (fileToPlay);
-    if (reader != nullptr)
+    reader.reset (formatManager.createReaderFor (fileToPlay));
+    if (reader)
     {
-        readerSource = new AudioFormatReaderSource (reader, false);
+        readerSource.reset (new AudioFormatReaderSource (reader.get(), false));
         init();
         return true;
     }
@@ -797,27 +780,25 @@ void WaveTab::chooseFile()
 }
 void WaveTab::init()
 {
-    if (transportSource == nullptr)
+    if (!transportSource)
     {
-        transportSource = new AudioTransportSource();
+        transportSource.reset (new AudioTransportSource());
         transportSource->prepareToPlay(maxBlockSize, sampleRate);
         transportSource->addChangeListener (this);
-
-        if (readerSource != nullptr)
+        
+        if (readerSource)
         {
-            if (btnLoop != nullptr)
-                readerSource->setLooping (btnLoop->getToggleState());
-
+            readerSource->setLooping (btnLoop.getToggleState());
             if (auto* device = audioDeviceManager->getCurrentAudioDevice())
             {
-                transportSource->setSource (readerSource, roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
+                transportSource->setSource (readerSource.get(), roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
                 // tell the main window about this so that it can do the seeking behaviour...
-                audioThumbnailComponent->setTransportSource (transportSource);
+                audioThumbnailComponent->setTransportSource (transportSource.get());
             }
         }
     }
 }
-void WaveTab::play() const
+void WaveTab::play()
 {
     if (readerSource == nullptr)
         return;
@@ -829,16 +810,16 @@ void WaveTab::play() const
     }
     transportSource->start();
 }
-void WaveTab::pause () const
+void WaveTab::pause()
 {
     if (transportSource != nullptr)
         transportSource->stop();
 }
-void WaveTab::stop () const
+void WaveTab::stop()
 {
-    btnPlay->setToggleState (false, dontSendNotification);
+    btnPlay.setToggleState (false, dontSendNotification);
     
-    if (transportSource != nullptr)
+    if (transportSource)
     {
         transportSource->stop();
         transportSource->setPosition (0);
@@ -1161,54 +1142,60 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
 
     gain.setRampDurationSeconds (0.01);
     
-    addAndMakeVisible (lblTitle = new Label ("Source label", TRANS("Source") + " " + String (sourceId)));
-    lblTitle->setFont (Font (GUI_SIZE_F(0.7), Font::bold));
-    lblTitle->setJustificationType (Justification::topLeft);
-    lblTitle->setEditable (false, false, false);
-    lblTitle->setColour (TextEditor::textColourId, Colours::black);
-    lblTitle->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (lblTitle);
+    lblTitle.setText (TRANS("Source") + " " + String (sourceId), dontSendNotification);
+    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setJustificationType (Justification::topLeft);
+    lblTitle.setEditable (false, false, false);
+    lblTitle.setColour (TextEditor::textColourId, Colours::black);
+    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (sldGain = new Slider ("Source gain slider"));
-    sldGain->setTooltip (TRANS("Adjusts the gain of this source"));
-    sldGain->setRange (-100, 50, 0.1);
-    sldGain->setDoubleClickReturnValue (true, 0.0);
-    sldGain->setSliderStyle (Slider::LinearHorizontal);
-    sldGain->setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldGain->setValue (config->getDoubleAttribute ("SourceGain"));
-    sldGain->addListener (this);
+    addAndMakeVisible (sldGain);
+    sldGain.setTooltip (TRANS("Adjusts the gain of this source"));
+    sldGain.setRange (-100, 50, 0.1);
+    sldGain.setDoubleClickReturnValue (true, 0.0);
+    sldGain.setSliderStyle (Slider::LinearHorizontal);
+    sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldGain.setValue (config->getDoubleAttribute ("SourceGain"));
+    sldGain.onValueChange = [this] { gain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
-    addAndMakeVisible (btnInvert = new TextButton ("Invert Source button"));
-    btnInvert->setButtonText (TRANS("Invert"));
-    btnInvert->setClickingTogglesState (true);
-    btnInvert->setColour(TextButton::buttonOnColourId, Colours::green);
+    addAndMakeVisible (btnInvert);
+    btnInvert.setButtonText (TRANS("Invert"));
+    btnInvert.setClickingTogglesState (true);
+    btnInvert.setColour(TextButton::buttonOnColourId, Colours::green);
     isInverted = config->getBoolAttribute ("Invert");
-    btnInvert->setToggleState (isInverted, dontSendNotification);
-    btnInvert->onClick = [this] { isInverted = btnInvert->getToggleState(); };
+    btnInvert.setToggleState (isInverted, dontSendNotification);
+    btnInvert.onClick = [this] { isInverted = btnInvert.getToggleState(); };
 
-    addAndMakeVisible (btnMute = new TextButton ("Mute Source button"));
-    btnMute->setButtonText (TRANS("Mute"));
-    btnMute->setClickingTogglesState (true);
-    btnMute->setColour(TextButton::buttonOnColourId, Colours::darkred);
+    addAndMakeVisible (btnMute);
+    btnMute.setButtonText (TRANS("Mute"));
+    btnMute.setClickingTogglesState (true);
+    btnMute.setColour(TextButton::buttonOnColourId, Colours::darkred);
     isMuted = config->getBoolAttribute ("Mute");
-    btnMute->setToggleState (isMuted, dontSendNotification);
-    btnMute->onClick = [this] {
-        isMuted = btnMute->getToggleState();
+    btnMute.setToggleState (isMuted, dontSendNotification);
+    btnMute.onClick = [this] {
+        isMuted = btnMute.getToggleState();
         audioTab->setRefresh (!isMuted);
     };
 
-    addAndMakeVisible (tabbedComponent = new TabbedComponent (TabbedButtonBar::TabsAtTop));
+    tabbedComponent.reset (new TabbedComponent (TabbedButtonBar::TabsAtTop));
+    synthesisTab.reset (new SynthesisTab (sourceName));
+    //sampleTab.reset (new SampleTab());
+    waveTab.reset (new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying")));
+    audioTab.reset (new AudioTab (audioDeviceManager));
+    addAndMakeVisible (tabbedComponent.get());
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
-    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab = new SynthesisTab (sourceName), false, Mode::Synthesis);
-    //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab = new SampleTab(), false, Mode::Sample);
-    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab = new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying")), false, Mode:: WaveFile);
-    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab = new AudioTab (audioDeviceManager), false, Mode::AudioIn);
+    tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab.get(), false, Mode::Synthesis);
+    //tabbedComponent->addTab (TRANS("Sample"), Colours::darkgrey, sampleTab.get(), false, Mode::Sample);
+    tabbedComponent->addTab (TRANS("Wave File"), Colours::darkgrey, waveTab.get(), false, Mode:: WaveFile);
+    tabbedComponent->addTab (TRANS("Audio In"), Colours::darkgrey, audioTab.get(), false, Mode::AudioIn);
     tabbedComponent->getTabbedButtonBar().addChangeListener(this);
     tabbedComponent->setCurrentTabIndex (config->getIntAttribute("TabIndex")); // Need to set tab after change listener added
 }
 SourceComponent::~SourceComponent()
 {
     // Update configuration from class state
-    config->setAttribute ("SourceGain", sldGain->getValue());
+    config->setAttribute ("SourceGain", sldGain.getValue());
     config->setAttribute ("Invert", isInverted);
     config->setAttribute ("Mute", isMuted);
     config->setAttribute ("TabIndex", tabbedComponent->getCurrentTabIndex());
@@ -1219,11 +1206,6 @@ SourceComponent::~SourceComponent()
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     propertiesFile->setValue(sourceName, config.get());
     propertiesFile->saveIfNeeded();
-
-    lblTitle = nullptr;
-    sldGain = nullptr;
-    btnMute = nullptr;
-    tabbedComponent = nullptr;
 }
 void SourceComponent::paint (Graphics& g)
 {
@@ -1251,7 +1233,7 @@ void SourceComponent::resized()
                             GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
                             GridItem (btnInvert),
                             GridItem (btnMute),
-                            GridItem (tabbedComponent).withArea ({ }, GridItem::Span (4))
+                            GridItem (tabbedComponent.get()).withArea ({ }, GridItem::Span (4))
                         });
     
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
@@ -1271,13 +1253,6 @@ float SourceComponent::getMinimumHeight() const
     const auto totalItemGaps = GUI_BASE_GAP_F;
     return innerMargin + totalItemHeight + totalItemGaps;
 }
-void SourceComponent::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-    if (sliderThatWasMoved == sldGain)
-    {
-        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
-    }
-}
 void SourceComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
     if (source == dynamic_cast<ChangeBroadcaster*> (&tabbedComponent->getTabbedButtonBar()))
@@ -1293,10 +1268,7 @@ void SourceComponent::prepare (const dsp::ProcessSpec& spec)
     waveTab->prepare (spec);
     audioTab->prepare (spec);
     gain.prepare (spec);
-
-    jassert (sldGain != nullptr); // If this is null then gain won't initialise and you won't hear a sound until the slider is moved
-    if (sldGain != nullptr)
-        gain.setGainDecibels (static_cast<float> (sldGain->getValue()));
+    gain.setGainDecibels (static_cast<float> (sldGain.getValue()));
 }
 void SourceComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -1358,11 +1330,11 @@ void SourceComponent::setOtherSource (SourceComponent* otherSourceComponent)
 }
 SynthesisTab* SourceComponent::getSynthesisTab ()
 {
-    return synthesisTab;
+    return synthesisTab.get();
 }
 void SourceComponent::mute()
 {
-    btnMute->setToggleState (true, sendNotificationSync);
+    btnMute.setToggleState (true, sendNotificationSync);
 }
 float SourceComponent::getDesiredTabComponentWidth() const
 {

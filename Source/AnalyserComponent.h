@@ -96,9 +96,9 @@ private:
     std::unique_ptr<XmlElement> config{};
 
     Label lblTitle;
-    ScopedPointer<DrawableButton> btnConfig;
-    ScopedPointer<DrawableButton> btnPause;
-    ScopedPointer<DrawableButton> btnExpand;
+    std::unique_ptr<DrawableButton> btnConfig;
+    std::unique_ptr<DrawableButton> btnPause;
+    std::unique_ptr<DrawableButton> btnExpand;
     std::unique_ptr<AnalyserConfigComponent> configComponent{};
 
     FftProcessor<12> fftProcessor;

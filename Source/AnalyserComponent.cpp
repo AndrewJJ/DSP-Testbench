@@ -29,20 +29,23 @@ AnalyserComponent::AnalyserComponent()
     lblTitle.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
     addAndMakeVisible (lblTitle);
 
-    addAndMakeVisible (btnConfig = new DrawableButton ("Config", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnConfig, BinaryData::configure_svg, BinaryData::configure_svgSize, Colours::black);
+    btnConfig.reset (new DrawableButton ("Config", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnConfig.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnConfig.get(), BinaryData::configure_svg, BinaryData::configure_svgSize, Colours::black);
     btnConfig->setTooltip ("Configure analyser settings");
     
-    addAndMakeVisible (btnPause = new DrawableButton ("Disable", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnPause, BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
+    btnPause.reset (new DrawableButton ("Disable", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnPause.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnPause.get(), BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
     btnPause->setTooltip ("Pause the analyser");
     btnPause->setClickingTogglesState (true);
     statusActive.set (config->getBoolAttribute ("Active", true));
     btnPause->setToggleState (!statusActive.get(), dontSendNotification);
     btnPause->onClick = [this] { statusActive = !btnPause->getToggleState(); };
 
-    addAndMakeVisible (btnExpand = new DrawableButton ("Expand", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnExpand, BinaryData::expand_svg, BinaryData::expand_svgSize, Colours::black, Colours::yellow);
+    btnExpand.reset (new DrawableButton ("Expand", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnExpand.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnExpand.get(), BinaryData::expand_svg, BinaryData::expand_svgSize, Colours::black, Colours::yellow);
     btnExpand->setTooltip ("Expand analyser");
     btnExpand->setClickingTogglesState (true);
     btnExpand->onClick = [this] 
@@ -105,7 +108,7 @@ void AnalyserComponent::resized()
     titleBarGrid.autoColumns = Track (GUI_SIZE_PX (0.7));
     titleBarGrid.columnGap = GUI_GAP_PX (1);
     titleBarGrid.autoFlow = Grid::AutoFlow::column;
-    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause), GridItem (btnExpand), GridItem (btnConfig) });
+    titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause.get()), GridItem (btnExpand.get()), GridItem (btnConfig.get()) });
     Rectangle<int> titleGridBounds = getLocalBounds().withTrimmedLeft (GUI_GAP_I(1)).withTrimmedRight (GUI_GAP_I(2)).withTrimmedTop (GUI_GAP_I(1)).withHeight (GUI_BASE_SIZE_I);
     titleBarGrid.performLayout (titleGridBounds);
 

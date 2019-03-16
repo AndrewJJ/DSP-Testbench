@@ -78,12 +78,12 @@ private:
     String keyName;
     std::unique_ptr<XmlElement> config;
 
-    ScopedPointer<Label> lblTitle;
-    ScopedPointer<TextButton> btnSourceA;
-    ScopedPointer<TextButton> btnSourceB;
-    ScopedPointer<TextButton> btnDisable;
-    ScopedPointer<TextButton> btnInvert;
-    ScopedPointer<TextButton> btnMute;
+    Label lblTitle;
+    TextButton btnSourceA;
+    TextButton btnSourceB;
+    TextButton btnDisable;
+    TextButton btnInvert;
+    TextButton btnMute;
 
     // TODO - add a bypass button to allow direct analysis of a source?
     // TODO - add variable delay so that signals can be time aligned?
