@@ -27,7 +27,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
         config->setAttribute ("OutputMute", false);
     }
 
-    gain.setRampDurationSeconds (0.01);
+    monitoringGain.setRampDurationSeconds (0.01);
 
     addAndMakeVisible (lblTitle);
     lblTitle.setText (TRANS("Monitoring"), dontSendNotification);
@@ -44,7 +44,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     sldGain.setSliderStyle (Slider::LinearHorizontal);
     sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldGain.setValue (config->getDoubleAttribute ("OutputGain"));
-    sldGain.onValueChange = [this] { gain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
+    sldGain.onValueChange = [this] { monitoringGain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
     addAndMakeVisible (btnLimiter);
     btnLimiter.setTooltip (TRANS("Activate limiter on output"));
@@ -117,8 +117,16 @@ float MonitoringComponent::getMinimumHeight()
 }
 void MonitoringComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    gain.prepare (spec);
-    gain.setGainDecibels (static_cast<float> (sldGain.getValue()));
+    monitoringGain.prepare (spec);
+    monitoringGain.setGainDecibels (static_cast<float> (sldGain.getValue()));
+    sampleRate = spec.sampleRate;
+    limiterHoldTime = static_cast<float> (sampleRate) / 128.0f;
+    limiterReleaseTimer1 = 0.0f;
+    limiterReleaseTimer2 = limiterHoldTime / 2.0f;
+    limiterMax1 = 0.0f;
+    limiterMax2 = 0.0f;
+    limiterEnvelope = 0.0f;
+    limiterReleaseFactor = exp (-3.0f / (static_cast<float> (sampleRate) * jmax (limiterRelease, 0.05f)));
 }
 void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -127,11 +135,49 @@ void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& co
     if (!isMuted()) // Probably not necessary, because main component doesn't call MonitoringComponent::process if monitoring is muted anyway!
     {
         // Apply gain
-        gain.process (context);
+        monitoringGain.process (context);
 
         if (isLimited())
         {
-            // TODO - implement limiting function
+            // Adapted from MGA JS Limiter - (C) Michael Gruhn 2008
+            for (auto i = 0; i < context.getInputBlock().getNumSamples(); ++i)
+            {               
+                // Get maximum sample across all channels at this sample index
+                float maxSample = context.getInputBlock().getSample (0, i);
+                for (auto ch = 1; ch < context.getInputBlock().getNumChannels(); ch++)
+                    maxSample = jmax (maxSample, context.getInputBlock().getSample (ch, i));
+
+                limiterReleaseTimer1 += 1.0f;
+                if (limiterReleaseTimer1 > limiterHoldTime)
+                {
+                    limiterReleaseTimer1 = 0.0f;
+                    limiterMax1 = 0.0f;
+                }
+                limiterMax1 = jmax (limiterMax1, maxSample);
+
+                limiterReleaseTimer2 += 1.0f;
+                if (limiterReleaseTimer2 > limiterHoldTime)
+                {
+                    limiterReleaseTimer2 = 0.0f;
+                    limiterMax2 = 0.0f;
+                }
+                limiterMax2 = jmax (limiterMax2, maxSample);
+
+                const float limiterMaxMax = jmax (limiterMax1, limiterMax2);
+                if (limiterEnvelope < limiterMaxMax)
+                    limiterEnvelope = limiterMaxMax;
+                else
+                    limiterEnvelope = limiterMaxMax + limiterReleaseFactor * (limiterEnvelope - limiterMaxMax);
+
+                float gain;
+                if (limiterEnvelope > limiterThreshold)
+                    gain = (limiterThreshold / limiterEnvelope) * limiterRange;
+                else
+                    gain = limiterRange;
+
+                for (auto ch = 0; ch < context.getOutputBlock().getNumChannels(); ch++)
+                    context.getOutputBlock().setSample(ch, i, context.getInputBlock().getSample (ch, i) * gain);
+            }
         }
     }
     else
@@ -139,7 +185,7 @@ void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& co
 }
 void MonitoringComponent::reset ()
 {
-    gain.reset();
+    monitoringGain.reset();
 }
 bool MonitoringComponent::isMuted() const
 {

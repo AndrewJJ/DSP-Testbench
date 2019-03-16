@@ -43,8 +43,20 @@ private:
 
     bool statusLimiter;
     bool statusMute;
-    dsp::Gain<float> gain;
-
+    dsp::Gain<float> monitoringGain;
+    double sampleRate;
+    const float limiterCeiling = Decibels::decibelsToGain (-0.2f); // -6..0 dB range
+    const float limiterThreshold = Decibels::decibelsToGain (-0.5f); // -30..0 dB range
+    const float limiterRange = limiterCeiling / limiterThreshold;
+    const float limiterRelease = 200.0f / 1000.0f; // 0..500 range for numerator
+    float limiterHoldTime;
+    float limiterReleaseTimer1;
+    float limiterReleaseTimer2;
+    float limiterMax1;
+    float limiterMax2;
+    float limiterEnvelope;
+    float limiterReleaseFactor;
+    
     bool isLimited() const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MonitoringComponent)

@@ -44,6 +44,7 @@ AboutComponent::AboutComponent ()
     "\xE2\x80\xA2 rand31pmc white noise generator - \xc2\xa9 Robin Whittle 2005\n"
     "\xE2\x80\xA2 Pink noise filter - Paul Kellett\n"
     "\xE2\x80\xA2 PolyBLEP/BLAMP adapted from Tebjan Halm (vvvv.org)\n"
+    "\xE2\x80\xA2 MGA JS Limiter - \xc2\xa9 Michael Gruhn 2008"
     ));
 
     addAndMakeVisible (lblDisclaimer);
@@ -83,7 +84,7 @@ void AboutComponent::resized()
     Grid grid;
     grid.rowGap = GUI_GAP_PX(2);
     grid.columnGap = GUI_GAP_PX(2);
-    grid.templateRows = { Track (GUI_BASE_SIZE_PX), Track (10_fr), Track (13_fr) };
+    grid.templateRows = { Track (GUI_BASE_SIZE_PX), Track (11_fr), Track (13_fr) };
     grid.templateColumns = { Track (GUI_SIZE_PX(4.2)), Track (1_fr) };
     grid.items.addArray({
                             GridItem (lblVersion),
