@@ -569,7 +569,15 @@ void WaveTab::AudioThumbnailComponent::loadFile (const File& f, bool notify)
     if (notify)
         sendChangeMessage();
 }
+void WaveTab::AudioThumbnailComponent::mouseDown (const MouseEvent & e)
+{
+    setPositionFromMouse (e);
+}
 void WaveTab::AudioThumbnailComponent::mouseDrag (const MouseEvent& e)
+{
+    setPositionFromMouse (e);
+}
+void WaveTab::AudioThumbnailComponent::setPositionFromMouse (const MouseEvent & e)
 {
     if (transportSource != nullptr)
     {
