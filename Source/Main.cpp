@@ -10,6 +10,7 @@
 
 #include "Main.h"
 #include "MainComponent.h"
+#include "AboutComponent.h"
 
 DSPTestbenchApplication::DSPTestbenchApplication ()
     : TimeSliceThread ("Audio File Reader Thread")
@@ -25,7 +26,7 @@ void DSPTestbenchApplication::initialise (const String&)
     options.osxLibrarySubFolder = "Application Support";
     appProperties.setStorageParameters(options);
 
-    mainWindow = new MainWindow (getApplicationName());
+    mainWindow.reset (new MainWindow (getApplicationName()));
     startThread();
 }
 void DSPTestbenchApplication::shutdown()
@@ -49,37 +50,41 @@ void DSPTestbenchApplication::anotherInstanceStarted (const String&)
 DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* mainContentComponent_)
     : mainContentComponent (mainContentComponent_)
 {
-    addAndMakeVisible (lblTitle = new Label());
-    lblTitle->setText(getApp().getApplicationName(), dontSendNotification);
-    lblTitle->setColour(Label::ColourIds::textColourId, Colours::white);
-    lblTitle->setFont(dynamic_cast<DspTestBenchLnF*> (&getLookAndFeel())->getTitleFont());
+    addAndMakeVisible (lblTitle);
+    lblTitle.setText(getApp().getApplicationName(), dontSendNotification);
+    lblTitle.setColour(Label::ColourIds::textColourId, Colours::white);
+    lblTitle.setFont(dynamic_cast<DspTestBenchLnF*> (&getLookAndFeel())->getTitleFont());
 
     // Allow dragging of the window via the underlying functionality from ResizableWindow
     this->setInterceptsMouseClicks (false, true);
-    lblTitle->setInterceptsMouseClicks (false, false);
-    
-    addAndMakeVisible (btnClose = getLookAndFeel().createDocumentWindowButton(4));
+    lblTitle.setInterceptsMouseClicks (false, false);
+
+    btnClose.reset (getLookAndFeel().createDocumentWindowButton(4));
+    addAndMakeVisible (btnClose.get());
     btnClose->onClick = [this]
     {
         getApp().systemRequestedQuit();
     };
-    
-    addAndMakeVisible (btnMinimise = getLookAndFeel().createDocumentWindowButton(1));
+
+    btnMinimise.reset (getLookAndFeel().createDocumentWindowButton(1));
+    addAndMakeVisible (btnMinimise.get());
     btnMinimise->onClick = [this]
     {
         const auto shouldMinimise = !getApp().getMainWindow().isMinimised();
         getApp().getMainWindow().setMinimised (shouldMinimise);        
     };
     
-    addAndMakeVisible (btnMaximise = getLookAndFeel().createDocumentWindowButton(2));
+    btnMaximise.reset (getLookAndFeel().createDocumentWindowButton(2));
+    addAndMakeVisible (btnMaximise.get());
     btnMaximise->onClick = [this]
     {
         const auto shouldBeFullScreen = !getApp().getMainWindow().isFullScreen();
         getApp().getMainWindow().setFullScreen (shouldBeFullScreen);
     };
 
-    addAndMakeVisible (btnSnapshot = new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot, BinaryData::camera_svg, BinaryData::camera_svgSize, Colours::black, Colours::red);
+    btnSnapshot.reset (new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnSnapshot.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::camera_svg, BinaryData::camera_svgSize, Colours::black, Colours::red);
     btnSnapshot->setTooltip("Restart audio briefly, then hold a snapshot of the result for analysis");
     btnSnapshot->setClickingTogglesState(true);
     btnSnapshot->onClick = [this]
@@ -90,15 +95,38 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
             mainContentComponent->resumeStreaming();
     };
 
-    addAndMakeVisible (btnAudioDevice = new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
-    DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice, BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
+    btnAudioDevice.reset (new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnAudioDevice.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice.get(), BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
     btnAudioDevice->setTooltip("Configure audio device settings");
     btnAudioDevice->onClick = [this]
     {
         AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
-        deviceSelector = new AudioDeviceSelectorComponent (*deviceMgr, 1, 1024, 1, 1024, false, false, false, false);
-        deviceSelector->setSize (500,300);
-        DialogWindow::showDialog ("Audio device settings", deviceSelector, nullptr, Colours::darkgrey, true);
+        AudioDeviceSelectorComponent* deviceSelector = new AudioDeviceSelectorComponent (*deviceMgr, 1, 1024, 1, 1024, false, false, false, false);
+        deviceSelector->setSize (500, 300);
+        DialogWindow::LaunchOptions launchOptions;
+        launchOptions.dialogTitle = "Audio device settings";
+        //launchOptions.resizable = true;
+        launchOptions.useNativeTitleBar = false;
+        launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+        launchOptions.componentToCentreAround = mainContentComponent;
+        launchOptions.content.set (deviceSelector, true);
+        launchOptions.launchAsync();
+    };
+
+    btnAbout.reset (new DrawableButton ("About", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnAbout.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnAbout.get(), BinaryData::about_svg, BinaryData::about_svgSize, Colours::black);
+    btnAbout->setTooltip("Show information about DSP Testbench (including attributions)");
+    btnAbout->onClick = [this]
+    {
+        DialogWindow::LaunchOptions launchOptions;
+        launchOptions.dialogTitle = "About";
+        launchOptions.useNativeTitleBar = false;
+        launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+        launchOptions.componentToCentreAround = mainContentComponent;
+        launchOptions.content.set (new AboutComponent(), true);
+        launchOptions.launchAsync();
     };
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::paint(Graphics & g)
@@ -111,6 +139,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
     const auto margin = 2;
     const auto snapshotButtonSize = GUI_SIZE_PX (1.1);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
+    const auto aboutBtnSize = GUI_SIZE_PX (1.1);
     const auto windowButtonSize = GUI_BASE_SIZE_PX;
     //const auto separatingGap = Track(GUI_BASE_GAP_PX);
     const auto windowButtonGap = Track(GUI_GAP_PX (4));
@@ -118,15 +147,16 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
     Grid grid;
 
     grid.templateRows = { Track (1_fr) };
-    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (snapshotButtonSize), Track (audioDeviceBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
+    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (snapshotButtonSize), Track (audioDeviceBtnSize), Track (aboutBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
 
     grid.items.addArray({   
                             GridItem (lblTitle),
                             GridItem (), // expander
-                            GridItem (btnSnapshot),
-                            GridItem (btnAudioDevice),
+                            GridItem (btnSnapshot.get()),
+                            GridItem (btnAudioDevice.get()),
+                            GridItem (btnAbout.get()),
                             GridItem (), // windowButtonGap
-                            GridItem (btnMinimise), GridItem (btnMaximise), GridItem (btnClose)
+                            GridItem (btnMinimise.get()), GridItem (btnMaximise.get()), GridItem (btnClose.get())
                         });
 
     grid.autoFlow = Grid::AutoFlow::column;
@@ -175,7 +205,8 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
     setResizable (true, false);
     setResizeLimits(992, 768, 10000, 10000);
     // Need to dummy this up so we can change the menu component height
-    setMenuBar(dummyMenuBarModel = new DummyMenuBarModel);
+    dummyMenuBarModel.reset (new DummyMenuBarModel);
+    setMenuBar (dummyMenuBarModel.get());
     setMenuBarComponent (new DspTestBenchMenuComponent (mainContentComponent));
     
     centreWithSize (getWidth(), getHeight());

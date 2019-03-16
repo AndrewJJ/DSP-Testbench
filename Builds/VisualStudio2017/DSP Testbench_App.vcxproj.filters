@@ -436,6 +436,9 @@
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\AboutComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Goniometer.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
@@ -2426,6 +2429,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Main.h">
       <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AboutComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Goniometer.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
@@ -4622,6 +4628,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\about.svg">
+      <Filter>DSP Testbench\Resources</Filter>
+    </None>
     <None Include="..\..\Resources\audio_settings.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>

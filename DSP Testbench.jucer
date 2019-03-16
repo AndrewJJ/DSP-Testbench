@@ -4,6 +4,7 @@
               reportAppUsage="0" id="r6nItq">
   <MAINGROUP id="u8eJT5" name="DSP Testbench">
     <GROUP id="{EC3F1D61-E8BE-E4B3-C8EE-882109CF98DE}" name="Resources">
+      <FILE id="rHdhvD" name="about.svg" compile="0" resource="1" file="Resources/about.svg"/>
       <FILE id="gFEf8y" name="audio_settings.svg" compile="0" resource="1"
             file="Resources/audio_settings.svg"/>
       <FILE id="RqOm85" name="camera.svg" compile="0" resource="1" file="Resources/camera.svg"/>
@@ -21,6 +22,10 @@
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
+        <FILE id="h8EIwW" name="AboutComponent.cpp" compile="1" resource="0"
+              file="Source/AboutComponent.cpp"/>
+        <FILE id="CnkNfz" name="AboutComponent.h" compile="0" resource="0"
+              file="Source/AboutComponent.h"/>
         <FILE id="Fpe4lR" name="Goniometer.cpp" compile="1" resource="0" file="Source/Goniometer.cpp"/>
         <FILE id="OtVSxw" name="Goniometer.h" compile="0" resource="0" file="Source/Goniometer.h"/>
         <FILE id="pQxDYC" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>

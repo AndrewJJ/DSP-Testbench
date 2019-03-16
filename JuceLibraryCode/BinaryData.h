@@ -8,6 +8,9 @@
 
 namespace BinaryData
 {
+    extern const char*   about_svg;
+    const int            about_svgSize = 1085;
+
     extern const char*   audio_settings_svg;
     const int            audio_settings_svgSize = 2554;
 
@@ -39,7 +42,7 @@ namespace BinaryData
     const int            zoom_out_svgSize = 933;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 10;
+    const int namedResourceListSize = 11;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

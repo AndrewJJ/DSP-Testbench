@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
+    <ClCompile Include="..\..\Source\AboutComponent.cpp"/>
     <ClCompile Include="..\..\Source\Goniometer.cpp"/>
     <ClCompile Include="..\..\Source\LookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
@@ -1961,6 +1962,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Main.h"/>
+    <ClInclude Include="..\..\Source\AboutComponent.h"/>
     <ClInclude Include="..\..\Source\Goniometer.h"/>
     <ClInclude Include="..\..\Source\LookAndFeel.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
@@ -2694,6 +2696,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Resources\about.svg"/>
     <None Include="..\..\Resources\audio_settings.svg"/>
     <None Include="..\..\Resources\camera.svg"/>
     <None Include="..\..\Resources\configure.svg"/>

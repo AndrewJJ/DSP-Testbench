@@ -61,6 +61,10 @@
 			isa = PBXBuildFile;
 			fileRef = 0D00FB15737917AC925255EF;
 		};
+		5824D950A51646401DC96BB4 = {
+			isa = PBXBuildFile;
+			fileRef = 086E4A52AE790692A4E6DECC;
+		};
 		7348FF205041A90D6298AED8 = {
 			isa = PBXBuildFile;
 			fileRef = DC0613D2BF234E0429C2CEF8;
@@ -173,6 +177,20 @@
 			lastKnownFileType = sourcecode.cpp.cpp;
 			name = MeteringProcessors.cpp;
 			path = ../../Source/MeteringProcessors.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
+		086E4A52AE790692A4E6DECC = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = AboutComponent.cpp;
+			path = ../../Source/AboutComponent.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
+		0C322780E089295383B6E1AF = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = AboutComponent.h;
+			path = ../../Source/AboutComponent.h;
 			sourceTree = "SOURCE_ROOT";
 		};
 		0D00FB15737917AC925255EF = {
@@ -532,6 +550,13 @@
 			path = ../../Source/SourceComponent.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
+		96171B3D2EDD5DAAADF050EB = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = about.svg;
+			path = ../../Resources/about.svg;
+			sourceTree = "SOURCE_ROOT";
+		};
 		99FA1E5FAB069E9E84537B0E = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
@@ -766,6 +791,7 @@
 		9D48298B61E6233F76C50CC1 = {
 			isa = PBXGroup;
 			children = (
+				96171B3D2EDD5DAAADF050EB,
 				E47B7D632DABF2F0EA52CD5A,
 				3CA13771774AA0BBBD335B20,
 				3E3981955075B1EC86979ADD,
@@ -783,6 +809,8 @@
 		63CA99DE58C1C1191DB04C32 = {
 			isa = PBXGroup;
 			children = (
+				086E4A52AE790692A4E6DECC,
+				0C322780E089295383B6E1AF,
 				DC0613D2BF234E0429C2CEF8,
 				8C47762E2B2ED0F5A5B390F8,
 				BE48E32A7AAD0E2016977876,
@@ -1147,6 +1175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9455D39755C38DFF4907B998,
+				5824D950A51646401DC96BB4,
 				7348FF205041A90D6298AED8,
 				78CF12ECA08677F4152B529C,
 				A1BA0D72ADB896FF98E61FA7,

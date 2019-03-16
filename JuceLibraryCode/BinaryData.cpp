@@ -7,8 +7,37 @@
 namespace BinaryData
 {
 
-//================== audio_settings.svg ==================
+//================== about.svg ==================
 static const unsigned char temp_binary_data_0[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   xml:space=\"preserve\"\n"
+"   viewBox=\"0 0 30 30\"\n"
+"   version=\"1.1\"\n"
+"   style=\"enable-background:new 0 0 30 30;\"\n"
+"   id=\"Layer_1\"><metadata\n"
+"     id=\"metadata21\"><rdf:RDF><cc:Work\n"
+"         rdf:about=\"\"><dc:format>image/svg+xml</dc:format><dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs\n"
+"     id=\"defs19\" /><path\n"
+"     id=\"path10\"\n"
+"     d=\"M3.158,26.134C6.066,23.557,5,21,5,21l7,2c0,0-3.663,3.721-8.417,3.99L3.158,26.134z\" /><circle\n"
+"     id=\"circle12\"\n"
+"     r=\"0.5\"\n"
+"     cy=\"26.5\"\n"
+"     cx=\"3.5\" /><path\n"
+"     id=\"path14\"\n"
+"     d=\"M15,3C7.82,3,2,7.925,2,14s5.82,11,13,11s13-4.925,13-11S22.18,3,15,3z M16,20h-2v-7h2V20z M15,10.5  c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,10.5,15,10.5z\" /></svg>";
+
+const char* about_svg = (const char*) temp_binary_data_0;
+
+//================== audio_settings.svg ==================
+static const unsigned char temp_binary_data_1[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -70,19 +99,19 @@ static const unsigned char temp_binary_data_0[] =
 "  </g>\n"
 "</svg>\n";
 
-const char* audio_settings_svg = (const char*) temp_binary_data_0;
+const char* audio_settings_svg = (const char*) temp_binary_data_1;
 
 //================== camera.svg ==================
-static const unsigned char temp_binary_data_1[] =
+static const unsigned char temp_binary_data_2[] =
 "<?xml version=\"1.0\" ?><svg id=\"Layer_1\" style=\"enable-background:new 0 0 30 30;\" version=\"1.1\" viewBox=\"0 0 30 30\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><path d=\"M7,5H6C5.4"
 "48,5,5,5.448,5,6h3C8,5.448,7.552,5,7,5z\"/><circle cx=\"15\" cy=\"15\" r=\"5\"/><path d=\"M26,7h-4.264c-0.758,0-1.45-0.428-1.789-1.106l-0.394-0.789C19.214,4.428,18.521,4,17.764,4h-5.528  c-0.758,0-1.45,0.428-1.789,1.106l-0.394,0.789C9.714,6.572,9.021"
 ",7,8.264,7H4C2.895,7,2,7.895,2,9v13c0,1.105,0.895,2,2,2h22  c1.105,0,2-0.895,2-2V9C28,7.895,27.105,7,26,7z M15,22c-3.86,0-7-3.14-7-7c0-3.86,3.14-7,7-7s7,3.14,7,7C22,18.86,18.86,22,15,22z   M24,11c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1s1,0.448,1,1C2"
 "5,10.552,24.552,11,24,11z\"/></svg>";
 
-const char* camera_svg = (const char*) temp_binary_data_1;
+const char* camera_svg = (const char*) temp_binary_data_2;
 
 //================== configure.svg ==================
-static const unsigned char temp_binary_data_2[] =
+static const unsigned char temp_binary_data_3[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -135,20 +164,20 @@ static const unsigned char temp_binary_data_2[] =
 "  </g>\n"
 "</svg>\n";
 
-const char* configure_svg = (const char*) temp_binary_data_2;
+const char* configure_svg = (const char*) temp_binary_data_3;
 
 //================== expand.svg ==================
-static const unsigned char temp_binary_data_3[] =
+static const unsigned char temp_binary_data_4[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><g><g><path d=\"M178.375,287.812L73.094,393.094L32,352c-17.688,0-32,14.312-32,32v96c0,17.688,14.312,32,32,32h96    c17.688,0,32-14.312,32-32"
 "l-41.095-41.062l105.281-105.312L178.375,287.812z M480,0h-96c-17.688,0-32,14.328-32,32l41.094,41.094    L287.812,178.375l45.812,45.812l105.281-105.266L480,160c17.688,0,32-14.312,32-32V32C512,14.328,497.688,0,480,0z M480,352    l-41.095,41.094l-105.28-"
 "105.281l-45.812,45.812l105.281,105.312L352,480c0,17.688,14.312,32,32,32h96c17.688,0,32-14.312,32-32    v-96C512,366.312,497.688,352,480,352z M160,32c0-17.672-14.312-32-32-32H32C14.312,0,0,14.328,0,32v96c0,17.688,14.312,32,32,32    l41.094-41.078l105."
 "281,105.266l45.812-45.812L118.906,73.094L160,32z\"/></g></g></svg>";
 
-const char* expand_svg = (const char*) temp_binary_data_3;
+const char* expand_svg = (const char*) temp_binary_data_4;
 
 //================== mute.svg ==================
-static const unsigned char temp_binary_data_4[] =
+static const unsigned char temp_binary_data_5[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -173,10 +202,10 @@ static const unsigned char temp_binary_data_4[] =
 "     d=\"M 256.266,511.868 128.332,383.936 H 32.381 c -17.678,0 -31.983,-14.307 -31.983,-31.983 V 160.05 c 0,-17.679 14.307,-31.983 31.983,-31.983 h 95.951 L 256.266,0.133 c 0,0 31.983,-3.998 31.983,31.983 0,173.535 0,425.718 0,447.769 0,35.981 -31.9"
 "83,31.983 -31.983,31.983 z\" /></svg>";
 
-const char* mute_svg = (const char*) temp_binary_data_4;
+const char* mute_svg = (const char*) temp_binary_data_5;
 
 //================== pause.svg ==================
-static const unsigned char temp_binary_data_5[] =
+static const unsigned char temp_binary_data_6[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -208,10 +237,10 @@ static const unsigned char temp_binary_data_5[] =
 "     id=\"path10\" />\n"
 "</svg>\n";
 
-const char* pause_svg = (const char*) temp_binary_data_5;
+const char* pause_svg = (const char*) temp_binary_data_6;
 
 //================== play.svg ==================
-static const unsigned char temp_binary_data_6[] =
+static const unsigned char temp_binary_data_7[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -243,10 +272,10 @@ static const unsigned char temp_binary_data_6[] =
 "     d=\"M 0,0 V 14 L 11,7 Z\" />\n"
 "</svg>\n";
 
-const char* play_svg = (const char*) temp_binary_data_6;
+const char* play_svg = (const char*) temp_binary_data_7;
 
 //================== phase_invert.svg ==================
-static const unsigned char temp_binary_data_7[] =
+static const unsigned char temp_binary_data_8[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -289,25 +318,25 @@ static const unsigned char temp_binary_data_7[] =
 "  </g>\n"
 "</svg>\n";
 
-const char* phase_invert_svg = (const char*) temp_binary_data_7;
+const char* phase_invert_svg = (const char*) temp_binary_data_8;
 
 //================== zoom_in.svg ==================
-static const unsigned char temp_binary_data_8[] =
+static const unsigned char temp_binary_data_9[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><path d=\"M497.913,497.914c-18.782,18.781-49.226,18.781-68.008,0l-84.862-84.864c-34.89,22.366-76.131,35.718-120.66,35.718  C100.468,448.768,"
 "0,348.314,0,224.384C0,100.454,100.468,0,224.383,0c123.931,0,224.384,100.453,224.384,224.384  c0,44.529-13.353,85.771-35.718,120.675l84.863,84.849C516.695,448.689,516.695,479.131,497.913,497.914z M224.383,64.11  c-88.511,0-160.274,71.763-160.274,160.2"
 "74c0,88.526,71.764,160.274,160.274,160.274c88.526,0,160.273-71.748,160.273-160.274  C384.656,135.873,312.909,64.11,224.383,64.11z M256.438,320.548h-64.108v-64.109H128.22V192.33h64.109v-64.11h64.108v64.11h64.11  v64.109h-64.11V320.548z\"/></svg>";
 
-const char* zoom_in_svg = (const char*) temp_binary_data_8;
+const char* zoom_in_svg = (const char*) temp_binary_data_9;
 
 //================== zoom_out.svg ==================
-static const unsigned char temp_binary_data_9[] =
+static const unsigned char temp_binary_data_10[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><g><g><path d=\"M497.913,429.906l-84.863-84.848c22.365-34.903,35.718-76.146,35.718-120.676C448.768,100.453,348.314,0,224.383,0    C100.468,0"
 ",0,100.453,0,224.384s100.468,224.384,224.383,224.384c44.529,0,85.771-13.352,120.66-35.718l84.862,84.864    c18.782,18.781,49.226,18.781,68.008,0C516.695,479.131,516.695,448.689,497.913,429.906z M224.383,384.658    c-88.511,0-160.274-71.748-160.274-16"
 "0.274c0-88.511,71.764-160.274,160.274-160.274c88.526,0,160.273,71.763,160.273,160.274    C384.656,312.91,312.909,384.658,224.383,384.658z M128.219,256.438h192.329v-64.109H128.219V256.438z\"/></g></g></svg>";
 
-const char* zoom_out_svg = (const char*) temp_binary_data_9;
+const char* zoom_out_svg = (const char*) temp_binary_data_10;
 
 
 const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
@@ -320,6 +349,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
+        case 0xb02b82b2:  numBytes = 1085; return about_svg;
         case 0xe28b1a11:  numBytes = 2554; return audio_settings_svg;
         case 0x8816964a:  numBytes = 759; return camera_svg;
         case 0x73626d8b:  numBytes = 1950; return configure_svg;
@@ -339,6 +369,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
 const char* namedResourceList[] =
 {
+    "about_svg",
     "audio_settings_svg",
     "camera_svg",
     "configure_svg",
@@ -353,6 +384,7 @@ const char* namedResourceList[] =
 
 const char* originalFilenames[] =
 {
+    "about.svg",
     "audio_settings.svg",
     "camera.svg",
     "configure.svg",

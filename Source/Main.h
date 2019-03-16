@@ -40,13 +40,13 @@ public:
 
     private:
         MainContentComponent* mainContentComponent;
-        ScopedPointer<Label> lblTitle;
-        ScopedPointer<Button> btnClose;
-        ScopedPointer<Button> btnMinimise;
-        ScopedPointer<Button> btnMaximise;
-        ScopedPointer<DrawableButton> btnAudioDevice;
-        ScopedPointer<DrawableButton> btnSnapshot;
-        ScopedPointer<AudioDeviceSelectorComponent> deviceSelector;
+        Label lblTitle;
+        std::unique_ptr<Button> btnClose;
+        std::unique_ptr<Button> btnMinimise;
+        std::unique_ptr<Button> btnMaximise;
+        std::unique_ptr<DrawableButton> btnAudioDevice;
+        std::unique_ptr<DrawableButton> btnSnapshot;
+        std::unique_ptr<DrawableButton> btnAbout;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
     };
@@ -83,7 +83,7 @@ public:
 
     private:
         AudioDeviceManager deviceManager;
-        ScopedPointer<DummyMenuBarModel> dummyMenuBarModel;
+        std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
@@ -94,6 +94,6 @@ public:
 
 private:
     DspTestBenchLnF dspTestBenchLnF;
-    ScopedPointer<MainWindow> mainWindow;
+    std::unique_ptr<MainWindow> mainWindow;
     TooltipWindow tooltipWindow;
 };
