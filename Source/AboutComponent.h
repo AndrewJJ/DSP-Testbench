@@ -25,12 +25,12 @@ private:
     ComponentBoundsConstrainer constrainer;
     ResizableBorderComponent resizableBorderComponent;
 
-    ScopedPointer<Label> lblVersion;
-    ScopedPointer<TextEditor> txtVersion;
-    ScopedPointer<Label> lblCredits;
-    ScopedPointer<TextEditor> txtDisclaimer;
-    ScopedPointer<Label> lblDisclaimer;
-    ScopedPointer<TextEditor> txtCredits;
+    Label lblVersion;
+    TextEditor txtVersion;
+    Label lblCredits;
+    TextEditor txtDisclaimer;
+    Label lblDisclaimer;
+    TextEditor txtCredits;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AboutComponent)
 };

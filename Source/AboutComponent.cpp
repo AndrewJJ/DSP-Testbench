@@ -13,25 +13,29 @@
 AboutComponent::AboutComponent ()
     : resizableBorderComponent (this, &constrainer)
 {
-    addAndMakeVisible (lblVersion = new Label ("Version", TRANS("Version")));
-    lblVersion->setJustificationType (Justification::centredRight);
-	addAndMakeVisible (txtVersion = new TextEditor ("version"));
-    txtVersion->setMultiLine (false);
-    txtVersion->setReadOnly (true);
-    txtVersion->setCaretVisible (false);
-    txtVersion->setPopupMenuEnabled (false);
-    txtVersion->setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
-    txtVersion->setText (String (ProjectInfo::versionString));
+    addAndMakeVisible (lblVersion);
+    lblVersion.setText (TRANS ("Version"), dontSendNotification);
+    lblVersion.setJustificationType (Justification::centredRight);
+	
+    addAndMakeVisible (txtVersion);
+    txtVersion.setMultiLine (false);
+    txtVersion.setReadOnly (true);
+    txtVersion.setCaretVisible (false);
+    txtVersion.setPopupMenuEnabled (false);
+    txtVersion.setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
+    txtVersion.setText (String (ProjectInfo::versionString));
 
-    addAndMakeVisible (lblCredits = new Label (String(), "Credits"));
-    lblCredits->setJustificationType (Justification::topRight);
-    addAndMakeVisible (txtCredits = new TextEditor ("credits"));
-    txtCredits->setMultiLine (true);
-    txtCredits->setReadOnly (true);
-    txtCredits->setCaretVisible (false);
-    txtCredits->setPopupMenuEnabled (false);
-    txtCredits->setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
-    txtCredits->setText (CharPointer_UTF8 ("ASIO Interface Technology by Steinberg Media Technologies GmbH\n"
+    addAndMakeVisible (lblCredits);
+    lblCredits.setText (TRANS ("Credits"), dontSendNotification);
+    lblCredits.setJustificationType (Justification::topRight);
+
+    addAndMakeVisible (txtCredits);
+    txtCredits.setMultiLine (true);
+    txtCredits.setReadOnly (true);
+    txtCredits.setCaretVisible (false);
+    txtCredits.setPopupMenuEnabled (false);
+    txtCredits.setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
+    txtCredits.setText (CharPointer_UTF8 ("ASIO Interface Technology by Steinberg Media Technologies GmbH\n"
     "\n"
     "This software makes use of certain code libraries, those portions of code are copyright as per below:\n\n"
     "\xE2\x80\xA2 JUCE 5 - copyright \xc2\xa9 2018 Raw Material Software\n"
@@ -42,15 +46,17 @@ AboutComponent::AboutComponent ()
     "\xE2\x80\xA2 PolyBLEP/BLAMP adapted from Tebjan Halm (vvvv.org)\n"
     ));
 
-    addAndMakeVisible (lblDisclaimer = new Label (String(), "Software Disclaimer"));
-    lblDisclaimer->setJustificationType (Justification::topRight);
-    addAndMakeVisible (txtDisclaimer = new TextEditor ("Disclaimer"));
-    txtDisclaimer->setMultiLine (true);
-    txtDisclaimer->setReadOnly (true);
-    txtDisclaimer->setCaretVisible (false);
-    txtDisclaimer->setPopupMenuEnabled (false);
-    txtDisclaimer->setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
-    txtDisclaimer->setText ("This software is provided \'\'as is\'\' and you use it at your own risk.\n"
+    addAndMakeVisible (lblDisclaimer);
+    lblDisclaimer.setText (TRANS ("Software Disclaimer"), dontSendNotification);
+    lblDisclaimer.setJustificationType (Justification::topRight);
+
+    addAndMakeVisible (txtDisclaimer);
+    txtDisclaimer.setMultiLine (true);
+    txtDisclaimer.setReadOnly (true);
+    txtDisclaimer.setCaretVisible (false);
+    txtDisclaimer.setPopupMenuEnabled (false);
+    txtDisclaimer.setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
+    txtDisclaimer.setText ("This software is provided \'\'as is\'\' and you use it at your own risk.\n"
     "\n"
     "The developers make no warranties as to performance, merchantability, fitness for a particular purpose, or any other warranties whether expressed or implied.\n"
     "\n"
