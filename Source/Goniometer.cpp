@@ -43,7 +43,6 @@ Goniometer::Goniometer ()
     addAndMakeVisible (foreground);
 
     addMouseListener (this, true);
-    foreground.setMouseCursor (MouseCursor::CrosshairCursor);
 
     dataFrameReady.set(false);
     startTimer (5);
