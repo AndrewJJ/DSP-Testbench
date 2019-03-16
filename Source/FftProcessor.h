@@ -45,6 +45,13 @@ public:
     /** Call this to choose a different windowing method (class is initialised with Hann) */
     void setWindowingMethod (dsp::WindowingFunction<float>::WindowingMethod);
 
+    /** Sets whether or not an envelope will be applied to the amplitude output. */
+    void setAmplitudeEnvelopeEnabled (const bool shouldBeEnabled);
+
+    /** Sets the release constant for the amplitude envelope. Note that this is calculated per FFT frame, which is a small
+     *  fraction of the sample rate - so a reasonable value is between 0.2f to 0.6f. */
+    void setAmplitudeEnvelopeReleaseConstant (const float constant);
+
     /** Allows a listener to add a lambda function as a callback to the AudioProbe assigned to the phase of the last channel.
      *  Listener callbacks are cleared each time prepare() is called on this class, so they must be added after this.
      *  
@@ -59,7 +66,10 @@ private:
     const int size;
 	AudioSampleBuffer temp;
 	AudioSampleBuffer window;
-    float amplitudeCorrectionFactor = 1.0f;
+    AudioSampleBuffer amplitudeEnvelope;
+    float amplitudeCorrectionFactor = 0.0f;
+    Atomic<bool> amplitudeEnvelopeEnabled = true;
+    Atomic<float> amplitudeReleaseConstant = 0.3f;
 
     OwnedArray <AudioProbe <FftFrame>> freqProbes;;
     OwnedArray <AudioProbe <FftFrame>> phaseProbes;
@@ -86,6 +96,9 @@ void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
 {
     FixedBlockProcessor::prepare (spec);
 
+    amplitudeEnvelope.clear();
+    amplitudeEnvelope.setSize (spec.numChannels, size);
+
     freqProbes.clear();
     phaseProbes.clear();
 
@@ -100,12 +113,28 @@ void FftProcessor<Order>::prepare (const dsp::ProcessSpec& spec)
 template <int Order>
 void FftProcessor<Order>::performProcessing (const int channel)
 {
-    temp.copyFrom(0, 0, buffer.getReadPointer(channel), size);
-    FloatVectorOperations::multiply(temp.getWritePointer(0), window.getWritePointer(0), size);
-    fft.performFrequencyOnlyForwardTransform(temp.getWritePointer(0));
-    FloatVectorOperations::multiply (temp.getWritePointer(0), amplitudeCorrectionFactor, size);
-    freqProbes[channel]->writeFrame(reinterpret_cast<const FftFrame*>(temp.getReadPointer(0)));
-    phaseProbes[channel]->writeFrame(reinterpret_cast<const FftFrame*> (temp.getReadPointer (0) + size));
+    // Apply window to audio input
+    temp.copyFrom (0, 0, buffer.getReadPointer (channel), size);
+    FloatVectorOperations::multiply (temp.getWritePointer (0), window.getWritePointer (0), size);
+
+    // Perform FFT
+    fft.performFrequencyOnlyForwardTransform (temp.getWritePointer (0));
+
+    // Correct amplitude
+    FloatVectorOperations::multiply (temp.getWritePointer (0), amplitudeCorrectionFactor, size);
+
+    if (amplitudeEnvelopeEnabled.get())
+    {
+        // Compute envelope on amplitude
+        FloatVectorOperations::addWithMultiply (temp.getWritePointer (0), amplitudeEnvelope.getWritePointer (channel), amplitudeReleaseConstant.get(), size);
+    
+        // Store last audio frame in envelope buffer
+        amplitudeEnvelope.copyFrom (channel, 0, temp.getReadPointer (0), size);
+    }
+
+    // Write output frames
+    freqProbes[channel]->writeFrame (reinterpret_cast<const FftFrame*> (temp.getReadPointer (0)));
+    phaseProbes[channel]->writeFrame (reinterpret_cast<const FftFrame*> (temp.getReadPointer (0) + size));
 }
 
 template <int Order>
@@ -131,6 +160,18 @@ void FftProcessor<Order>::setWindowingMethod (dsp::WindowingFunction<float>::Win
         windowIntegral += window.getWritePointer(0)[i];
 
     amplitudeCorrectionFactor = 2.0f / windowIntegral;
+}
+
+template<int Order>
+inline void FftProcessor<Order>::setAmplitudeEnvelopeEnabled(const bool shouldBeEnabled)
+{
+    amplitudeEnvelopeEnabled.set(shouldBeEnabled);
+}
+
+template<int Order>
+inline void FftProcessor<Order>::setAmplitudeEnvelopeReleaseConstant(const float releaseConstant)
+{
+    amplitudeReleaseConstant.set (releaseConstant);
 }
 
 template <int Order>
