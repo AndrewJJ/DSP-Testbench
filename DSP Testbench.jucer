@@ -21,6 +21,8 @@
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
+        <FILE id="Fpe4lR" name="Goniometer.cpp" compile="1" resource="0" file="Source/Goniometer.cpp"/>
+        <FILE id="OtVSxw" name="Goniometer.h" compile="0" resource="0" file="Source/Goniometer.h"/>
         <FILE id="pQxDYC" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
         <FILE id="KJ14w1" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
         <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

@@ -436,6 +436,9 @@
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Goniometer.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\LookAndFeel.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
@@ -2423,6 +2426,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Main.h">
       <Filter>DSP Testbench\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Goniometer.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\LookAndFeel.h">
       <Filter>DSP Testbench\Source\GUI</Filter>

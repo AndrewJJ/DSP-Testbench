@@ -56,11 +56,14 @@ AnalyserComponent::AnalyserComponent()
     fftScope.setAggregationMethod(static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
 
     addAndMakeVisible (oscilloscope);
-    oscilloscope.assignOscProcessor (&oscProcessor);
+    oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
     oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
     oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", 512));
     oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
     oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
+
+    addAndMakeVisible (goniometer);
+    goniometer.assignAudioScopeProcessor (&audioScopeProcessor);
 
     addAndMakeVisible (meterBackground);
 
@@ -98,26 +101,28 @@ void AnalyserComponent::resized()
 
     Grid titleBarGrid;
     titleBarGrid.templateRows = { Track (1_fr) };
-    //titleBarGrid.templateColumns = { Track (1_fr), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)), Track (GUI_SIZE_PX(1.2)) };
     titleBarGrid.templateColumns = { Track (1_fr) };
     titleBarGrid.autoColumns = Track (GUI_SIZE_PX (0.7));
     titleBarGrid.columnGap = GUI_GAP_PX (1);
     titleBarGrid.autoFlow = Grid::AutoFlow::column;
     titleBarGrid.items.addArray({ GridItem (lblTitle), GridItem (btnPause), GridItem (btnExpand), GridItem (btnConfig) });
-    titleBarGrid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)).withHeight(GUI_BASE_SIZE_I));
+    Rectangle<int> titleGridBounds = getLocalBounds().withTrimmedLeft (GUI_GAP_I(1)).withTrimmedRight (GUI_GAP_I(2)).withTrimmedTop (GUI_GAP_I(1)).withHeight (GUI_BASE_SIZE_I);
+    titleBarGrid.performLayout (titleGridBounds);
 
+    Rectangle<int> analyserGridBounds = getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)).withTrimmedTop (titleGridBounds.getHeight());
+    Grid::Px phaseScopeWidth (jmin (250, analyserGridBounds.getHeight()));
     Grid analyserGrid;
     analyserGrid.rowGap = GUI_GAP_PX(2);
     analyserGrid.columnGap = GUI_GAP_PX(2);
     analyserGrid.templateRows = { Track (1_fr), Track (1_fr) };
-    // TODO - calculate desired meter width
-    analyserGrid.templateColumns = { Track (1_fr), Track (meterBackground.getDesiredWidth (numChannels)) };
+    analyserGrid.templateColumns = { Track (1_fr), Track (phaseScopeWidth), Track (meterBackground.getDesiredWidth (numChannels)) };
     analyserGrid.items.addArray({
                             GridItem (fftScope).withArea (1, 1),
                             GridItem (oscilloscope).withArea (2, 1),
-                            GridItem (meterBackground).withArea (GridItem::Span (2), 2)
+                            GridItem (goniometer).withArea (GridItem::Span (2), 2),
+                            GridItem (meterBackground).withArea (GridItem::Span (2), 3)
                         });
-    analyserGrid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)).withTrimmedTop(GUI_BASE_SIZE_I + GUI_GAP_I(2)));
+    analyserGrid.performLayout (analyserGridBounds);
 
     // Set bounds of meter bars
     for (auto ch = 0; ch < numChannels; ++ch)
@@ -136,8 +141,9 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
     {
         fftProcessor.prepare (spec);
         fftScope.prepare (spec);
-        oscProcessor.prepare (spec);
+        audioScopeProcessor.prepare (spec);
         oscilloscope.prepare();
+        goniometer.prepare();
         peakMeterProcessor.prepare (spec);
         // If number of channels has changed, then re-initialise the meter bar components
         if (static_cast<int> (spec.numChannels) != numChannels)
@@ -170,7 +176,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         const auto numSamples = static_cast<int> (inputBlock->getNumSamples());
         const auto* audioData = inputBlock->getChannelPointer (ch);
         fftProcessor.appendData (chNum, numSamples, audioData);
-        oscProcessor.appendData (chNum, numSamples, audioData);
+        audioScopeProcessor.appendData (chNum, numSamples, audioData);
         peakMeterProcessor.process (context);
     }
 }

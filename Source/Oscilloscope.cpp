@@ -35,7 +35,7 @@ void Oscilloscope::Foreground::paint (Graphics& g)
 Oscilloscope::Oscilloscope ()
     :   background (this),
         foreground (this),
-        oscProcessor (nullptr)
+        audioScopeProcessor (nullptr)
 {
     this->setOpaque (true);
 
@@ -56,8 +56,8 @@ Oscilloscope::~Oscilloscope ()
 }
 void Oscilloscope::paint (Graphics&)
 {
-    for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
-        oscProcessor->copyFrame (buffer.getWritePointer(ch), ch);
+    for (auto ch = 0; ch < audioScopeProcessor->getNumChannels(); ++ch)
+        audioScopeProcessor->copyFrame (buffer.getWritePointer(ch), ch);
 }
 void Oscilloscope::resized ()
 {
@@ -90,20 +90,20 @@ void Oscilloscope::timerCallback()
         dataFrameReady.set (false);
     }
 }
-void Oscilloscope::assignOscProcessor (AudioScopeProcessor* oscProcessorPtr)
+void Oscilloscope::assignAudioScopeProcessor (AudioScopeProcessor* audioScopeProcessorPtr)
 {
-    jassert (oscProcessorPtr != nullptr);
-    oscProcessor = oscProcessorPtr;
+    jassert (audioScopeProcessorPtr != nullptr);
+    audioScopeProcessor = audioScopeProcessorPtr;
     if (maxXSamples == 0)
-        maxXSamples = oscProcessor->getMaximumBlockSize();
+        maxXSamples = audioScopeProcessor->getMaximumBlockSize();
 }
 void Oscilloscope::prepare()
 {
-    jassert (oscProcessor != nullptr); // oscProcessor should be assigned & prepared first
-    buffer.setSize (oscProcessor->getNumChannels(), oscProcessor->getMaximumBlockSize());
+    jassert (audioScopeProcessor != nullptr); // audioScopeProcessor should be assigned & prepared first
+    buffer.setSize (audioScopeProcessor->getNumChannels(), audioScopeProcessor->getMaximumBlockSize());
     preCalculateVariables();
     WeakReference<Oscilloscope> weakThis = this;
-    removeListenerCallback = oscProcessor->addListenerCallback ([this, weakThis]
+    removeListenerCallback = audioScopeProcessor->addListenerCallback ([this, weakThis]
     {
         // Check the WeakReference because the callback may live longer than this Oscilloscope
         if (weakThis)
@@ -142,7 +142,7 @@ int Oscilloscope::getXMax () const
 }
 int Oscilloscope::getMaximumBlockSize() const
 {
-    return oscProcessor->getMaximumBlockSize();
+    return audioScopeProcessor->getMaximumBlockSize();
 }
 Oscilloscope::AggregationMethod Oscilloscope::getAggregationMethod () const
 {
@@ -156,7 +156,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
 {
     // To speed things up we make sure we stay within the graphics context so we can disable clipping at the component level
     
-    for (auto ch = 0; ch < oscProcessor->getNumChannels(); ++ch)
+    for (auto ch = 0; ch < audioScopeProcessor->getNumChannels(); ++ch)
     {
         auto* y = buffer.getReadPointer (ch);
 
@@ -356,7 +356,7 @@ Colour Oscilloscope::getColourForChannel (const int channel)
 }
 void Oscilloscope::preCalculateVariables()
 {
-    maxXSamples = jmin (maxXSamples, oscProcessor->getMaximumBlockSize());
+    maxXSamples = jmin (maxXSamples, audioScopeProcessor->getMaximumBlockSize());
     xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXSamples - minXSamples);
     xRatioInv = 1.0f / xRatio;
     yRatio = static_cast<float> (getHeight()) / (amplitudeMax * 2.0f);

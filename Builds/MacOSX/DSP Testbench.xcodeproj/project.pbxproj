@@ -61,6 +61,10 @@
 			isa = PBXBuildFile;
 			fileRef = 0D00FB15737917AC925255EF;
 		};
+		7348FF205041A90D6298AED8 = {
+			isa = PBXBuildFile;
+			fileRef = DC0613D2BF234E0429C2CEF8;
+		};
 		78CF12ECA08677F4152B529C = {
 			isa = PBXBuildFile;
 			fileRef = BE48E32A7AAD0E2016977876;
@@ -507,6 +511,13 @@
 			path = System/Library/Frameworks/CoreAudio.framework;
 			sourceTree = SDKROOT;
 		};
+		8C47762E2B2ED0F5A5B390F8 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = Goniometer.h;
+			path = ../../Source/Goniometer.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		8DD7B02F56BC4D21326F4B32 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -703,6 +714,13 @@
 			path = "../../JuceLibraryCode/include_juce_gui_basics.mm";
 			sourceTree = "SOURCE_ROOT";
 		};
+		DC0613D2BF234E0429C2CEF8 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = Goniometer.cpp;
+			path = ../../Source/Goniometer.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
 		E47B7D632DABF2F0EA52CD5A = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
@@ -765,6 +783,8 @@
 		63CA99DE58C1C1191DB04C32 = {
 			isa = PBXGroup;
 			children = (
+				DC0613D2BF234E0429C2CEF8,
+				8C47762E2B2ED0F5A5B390F8,
 				BE48E32A7AAD0E2016977876,
 				CAE1B11543E67924A4A41A50,
 				6F6F8C021069916C87A3DDFC,
@@ -1127,6 +1147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9455D39755C38DFF4907B998,
+				7348FF205041A90D6298AED8,
 				78CF12ECA08677F4152B529C,
 				A1BA0D72ADB896FF98E61FA7,
 				99465B5EFCACAC1FA5A5A5DE,

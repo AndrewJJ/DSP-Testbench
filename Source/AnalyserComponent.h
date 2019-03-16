@@ -15,6 +15,7 @@
 #include "FftScope.h"
 #include "AudioScopeProcessor.h"
 #include "Oscilloscope.h"
+#include "Goniometer.h"
 #include "MeteringProcessors.h"
 #include "SimpleLevelMeterComponent.h"
 
@@ -108,8 +109,9 @@ private:
     FftProcessor<12> fftProcessor;
     FftScope<12> fftScope;
 
-    AudioScopeProcessor oscProcessor;
+    AudioScopeProcessor audioScopeProcessor;
     Oscilloscope oscilloscope;
+    Goniometer goniometer;
 
     SimplePeakMeterProcessor peakMeterProcessor;
     MeterBackground meterBackground;
