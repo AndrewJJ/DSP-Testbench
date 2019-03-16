@@ -245,8 +245,8 @@ void MainContentComponent::triggerSnapshot ()
     deviceManager.closeAudioDevice();
     
     // Reset components to ensure consistent behaviour for hold function
-    srcComponentA->reset();
-    srcComponentB->reset();
+    srcComponentA->prepForSnapShot();
+    srcComponentB->prepForSnapShot();
     procComponentA->reset();
     procComponentB->reset();
     analyserComponent->reset();

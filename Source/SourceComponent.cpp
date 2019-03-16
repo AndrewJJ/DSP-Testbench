@@ -754,6 +754,14 @@ bool WaveTab::isPlaying() const
 {
     return btnPlay->getToggleState();
 }
+void WaveTab::prepForSnapshot (const bool shouldPlayFromStart)
+{
+    if (shouldPlayFromStart)
+    {
+        stop();
+        play();
+    }
+}
 bool WaveTab::loadFile (const File& fileToPlay)
 {
     stop();
@@ -1326,6 +1334,15 @@ void SourceComponent::reset ()
     synthesisTab->reset();
     //sampleTab->reset();
     waveTab->reset();
+    audioTab->reset();
+    gain.reset();
+}
+void SourceComponent::prepForSnapShot()
+{
+    synthesisTab->reset();
+    //sampleTab->reset();
+    // TODO - add a configuration option to define shouldPlayFromStart behaviour
+    waveTab->prepForSnapshot (false);
     audioTab->reset();
     gain.reset();
 }

@@ -163,6 +163,7 @@ public:
     void timerCallback() override;
     String getFilePath() const;
     bool isPlaying() const;
+    void prepForSnapshot (const bool shouldPlayFromStart);
 
     class AudioThumbnailComponent : public Component,
                                     public FileDragAndDropTarget,
@@ -373,6 +374,7 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset () override;
+    void prepForSnapShot();
 
     Mode getMode() const;
     void setOtherSource (SourceComponent* otherSourceComponent);
@@ -401,8 +403,6 @@ private:
     SourceComponent* otherSource = nullptr;
     bool isInverted = false;
     bool isMuted = false;
-
-    // TODO - consider synch to other for sample, wave and audio tabs also
 
     dsp::Gain<float> gain;
 
