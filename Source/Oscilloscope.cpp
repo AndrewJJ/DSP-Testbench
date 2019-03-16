@@ -228,18 +228,25 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         g.strokePath(p, pst);
     }
 
-    // Output mouse co-ordinates in Hz/dB
+    // Output mouse co-ordinates in Hz/linear amplitude
     if (currentX >= 0 && currentY >= 0)
     {
         g.setColour (Colours::white);
         g.setFont (Font (GUI_SIZE_F(0.5)));
         const auto time = toTimeFromPx (static_cast<float> (currentX));
-        const auto ampStr = String (toAmpFromPx (static_cast<float> (currentY)), 1);
-        const auto txt =  String (time) + ", " + ampStr;
+
+        const auto yAmp = toAmpFromPx (static_cast<float> (currentY));
+        const auto ampStr = String (yAmp, 3);
+        const auto yAmpDb = Decibels::gainToDecibels (std::abs (yAmp), -100.0f);
+        const auto ampStrDb = String (yAmpDb, 1) + " dB";
+        String lbl = "0";
+        if (yAmpDb >-100.0f)
+            lbl = String (yAmp) + ", " + ampStrDb;
+        const auto txt =  String (time) + ", " + ampStr + " | " + ampStrDb;
         const auto offset = GUI_GAP_I(2);
         auto lblX = currentX + offset;
         auto lblY = currentY + offset;
-        const auto lblW = GUI_SIZE_I(4.1);
+        const auto lblW = GUI_SIZE_I(5.0);
         const auto lblH = GUI_SIZE_I(0.6);
         auto lblJust = Justification::centredLeft;
         if (lblX + lblW > getWidth())
@@ -287,7 +294,7 @@ void Oscilloscope::paintScale (Graphics& g) const
         g.setColour (textColour);
 
         const auto yAmp = toAmpFromPx (scaleY);
-        const auto yAmpDb = Decibels::gainToDecibels (std::abs(yAmp), -100.0f);
+        const auto yAmpDb = Decibels::gainToDecibels (std::abs (yAmp), -100.0f);
         const auto ampStrDb = String (static_cast<int> (yAmpDb)) + "dB";
         String lbl = "0";
         if (yAmpDb >-100.0f)

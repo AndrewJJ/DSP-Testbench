@@ -12,7 +12,6 @@
 
 #include "FftProcessor.h"
 #include "FastApproximations.h"
-#include "AnalyserComponent.h"
 
 template <int Order>
 class FftScope final : public Component, public Timer
@@ -36,6 +35,7 @@ public:
     void timerCallback() override;
 
     void assignFftProcessor (FftProcessor<Order>* fftMultPtr);
+
     // Must be called after FftProcessor:prepare() so that the AudioProbe listeners can be set up properly
     void prepare (const dsp::ProcessSpec& spec);
 
@@ -390,7 +390,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
         const auto offset = GUI_GAP_I(2);
         auto lblX = currentX + offset;
         auto lblY = currentY + offset;
-        const auto lblW = GUI_SIZE_I(4.1);
+        const auto lblW = GUI_SIZE_I(4.2);
         const auto lblH = GUI_SIZE_I(0.6);
         auto lblJust = Justification::centredLeft;
         if (lblX + lblW > getWidth())
