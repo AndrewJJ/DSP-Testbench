@@ -38,11 +38,6 @@ public:
     void activateProcessing();
     void suspendProcessing();
 
-    // TODO - build synch trigger functionality throughout the app (hosted in MainComponent::getNextAudioBlock()
-    // TODO - add RMS & VU metering?
-    // TODO - add clearable clip indicator?
-    // TODO - add phase scope
-
 private:
 
     int getOscilloscopeMaximumBlockSize() const;
