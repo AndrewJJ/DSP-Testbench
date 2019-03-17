@@ -29,8 +29,11 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void mouseMove(const MouseEvent& event) override;
-    void mouseExit(const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
+    void mouseDoubleClick (const MouseEvent& event) override;
+    void mouseMove (const MouseEvent& event) override;
+    void mouseExit (const MouseEvent& event) override;
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel) override;
     
     // As the frame size for the audioScopeProcessor is set to 4096, updates arrive at ~11 Hz for a sample rate of 44.1 KHz.
     // Instead of repainting on a fixed timer we poll an atomic flag set from the audio thread to see if there is fresh data.
@@ -112,6 +115,9 @@ private:
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     bool mouseMoveRepaintsEnabled = false;
+    const int controlSize = GUI_SIZE_I(0.6);
+    Rectangle<int> xAxisControlArea;
+    Rectangle<int> yAxisControlArea;
 
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;

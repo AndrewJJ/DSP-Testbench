@@ -63,6 +63,45 @@ void Oscilloscope::resized ()
     preCalculateVariables();
     background.setBounds (getLocalBounds());
     foreground.setBounds (getLocalBounds());
+    xAxisControlArea = getLocalBounds().withTrimmedTop (getHeight() - controlSize);
+    yAxisControlArea = getLocalBounds().withWidth (controlSize);
+}
+void Oscilloscope::mouseDrag (const MouseEvent & event)
+{
+    if (xAxisControlArea.contains (event.x, event.y))
+    {
+        // Pan according to horizontal mouse movement
+        // TODO: scale according to current zoom
+        const auto span = getXMax() - getXMin();
+        const auto delta = event.getDistanceFromDragStartX() * span / getWidth();
+        const auto newMin = getXMin() + delta;
+        const auto newMax = getXMax() + delta;
+        if (delta > 0)
+        {
+            setXMax (newMax);
+            setXMin (getXMax() - span);
+        }
+        else if (delta < 0)
+        {
+            setXMin (newMin);
+            setXMax (getXMin() + span);            
+        }
+    }
+    // NOTE - vertical panning deliberately not implemented
+}
+void Oscilloscope::mouseDoubleClick (const MouseEvent & event)
+{
+    const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
+    const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
+    if (inXAxisControlArea)
+    {
+        setXMin (0);
+        setXMax (2048);
+    }
+    if (inYAxisControlArea)
+    {
+        setMaxAmplitude (1.0f);
+    }
 }
 void Oscilloscope::mouseMove (const MouseEvent& event)
 {
@@ -72,6 +111,18 @@ void Oscilloscope::mouseMove (const MouseEvent& event)
     // Allow mouse move repaints even if audio is not triggering repaints
     if (mouseMoveRepaintsEnabled)
         repaint();
+
+    const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
+    const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
+
+    if (inXAxisControlArea && inYAxisControlArea)
+        foreground.setMouseCursor (MouseCursor::UpDownLeftRightResizeCursor);
+    else if (inXAxisControlArea)
+        foreground.setMouseCursor (MouseCursor::LeftRightResizeCursor);
+    else if (inYAxisControlArea)
+        foreground.setMouseCursor (MouseCursor::UpDownResizeCursor);
+    else
+        foreground.setMouseCursor (MouseCursor::CrosshairCursor);
 }
 void Oscilloscope::mouseExit (const MouseEvent&)
 {
@@ -82,6 +133,33 @@ void Oscilloscope::mouseExit (const MouseEvent&)
     // Force repaint to make sure cursor co-ordinates are removed
     if (mouseMoveRepaintsEnabled)
         repaint();
+}
+void Oscilloscope::mouseWheelMove(const MouseEvent & event, const MouseWheelDetails & wheel)
+{
+    if (getHeight() <= controlSize)
+        return;
+
+    // TODO: make sure config sliders operate over same range (or just remove them!)
+    // TODO: remove zoom icons from binary resources?
+
+    // TODO: centre zoom based on current position
+    if (xAxisControlArea.contains (event.x, event.y))
+    {
+        const auto xDelta = static_cast<int> (wheel.deltaY * 10);
+        const auto span = getXMax() - getXMin();
+        //const auto zoomPos = getXMin() + span / 2;
+        const auto fraction = static_cast<float> (event.x) / static_cast<float> (getWidth());
+        const auto zoomPos = getXMin() + static_cast<int> (static_cast<float> (span) * fraction);
+        const auto newSpanOn2 = (span + xDelta) / 2;
+        setXMin (zoomPos - newSpanOn2);
+        setXMax (zoomPos + newSpanOn2);
+    }
+    if (yAxisControlArea.contains (event.x, event.y))
+    {
+        const auto newAmplitudeDb = Decibels::gainToDecibels(getMaxAmplitude()) + wheel.deltaY * 2;
+        const auto newAmplitude = Decibels::decibelsToGain (newAmplitudeDb, -150.0f);
+        setMaxAmplitude (newAmplitude);
+    }
 }
 void Oscilloscope::timerCallback()
 {
@@ -114,7 +192,8 @@ void Oscilloscope::prepare()
 }
 void Oscilloscope::setMaxAmplitude(const float maximumAmplitude)
 {
-    amplitudeMax = maximumAmplitude;
+    const auto minimum = Decibels::decibelsToGain(-100.0f, -150.0f);
+    amplitudeMax = jlimit (minimum, 2.0f, maximumAmplitude);
     preCalculateVariables();
     background.repaint();
 }
@@ -124,7 +203,7 @@ float Oscilloscope::getMaxAmplitude () const
 }
 void Oscilloscope::setXMin (const int minimumX)
 {
-    minXSamples = minimumX;
+    minXSamples = jlimit (0, audioScopeProcessor->getMaximumBlockSize() - 128, minimumX);
     preCalculateVariables();
     background.repaint();
 }
@@ -134,7 +213,7 @@ int Oscilloscope::getXMin () const
 }
 void Oscilloscope::setXMax (const int maximumX)
 {
-    maxXSamples = maximumX;
+    maxXSamples = jlimit (128, audioScopeProcessor->getMaximumBlockSize(), maximumX);
     preCalculateVariables();
     background.repaint();
 }
