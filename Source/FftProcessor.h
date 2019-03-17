@@ -48,9 +48,15 @@ public:
     /** Sets whether or not an envelope will be applied to the amplitude output. */
     void setAmplitudeEnvelopeEnabled (const bool shouldBeEnabled);
 
+    /** Returns true if an envelope us being applied to the amplitude output. */
+    bool isAmplitudeEnvelopeEnabled() const;
+
     /** Sets the release constant for the amplitude envelope. Note that this is calculated per FFT frame, which is a small
      *  fraction of the sample rate - so a reasonable value is between 0.2f to 0.6f. */
-    void setAmplitudeEnvelopeReleaseConstant (const float constant);
+    void setAmplitudeEnvelopeReleaseConstant (const float releaseConstant);
+
+    /** Gets the release constant for the amplitude envelope. */
+    float getAmplitudeEnvelopeReleaseConstant() const;
 
     /** Allows a listener to add a lambda function as a callback to the AudioProbe assigned to the phase of the last channel.
      *  Listener callbacks are cleared each time prepare() is called on this class, so they must be added after this.
@@ -68,8 +74,8 @@ private:
 	AudioSampleBuffer window;
     AudioSampleBuffer amplitudeEnvelope;
     float amplitudeCorrectionFactor = 0.0f;
-    Atomic<bool> amplitudeEnvelopeEnabled = true;
-    Atomic<float> amplitudeReleaseConstant = 0.3f;
+    Atomic<bool> amplitudeEnvelopeEnabled = false;
+    Atomic<float> amplitudeReleaseConstant = 0.0f;
 
     OwnedArray <AudioProbe <FftFrame>> freqProbes;;
     OwnedArray <AudioProbe <FftFrame>> phaseProbes;
@@ -169,9 +175,21 @@ inline void FftProcessor<Order>::setAmplitudeEnvelopeEnabled(const bool shouldBe
 }
 
 template<int Order>
+inline bool FftProcessor<Order>::isAmplitudeEnvelopeEnabled() const
+{
+    return amplitudeEnvelopeEnabled.get();
+}
+
+template<int Order>
 inline void FftProcessor<Order>::setAmplitudeEnvelopeReleaseConstant(const float releaseConstant)
 {
     amplitudeReleaseConstant.set (releaseConstant);
+}
+
+template<int Order>
+inline float FftProcessor<Order>::getAmplitudeEnvelopeReleaseConstant() const
+{
+    return amplitudeReleaseConstant.get();
 }
 
 template <int Order>

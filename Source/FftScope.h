@@ -25,6 +25,15 @@ public:
         Average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
     };
 
+    /** Defines the release characteristic for the envelope applied to each FFT amplitude bin. */
+    enum ReleaseCharacteristic
+    {
+        Off = 1,        // No envelope applied
+        Quick,          // Each bin will fade quickly after a peak
+        Medium,         // Each bin will fade at a medium rate after a peak
+        Slow            // Each bin will fade slowly after a peak
+    };
+
     FftScope();
     ~FftScope();
 
@@ -59,6 +68,12 @@ public:
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
     AggregationMethod getAggregationMethod() const;
+
+    /** Set the release characteristic for the envelope applied to each FFT amplitude bin. */
+    void setReleaseCharacteristic (const ReleaseCharacteristic releaseCharacteristic);
+
+    /** Get the release characteristic for the envelope applied to each FFT amplitude bin. */
+    ReleaseCharacteristic getReleaseCharacteristic() const;
 
 private:
     
@@ -112,6 +127,9 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::Maximum;
+    float quickRelease = 0.333f;
+    float mediumRelease = 0.667f;
+    float slowRelease = 0.9f;
     
     ListenerRemovalCallback removeListenerCallback = {};
     typename WeakReference<FftScope<Order>>::Master masterReference;
@@ -305,6 +323,40 @@ template<int Order>
 typename FftScope<Order>::AggregationMethod FftScope<Order>::getAggregationMethod() const
 {
     return aggregationMethod;
+}
+
+template<int Order>
+inline void FftScope<Order>::setReleaseCharacteristic(const ReleaseCharacteristic releaseCharacteristic)
+{
+    switch (releaseCharacteristic) {
+    case Quick:
+        fftProcessor->setAmplitudeEnvelopeEnabled (true);
+        fftProcessor->setAmplitudeEnvelopeReleaseConstant (quickRelease);
+        break;
+    case Medium:
+        fftProcessor->setAmplitudeEnvelopeEnabled (true);
+        fftProcessor->setAmplitudeEnvelopeReleaseConstant (mediumRelease);
+        break;
+    case Slow:
+        fftProcessor->setAmplitudeEnvelopeEnabled (true);
+        fftProcessor->setAmplitudeEnvelopeReleaseConstant (slowRelease);
+        break;
+    default:
+        fftProcessor->setAmplitudeEnvelopeEnabled (false);
+    }
+}
+
+template<int Order>
+typename FftScope<Order>::ReleaseCharacteristic FftScope<Order>::getReleaseCharacteristic() const
+{
+    if (fftProcessor->isAmplitudeEnvelopeEnabled())
+        if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == quickRelease)
+            return FftScope<Order>::ReleaseCharacteristic::Quick;
+        else if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == mediumRelease)
+            return FftScope<Order>::ReleaseCharacteristic::Medium;
+        else if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == slowRelease)
+            return FftScope<Order>::ReleaseCharacteristic::Slow;       
+    return FftScope<Order>::ReleaseCharacteristic::Off;
 }
 
 template <int Order>

@@ -56,7 +56,8 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftProcessor (&fftProcessor);
-    fftScope.setAggregationMethod(static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
+    fftScope.setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
+    fftScope.setReleaseCharacteristic (static_cast<const FftScope<12>::ReleaseCharacteristic> (config->getIntAttribute ("FftReleaseCharacteristic", FftScope<12>::ReleaseCharacteristic::Off)));
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
@@ -83,6 +84,7 @@ AnalyserComponent::~AnalyserComponent()
     // Update configuration from class state
     config->setAttribute ("Active", statusActive.get());
     config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
+    config->setAttribute ("FftReleaseCharacteristic", fftScope.getReleaseCharacteristic());
     config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
     config->setAttribute ("ScopeXMax", oscilloscope.getXMax());
     config->setAttribute ("ScopeMaxAmplitude", oscilloscope.getMaxAmplitude());
@@ -208,7 +210,7 @@ int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 
 AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserComponent* analyserToConfigure): analyserComponent(analyserToConfigure)
 {
-    auto* fft = &analyserComponent->fftScope;
+    auto* fftScopePtr = &analyserComponent->fftScope;
     auto* osc = &analyserComponent->oscilloscope;
 
     lblFftAggregation.setText("FFT scope aggregation method", dontSendNotification);
@@ -219,11 +221,28 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
     cmbFftAggregation.addItem ("Maximum", FftScope<12>::AggregationMethod::Maximum);
     cmbFftAggregation.addItem ("Average", FftScope<12>::AggregationMethod::Average);
     addAndMakeVisible (cmbFftAggregation);
-    cmbFftAggregation.setSelectedId (fft->getAggregationMethod(), dontSendNotification);
-    cmbFftAggregation.onChange = [this, fft]
+    cmbFftAggregation.setSelectedId (fftScopePtr->getAggregationMethod(), dontSendNotification);
+    cmbFftAggregation.onChange = [this, fftScopePtr]
     {
-        fft->setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod>(cmbFftAggregation.getSelectedId()));
+        fftScopePtr->setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod>(cmbFftAggregation.getSelectedId()));
     };
+    
+    lblFftRelease.setText("FFT scope release characteristic", dontSendNotification);
+    lblFftRelease.setJustificationType (Justification::centredRight);
+    addAndMakeVisible(lblFftRelease);
+
+    cmbFftRelease.setTooltip ("Set the release characteristic for the envelope applied to each FFT amplitude bin.");
+    cmbFftRelease.addItem ("Off", FftScope<12>::ReleaseCharacteristic::Off);
+    cmbFftRelease.addItem ("Quick", FftScope<12>::ReleaseCharacteristic::Quick);
+    cmbFftRelease.addItem ("Medium", FftScope<12>::ReleaseCharacteristic::Medium);
+    cmbFftRelease.addItem ("Slow", FftScope<12>::ReleaseCharacteristic::Slow);
+    addAndMakeVisible (cmbFftRelease);
+    cmbFftRelease.setSelectedId (fftScopePtr->getReleaseCharacteristic(), dontSendNotification);
+    cmbFftRelease.onChange = [this, fftScopePtr]
+    {
+        fftScopePtr->setReleaseCharacteristic (static_cast<const FftScope<12>::ReleaseCharacteristic>(cmbFftRelease.getSelectedId()));
+    };
+
 
     lblScopeAggregation.setText("Oscilloscope aggregation method", dontSendNotification);
     lblScopeAggregation.setJustificationType (Justification::centredRight);
@@ -294,6 +313,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
+        Track(GUI_BASE_SIZE_PX),
         Track(1_fr)
     };
 
@@ -304,6 +324,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
 
     grid.items.addArray({
         GridItem(lblFftAggregation), GridItem(cmbFftAggregation),
+        GridItem(lblFftRelease), GridItem(cmbFftRelease),
         GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation),
         GridItem(lblScopeScaleX), GridItem(sldScopeScaleX),
         GridItem(lblScopeScaleY), GridItem(sldScopeScaleY)

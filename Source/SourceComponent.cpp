@@ -683,11 +683,12 @@ void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
 {
     const AudioSourceChannelInfo info (fileReadBuffer);
 
-    // Always read next audio block so pause & stop methods doesn't have a one second time out
-    transportSource->getNextAudioBlock (info);
+    if (transportSource)
+        // Always read next audio block so pause & stop methods doesn't have a one second time out
+        transportSource->getNextAudioBlock (info);
 
     // But only output the block if currently playing
-    if (transportSource->isPlaying())
+    if (transportSource && transportSource->isPlaying())
         context.getOutputBlock().copy(fileReadBuffer);
     else
         context.getOutputBlock().clear();

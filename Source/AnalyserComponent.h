@@ -32,7 +32,7 @@ public:
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset () override;
+    void reset() override;
 
     bool isProcessing() const noexcept;
     void activateProcessing();
@@ -56,6 +56,8 @@ private:
         AnalyserComponent* analyserComponent;
         Label lblFftAggregation;
         ComboBox cmbFftAggregation;
+        Label lblFftRelease;
+        ComboBox cmbFftRelease;
         Label lblScopeAggregation;
         ComboBox cmbScopeAggregation;
         Label lblScopeScaleX;
