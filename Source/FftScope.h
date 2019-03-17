@@ -75,6 +75,9 @@ public:
     /** Get the release characteristic for the envelope applied to each FFT amplitude bin. */
     ReleaseCharacteristic getReleaseCharacteristic() const;
 
+    /** Allows mouse moves over this component to trigger repaints. This enables cursor co-ordinates to be painted even if audio has been suspended. */
+    void setMouseMoveRepaintEnablement (const bool enableRepaints);
+
 private:
     
     class Background final : public Component
@@ -130,6 +133,7 @@ private:
     float quickRelease = 0.333f;
     float mediumRelease = 0.667f;
     float slowRelease = 0.9f;
+    bool mouseMoveRepaintsEnabled = false;
     
     ListenerRemovalCallback removeListenerCallback = {};
     typename WeakReference<FftScope<Order>>::Master masterReference;
@@ -217,9 +221,8 @@ void FftScope<Order>::mouseMove (const MouseEvent& event)
     currentX = event.x;
     currentY = event.y;
 
-    // Ensure mouse co-ordinates shown if scope processing suspended
-    AnalyserComponent* analyserComponent = dynamic_cast<AnalyserComponent*> (getParentComponent());
-    if (!analyserComponent->isProcessing())
+    // Allow mouse move repaints even if audio is not triggering repaints
+    if (mouseMoveRepaintsEnabled)
         repaint();
 }
 
@@ -229,6 +232,10 @@ void FftScope<Order>::mouseExit (const MouseEvent&)
     // Set to -1 to indicate out of bounds
     currentX = -1;
     currentY = -1;
+    
+    // Force repaint to make sure cursor co-ordinates are removed
+    if (mouseMoveRepaintsEnabled)
+        repaint();
 }
 
 template<int Order>
@@ -350,13 +357,21 @@ template<int Order>
 typename FftScope<Order>::ReleaseCharacteristic FftScope<Order>::getReleaseCharacteristic() const
 {
     if (fftProcessor->isAmplitudeEnvelopeEnabled())
+    {
         if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == quickRelease)
             return FftScope<Order>::ReleaseCharacteristic::Quick;
-        else if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == mediumRelease)
+        if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == mediumRelease)
             return FftScope<Order>::ReleaseCharacteristic::Medium;
-        else if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == slowRelease)
-            return FftScope<Order>::ReleaseCharacteristic::Slow;       
+        if (fftProcessor->getAmplitudeEnvelopeReleaseConstant() == slowRelease)
+            return FftScope<Order>::ReleaseCharacteristic::Slow;
+    }
     return FftScope<Order>::ReleaseCharacteristic::Off;
+}
+
+template<int Order>
+inline void FftScope<Order>::setMouseMoveRepaintEnablement(const bool enableRepaints)
+{
+    mouseMoveRepaintsEnabled = enableRepaints;
 }
 
 template <int Order>

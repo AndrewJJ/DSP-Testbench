@@ -63,6 +63,9 @@ public:
     /** Set aggregation method for sub-pixel x values (otherwise initialised to maximum) */
     void setAggregationMethod (const AggregationMethod method);
 
+    /** Allows mouse moves over this component to trigger repaints. This enables cursor co-ordinates to be painted even if audio has been suspended. */
+    void setMouseMoveRepaintEnablement (const bool enableRepaints);
+
 private:
 
     class Background final : public Component
@@ -108,6 +111,8 @@ private:
     int currentX = -1;
     int currentY = -1;
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
+    bool mouseMoveRepaintsEnabled = false;
+
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
 

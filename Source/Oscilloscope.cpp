@@ -9,7 +9,6 @@
 */
 
 #include "Oscilloscope.h"
-#include "AnalyserComponent.h"
 
 Oscilloscope::Background::Background (Oscilloscope* parentOscilloscope)
     :   parentScope (parentOscilloscope)
@@ -70,9 +69,8 @@ void Oscilloscope::mouseMove (const MouseEvent& event)
     currentX = event.x;
     currentY = event.y;
 
-    // Ensure mouse co-ordinates shown if scope processing suspended
-    AnalyserComponent* analyserComponent = dynamic_cast<AnalyserComponent*> (getParentComponent());
-    if (!analyserComponent->isProcessing())
+    // Allow mouse move repaints even if audio is not triggering repaints
+    if (mouseMoveRepaintsEnabled)
         repaint();
 }
 void Oscilloscope::mouseExit (const MouseEvent&)
@@ -80,6 +78,10 @@ void Oscilloscope::mouseExit (const MouseEvent&)
     // Set to -1 to indicate out of bounds
     currentX = -1;
     currentY = -1;
+
+    // Force repaint to make sure cursor co-ordinates are removed
+    if (mouseMoveRepaintsEnabled)
+        repaint();
 }
 void Oscilloscope::timerCallback()
 {
@@ -151,6 +153,10 @@ Oscilloscope::AggregationMethod Oscilloscope::getAggregationMethod () const
 void Oscilloscope::setAggregationMethod (const AggregationMethod method)
 {
     aggregationMethod = method;
+}
+void Oscilloscope::setMouseMoveRepaintEnablement(const bool enableRepaints)
+{
+    mouseMoveRepaintsEnabled = enableRepaints;
 }
 void Oscilloscope::paintWaveform (Graphics& g) const
 {
@@ -239,9 +245,6 @@ void Oscilloscope::paintWaveform (Graphics& g) const
         const auto ampStr = String (yAmp, 3);
         const auto yAmpDb = Decibels::gainToDecibels (std::abs (yAmp), -100.0f);
         const auto ampStrDb = String (yAmpDb, 1) + " dB";
-        String lbl = "0";
-        if (yAmpDb >-100.0f)
-            lbl = String (yAmp) + ", " + ampStrDb;
         const auto txt =  String (time) + ", " + ampStr + " | " + ampStrDb;
         const auto offset = GUI_GAP_I(2);
         auto lblX = currentX + offset;

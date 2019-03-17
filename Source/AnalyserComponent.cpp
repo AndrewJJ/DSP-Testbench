@@ -41,7 +41,12 @@ AnalyserComponent::AnalyserComponent()
     btnPause->setClickingTogglesState (true);
     statusActive.set (config->getBoolAttribute ("Active", true));
     btnPause->setToggleState (!statusActive.get(), dontSendNotification);
-    btnPause->onClick = [this] { statusActive = !btnPause->getToggleState(); };
+    btnPause->onClick = [this]
+    {
+        statusActive.set (!btnPause->getToggleState());
+        fftScope.setMouseMoveRepaintEnablement (!statusActive.get());
+        oscilloscope.setMouseMoveRepaintEnablement (!statusActive.get());
+    };
 
     btnExpand.reset (new DrawableButton ("Expand", DrawableButton::ImageFitted));
     addAndMakeVisible (btnExpand.get());
@@ -198,13 +203,19 @@ void AnalyserComponent::activateProcessing()
 {
     statusActive.set (true);
     const MessageManagerLock mmLock;
+    btnPause->setEnabled (true);
     btnPause->setToggleState(false, dontSendNotification);
+    fftScope.setMouseMoveRepaintEnablement (false);
+    oscilloscope.setMouseMoveRepaintEnablement (false);
 }
 void AnalyserComponent::suspendProcessing()
 {
     statusActive.set (false);
     const MessageManagerLock mmLock;
     btnPause->setToggleState(true, dontSendNotification);
+    btnPause->setEnabled (false);
+    fftScope.setMouseMoveRepaintEnablement (true);
+    oscilloscope.setMouseMoveRepaintEnablement (true);
 }
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {
@@ -353,7 +364,7 @@ Grid::Px AnalyserComponent::MeterBackground::getDesiredWidth (const int numChann
 {
     if (numChannels <1 )
         return  Grid::Px (0);
-    // else
+
     return Grid::Px (dBScaleWidth + numChannels * desiredBarWidth + (numChannels - 1) * gap);
 }
 Rectangle<int> AnalyserComponent::MeterBackground::getBarBoundsInParent (const int channel, const int numChannels) const
