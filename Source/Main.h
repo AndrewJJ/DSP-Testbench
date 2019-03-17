@@ -94,7 +94,7 @@ public:
     ApplicationProperties appProperties;
 
 private:
-    DspTestBenchLnF dspTestBenchLnF;
-    std::unique_ptr<MainWindow> mainWindow;
+    DspTestBenchLnF dspTestBenchLnF{};
+    std::unique_ptr<MainWindow> mainWindow{};
     TooltipWindow tooltipWindow;
 };

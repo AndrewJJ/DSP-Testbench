@@ -390,11 +390,11 @@ private:
     Slider sldGain;
     TextButton btnInvert;
     TextButton btnMute;
-    std::unique_ptr<TabbedComponent> tabbedComponent;
-    std::unique_ptr<SynthesisTab> synthesisTab;
+    std::unique_ptr<TabbedComponent> tabbedComponent{};
+    std::unique_ptr<SynthesisTab> synthesisTab{};
     //std::unique_ptr<SampleTab> sampleTab;
-    std::unique_ptr<WaveTab> waveTab;
-    std::unique_ptr<AudioTab> audioTab;
+    std::unique_ptr<WaveTab> waveTab{};
+    std::unique_ptr<AudioTab> audioTab{};
 
     SourceComponent* otherSource = nullptr;
     bool isInverted = false;

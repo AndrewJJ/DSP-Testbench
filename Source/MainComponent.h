@@ -41,12 +41,12 @@ private:
     ThreadPool threadPool;
     OpenGLContext oglContext;
 
-    std::unique_ptr<SourceComponent> srcComponentA;
-    std::unique_ptr<SourceComponent> srcComponentB;
-    std::unique_ptr<ProcessorComponent> procComponentA;
-    std::unique_ptr<ProcessorComponent> procComponentB;
-    std::unique_ptr<AnalyserComponent> analyserComponent;
-    std::unique_ptr<MonitoringComponent> monitoringComponent;
+    std::unique_ptr<SourceComponent> srcComponentA{};
+    std::unique_ptr<SourceComponent> srcComponentB{};
+    std::unique_ptr<ProcessorComponent> procComponentA{};
+    std::unique_ptr<ProcessorComponent> procComponentB{};
+    std::unique_ptr<AnalyserComponent> analyserComponent{};
+    std::unique_ptr<MonitoringComponent> monitoringComponent{};
 
     Atomic<bool> holdAudio;
     Atomic<long> sampleCounter;
