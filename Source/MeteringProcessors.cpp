@@ -46,7 +46,7 @@ void SimplePeakMeterProcessor::process (const dsp::ProcessContextReplacing<float
 	for (auto ch = 0; ch < static_cast<int> (numChannels); ++ch)
 	{
         const auto* channelBuffer = context.getInputBlock().getChannelPointer(static_cast<int> (ch));
-        auto x = 0.0f;
+        float x;
         auto env = envelopeContinuation[ch].load();
         // Calculate envelope over the block, but only keep last envelope sample as the meter refresh rate
         // should be slower than the block processing rate
