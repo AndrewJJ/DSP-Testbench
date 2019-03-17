@@ -202,18 +202,40 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
     setTitleBarHeight (0);
     MainContentComponent* mainContentComponent;
     setContentOwned (mainContentComponent = new MainContentComponent(deviceManager), true);
+
+    const auto minWidth = 992;
+    const auto minHeight = 768;
     setResizable (true, false);
-    setResizeLimits(992, 768, 10000, 10000);
+    setResizeLimits (minWidth, minHeight, 10000, 10000);
+
     // Need to dummy this up so we can change the menu component height
     dummyMenuBarModel.reset (new DummyMenuBarModel);
     setMenuBar (dummyMenuBarModel.get());
     setMenuBarComponent (new DspTestBenchMenuComponent (mainContentComponent));
-    
-    centreWithSize (getWidth(), getHeight());
+
+    // Read application properties from settings file
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue ("Application"));
+    if (!config)
+        config.reset(new XmlElement ("Application"));
+    const auto width = config->getIntAttribute ("WindowWidth", minWidth);
+    const auto height = config->getIntAttribute ("WindowHeight", minHeight);
+
+    // Set window size
+    centreWithSize (width, height);
     Component::setVisible (true);    
 }
 DSPTestbenchApplication::MainWindow::~MainWindow()
 {
+    // Update configuration from class state
+    config->setAttribute ("WindowWidth", getWidth());
+    config->setAttribute ("WindowHeight", getHeight());
+    
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue ("Application", config.get());
+    propertiesFile->saveIfNeeded();
+
     // This ensures that we shutdown audio before deviceManager is removed, thus preventing an access violation
     dynamic_cast<AudioAppComponent*>(getContentComponent())->shutdownAudio();
 }

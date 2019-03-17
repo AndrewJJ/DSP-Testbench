@@ -84,6 +84,7 @@ public:
     private:
         AudioDeviceManager deviceManager;
         std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel;
+        std::unique_ptr<XmlElement> config;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
