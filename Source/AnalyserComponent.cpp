@@ -39,7 +39,7 @@ AnalyserComponent::AnalyserComponent()
     DspTestBenchLnF::setImagesForDrawableButton (btnPause.get(), BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
     btnPause->setTooltip ("Pause the analyser");
     btnPause->setClickingTogglesState (true);
-    statusActive.set (config->getBoolAttribute ("Active", true));
+    statusActive.set (true);
     btnPause->setToggleState (!statusActive.get(), dontSendNotification);
     btnPause->onClick = [this]
     {
@@ -87,7 +87,6 @@ AnalyserComponent::AnalyserComponent()
 AnalyserComponent::~AnalyserComponent()
 {
     // Update configuration from class state
-    config->setAttribute ("Active", statusActive.get());
     config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
     config->setAttribute ("FftReleaseCharacteristic", fftScope.getReleaseCharacteristic());
     config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
