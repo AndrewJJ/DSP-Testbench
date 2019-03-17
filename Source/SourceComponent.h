@@ -144,7 +144,7 @@ private:
 class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener, public Timer
 {
 public:
-    explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise);
+    explicit WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromConfig, const bool shouldPlayOnInitialise);
     ~WaveTab();
 
     void paint (Graphics& g) override;
@@ -209,16 +209,16 @@ public:
 private:
 
     AudioDeviceManager* audioDeviceManager = nullptr;
-    std::unique_ptr<AudioThumbnailComponent> audioThumbnailComponent;
+    std::unique_ptr<AudioThumbnailComponent> audioThumbnailComponent{};
     TextButton btnLoad;
     TextButton btnPlay;
     TextButton btnStop;
     TextButton btnLoop;
 
     AudioFormatManager formatManager;
-    std::unique_ptr<AudioFormatReader> reader;
-    std::unique_ptr<AudioFormatReaderSource> readerSource;
-    std::unique_ptr<AudioTransportSource> transportSource;
+    std::unique_ptr<AudioFormatReader> reader{};
+    std::unique_ptr<AudioFormatReaderSource> readerSource{};
+    std::unique_ptr<AudioTransportSource> transportSource{};
 
     bool loadFile (const File& fileToPlay);
     void chooseFile();
@@ -231,7 +231,7 @@ private:
     double sampleRate;
     uint32 maxBlockSize;
     String initialFilePath;
-    bool shouldPlayOnInitialise;
+    bool playOnInitialise;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };

@@ -148,16 +148,12 @@ void MainContentComponent::paint (Graphics& g)
 }
 void MainContentComponent::resized()
 {
+    using Track = Grid::TrackInfo;
     const auto monitoringComponentHeight = Grid::Px (monitoringComponent->getMinimumHeight());
-
+    const auto margin = GUI_GAP_I(2);
     Grid grid;
     grid.rowGap = GUI_GAP_PX(2);
     grid.columnGap = GUI_GAP_PX(2);
-
-    using Track = Grid::TrackInfo;
-
-    const auto margin = GUI_GAP_I(2);
-
     if (analyserIsExpanded)
     {
         analyserComponent->setBounds (getBounds());
@@ -165,10 +161,7 @@ void MainContentComponent::resized()
         srcComponentB->setVisible (false);
         procComponentA->setVisible (false);
         procComponentB->setVisible (false);
-
-        grid.templateRows = {   Track (1_fr),
-                                Track (monitoringComponentHeight)
-                            };
+        grid.templateRows = { Track (1_fr), Track (monitoringComponentHeight) };
         grid.templateColumns = { Track (1_fr) };
         grid.items.addArray ({ GridItem (analyserComponent.get()), GridItem (monitoringComponent.get()) });
     }
@@ -178,7 +171,7 @@ void MainContentComponent::resized()
         srcComponentB->setVisible (true);
         procComponentA->setVisible (true);
         procComponentB->setVisible (true);
-
+        
         const auto srcComponentHeight = Grid::Px (jmax (srcComponentA->getMinimumHeight(), srcComponentB->getMinimumHeight()));
         const auto procComponentHeight = Grid::Px (jmax (procComponentA->getMinimumHeight(), procComponentB->getMinimumHeight()));
 
@@ -186,23 +179,15 @@ void MainContentComponent::resized()
         const auto srcWidth = srcComponentA->getMinimumWidth();
 
         auto requiredWidthForSourcesAndProcessors = srcWidth * 4;
-        requiredWidthForSourcesAndProcessors += GUI_GAP_I(2) * 3; // Gaps between components
-        requiredWidthForSourcesAndProcessors += margin * 2; // Gaps at edges
+        requiredWidthForSourcesAndProcessors += GUI_GAP_I(2) * 3;   // Gaps between components
+        requiredWidthForSourcesAndProcessors += margin * 2;         // Gaps at edges
 
         if (requiredWidthForSourcesAndProcessors < getWidth())
         {
             // Put sources and processors on first row
-            grid.templateRows = {   Track (srcComponentHeight),
-                                    Track (1_fr),
-                                    Track (monitoringComponentHeight)
-                                };
-
-            grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (Grid::Px (srcWidth)), Track (1_fr) };
-
-            grid.items.addArray({   GridItem (srcComponentA.get()), 
-                                    GridItem (srcComponentB.get()),
-                                    GridItem (procComponentA.get()),
-                                    GridItem (procComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
+            grid.templateRows = { Track (srcComponentHeight), Track (1_fr), Track (monitoringComponentHeight) };
+            grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
+            grid.items.addArray({   GridItem (srcComponentA.get()), GridItem (srcComponentB.get()), GridItem (procComponentA.get()), GridItem (procComponentB.get()),
                                     GridItem (analyserComponent.get()).withArea ({ }, GridItem::Span (4)),
                                     GridItem (monitoringComponent.get()).withArea ({ }, GridItem::Span (4))
                                 });
@@ -210,20 +195,12 @@ void MainContentComponent::resized()
         else
         {
             // First row is sources, second row is processors
-            grid.templateRows = {   Track (srcComponentHeight),
-                                    Track (procComponentHeight),
-                                    Track (1_fr),
-                                    Track (monitoringComponentHeight)
-                                };
-
-            grid.templateColumns = { Track (Grid::Px (srcWidth)), Track (1_fr) };
-
-            grid.items.addArray({   GridItem (srcComponentA.get()), 
-                                    GridItem (srcComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
-                                    GridItem (procComponentA.get()),
-                                    GridItem (procComponentB.get()).withWidth(srcWidth), // set width to prevent stretching
+            grid.templateRows = { Track (srcComponentHeight), Track (procComponentHeight), Track (1_fr), Track (monitoringComponentHeight) };
+            grid.templateColumns = { Track (1_fr), Track (1_fr) };
+            grid.items.addArray({   GridItem (srcComponentA.get()), GridItem (srcComponentB.get()),
+                                    GridItem (procComponentA.get()), GridItem (procComponentB.get()),
                                     GridItem (analyserComponent.get()).withArea ({ }, GridItem::Span (2)),
-                                    GridItem (monitoringComponent.get()).withArea ({}, GridItem::Span (2))
+                                    GridItem (monitoringComponent.get()).withArea ({ }, GridItem::Span (2))
                                 });
         }
     }

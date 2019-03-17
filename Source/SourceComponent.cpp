@@ -9,6 +9,7 @@
 */
 
 #include "SourceComponent.h"
+#include <utility>
 #include "Main.h"
 
 SynthesisTab::SynthesisTab (String& sourceName)
@@ -153,45 +154,28 @@ void SynthesisTab::paint (Graphics&)
 { }
 void SynthesisTab::resized ()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
-    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
-                            Track (GUI_BASE_SIZE_PX),
-                            Track (GUI_BASE_SIZE_PX),
-                            Track (GUI_BASE_SIZE_PX)
-                        };
-
-    grid.templateColumns = { GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5), GUI_SIZE_PX(3.5) };
-
-    grid.autoFlow = Grid::AutoFlow::row;
-
+    grid.templateRows = { GUI_BASE_SIZE_PX, GUI_BASE_SIZE_PX, GUI_BASE_SIZE_PX, GUI_BASE_SIZE_PX };
+    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
     if (isSelectedWaveformOscillatorBased())
     {
         grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
                                 GridItem (sldFrequency).withArea ({ }, GridItem::Span (4)),
                                 GridItem (sldSweepDuration).withArea ({ }, GridItem::Span (4)),
-                                GridItem (cmbSweepMode),
-                                GridItem (btnSweepEnabled),
-                                GridItem (btnSweepReset),
-                                GridItem (btnSynchWithOther)
+                                GridItem (cmbSweepMode), GridItem (btnSweepEnabled), GridItem (btnSweepReset), GridItem (btnSynchWithOther)
                             });
     }
     else
     {
         grid.items.addArray ({  GridItem (cmbWaveform).withArea ({ }, GridItem::Span (4)),
-                                GridItem (lblPreDelay),
-                                GridItem (sldPreDelay).withArea ({ }, GridItem::Span (3)),
-                                GridItem (lblPulseWidth),
-                                GridItem (sldPulseWidth).withArea ({ }, GridItem::Span (3)),
-                                GridItem (btnPulsePolarity).withArea ({ }, GridItem::Span (3)),
-                                GridItem (btnSynchWithOther)
+                                GridItem (lblPreDelay), GridItem (sldPreDelay).withArea ({ }, GridItem::Span (3)),
+                                GridItem (lblPulseWidth), GridItem (sldPulseWidth).withArea ({ }, GridItem::Span (3)),
+                                GridItem (btnPulsePolarity).withArea ({ }, GridItem::Span (3)), GridItem (btnSynchWithOther)
                             });        
     }
-
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
 float SynthesisTab::getMinimumWidth()
@@ -576,12 +560,12 @@ bool WaveTab::AudioThumbnailComponent::isFileLoaded() const
     return fileLoaded;
 }
 
-WaveTab::WaveTab(AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise_)
+WaveTab::WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromConfig, const bool shouldPlayOnInitialise_)
     :   audioDeviceManager (deviceManager),
         sampleRate (0.0),
         maxBlockSize (0),
-        initialFilePath (initialFilePathFromConfig),
-        shouldPlayOnInitialise (shouldPlayOnInitialise_)
+        initialFilePath (std::move(initialFilePathFromConfig)),
+        playOnInitialise (shouldPlayOnInitialise_)
 {
     formatManager.registerBasicFormats();
 
@@ -630,30 +614,15 @@ void WaveTab::paint (Graphics&)
 { }
 void WaveTab::resized ()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
-    grid.templateRows = {   Track (1_fr),
-                            Track (GUI_BASE_SIZE_PX)
-                        };
-
+    grid.templateRows = { Track (1_fr), GUI_BASE_SIZE_PX };
     grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
-
-    grid.autoColumns = Track (1_fr);
-    grid.autoRows = Track (1_fr);
-
-    grid.autoFlow = Grid::AutoFlow::row;
-
     grid.items.addArray({   GridItem (audioThumbnailComponent.get()).withArea ({ }, GridItem::Span (4)),
-                            GridItem (btnLoad),
-                            GridItem (btnPlay),
-                            GridItem (btnStop),
-                            GridItem (btnLoop)
-                        });
-    
+                            GridItem (btnLoad), GridItem (btnPlay), GridItem (btnStop), GridItem (btnLoop)
+                        });    
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
 float WaveTab::getMinimumWidth ()
@@ -722,7 +691,7 @@ void WaveTab::timerCallback ()
         const File file (initialFilePath);
         if (loadFile (file))
             audioThumbnailComponent->setCurrentFile (file);
-        if (shouldPlayOnInitialise)
+        if (playOnInitialise)
         {
             btnPlay.setToggleState(true, dontSendNotification);
             play();
@@ -873,25 +842,15 @@ void AudioTab::ChannelComponent::paint (Graphics& g)
 }
 void AudioTab::ChannelComponent::resized ()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
-    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
-                            Track (GUI_SIZE_PX(0.75)),
-                            Track (1_fr)
-                        };
-
+    grid.templateRows = { Track (GUI_BASE_SIZE_PX), Track (GUI_SIZE_PX(0.75)), Track (1_fr) };
     grid.templateColumns = { Track (GUI_SIZE_PX(0.6)), Track (GUI_SIZE_PX(1.4)) };
-
     grid.autoFlow = Grid::AutoFlow::column;
-
     grid.items.addArray({   GridItem (meterBar).withArea (GridItem::Span (3), {}).withMargin(GridItem::Margin (0.0f, 2.0f, 0.0f, 0.0f)),
-                            GridItem (lblChannel),
-                            GridItem (btnOutputSelection),
-                            GridItem (sldGain)
+                            GridItem (lblChannel), GridItem (btnOutputSelection), GridItem (sldGain)
                         });
     grid.performLayout (getLocalBounds().reduced (GUI_BASE_GAP_I, GUI_BASE_GAP_I));
 }
@@ -982,19 +941,15 @@ void AudioTab::InputArrayComponent::paint (Graphics&)
 { }
 void AudioTab::InputArrayComponent::resized ()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
     grid.autoColumns = Track (Grid::Px (ChannelComponent::getMinimumWidth()));
     grid.autoRows = Track (1_fr);
     grid.autoFlow = Grid::AutoFlow::column;
-
     for (auto channelComponent : *channelComponents)
         grid.items.add (GridItem (channelComponent));
-
     grid.performLayout (getLocalBounds().reduced (GUI_BASE_GAP_I, GUI_BASE_GAP_I));
 }
 float AudioTab::InputArrayComponent::getMinimumWidth() const
@@ -1205,7 +1160,7 @@ SourceComponent::~SourceComponent()
     
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    propertiesFile->setValue(sourceName, config.get());
+    propertiesFile->setValue (sourceName, config.get());
     propertiesFile->saveIfNeeded();
 }
 void SourceComponent::paint (Graphics& g)
@@ -1215,28 +1170,18 @@ void SourceComponent::paint (Graphics& g)
 }
 void SourceComponent::resized()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
-    grid.templateRows = {   
-                            Track (GUI_BASE_SIZE_PX),
-                            Track (Grid::Px (getDesiredTabComponentHeight()))
-                        };
-
+    grid.templateRows = { Track (GUI_BASE_SIZE_PX), Track (Grid::Px (getDesiredTabComponentHeight())) };
     grid.templateColumns = { GUI_SIZE_PX(3.0), 1_fr, GUI_SIZE_PX(2), GUI_SIZE_PX(1.7) };
-
     grid.autoFlow = Grid::AutoFlow::row;
-
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
-                            GridItem (btnInvert),
-                            GridItem (btnMute),
+                            GridItem (btnInvert), GridItem (btnMute),
                             GridItem (tabbedComponent.get()).withArea ({ }, GridItem::Span (4))
-                        });
-    
+                        });    
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
 float SourceComponent::getMinimumWidth() const

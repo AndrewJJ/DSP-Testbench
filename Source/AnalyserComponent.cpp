@@ -102,6 +102,9 @@ void AnalyserComponent::paint (Graphics& g)
 }
 void AnalyserComponent::resized()
 {
+    if (getHeight() < GUI_SIZE_I(2))
+        return; // Prevents an issue with performGridLayout during construction
+
     using Track = Grid::TrackInfo;
 
     Grid titleBarGrid;
