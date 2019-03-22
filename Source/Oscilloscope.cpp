@@ -91,7 +91,6 @@ void Oscilloscope::mouseDrag (const MouseEvent& event)
             maxXSamples = minXSamples + span;
         }
         background.repaint();
-        foreground.repaint();
     }
     // NOTE - vertical panning deliberately not implemented
 }
@@ -104,13 +103,13 @@ void Oscilloscope::mouseDoubleClick (const MouseEvent& event)
         setXMin (0);
         setXMax (2048);
         preCalculateVariables();
-        repaint();
+        background.repaint();
     }
     if (inYAxisControlArea)
     {
         setMaxAmplitude (1.0f);
         preCalculateVariables();
-        repaint();
+        background.repaint();
     }
 }
 void Oscilloscope::mouseMove (const MouseEvent& event)
@@ -151,20 +150,27 @@ void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDeta
 
     // TODO: make sure config sliders operate over same range (or just remove them!)
     // TODO: remove zoom icons from binary resources?
+    // TODO: change cursor in bottom left corner or disable in this region?
 
-    // TODO: centre zoom based on current position
     if (xAxisControlArea.contains (event.x, event.y))
     {
-        const auto xDelta = static_cast<int> (wheel.deltaY * 10);
-        const auto span = getXMax() - getXMin();
-        //const auto zoomPos = getXMin() + span / 2;
+        // Centre zoom based on current position
+        const auto delta = static_cast<int> (wheel.deltaY * 50);
+        const auto span = maxXSamples - minXSamples;
         const auto fraction = static_cast<float> (event.x) / static_cast<float> (getWidth());
         const auto zoomPos = getXMin() + static_cast<int> (static_cast<float> (span) * fraction);
-        const auto newSpanOn2 = (span + xDelta) / 2;
-        setXMin (zoomPos - newSpanOn2);
-        setXMax (zoomPos + newSpanOn2);
-        preCalculateVariables();
-        repaint();
+        const auto newSpan = span + delta;
+        const auto newMinX = zoomPos - static_cast<int> (fraction * static_cast<float>(newSpan));
+        const auto newMaxX = newMinX + newSpan;
+        if (newMinX >= 0 && newMinX <= getMaximumBlockSize() - 128
+            && newMaxX >= 128 && newMaxX <= getMaximumBlockSize())
+        {
+            minXSamples = newMinX;
+            maxXSamples = newMaxX;
+            preCalculateVariables();
+            background.repaint();
+            repaint();
+        }
     }
     if (yAxisControlArea.contains (event.x, event.y))
     {
@@ -172,6 +178,7 @@ void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDeta
         const auto newAmplitude = Decibels::decibelsToGain (newAmplitudeDb, -150.0f);
         setMaxAmplitude (newAmplitude);
         preCalculateVariables();
+        background.repaint();
         repaint();
     }
 }
