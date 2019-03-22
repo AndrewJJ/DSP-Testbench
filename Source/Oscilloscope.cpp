@@ -66,30 +66,36 @@ void Oscilloscope::resized ()
     xAxisControlArea = getLocalBounds().withTrimmedTop (getHeight() - controlSize);
     yAxisControlArea = getLocalBounds().withWidth (controlSize);
 }
-void Oscilloscope::mouseDrag (const MouseEvent & event)
+void Oscilloscope::mouseDown (const MouseEvent& )
 {
-    if (xAxisControlArea.contains (event.x, event.y))
+    xMinAtLastMouseDown = getXMin();
+    xMaxAtLastMouseDown = getXMax();
+}
+void Oscilloscope::mouseDrag (const MouseEvent& event)
+{
+    if (xAxisControlArea.contains (event.getMouseDownX(), event.getMouseDownY()))
     {
         // Pan according to horizontal mouse movement
-        // TODO: scale according to current zoom
-        const auto span = getXMax() - getXMin();
+        const auto span = xMaxAtLastMouseDown - xMinAtLastMouseDown;
         const auto delta = event.getDistanceFromDragStartX() * span / getWidth();
-        const auto newMin = getXMin() + delta;
-        const auto newMax = getXMax() + delta;
-        if (delta > 0)
+        if (delta < 0)
         {
-            setXMax (newMax);
-            setXMin (getXMax() - span);
+            maxXSamples = jlimit (128, getMaximumBlockSize(), xMaxAtLastMouseDown - delta);
+            // Subtracting a negative delta means we are increasing minXSamples, in which case we don't have limit check it
+            minXSamples = maxXSamples - span;
         }
-        else if (delta < 0)
+        else if (delta > 0)
         {
-            setXMin (newMin);
-            setXMax (getXMin() + span);            
+            minXSamples = jlimit (0, getMaximumBlockSize() - 128, xMinAtLastMouseDown - delta);
+            // Subtracting a positive delta means we are decreasing maxXSamples, in which case we don't have limit check it
+            maxXSamples = minXSamples + span;
         }
+        background.repaint();
+        foreground.repaint();
     }
     // NOTE - vertical panning deliberately not implemented
 }
-void Oscilloscope::mouseDoubleClick (const MouseEvent & event)
+void Oscilloscope::mouseDoubleClick (const MouseEvent& event)
 {
     const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
     const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
@@ -97,10 +103,14 @@ void Oscilloscope::mouseDoubleClick (const MouseEvent & event)
     {
         setXMin (0);
         setXMax (2048);
+        preCalculateVariables();
+        repaint();
     }
     if (inYAxisControlArea)
     {
         setMaxAmplitude (1.0f);
+        preCalculateVariables();
+        repaint();
     }
 }
 void Oscilloscope::mouseMove (const MouseEvent& event)
@@ -134,7 +144,7 @@ void Oscilloscope::mouseExit (const MouseEvent&)
     if (mouseMoveRepaintsEnabled)
         repaint();
 }
-void Oscilloscope::mouseWheelMove(const MouseEvent & event, const MouseWheelDetails & wheel)
+void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel)
 {
     if (getHeight() <= controlSize)
         return;
@@ -153,12 +163,16 @@ void Oscilloscope::mouseWheelMove(const MouseEvent & event, const MouseWheelDeta
         const auto newSpanOn2 = (span + xDelta) / 2;
         setXMin (zoomPos - newSpanOn2);
         setXMax (zoomPos + newSpanOn2);
+        preCalculateVariables();
+        repaint();
     }
     if (yAxisControlArea.contains (event.x, event.y))
     {
         const auto newAmplitudeDb = Decibels::gainToDecibels(getMaxAmplitude()) + wheel.deltaY * 2;
         const auto newAmplitude = Decibels::decibelsToGain (newAmplitudeDb, -150.0f);
         setMaxAmplitude (newAmplitude);
+        preCalculateVariables();
+        repaint();
     }
 }
 void Oscilloscope::timerCallback()
@@ -445,7 +459,6 @@ Colour Oscilloscope::getColourForChannel (const int channel)
 }
 void Oscilloscope::preCalculateVariables()
 {
-    maxXSamples = jmin (maxXSamples, audioScopeProcessor->getMaximumBlockSize());
     xRatio = static_cast<float> (getWidth()) / static_cast<float> (maxXSamples - minXSamples);
     xRatioInv = 1.0f / xRatio;
     yRatio = static_cast<float> (getHeight()) / (amplitudeMax * 2.0f);

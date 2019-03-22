@@ -29,6 +29,7 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
+    void mouseDown (const MouseEvent& event) override;
     void mouseDrag (const MouseEvent& event) override;
     void mouseDoubleClick (const MouseEvent& event) override;
     void mouseMove (const MouseEvent& event) override;
@@ -118,6 +119,8 @@ private:
     const int controlSize = GUI_SIZE_I(0.6);
     Rectangle<int> xAxisControlArea;
     Rectangle<int> yAxisControlArea;
+    int xMinAtLastMouseDown = 0;
+    int xMaxAtLastMouseDown = 0;
 
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;
