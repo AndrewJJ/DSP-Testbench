@@ -72,13 +72,13 @@ void Oscilloscope::resized ()
     xAxisControlArea = getLocalBounds().withTrimmedTop (getHeight() - controlSize);
     yAxisControlArea = getLocalBounds().withWidth (controlSize);
 }
-void Oscilloscope::mouseDown (const MouseEvent& )
+void Oscilloscope::mouseDown (const MouseEvent&)
 {
     xMinAtLastMouseDown = getXMin();
     xMaxAtLastMouseDown = getXMax();
 }
 void Oscilloscope::mouseDrag (const MouseEvent& event)
-{
+{   
     if (xAxisControlArea.contains (event.getMouseDownX(), event.getMouseDownY()))
     {
         // Pan according to horizontal mouse movement
@@ -153,15 +153,16 @@ void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDeta
     if (xAxisControlArea.contains (event.x, event.y))
     {
         // Centre zoom based on current position
-        const auto delta = static_cast<int> (wheel.deltaY * 50);
+        const auto delta = static_cast<int> (wheel.deltaY * 100);
         const auto span = maxXSamples - minXSamples;
         const auto fraction = static_cast<float> (event.x) / static_cast<float> (getWidth());
         const auto zoomPos = getXMin() + static_cast<int> (static_cast<float> (span) * fraction);
         const auto newSpan = span + delta;
         const auto newMinX = zoomPos - static_cast<int> (fraction * static_cast<float>(newSpan));
         const auto newMaxX = newMinX + newSpan;
-        if (newMinX >= 0 && newMinX <= getMaximumBlockSize() - 128
-            && newMaxX >= 128 && newMaxX <= getMaximumBlockSize())
+        if (newMinX >= 0 && newMinX <= getMaximumBlockSize() - 128      // Limit minXSamples
+            && newMaxX >= 128 && newMaxX <= getMaximumBlockSize()       // Limit maxXSamples
+            && newSpan >= 128)                                          // Limit max zoom so we don't go in closer than 128 samples
         {
             minXSamples = newMinX;
             maxXSamples = newMaxX;
@@ -226,7 +227,7 @@ void Oscilloscope::setXMin (const int minimumX)
     preCalculateVariables();
     background.repaint();
 }
-int Oscilloscope::getXMin () const
+int Oscilloscope::getXMin() const
 {
     return minXSamples;
 }
@@ -236,7 +237,7 @@ void Oscilloscope::setXMax (const int maximumX)
     preCalculateVariables();
     background.repaint();
 }
-int Oscilloscope::getXMax () const
+int Oscilloscope::getXMax() const
 {
     return maxXSamples;
 }
@@ -333,7 +334,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
     }
 
     // Output mouse co-ordinates in Hz/linear amplitude
-    if (currentX >= 0 && currentY >= 0)
+    if (currentX >= 0 && currentY >= 0 && !isMouseButtonDown (true))
     {
         g.setColour (Colours::white);
         g.setFont (Font (GUI_SIZE_F(0.5)));
@@ -375,20 +376,17 @@ void Oscilloscope::paintScale (Graphics& g) const
 
     g.setFont (Font (GUI_SIZE_I(0.4)));
 
-    // Plot amplitude scale (just halves, quarters or eighths)
-    auto maxTicks = getHeight() / GUI_SIZE_I(2);
-    int numTicks;
-    if (maxTicks >= 8)
-        numTicks = 8;
-    else if (maxTicks >= 4)
-        numTicks = 4;
-    else
-        numTicks = 2;
+    // Calculate number of divisions for amplitude scale (just halves, quarters or eighths)
+    const auto maxDivsY = getHeight() / GUI_SIZE_I(2);
+    int numDivsY;
+    if (maxDivsY >= 8) numDivsY = 8;
+    else if (maxDivsY >= 4) numDivsY = 4;
+    else numDivsY = 2;
 
     // Draw y scale for amplitude
-    for (auto t = 0; t < numTicks; ++t)
+    for (auto t = 0; t < numDivsY; ++t)
     {
-        const auto scaleY = static_cast<float> (getHeight()) / static_cast<float> (numTicks) * static_cast<float> (t);
+        const auto scaleY = static_cast<float> (getHeight()) / static_cast<float> (numDivsY) * static_cast<float> (t);
         g.setColour (axisColour);
         if (t > 0)
             g.drawHorizontalLine (static_cast<int> (scaleY), 0.0f, static_cast<float> (getWidth()));
@@ -407,26 +405,33 @@ void Oscilloscope::paintScale (Graphics& g) const
         g.drawText (lbl, lblX, lblY, lblW, lblH, Justification::topLeft, false);
     }
    
-    // Plot time scale (in samples)
-    maxTicks = getWidth() / GUI_SIZE_I(2);
-    numTicks = 0;
-    if (maxTicks >= 16)
-        numTicks = 16;
-    else if (maxTicks >= 8)
-        numTicks = 8;
-    else if (maxTicks >= 4)
-        numTicks = 4;
-    else if (maxTicks >= 2)
-        numTicks = 2;
-    for (auto t = 0; t < numTicks; ++t)
+    // Calculate number of divisions for x axis
+    const auto maxDivsX = getWidth() / GUI_SIZE_I(2);
+    int numDivsX;
+    if (maxDivsX >= 16) numDivsX = 16;
+    else if (maxDivsX >= 8) numDivsX = 8;
+    else if (maxDivsX >= 4) numDivsX = 4;
+    else if (maxDivsX >= 2) numDivsX = 2;
+    else return;
+
+    // Calculate scale and offset for x axis tick marks
+    const auto spanX = maxXSamples - minXSamples;
+    const auto scaleX = static_cast<float> (getWidth()) / static_cast<float> (spanX);
+    auto tickStepX = spanX / numDivsX;
+    tickStepX -= tickStepX % 16; // Adjust tick to be placed at nearest multiple of 16 samples
+    if (tickStepX == 0) return;
+    const auto offsetX = minXSamples % tickStepX;
+
+    // Draw x scale
+    for (auto t = minXSamples - offsetX; t < maxXSamples; t += tickStepX)
     {
-        const auto scaleX = static_cast<float> (getWidth()) / static_cast<float> (numTicks) * static_cast<float> (t);
+        const auto x = static_cast<int>(scaleX * static_cast<float>(t - minXSamples));
         g.setColour (axisColour);
-        if (t > 0)
-            g.drawVerticalLine (static_cast<int> (scaleX), 0.0f, static_cast<float> (getWidth()));
+        if (t > minXSamples)
+            g.drawVerticalLine (x, 0.0f, static_cast<float> (getHeight()));
         g.setColour (textColour);
-        const auto timeStr = String (static_cast<int> (toTimeFromPx (scaleX)));
-        const auto lblX = static_cast<int> (scaleX) + GUI_SIZE_I(0.1);
+        const auto timeStr = String (t);
+        const auto lblX = static_cast<int> (x) + GUI_SIZE_I(0.1);
         const auto lblY = getHeight() - GUI_SIZE_I(0.6);
         const auto lblW = GUI_BASE_SIZE_I;
         const auto lblH = GUI_SIZE_I(0.5);
