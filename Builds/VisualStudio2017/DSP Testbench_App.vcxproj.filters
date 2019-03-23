@@ -4634,9 +4634,6 @@
     <None Include="..\..\Resources\audio_settings.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\camera.svg">
-      <Filter>DSP Testbench\Resources</Filter>
-    </None>
     <None Include="..\..\Resources\configure.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>
@@ -4655,10 +4652,7 @@
     <None Include="..\..\Resources\phase_invert.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>
-    <None Include="..\..\Resources\zoom_in.svg">
-      <Filter>DSP Testbench\Resources</Filter>
-    </None>
-    <None Include="..\..\Resources\zoom_out.svg">
+    <None Include="..\..\Resources\screenshot.svg">
       <Filter>DSP Testbench\Resources</Filter>
     </None>
     <None Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\Flac Licence.txt">

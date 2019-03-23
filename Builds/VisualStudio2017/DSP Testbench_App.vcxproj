@@ -2698,15 +2698,13 @@
   <ItemGroup>
     <None Include="..\..\Resources\about.svg"/>
     <None Include="..\..\Resources\audio_settings.svg"/>
-    <None Include="..\..\Resources\camera.svg"/>
     <None Include="..\..\Resources\configure.svg"/>
     <None Include="..\..\Resources\expand.svg"/>
     <None Include="..\..\Resources\mute.svg"/>
     <None Include="..\..\Resources\pause.svg"/>
     <None Include="..\..\Resources\play.svg"/>
     <None Include="..\..\Resources\phase_invert.svg"/>
-    <None Include="..\..\Resources\zoom_in.svg"/>
-    <None Include="..\..\Resources\zoom_out.svg"/>
+    <None Include="..\..\Resources\screenshot.svg"/>
     <None Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\Flac Licence.txt"/>
     <None Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\oggvorbis\Ogg Vorbis Licence.txt"/>
     <None Include="..\..\..\JUCE\modules\juce_audio_processors\format_types\VST3_SDK\base\LICENSE.txt"/>

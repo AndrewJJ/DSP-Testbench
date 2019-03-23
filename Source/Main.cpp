@@ -84,7 +84,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
 
     btnSnapshot.reset (new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
     addAndMakeVisible (btnSnapshot.get());
-    DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::camera_svg, BinaryData::camera_svgSize, Colours::black, Colours::red);
+    DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::screenshot_svg, BinaryData::screenshot_svgSize, Colours::black, Colours::red);
     btnSnapshot->setTooltip("Restart audio briefly, then hold a snapshot of the result for analysis");
     btnSnapshot->setClickingTogglesState(true);
     btnSnapshot->onClick = [this]
@@ -137,7 +137,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
 {
     using Track = Grid::TrackInfo;
     const auto margin = 2;
-    const auto snapshotButtonSize = GUI_SIZE_PX (1.1);
+    const auto snapshotButtonSize = GUI_SIZE_PX (1);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
     const auto aboutBtnSize = GUI_SIZE_PX (1.1);
     const auto windowButtonSize = GUI_BASE_SIZE_PX;

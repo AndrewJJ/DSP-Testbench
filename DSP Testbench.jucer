@@ -7,7 +7,6 @@
       <FILE id="rHdhvD" name="about.svg" compile="0" resource="1" file="Resources/about.svg"/>
       <FILE id="gFEf8y" name="audio_settings.svg" compile="0" resource="1"
             file="Resources/audio_settings.svg"/>
-      <FILE id="RqOm85" name="camera.svg" compile="0" resource="1" file="Resources/camera.svg"/>
       <FILE id="oxrZc5" name="configure.svg" compile="0" resource="1" file="Resources/configure.svg"/>
       <FILE id="BWpEYx" name="expand.svg" compile="0" resource="1" file="Resources/expand.svg"/>
       <FILE id="oN8B0r" name="mute.svg" compile="0" resource="1" file="Resources/mute.svg"/>
@@ -15,8 +14,7 @@
       <FILE id="qZJ3dl" name="play.svg" compile="0" resource="1" file="Resources/play.svg"/>
       <FILE id="bSOL5P" name="phase_invert.svg" compile="0" resource="1"
             file="Resources/phase_invert.svg"/>
-      <FILE id="LGb5HD" name="zoom_in.svg" compile="0" resource="1" file="Resources/zoom_in.svg"/>
-      <FILE id="KlagXy" name="zoom_out.svg" compile="0" resource="1" file="Resources/zoom_out.svg"/>
+      <FILE id="NypgBU" name="screenshot.svg" compile="0" resource="1" file="Resources/screenshot.svg"/>
     </GROUP>
     <GROUP id="{5FF76640-0B9A-EDBF-E22B-8DC9B6FA3150}" name="Source">
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
