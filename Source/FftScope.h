@@ -388,61 +388,51 @@ void FftScope<Order>::paintFft (Graphics& g) const
         // Copy frequency data and scale
         fftProcessor->copyFrequencyFrame (y, ch);
 
-        // Draw a line representing the freq data for this channel
+        // Create a path representing the freq data for this channel and pre-allocate space
         Path p;
-        
-        // Deprecated code for plotting each point on path (including subpixel resolution)
-        //p.preallocateSpace ((n + 1) * 3);
-        //p.startNewSubPath (0, toPxFromLinear (y[0]));
-        //for (auto i = 1; i <= n; ++i)
-        //{
-        //    p.lineTo (x[i], toPxFromLinear (y[i]));
-        //}
-        //p.lineTo (static_cast<float> (getWidth()), static_cast<float> (getHeight()));
-
         p.preallocateSpace ((getWidth() + 1) * 3); // Will generally be a lot less than this for log frequency scale
-        
+
         // Find first positive x value (important if minFreq is set higher than default
         auto i = 0;
-        while (x[i]<0)
+        while (x[i] < 0)
             ++i;
         p.startNewSubPath (x[i], toPxFromLinear (y[i]));
         ++i;
 
         // Iterate through x and plot each point, but aggregate across y if x interval is less than a pixel
-        auto xPx = static_cast<int> (x[i]); // x co-ordinate in pixels
-        while (xPx < getWidth() && i <= n)
+        auto curX = static_cast<int> (x[i]); // x co-ordinate in pixels
+        float aggY; // aggregated y value
+        while (curX < getWidth() && i <= n)
         {
-            const auto xPxNext = xPx + 1; // next pixel along on x-axis
+            const auto nextX = curX + 1; // next pixel along on x-axis
             if (aggregationMethod == AggregationMethod::Average)
             {
                 auto ySum = y[i];
                 auto count = 1;
-                while (i < n && x[i+1] < xPxNext)
+                while (i < n && x[i+1] < nextX)
                 {
                     i++;
                     ySum += y[i];
                     count++;
                 }
-                p.lineTo (x[i], toPxFromLinear (ySum / static_cast<float> (count)));
+                aggY = toPxFromLinear (ySum / static_cast<float> (count));
             }
-            else
+            else // aggregate with maximum
             {
-                auto yMax = y[i];
-                while (i < n && x[i+1] < xPxNext)
+                aggY = y[i];
+                while (i < n && x[i+1] < nextX)
                 {
                     i++;
-                    yMax = jmax (yMax, y[i]);
+                    aggY = jmax (aggY, y[i]);
                 }
-                p.lineTo (x[i], toPxFromLinear (yMax));
             }
+            p.lineTo (x[i], toPxFromLinear (aggY));
             ++i;
-            xPx = static_cast<int> (x[i]);
+            curX = static_cast<int> (x[i]);
         }
-        
         const auto pst = PathStrokeType (1.0f);
         g.setColour (getColourForChannel (ch));
-        g.strokePath(p, pst);
+        g.strokePath (p, pst);
     }
 
     // Output mouse co-ordinates in Hz/dB
@@ -453,7 +443,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
         const auto freq = toHzFromPx (static_cast<float> (currentX));
         const auto freqStr = hertzToString (freq, 2, true, true);
         const auto dbStr = String (toDbVFromPx (static_cast<float> (currentY)), 1);
-        const auto txt =  freqStr + ", " + dbStr + " dB";
+        const auto txt = freqStr + ", " + dbStr + " dB";
         const auto offset = GUI_GAP_I(2);
         auto lblX = currentX + offset;
         auto lblY = currentY + offset;
@@ -635,6 +625,7 @@ void FftScope<Order>::preCalculateVariables()
     
     const auto binToHz = nyquist / static_cast<float> (n);
     for (auto i = 1; i <= n; ++i)
+        // x[] will hold the x co-ordinate (in pixels) for each bin
         x[i] = toPxFromHz (static_cast<float> (i) * binToHz);
 
     yRatio = static_cast<float> (getHeight()) / (dbMin - dbMax);
