@@ -58,15 +58,15 @@ void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sa
 	const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
     const auto numOutputChannels = static_cast<uint32> (currentDevice->getActiveOutputChannels().countNumberOfSetBits());
 
-    srcBufferA = dsp::AudioBlock<float> (srcBufferMemoryA, numOutputChannels, samplesPerBlockExpected);
-    srcBufferB = dsp::AudioBlock<float> (srcBufferMemoryB, numOutputChannels, samplesPerBlockExpected);
-    tempBuffer = dsp::AudioBlock<float> (tempBufferMemory, numOutputChannels, samplesPerBlockExpected);
-
     const dsp::ProcessSpec spec {
         sampleRate,
         static_cast<uint32> (samplesPerBlockExpected),
         jmax (numInputChannels, numOutputChannels)
     };
+
+    srcBufferA = dsp::AudioBlock<float> (srcBufferMemoryA, spec.numChannels, samplesPerBlockExpected);
+    srcBufferB = dsp::AudioBlock<float> (srcBufferMemoryB, spec.numChannels, samplesPerBlockExpected);
+    tempBuffer = dsp::AudioBlock<float> (tempBufferMemory, spec.numChannels, samplesPerBlockExpected);
     
     srcComponentA->prepare (spec);
     srcComponentB->prepare (spec);
