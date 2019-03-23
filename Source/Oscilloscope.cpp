@@ -35,12 +35,7 @@ void Oscilloscope::Foreground::paint (Graphics& g)
 Oscilloscope::Oscilloscope ()
     :   background (this),
         foreground (this),
-        audioScopeProcessor (nullptr),
-        zoomCursor (DspTestBenchLnF::getMouseCursorFromImageData (
-            BinaryData::zoom_in_svg, BinaryData::zoom_in_svgSize,
-            Colours::black, Colours::white,
-            28, 28, 13, 13
-        ))
+        audioScopeProcessor (nullptr)
 {
     this->setOpaque (true);
 
@@ -69,8 +64,6 @@ void Oscilloscope::resized ()
     preCalculateVariables();
     background.setBounds (getLocalBounds());
     foreground.setBounds (getLocalBounds());
-    xAxisControlArea = getLocalBounds().withTrimmedTop (getHeight() - controlSize);
-    yAxisControlArea = getLocalBounds().withWidth (controlSize);
 }
 void Oscilloscope::mouseDown (const MouseEvent&)
 {
@@ -79,44 +72,33 @@ void Oscilloscope::mouseDown (const MouseEvent&)
 }
 void Oscilloscope::mouseDrag (const MouseEvent& event)
 {   
-    if (xAxisControlArea.contains (event.getMouseDownX(), event.getMouseDownY()))
+    // Pan according to horizontal mouse movement
+    const auto span = xMaxAtLastMouseDown - xMinAtLastMouseDown;
+    const auto delta = event.getDistanceFromDragStartX() * span / getWidth();
+    if (delta < 0)
     {
-        // Pan according to horizontal mouse movement
-        const auto span = xMaxAtLastMouseDown - xMinAtLastMouseDown;
-        const auto delta = event.getDistanceFromDragStartX() * span / getWidth();
-        if (delta < 0)
-        {
-            maxXSamples = jlimit (128, getMaximumBlockSize(), xMaxAtLastMouseDown - delta);
-            // Subtracting a negative delta means we are increasing minXSamples, in which case we don't have limit check it
-            minXSamples = maxXSamples - span;
-        }
-        else if (delta > 0)
-        {
-            minXSamples = jlimit (0, getMaximumBlockSize() - 128, xMinAtLastMouseDown - delta);
-            // Subtracting a positive delta means we are decreasing maxXSamples, in which case we don't have limit check it
-            maxXSamples = minXSamples + span;
-        }
-        background.repaint();
+        maxXSamples = jlimit (128, getMaximumBlockSize() - 1, xMaxAtLastMouseDown - delta);
+        // Subtracting a negative delta means we are increasing minXSamples, in which case we don't have limit check it
+        minXSamples = maxXSamples - span;
     }
+    else if (delta > 0)
+    {
+        minXSamples = jlimit (0, getMaximumBlockSize() - 128 - 1, xMinAtLastMouseDown - delta);
+        // Subtracting a positive delta means we are decreasing maxXSamples, in which case we don't have limit check it
+        maxXSamples = minXSamples + span;
+    }
+    background.repaint();
+
     // NOTE - vertical panning deliberately not implemented
 }
-void Oscilloscope::mouseDoubleClick (const MouseEvent& event)
+void Oscilloscope::mouseDoubleClick (const MouseEvent& /*event*/)
 {
-    const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
-    const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
-    if (inXAxisControlArea)
-    {
-        setXMin (0);
-        setXMax (2048);
-        preCalculateVariables();
-        background.repaint();
-    }
-    if (inYAxisControlArea)
-    {
-        setMaxAmplitude (1.0f);
-        preCalculateVariables();
-        background.repaint();
-    }
+    // Reset default zoom
+    setXMin (0);
+    setXMax (defaultMaxXSamples);
+    setMaxAmplitude (1.0f);
+    preCalculateVariables();
+    background.repaint();
 }
 void Oscilloscope::mouseMove (const MouseEvent& event)
 {
@@ -126,14 +108,6 @@ void Oscilloscope::mouseMove (const MouseEvent& event)
     // Allow mouse move repaints even if audio is not triggering repaints
     if (mouseMoveRepaintsEnabled)
         repaint();
-
-    const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
-    const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
-
-    if (inXAxisControlArea || inYAxisControlArea)
-        foreground.setMouseCursor (zoomCursor);
-    else
-        foreground.setMouseCursor (MouseCursor::CrosshairCursor);
 }
 void Oscilloscope::mouseExit (const MouseEvent&)
 {
@@ -150,32 +124,51 @@ void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDeta
     if (getHeight() <= controlSize)
         return;
 
-    if (xAxisControlArea.contains (event.x, event.y))
+    if (ComponentPeer::getCurrentModifiersRealtime().isShiftDown())
     {
-        // Centre zoom based on current position
+        // Zoom amplitude axis, centred about zero
+        const auto newAmplitudeDb = Decibels::gainToDecibels(getMaxAmplitude()) - wheel.deltaY * 2;
+        const auto newAmplitude = Decibels::decibelsToGain (newAmplitudeDb, -150.0f);
+        setMaxAmplitude (newAmplitude);
+        preCalculateVariables();
+        background.repaint();
+        repaint();
+    }
+    else
+    {
+        // Zoom x axis, centred on current position
         const auto delta = static_cast<int> (wheel.deltaY * 100);
         const auto span = maxXSamples - minXSamples;
         const auto fraction = static_cast<float> (event.x) / static_cast<float> (getWidth());
         const auto zoomPos = getXMin() + static_cast<int> (static_cast<float> (span) * fraction);
-        const auto newSpan = span + delta;
+        const auto newSpan = span - delta;
         const auto newMinX = zoomPos - static_cast<int> (fraction * static_cast<float>(newSpan));
         const auto newMaxX = newMinX + newSpan;
-        if (newMinX >= 0 && newMinX <= getMaximumBlockSize() - 128      // Limit minXSamples
-            && newMaxX >= 128 && newMaxX <= getMaximumBlockSize()       // Limit maxXSamples
-            && newSpan >= 128)                                          // Limit max zoom so we don't go in closer than 128 samples
+        if (newSpan < 128) // Limit max zoom so we don't go in closer than 128 samples
+            return;
+        else if (newSpan >= getMaximumBlockSize())
         {
-            minXSamples = newMinX;
-            maxXSamples = newMaxX;
-            preCalculateVariables();
-            background.repaint();
-            repaint();
+            minXSamples = 0;
+            maxXSamples = getMaximumBlockSize() - 1;
         }
-    }
-    if (yAxisControlArea.contains (event.x, event.y))
-    {
-        const auto newAmplitudeDb = Decibels::gainToDecibels(getMaxAmplitude()) + wheel.deltaY * 2;
-        const auto newAmplitude = Decibels::decibelsToGain (newAmplitudeDb, -150.0f);
-        setMaxAmplitude (newAmplitude);
+        else
+        {
+            if (newMinX >= 0 && newMinX < getMaximumBlockSize() - 128 && newMaxX >= 128 && newMaxX < getMaximumBlockSize())
+            {
+                minXSamples = newMinX;
+                maxXSamples = newMaxX;               
+            }
+            else if (newMinX < 0 && newSpan < getMaximumBlockSize())
+            {
+                minXSamples = 0;
+                maxXSamples = newSpan;
+            }
+            else if (newMaxX >= getMaximumBlockSize() && maxXSamples - newSpan >= 0)
+            {
+                maxXSamples = getMaximumBlockSize();
+                minXSamples = maxXSamples - newSpan;
+            }
+        }
         preCalculateVariables();
         background.repaint();
         repaint();
@@ -244,6 +237,10 @@ int Oscilloscope::getXMax() const
 int Oscilloscope::getMaximumBlockSize() const
 {
     return audioScopeProcessor->getMaximumBlockSize();
+}
+int Oscilloscope::getDefaultXMaximum() const
+{
+    return defaultMaxXSamples;
 }
 Oscilloscope::AggregationMethod Oscilloscope::getAggregationMethod () const
 {
@@ -407,19 +404,19 @@ void Oscilloscope::paintScale (Graphics& g) const
    
     // Calculate number of divisions for x axis
     const auto maxDivsX = getWidth() / GUI_SIZE_I(2);
-    int numDivsX;
+    int numDivsX = 1;
     if (maxDivsX >= 16) numDivsX = 16;
     else if (maxDivsX >= 8) numDivsX = 8;
     else if (maxDivsX >= 4) numDivsX = 4;
     else if (maxDivsX >= 2) numDivsX = 2;
-    else return;
+    //else return;
 
     // Calculate scale and offset for x axis tick marks
     const auto spanX = maxXSamples - minXSamples;
     const auto scaleX = static_cast<float> (getWidth()) / static_cast<float> (spanX);
     auto tickStepX = spanX / numDivsX;
-    tickStepX -= tickStepX % 16; // Adjust tick to be placed at nearest multiple of 16 samples
-    if (tickStepX == 0) return;
+    //tickStepX -= tickStepX % 2; // Adjust tick to be placed at nearest multiple of 16 samples
+    //if (tickStepX == 0) return;
     const auto offsetX = minXSamples % tickStepX;
 
     // Draw x scale

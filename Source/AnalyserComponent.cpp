@@ -67,7 +67,7 @@ AnalyserComponent::AnalyserComponent()
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
     oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
-    oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", 512));
+    oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", oscilloscope.getDefaultXMaximum()));
     oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
     oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
 
@@ -272,6 +272,19 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
         osc->setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod>(cmbScopeAggregation.getSelectedId()));
     };
 
+    const String helpText = "You can pan the waveform in the oscilloscope by dragging it to the left or right. "
+        "You can zoom in on the time axis with the mouse wheel. If you hold down the shift key, you can zoom "
+        "the amplitude axis. You can reset the default zoom by double-clicking.";
+    txtHelp.setText(helpText, false);
+    txtHelp.setMultiLine (true);
+    txtHelp.setReadOnly (true);
+    txtHelp.setCaretVisible (false);
+    txtHelp.setPopupMenuEnabled (false);
+    txtHelp.setScrollbarsShown (false);
+    txtHelp.setColour (TextEditor::ColourIds::backgroundColourId, Colours::transparentBlack);
+    txtHelp.setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
+    addAndMakeVisible (txtHelp);
+
     setSize (800, 300);
 }
 void AnalyserComponent::AnalyserConfigComponent::resized ()
@@ -283,6 +296,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     using Track = Grid::TrackInfo;
 
     grid.templateRows = {
+        Track(GUI_SIZE_PX(1.5)),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
@@ -295,9 +309,10 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({
+        GridItem(txtHelp).withArea( { }, GridItem::Span (2)),
         GridItem(lblFftAggregation), GridItem(cmbFftAggregation),
         GridItem(lblFftRelease), GridItem(cmbFftRelease),
-        GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation)
+        GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation),
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));

@@ -61,6 +61,9 @@ public:
     // Get the maximum block size (as defined by the processor)
     int getMaximumBlockSize() const;
 
+    // Get default maximum X scale in samples
+    int getDefaultXMaximum() const;
+
     /** Get aggregation method for sub-pixel x values */
     AggregationMethod getAggregationMethod() const;
 
@@ -117,11 +120,9 @@ private:
     AggregationMethod aggregationMethod = AggregationMethod::NearestSample;
     bool mouseMoveRepaintsEnabled = false;
     const int controlSize = GUI_SIZE_I(0.6);
-    Rectangle<int> xAxisControlArea;
-    Rectangle<int> yAxisControlArea;
     int xMinAtLastMouseDown = 0;
     int xMaxAtLastMouseDown = 0;
-    MouseCursor zoomCursor;
+    const int defaultMaxXSamples = 2048 - 1;
 
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;

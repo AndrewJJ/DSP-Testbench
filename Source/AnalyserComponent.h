@@ -60,6 +60,8 @@ private:
         ComboBox cmbFftRelease;
         Label lblScopeAggregation;
         ComboBox cmbScopeAggregation;
+        TextEditor txtHelp;
+
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnalyserConfigComponent);
     };
 
