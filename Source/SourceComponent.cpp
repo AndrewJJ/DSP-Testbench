@@ -645,7 +645,7 @@ void WaveTab::prepare (const dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
     maxBlockSize = spec.maximumBlockSize;
-    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize);
+    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize, true, true, true);
     init();
 }
 void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
@@ -751,20 +751,21 @@ void WaveTab::chooseFile()
 void WaveTab::init()
 {
     if (!transportSource)
-    {
         transportSource.reset (new AudioTransportSource());
-        transportSource->prepareToPlay(maxBlockSize, sampleRate);
-        transportSource->addChangeListener (this);
-        
-        if (readerSource)
+
+    transportSource->prepareToPlay(maxBlockSize, sampleRate);
+    transportSource->addChangeListener (this);
+    
+    if (readerSource)
+    {
+        readerSource->setLooping (btnLoop.getToggleState());
+        if (auto* device = audioDeviceManager->getCurrentAudioDevice())
         {
-            readerSource->setLooping (btnLoop.getToggleState());
-            if (auto* device = audioDeviceManager->getCurrentAudioDevice())
-            {
-                transportSource->setSource (readerSource.get(), roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
-                // tell the main window about this so that it can do the seeking behaviour...
-                audioThumbnailComponent->setTransportSource (transportSource.get());
-            }
+            transportSource->setSource (readerSource.get(), roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
+            // tell the main window about this so that it can do the seeking behaviour...
+            audioThumbnailComponent->setTransportSource (transportSource.get());
+            if (btnPlay.getToggleState())
+                transportSource->start();
         }
     }
 }
