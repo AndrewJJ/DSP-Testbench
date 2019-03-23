@@ -137,7 +137,7 @@
 #endif
 
 #ifndef    JUCE_ASIO
- //#define JUCE_ASIO 0
+ #define   JUCE_ASIO 1
 #endif
 
 #ifndef    JUCE_WASAPI
@@ -265,7 +265,7 @@
 #endif
 
 #ifndef    JUCE_ALLOW_STATIC_NULL_VARIABLES
- //#define JUCE_ALLOW_STATIC_NULL_VARIABLES 1
+ //#define JUCE_ALLOW_STATIC_NULL_VARIABLES 0
 #endif
 
 #ifndef    JUCE_STRICT_REFCOUNTEDPOINTER

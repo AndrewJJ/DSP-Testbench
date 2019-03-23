@@ -298,13 +298,6 @@
 			path = System/Library/Frameworks/IOKit.framework;
 			sourceTree = SDKROOT;
 		};
-		3CA13771774AA0BBBD335B20 = {
-			isa = PBXFileReference;
-			lastKnownFileType = file.svg;
-			name = camera.svg;
-			path = ../../Resources/camera.svg;
-			sourceTree = "SOURCE_ROOT";
-		};
 		3E3981955075B1EC86979ADD = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
@@ -571,11 +564,11 @@
 			path = RecentFilesMenuTemplate.nib;
 			sourceTree = "SOURCE_ROOT";
 		};
-		9D020790DB67647ABF63F3A6 = {
+		A117664BFDE16F1B85BDFE93 = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
-			name = "zoom_out.svg";
-			path = "../../Resources/zoom_out.svg";
+			name = screenshot.svg;
+			path = ../../Resources/screenshot.svg;
 			sourceTree = "SOURCE_ROOT";
 		};
 		A34483B06D1B6F39F642005A = {
@@ -753,13 +746,6 @@
 			path = "../../Resources/audio_settings.svg";
 			sourceTree = "SOURCE_ROOT";
 		};
-		E80BE21542A984DBDFB630DE = {
-			isa = PBXFileReference;
-			lastKnownFileType = file.svg;
-			name = "zoom_in.svg";
-			path = "../../Resources/zoom_in.svg";
-			sourceTree = "SOURCE_ROOT";
-		};
 		EE37E93158A394F0070B2700 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
@@ -793,15 +779,13 @@
 			children = (
 				96171B3D2EDD5DAAADF050EB,
 				E47B7D632DABF2F0EA52CD5A,
-				3CA13771774AA0BBBD335B20,
 				3E3981955075B1EC86979ADD,
 				CE928AD52C0E01910D1E0A35,
 				B50A5EC0AAF5E1F36C224F5B,
 				76365AD4F7DF4ABC70F4F74B,
 				A9A5C812AB383BA1CB7FBB64,
 				4A8C1A1EC0EE440AF360F9FD,
-				E80BE21542A984DBDFB630DE,
-				9D020790DB67647ABF63F3A6,
+				A117664BFDE16F1B85BDFE93,
 			);
 			name = Resources;
 			sourceTree = "<group>";
