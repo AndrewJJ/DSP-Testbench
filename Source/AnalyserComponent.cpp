@@ -66,9 +66,6 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
-    oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
-    oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", 512));
-    oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
     oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
 
     addAndMakeVisible (goniometer);
@@ -89,9 +86,6 @@ AnalyserComponent::~AnalyserComponent()
     // Update configuration from class state
     config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
     config->setAttribute ("FftReleaseCharacteristic", fftScope.getReleaseCharacteristic());
-    config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
-    config->setAttribute ("ScopeXMax", oscilloscope.getXMax());
-    config->setAttribute ("ScopeMaxAmplitude", oscilloscope.getMaxAmplitude());
     config->setAttribute ("ScopeAggregationMethod", oscilloscope.getAggregationMethod());
 
     // Save configuration to application properties
@@ -272,45 +266,6 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
         osc->setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod>(cmbScopeAggregation.getSelectedId()));
     };
 
-    lblScopeScaleX.setText ("Oscilloscope time scale (samples)", dontSendNotification);
-    lblScopeScaleX.setJustificationType (Justification::centredRight);
-    addAndMakeVisible (lblScopeScaleX);
-
-    sldScopeScaleX.setSliderStyle (Slider::SliderStyle::TwoValueHorizontal);
-    sldScopeScaleX.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
-    sldScopeScaleX.setNumDecimalPlacesToDisplay (0);
-    sldScopeScaleX.setPopupDisplayEnabled (true, true, this);
-    const auto xMax = analyserToConfigure->getOscilloscopeMaximumBlockSize();
-    sldScopeScaleX.setTooltip ("Select range of samples from each " + String(xMax) + " sample frame for oscilloscope");
-    sldScopeScaleX.setRange (0.0, static_cast<double> (xMax), 128.0);
-    sldScopeScaleX.setMinAndMaxValues (osc->getXMin(), osc->getXMax(), dontSendNotification);
-    addAndMakeVisible (sldScopeScaleX);
-    sldScopeScaleX.onValueChange = [this, osc]
-    {
-        osc->setXMin(static_cast<int> (sldScopeScaleX.getMinValue()));
-        osc->setXMax(static_cast<int> (sldScopeScaleX.getMaxValue()));
-    };
-
-    lblScopeScaleY.setText ("Oscilloscope amplitude scale (dB)", dontSendNotification);
-    lblScopeScaleY.setJustificationType (Justification::centredRight);
-    addAndMakeVisible (lblScopeScaleY);
-
-    sldScopeScaleY.setSliderStyle (Slider::SliderStyle::LinearHorizontal);
-    sldScopeScaleY.setTextBoxStyle (Slider::NoTextBox, true, 0, 0);
-    sldScopeScaleY.setNumDecimalPlacesToDisplay (0);
-    sldScopeScaleY.setTextValueSuffix(" dB");
-    sldScopeScaleY.setPopupDisplayEnabled (true, true, this);
-    sldScopeScaleY.setTooltip ("Select maximum amplitude for oscilloscope");
-    sldScopeScaleY.setRange (-100.0, 0.0, 1.0);
-    // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
-    sldScopeScaleY.setValue (Decibels::decibelsToGain (osc->getMaxAmplitude(), -150.0f), dontSendNotification);
-    addAndMakeVisible (sldScopeScaleY);
-    sldScopeScaleY.onValueChange = [this, osc]
-    {
-        // minus Infinity dB must be set lower than the slider minimum to prevent divide by zero
-        osc->setMaxAmplitude(Decibels::decibelsToGain (static_cast<float> (sldScopeScaleY.getValue()), -150.0f));
-    };
-
     setSize (800, 300);
 }
 void AnalyserComponent::AnalyserConfigComponent::resized ()
@@ -322,8 +277,6 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     using Track = Grid::TrackInfo;
 
     grid.templateRows = {
-        Track(GUI_BASE_SIZE_PX),
-        Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
         Track(GUI_BASE_SIZE_PX),
@@ -339,8 +292,6 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
         GridItem(lblFftAggregation), GridItem(cmbFftAggregation),
         GridItem(lblFftRelease), GridItem(cmbFftRelease),
         GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation),
-        GridItem(lblScopeScaleX), GridItem(sldScopeScaleX),
-        GridItem(lblScopeScaleY), GridItem(sldScopeScaleY)
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));
