@@ -645,7 +645,7 @@ void WaveTab::prepare (const dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
     maxBlockSize = spec.maximumBlockSize;
-    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize, true, true, true);
+    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize, true, true, false);
     init();
 }
 void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
