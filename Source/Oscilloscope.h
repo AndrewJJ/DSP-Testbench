@@ -121,6 +121,7 @@ private:
     Rectangle<int> yAxisControlArea;
     int xMinAtLastMouseDown = 0;
     int xMaxAtLastMouseDown = 0;
+    MouseCursor zoomCursor;
 
     AudioBuffer<float> buffer;
     CriticalSection criticalSection;

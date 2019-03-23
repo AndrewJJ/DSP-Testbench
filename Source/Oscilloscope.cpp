@@ -9,6 +9,7 @@
 */
 
 #include "Oscilloscope.h"
+#include "LookAndFeel.h"
 
 Oscilloscope::Background::Background (Oscilloscope* parentOscilloscope)
     :   parentScope (parentOscilloscope)
@@ -34,7 +35,12 @@ void Oscilloscope::Foreground::paint (Graphics& g)
 Oscilloscope::Oscilloscope ()
     :   background (this),
         foreground (this),
-        audioScopeProcessor (nullptr)
+        audioScopeProcessor (nullptr),
+        zoomCursor (DspTestBenchLnF::getMouseCursorFromImageData (
+            BinaryData::zoom_in_svg, BinaryData::zoom_in_svgSize,
+            Colours::black, Colours::white,
+            28, 28, 13, 13
+        ))
 {
     this->setOpaque (true);
 
@@ -124,12 +130,8 @@ void Oscilloscope::mouseMove (const MouseEvent& event)
     const auto inXAxisControlArea = xAxisControlArea.contains (event.x, event.y);
     const auto inYAxisControlArea = yAxisControlArea.contains (event.x, event.y);
 
-    if (inXAxisControlArea && inYAxisControlArea)
-        foreground.setMouseCursor (MouseCursor::UpDownLeftRightResizeCursor);
-    else if (inXAxisControlArea)
-        foreground.setMouseCursor (MouseCursor::LeftRightResizeCursor);
-    else if (inYAxisControlArea)
-        foreground.setMouseCursor (MouseCursor::UpDownResizeCursor);
+    if (inXAxisControlArea || inYAxisControlArea)
+        foreground.setMouseCursor (zoomCursor);
     else
         foreground.setMouseCursor (MouseCursor::CrosshairCursor);
 }
@@ -147,10 +149,6 @@ void Oscilloscope::mouseWheelMove (const MouseEvent& event, const MouseWheelDeta
 {
     if (getHeight() <= controlSize)
         return;
-
-    // TODO: make sure config sliders operate over same range (or just remove them!)
-    // TODO: remove zoom icons from binary resources?
-    // TODO: change cursor in bottom left corner or disable in this region?
 
     if (xAxisControlArea.contains (event.x, event.y))
     {
