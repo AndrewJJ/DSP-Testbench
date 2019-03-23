@@ -66,6 +66,9 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
+    oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
+    oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", 512));
+    oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
     oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
 
     addAndMakeVisible (goniometer);
@@ -86,6 +89,9 @@ AnalyserComponent::~AnalyserComponent()
     // Update configuration from class state
     config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
     config->setAttribute ("FftReleaseCharacteristic", fftScope.getReleaseCharacteristic());
+    config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
+    config->setAttribute ("ScopeXMax", oscilloscope.getXMax());
+    config->setAttribute ("ScopeMaxAmplitude", oscilloscope.getMaxAmplitude());
     config->setAttribute ("ScopeAggregationMethod", oscilloscope.getAggregationMethod());
 
     // Save configuration to application properties
@@ -291,7 +297,7 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     grid.items.addArray({
         GridItem(lblFftAggregation), GridItem(cmbFftAggregation),
         GridItem(lblFftRelease), GridItem(cmbFftRelease),
-        GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation),
+        GridItem(lblScopeAggregation), GridItem(cmbScopeAggregation)
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));
