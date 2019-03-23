@@ -43,18 +43,32 @@ public:
         static Colour downOn     (const Colour normalOn)       { return normalOn.brighter (0.3f).withRotatedHue (0.08f); }
         static Colour disabledOn (const Colour /*normalOn*/)   { return disabled(); }
     };
+
     static void setImagesForDrawableButton (
         DrawableButton* button,                 /**< DrawableButton to setup. */
         const void* imageData,			    	/**< Binary image data (typically SVG, but can be anything that juce::ImageFileFormat understands. */
         const size_t imageDataSize, 			/**< Size of the binary image data (in bytes). */
         const Colour original                   /**< Colour to be replaced in the original image. */
     );
+
     static void setImagesForDrawableButton (
         DrawableButton* button,                 /**< DrawableButton to setup. */
         const void* imageData,			    	/**< Binary image data (typically SVG, but can be anything that juce::ImageFileFormat understands. */
         const size_t imageDataSize, 			/**< Size of the binary image data (in bytes). */
         const Colour original,                  /**< Colour to be replaced in the original image. */
         const Colour toggleOnColour             /**< Set base colour for "on" state for toggle button. */
+    );
+
+    /** Translates an image stored as binary resource data into a bitmap then returns it as a MouseCursor (works for SVGs). */
+    static MouseCursor getMouseCursorFromImageData (
+        const void* rawData,                    /**< Pointer to raw binary data representing the image. */
+        const size_t numBytesOfData,            /**< Size of the raw binary data. */
+        const Colour originalColour,            /**< Colour in image that you want to replace (e.g. Colours::black). */
+        const Colour replacementColour,         /**< Colour that replaces the original (e.g. Colours::white). */
+        const int width,                        /**< Width of the cursor image (big images may be scaled down). */
+        const int height,                       /**< Height of the cursor image (big images may be scaled down). */
+        const int hotspotX,                     /**< X position of mouse cursor hotspot (zero based, so you might want to subract 1). */
+        const int hotspotY                      /**< Y position of mouse cursor hotspot (zero based, so you might want to subract 1). */
     );
 
 private:

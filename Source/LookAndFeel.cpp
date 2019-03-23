@@ -102,7 +102,7 @@ void DspTestBenchLnF::setImagesForDrawableButton(DrawableButton * button, const 
     button->setImages (drawableArray[0], drawableArray[1], drawableArray[2], drawableArray[3]);
 }
 
-void DspTestBenchLnF::setImagesForDrawableButton(DrawableButton * button, const void * imageData, const size_t imageDataSize, const Colour original, const Colour toggleOnColour)
+void DspTestBenchLnF::setImagesForDrawableButton(DrawableButton* button, const void* imageData, const size_t imageDataSize, const Colour original, const Colour toggleOnColour)
 {
     OwnedArray<Drawable> drawableArray;
     drawableArray.add (Drawable::createFromImageData (imageData, imageDataSize));
@@ -120,6 +120,28 @@ void DspTestBenchLnF::setImagesForDrawableButton(DrawableButton * button, const 
     drawableArray[7]->replaceColour (original, cols::disabledOn (toggleOnColour));
     
     button->setImages (drawableArray[0], drawableArray[1], drawableArray[2], drawableArray[3], drawableArray[4], drawableArray[5], drawableArray[6], drawableArray[7]);
+}
+
+MouseCursor DspTestBenchLnF::getMouseCursorFromImageData(
+    const void* rawData, const size_t numBytesOfData, 
+    const Colour originalColour, const Colour replacementColour, 
+    const int width, const int height, const int hotspotX, const int hotspotY
+)
+{
+    const std::unique_ptr<Drawable> svg (Drawable::createFromImageData (rawData, numBytesOfData));
+    if (svg)
+    {
+        svg->replaceColour (originalColour, replacementColour);
+        Image img (Image::ARGB, width, height, true);
+        Graphics g (img);
+        svg->drawWithin (g, img.getBounds().toFloat(), RectanglePlacement::fillDestination, 1.0f);
+        return MouseCursor (img, hotspotX , hotspotY);
+    }
+    else
+    {
+        jassertfalse;   // If this fires then the image wasn't successfully created from the provided data
+        return MouseCursor();
+    }
 }
 
 void DspTestBenchLnF::drawDots (Graphics& g, const juce::Rectangle<int> bounds, const Colour dotColour, const int numDots) const
