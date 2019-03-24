@@ -71,7 +71,7 @@ void MeterBar::resized ()
     rangeDb = maxDb - minDb;
     maxExp = dsp::FastMathApproximations::exp (maxDb / rangeDb);
     const auto minExp = dsp::FastMathApproximations::exp (minDb / rangeDb);
-    conversionFactor    = getHeight() / (maxExp - minExp);
+    scaling    = getHeight() / (maxExp - minExp);
     currentLevelY       = dBtoPx (currentLevelDb);
     cautionY            = dBtoPx (cautionDb);
     alertY              = dBtoPx (alertDb);
@@ -105,7 +105,7 @@ float MeterBar::dBtoPx (const float dB) const
     {
         const auto dbClipped = jlimit (minDb, maxDb, dB);
         const auto dbExp = dsp::FastMathApproximations::exp (dbClipped / rangeDb);
-        return (maxExp - dbExp) * conversionFactor;
+        return (maxExp - dbExp) * scaling;
     }
 }
 
@@ -121,6 +121,8 @@ void MainMeterBackground::paint (Graphics& g)
 }
 void MainMeterBackground::resized()
 {
+    const auto channelHeight = getHeight() - 2 * verticalMargin;
+    scaling = channelHeight / (maxExp - minExp);
 }
 Grid::Px MainMeterBackground::getDesiredWidth (const int numChannels) const
 {
@@ -178,8 +180,6 @@ void MainMeterBackground::drawScale (Graphics& g) const
     const auto tickWidth = backingWidth - static_cast<float> (gap * 2);
     const auto textX = getWidth() - dBScaleWidth + gap;
     const auto textWidth = dBScaleWidth - 2 * gap;
-    const auto channelHeight = getHeight() - 3 * gap;
-    const auto scaleSpan = scaleMax - scaleMin;
     const auto numSteps = static_cast<int> (scaleSpan / scaleStep);
     const auto fontHeight = GUI_SIZE_F(0.4);
 
@@ -189,42 +189,13 @@ void MainMeterBackground::drawScale (Graphics& g) const
 
     g.setFont (fontHeight);
 
-    // Linearly mapped dB scale
-    /*const auto heightStep = static_cast<float> (channelHeight) / static_cast<float> (numSteps);
-    const auto labelHeight = heightStep / 2;
-    const auto fontHeight = jmin (static_cast<float> (dBScaleWidth) * 0.5f, static_cast<float> (labelHeight));    
-
-    for (auto i = 0; i <= numSteps; ++i)
-    {
-        g.setColour (scaleColour);
-        const auto tickY = static_cast<float> (gap) * 1.5f + static_cast<float>(i) * heightStep;
-        g.drawRect (static_cast<float> (gap), tickY - 0.5f, tickWidth, 1.0f);
-        if (dBScaleWidth > 0)
-        {
-            g.setColour (textColour);
-            g.drawFittedText (String (scaleMax - i * scaleStep),
-                textX,
-                static_cast<int> (tickY - labelHeight * 0.5f),
-                textWidth,
-                static_cast<int> (labelHeight),
-                Justification::centredLeft,
-                1);
-        }
-    }*/
-    
     // Exponentially mapped dB scale
-    // TODO: DRY the exponential scale conversion algorithm
-    const auto max_exp = dsp::FastMathApproximations::exp (scaleMax / scaleSpan);
-    const auto min_exp = dsp::FastMathApproximations::exp (scaleMin / scaleSpan);
-    const auto conv = channelHeight / (max_exp - min_exp);
-    const auto top = static_cast<float> (gap) * 1.5f;
-
     for (auto i = 0; i <= numSteps; ++i)
     {
         g.setColour (scaleColour);
         const auto dB = scaleMax - scaleStep * static_cast<float>(i);
         // (max_exp - db_exp) / span_exp * getHeight()
-        const auto y = top + (max_exp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * conv;
+        const auto y = verticalMargin + (maxExp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * scaling;
         g.drawRect (static_cast<float> (gap), y - 0.5f, tickWidth, 1.0f);
         if (dBScaleWidth > 0)
         {

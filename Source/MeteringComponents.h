@@ -44,7 +44,7 @@ private:
     float maxExp      = 0.0f;
     float cautionY {};
     float alertY {};
-    float conversionFactor = 1.0f;
+    float scaling = 1.0f;
     float currentLevelDb = -150.0f;
     float currentLevelY = 0.0f;
     Colour backgroundColour = Colours::black;
@@ -74,11 +74,16 @@ private:
     Rectangle<int> getBarMeterArea() const;
     void drawScale(Graphics& g) const;
 
-    int desiredBarWidth = GUI_BASE_SIZE_I;
-    int gap = GUI_BASE_GAP_I;
-    int dBScaleWidth = GUI_SIZE_I (0.9);
+    const int desiredBarWidth = GUI_BASE_SIZE_I;
+    const int gap = GUI_BASE_GAP_I;
+    const int dBScaleWidth = GUI_SIZE_I (0.9);
+    const float verticalMargin = static_cast<float> (gap) * 1.5f;
 
     const float scaleMax = 6.0f;
     const float scaleMin = -60.0f;
 	const float scaleStep = 6.0f;
+    const float scaleSpan = scaleMax - scaleMin;
+    const float maxExp = dsp::FastMathApproximations::exp (scaleMax / scaleSpan);
+    const float minExp = dsp::FastMathApproximations::exp (scaleMin / scaleSpan);
+    float scaling;
 };
