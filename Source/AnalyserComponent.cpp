@@ -74,7 +74,7 @@ AnalyserComponent::AnalyserComponent()
     addAndMakeVisible (goniometer);
     goniometer.assignAudioScopeProcessor (&audioScopeProcessor);
 
-    addAndMakeVisible (meterBackground);
+    addAndMakeVisible (mainMeterBackground);
 
     // Construct config component last so it picks up the correct values
     configComponent.reset(new AnalyserConfigComponent(this));
@@ -127,25 +127,37 @@ void AnalyserComponent::resized()
     analyserGrid.rowGap = GUI_GAP_PX(2);
     analyserGrid.columnGap = GUI_GAP_PX(2);
     analyserGrid.templateRows = { Track (1_fr), Track (1_fr) };
-    analyserGrid.templateColumns = { Track (1_fr), Track (phaseScopeWidth), Track (meterBackground.getDesiredWidth (numChannels)) };
+    analyserGrid.templateColumns = { Track (1_fr), Track (phaseScopeWidth), Track (mainMeterBackground.getDesiredWidth (numChannels)) };
     analyserGrid.items.addArray({
                             GridItem (fftScope).withArea (1, 1),
                             GridItem (oscilloscope).withArea (2, 1),
                             GridItem (goniometer).withArea (GridItem::Span (2), 2),
-                            GridItem (meterBackground).withArea (GridItem::Span (2), 3)
+                            GridItem (mainMeterBackground).withArea (GridItem::Span (2), 3)
                         });
     analyserGrid.performLayout (analyserGridBounds);
 
     // Set bounds of meter bars
     for (auto ch = 0; ch < numChannels; ++ch)
-        if (meterBars[ch] != nullptr)
-            meterBars[ch]->setBounds (meterBackground.getBarBoundsInParent (ch, numChannels));
+    {
+        if (peakMeterBars[ch] != nullptr)
+            //peakMeterBars[ch]->setBounds (mainMeterBackground.getPeakMeterBarBoundsInParent (ch, numChannels));
+            peakMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, true));
+
+        if (vuMeterBars[ch] != nullptr)
+            //vuMeterBars[ch]->setBounds (mainMeterBackground.getVUMeterBarBoundsInParent (ch, numChannels));
+            vuMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, false));
+    }
 }
 void AnalyserComponent::timerCallback()
 {
     for (auto ch = 0; ch < numChannels; ++ch)
-        if (meterBars[ch] != nullptr)
-            meterBars[ch]->setLevel (peakMeterProcessor.getLevelDb (ch));
+    {
+        if (peakMeterBars[ch] != nullptr)
+            peakMeterBars[ch]->setLevel (peakMeterProcessor.getLevelDb (ch));
+
+        if (vuMeterBars[ch] != nullptr)
+            vuMeterBars[ch]->setLevel (vuMeterProcessor.getLevelDb (ch));
+    }
 }
 void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
@@ -157,24 +169,33 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
         oscilloscope.prepare();
         goniometer.prepare();
         peakMeterProcessor.prepare (spec);
+        vuMeterProcessor.prepare (spec);
         // If number of channels has changed, then re-initialise the meter bar components
         if (static_cast<int> (spec.numChannels) != numChannels)
         {
             numChannels = static_cast<int> (spec.numChannels);
-            meterBars.clear();
+            peakMeterBars.clear();
+            vuMeterBars.clear();
             for (auto ch = 0; ch < numChannels; ++ch)
             {
-                addAndMakeVisible (meterBars.add (new SimplePeakMeterComponent()));
-                meterBars[ch]->setMaxDb(meterBackground.getScaleMax());
-                meterBars[ch]->setMinDb(meterBackground.getScaleMin());
-                meterBars[ch]->setBackgroundColour(Colours::transparentBlack);
+                // Add VU meters
+                addAndMakeVisible (vuMeterBars.add (new MeterBar()));
+                vuMeterBars[ch]->setMaxDb(mainMeterBackground.getScaleMax());
+                vuMeterBars[ch]->setMinDb(mainMeterBackground.getScaleMin());
+                vuMeterBars[ch]->setBackgroundColour (Colours::transparentBlack);
+
+                // Add peak meters
+                addAndMakeVisible (peakMeterBars.add (new MeterBar()));
+                peakMeterBars[ch]->setMaxDb(mainMeterBackground.getScaleMax());
+                peakMeterBars[ch]->setMinDb(mainMeterBackground.getScaleMin());
+                peakMeterBars[ch]->setBackgroundColour (Colours::transparentBlack);
             }
             resized();
         }
     }
     else
     {
-        meterBars.clear();
+        peakMeterBars.clear();
         numChannels = 0;
         resized();
     }
@@ -190,6 +211,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         fftProcessor.appendData (chNum, numSamples, audioData);
         audioScopeProcessor.appendData (chNum, numSamples, audioData);
         peakMeterProcessor.process (context);
+        vuMeterProcessor.process (context);
     }
 }
 void AnalyserComponent::reset()
@@ -316,90 +338,4 @@ void AnalyserComponent::AnalyserConfigComponent::resized ()
     });
 
     grid.performLayout(getLocalBounds().reduced(GUI_GAP_I(2), GUI_GAP_I(2)));
-}
-
-AnalyserComponent::MeterBackground::MeterBackground ()
-{
-    setBufferedToImage (true);
-    setOpaque (true);
-}
-void AnalyserComponent::MeterBackground::paint (Graphics& g)
-{
-    g.fillAll(Colours::black);
-    drawScale(g);
-}
-void AnalyserComponent::MeterBackground::resized()
-{
-}
-Grid::Px AnalyserComponent::MeterBackground::getDesiredWidth (const int numChannels) const
-{
-    if (numChannels <1 )
-        return  Grid::Px (0);
-
-    return Grid::Px (dBScaleWidth + numChannels * desiredBarWidth + (numChannels - 1) * gap);
-}
-Rectangle<int> AnalyserComponent::MeterBackground::getBarBoundsInParent (const int channel, const int numChannels) const
-{
-    const auto barClientArea = getBarMeterAreaInParent();
-    if (numChannels < 1)
-        return barClientArea;
-    // else
-    const auto barWidth = (barClientArea.getWidth() - gap * (numChannels + 1)) / numChannels;
-    const auto barLeft = barClientArea.getX() + (barWidth + gap) * channel + gap;
-    return barClientArea.withLeft(barLeft).withWidth(barWidth);
-}
-float AnalyserComponent::MeterBackground::getScaleMax() const
-{
-    return scaleMax;
-}
-float AnalyserComponent::MeterBackground::getScaleMin() const
-{
-    return scaleMin;
-}
-Rectangle<int> AnalyserComponent::MeterBackground::getBarMeterAreaInParent() const
-{
-    if (dBScaleWidth == 0)
-        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5));
-    else
-        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
-}
-Rectangle<int> AnalyserComponent::MeterBackground::getBarMeterArea() const
-{
-    return this->getBounds().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
-}
-void AnalyserComponent::MeterBackground::drawScale (Graphics& g) const
-{
-    const auto backingWidth = static_cast<float>(getWidth() - static_cast<float> (dBScaleWidth));
-    const auto channelHeight = getHeight() - 3 * gap;
-	const auto numSteps = static_cast<int> ((scaleMax - scaleMin) / stepSize);
-	const auto heightStep = static_cast<float> (channelHeight) / static_cast<float> (numSteps);
-    const auto labelHeight = heightStep / 2;
-    const auto fontHeight = jmin (static_cast<float> (dBScaleWidth) * 0.5f, static_cast<float> (labelHeight));
-    const auto scaleColour = Colours::white.withAlpha (0.5f);
-    const auto textColour = Colours::grey;
-    const auto tickWidth = backingWidth - static_cast<float> (gap * 2);
-    const auto textX = getWidth() - dBScaleWidth + gap;
-    const auto textWidth = dBScaleWidth - 2 * gap;
-
-    g.setColour(Colour::fromRGB (20, 20, 20));
-    g.fillRoundedRectangle (0.0f, 0.0f, backingWidth, static_cast<float> (getHeight()), static_cast<float> (gap) * 0.5f);
-
-	g.setFont (fontHeight);
-	for (auto i = 0; i <= numSteps; ++i)
-	{
-        g.setColour (scaleColour);
-        const auto tickY = static_cast<float> (gap) * 1.5f + static_cast<float>(i) * heightStep;
-        g.drawRect (static_cast<float> (gap), tickY - 0.5f, tickWidth, 1.0f);
-        if (dBScaleWidth > 0)
-        {
-            g.setColour (textColour);
-            g.drawFittedText (String (scaleMax - i * stepSize),
-                textX,
-                static_cast<int> (tickY - labelHeight * 0.5f),
-                textWidth,
-                static_cast<int> (labelHeight),
-                Justification::centredLeft,
-                1);
-        }
-	}
 }

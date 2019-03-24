@@ -15,7 +15,7 @@
 #include "PulseFunctions.h"
 #include "NoiseGenerators.h"
 #include "MeteringProcessors.h"
-#include "SimpleLevelMeterComponent.h"
+#include "MeteringComponents.h"
 
 // Forward declaration
 class SourceComponent;
@@ -266,7 +266,7 @@ private:
     class ChannelComponent final : public Component, public Slider::Listener
     {
     public:
-        ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex);;
+        ChannelComponent (PeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex);;
         ~ChannelComponent();
 
         void paint (Graphics& g) override;
@@ -301,12 +301,12 @@ private:
         };
 
         Label lblChannel;
-        SimplePeakMeterComponent meterBar{};
+        MeterBar meterBar{};
         Slider sldGain;
         TextButton btnOutputSelection;
 
         bool active = true;
-        SimplePeakMeterProcessor* meterProcessor;
+        PeakMeterProcessor* meterProcessor;
         int numOutputs = 0;
         BigInteger selectedOutputChannels = 0;
         int channel = 0;
@@ -331,7 +331,7 @@ private:
 
     void channelsChanged();
 
-    SimplePeakMeterProcessor meterProcessor;
+    PeakMeterProcessor meterProcessor;
     Viewport viewport;
     OwnedArray <ChannelComponent> channelComponents {};
     InputArrayComponent inputArrayComponent;

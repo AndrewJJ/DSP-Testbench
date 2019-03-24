@@ -460,7 +460,7 @@
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SimpleLevelMeterComponent.cpp">
+    <ClCompile Include="..\..\Source\MeteringComponents.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SourceComponent.cpp">
@@ -2457,7 +2457,7 @@
     <ClInclude Include="..\..\Source\ProcessorComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SimpleLevelMeterComponent.h">
+    <ClInclude Include="..\..\Source\MeteringComponents.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SourceComponent.h">

@@ -797,7 +797,7 @@ void WaveTab::stop()
     }
 }
 
-AudioTab::ChannelComponent::ChannelComponent (SimplePeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex)
+AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex)
     :   meterProcessor (meterProcessorToQuery),
         numOutputs (numberOfOutputChannels),
         channel (channelIndex)

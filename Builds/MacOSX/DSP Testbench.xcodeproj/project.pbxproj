@@ -93,9 +93,9 @@
 			isa = PBXBuildFile;
 			fileRef = 4262035AC243AA9FB01E63FB;
 		};
-		4D0B4E0D1B48AB72F880459D = {
+		756F573F96BB6468940BE589 = {
 			isa = PBXBuildFile;
-			fileRef = B3B07370F6FB7E7D964B47E0;
+			fileRef = 2427407740E58E0F7BB0C69C;
 		};
 		7C708D011C95F47E45B825FD = {
 			isa = PBXBuildFile;
@@ -200,13 +200,6 @@
 			path = ../../Source/Main.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
-		0DE6575447CBA68FB72251E4 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.h;
-			name = SimpleLevelMeterComponent.h;
-			path = ../../Source/SimpleLevelMeterComponent.h;
-			sourceTree = "SOURCE_ROOT";
-		};
 		0EC888D60D720F3802B6A82F = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.cpp;
@@ -226,6 +219,13 @@
 			lastKnownFileType = sourcecode.c.h;
 			name = JuceHeader.h;
 			path = ../../JuceLibraryCode/JuceHeader.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		1EA74AF02B4459DD6DD8BA8A = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = MeteringComponents.h;
+			path = ../../Source/MeteringComponents.h;
 			sourceTree = "SOURCE_ROOT";
 		};
 		1FA67A2A9EDA46C16E7702F4 = {
@@ -254,6 +254,13 @@
 			lastKnownFileType = sourcecode.c.h;
 			name = FastApproximations.h;
 			path = ../../Source/FastApproximations.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		2427407740E58E0F7BB0C69C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = MeteringComponents.cpp;
+			path = ../../Source/MeteringComponents.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
 		269FFB389851949374A3288A = {
@@ -592,13 +599,6 @@
 			path = ../../Source/MeteringProcessors.h;
 			sourceTree = "SOURCE_ROOT";
 		};
-		B3B07370F6FB7E7D964B47E0 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			name = SimpleLevelMeterComponent.cpp;
-			path = ../../Source/SimpleLevelMeterComponent.cpp;
-			sourceTree = "SOURCE_ROOT";
-		};
 		B49EE278C142623EB6A1B5D7 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.h;
@@ -810,8 +810,8 @@
 				FCD430E0BDE8E0C7FD247F9A,
 				4262035AC243AA9FB01E63FB,
 				31F65D6BF5962C870C4D2D1D,
-				B3B07370F6FB7E7D964B47E0,
-				0DE6575447CBA68FB72251E4,
+				2427407740E58E0F7BB0C69C,
+				1EA74AF02B4459DD6DD8BA8A,
 				90F797BA5DD310F3F8058F2E,
 				8DD7B02F56BC4D21326F4B32,
 			);
@@ -1167,7 +1167,7 @@
 				39FCFA73BF04527FF80EC50A,
 				7C1B6D35FC8B4AC66DC0BAB0,
 				CB0C67C0C116057F35030F56,
-				4D0B4E0D1B48AB72F880459D,
+				756F573F96BB6468940BE589,
 				7C708D011C95F47E45B825FD,
 				A44FDB87495CD5A09DECE3C3,
 				DB8A429734D0A5DE97CFEEAD,

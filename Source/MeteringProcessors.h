@@ -16,15 +16,12 @@
 #include <mm_malloc.h>
 #endif
 
-class SimplePeakMeterProcessor final : public dsp::ProcessorBase
+class PeakMeterProcessor final : public dsp::ProcessorBase
 {
 public:
 
-	SimplePeakMeterProcessor()
-    {};
-
-	~SimplePeakMeterProcessor()
-    = default;
+	PeakMeterProcessor() {};
+    ~PeakMeterProcessor() = default;
 
 	float getLevel (const int channelNum) const;
 	float getLevelDb (const int channelNum) const;
@@ -36,7 +33,7 @@ public:
 
 private:
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimplePeakMeterProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PeakMeterProcessor)
 
 private:
 
@@ -44,4 +41,33 @@ private:
     HeapBlock <std::atomic <float>> envelopeContinuation;
 	float releaseTimeConstant = 0.0f;
     const float antiDenormalFloat = 1e-15f;
+    const float noSignalDbLevel = -150.0f;
+};
+
+class VUMeterProcessor final : public dsp::ProcessorBase
+{
+public:
+
+	VUMeterProcessor() {};
+    ~VUMeterProcessor() = default;
+
+	float getLevel (const int channelNum) const;
+	float getLevelDb (const int channelNum) const;
+	size_t getNumChannels () const;
+
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
+    void reset() override;
+
+private:
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VUMeterProcessor)
+
+private:
+
+    size_t numChannels = 0;
+    HeapBlock <std::atomic <float>> envelopeContinuation;
+	float timeConstant = 0.0f;
+    const float antiDenormalFloat = 1e-15f;
+    const float noSignalDbLevel = -150.0f;
 };

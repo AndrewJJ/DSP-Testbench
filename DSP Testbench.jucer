@@ -47,10 +47,10 @@
               file="Source/ProcessorComponent.cpp"/>
         <FILE id="ZFfP7O" name="ProcessorComponent.h" compile="0" resource="0"
               file="Source/ProcessorComponent.h"/>
-        <FILE id="c5TyN0" name="SimpleLevelMeterComponent.cpp" compile="1"
-              resource="0" file="Source/SimpleLevelMeterComponent.cpp"/>
-        <FILE id="RRcELw" name="SimpleLevelMeterComponent.h" compile="0" resource="0"
-              file="Source/SimpleLevelMeterComponent.h"/>
+        <FILE id="c5TyN0" name="MeteringComponents.cpp" compile="1" resource="0"
+              file="Source/MeteringComponents.cpp"/>
+        <FILE id="RRcELw" name="MeteringComponents.h" compile="0" resource="0"
+              file="Source/MeteringComponents.h"/>
         <FILE id="HZtJRF" name="SourceComponent.cpp" compile="1" resource="0"
               file="Source/SourceComponent.cpp"/>
         <FILE id="PC1I7w" name="SourceComponent.h" compile="0" resource="0"
