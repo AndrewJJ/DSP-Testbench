@@ -76,6 +76,9 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (mainMeterBackground);
 
+    addAndMakeVisible (clipStatsComponent);
+    clipStatsComponent.assignProcessor (&clipCounterProcessor);
+
     // Construct config component last so it picks up the correct values
     configComponent.reset(new AnalyserConfigComponent(this));
     btnConfig->onClick = [this] { 
@@ -127,24 +130,28 @@ void AnalyserComponent::resized()
     analyserGrid.rowGap = GUI_GAP_PX(2);
     analyserGrid.columnGap = GUI_GAP_PX(2);
     analyserGrid.templateRows = { Track (1_fr), Track (1_fr) };
-    analyserGrid.templateColumns = { Track (1_fr), Track (phaseScopeWidth), Track (mainMeterBackground.getDesiredWidth (numChannels)) };
+    analyserGrid.templateColumns = {
+        Track (1_fr),                 // Scopes
+        Track (phaseScopeWidth),
+        Track (GUI_SIZE_PX (3.7 + 2 * numChannels)),      // Clip Stats Component
+        Track (mainMeterBackground.getDesiredWidth (numChannels))
+    };
     analyserGrid.items.addArray({
-                            GridItem (fftScope).withArea (1, 1),
-                            GridItem (oscilloscope).withArea (2, 1),
-                            GridItem (goniometer).withArea (GridItem::Span (2), 2),
-                            GridItem (mainMeterBackground).withArea (GridItem::Span (2), 3)
-                        });
+        GridItem (fftScope).withArea (1, 1),
+        GridItem (oscilloscope).withArea (2, 1),
+        GridItem (goniometer).withArea (GridItem::Span (2), 2),
+        GridItem (clipStatsComponent).withArea (GridItem::Span (2), 3),
+        GridItem (mainMeterBackground).withArea (GridItem::Span (2), 4)
+    });
     analyserGrid.performLayout (analyserGridBounds);
 
     // Set bounds of meter bars
     for (auto ch = 0; ch < numChannels; ++ch)
     {
         if (peakMeterBars[ch] != nullptr)
-            //peakMeterBars[ch]->setBounds (mainMeterBackground.getPeakMeterBarBoundsInParent (ch, numChannels));
             peakMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, true));
 
         if (vuMeterBars[ch] != nullptr)
-            //vuMeterBars[ch]->setBounds (mainMeterBackground.getVUMeterBarBoundsInParent (ch, numChannels));
             vuMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, false));
     }
 }
@@ -152,12 +159,13 @@ void AnalyserComponent::timerCallback()
 {
     for (auto ch = 0; ch < numChannels; ++ch)
     {
-        if (peakMeterBars[ch] != nullptr)
+        if (peakMeterBars[ch])
             peakMeterBars[ch]->setLevel (peakMeterProcessor.getLevelDb (ch));
 
-        if (vuMeterBars[ch] != nullptr)
+        if (vuMeterBars[ch])
             vuMeterBars[ch]->setLevel (vuMeterProcessor.getLevelDb (ch));
     }
+    clipStatsComponent.updateStats();
 }
 void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
 {
@@ -170,6 +178,7 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
         goniometer.prepare();
         peakMeterProcessor.prepare (spec);
         vuMeterProcessor.prepare (spec);
+        clipCounterProcessor.prepare (spec);
         // If number of channels has changed, then re-initialise the meter bar components
         if (static_cast<int> (spec.numChannels) != numChannels)
         {
@@ -190,12 +199,14 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
                 peakMeterBars[ch]->setMinDb(mainMeterBackground.getScaleMin());
                 peakMeterBars[ch]->setBackgroundColour (Colours::transparentBlack);
             }
+            clipStatsComponent.setNumChannels (numChannels);
             resized();
         }
     }
     else
     {
         peakMeterBars.clear();
+        vuMeterBars.clear();
         numChannels = 0;
         resized();
     }
@@ -212,6 +223,7 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         audioScopeProcessor.appendData (chNum, numSamples, audioData);
         peakMeterProcessor.process (context);
         vuMeterProcessor.process (context);
+        clipCounterProcessor.process (context);
     }
 }
 void AnalyserComponent::reset()

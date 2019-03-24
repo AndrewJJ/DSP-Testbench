@@ -24,8 +24,6 @@ MeterBar::MeterBar (const float minimumLevelDb, const float cautionLevelDb,
     maxDb       = maximumLevelDb;
     rangeDb     = maximumLevelDb - minimumLevelDb;
 }
-MeterBar::~MeterBar()
-= default;
 void MeterBar::paint (Graphics& g)
 {
     auto colourNormal  = Colour (0xff00ff00);
@@ -213,4 +211,114 @@ void MainMeterBackground::drawScale (Graphics& g) const
                 1);
         }
     }
+}
+
+ClipStatsComponent::ClipStatsComponent()
+{
+    lblClippedSamplesTitle.setText ("Clipped samples", dontSendNotification);
+    lblClipEventsTitle.setText ("Clip events", dontSendNotification);
+    lblAvgEventLengthTitle.setText ("Avg clip length", dontSendNotification);
+    lblMaxEventLengthTitle.setText ("Max clip length", dontSendNotification);
+
+    btnReset.setButtonText ("Reset");
+    btnReset.onClick = [this]
+    {
+        if (processor)
+            processor->reset();
+    };
+
+    addAndMakeVisible (lblClippedSamplesTitle);
+    addAndMakeVisible (lblClipEventsTitle);
+    addAndMakeVisible (lblAvgEventLengthTitle);
+    addAndMakeVisible (lblMaxEventLengthTitle);
+    addAndMakeVisible (btnReset);
+
+    setSize (500,200);
+}
+void ClipStatsComponent::paint (Graphics& g)
+{
+    g.fillAll (Colours::black);
+}
+void ClipStatsComponent::resized ()
+{
+    using Track = Grid::TrackInfo;
+    const auto rowHeight = 0.6;
+    Grid grid;
+    grid.rowGap = GUI_GAP_PX(2);
+    grid.columnGap = GUI_GAP_PX(2);
+    grid.templateRows = {
+        Track (1_fr),
+        Track (GUI_BASE_SIZE_PX),
+        Track (GUI_SIZE_PX (rowHeight)),
+        Track (GUI_SIZE_PX (rowHeight)),
+        Track (GUI_SIZE_PX (rowHeight)),
+        Track (GUI_SIZE_PX (rowHeight)),
+        Track (GUI_SIZE_PX (rowHeight)),
+        Track (1_fr)
+    };
+    grid.templateColumns = { Track (GUI_SIZE_PX(3.7)) };
+    //grid.autoRows = Track (GUI_SIZE_PX(0.6));
+    grid.autoColumns = Track (1_fr);
+    //grid.autoFlow = Grid::AutoFlow::column;
+    grid.items.addArray ({
+        GridItem ().withArea (1, GridItem::Span (numChannels + 1)),
+        GridItem (btnReset).withArea (2, 1),
+        GridItem (lblClippedSamplesTitle).withArea (3, 1),
+        GridItem (lblClipEventsTitle).withArea (4, 1),
+        GridItem (lblAvgEventLengthTitle).withArea (5, 1),
+        GridItem (lblMaxEventLengthTitle).withArea (6, 1)
+    });
+    for (auto ch = 0; ch < numChannels; ++ch)
+    {
+        grid.items.addArray ({
+            GridItem (lblChannelHeadings[ch]).withArea (2, ch + 2),
+            GridItem (lblClippedSamples[ch]).withArea (3, ch + 2),
+            GridItem (lblClipEvents[ch]).withArea (4, ch + 2),
+            GridItem (lblAvgEventLength[ch]).withArea (5, ch + 2),
+            GridItem (lblMaxEventLength[ch]).withArea (6, ch + 2)
+        });
+    }
+    grid.performLayout (getLocalBounds());
+}
+void ClipStatsComponent::setNumChannels(const int numberOfChannels)
+{
+    numChannels = numberOfChannels;
+
+    lblChannelHeadings.clear();
+    lblClippedSamples.clear();
+    lblClipEvents.clear();
+    lblAvgEventLength.clear();
+    lblMaxEventLength.clear();
+
+    for (auto ch = 0; ch < numberOfChannels; ++ch)
+    {
+        addAndMakeVisible (lblChannelHeadings.add (new Label(String(), "Ch " + String(ch + 1))));
+        addAndMakeVisible (lblClippedSamples.add (new Label()));
+        addAndMakeVisible (lblClipEvents.add (new Label()));
+        addAndMakeVisible (lblAvgEventLength.add (new Label()));
+        addAndMakeVisible (lblMaxEventLength.add (new Label()));
+        
+        lblChannelHeadings[ch]->setFont( Font(GUI_SIZE_I(0.7), Font::bold));
+        lblChannelHeadings[ch]->setJustificationType (Justification::centred);
+        lblClippedSamples[ch]->setJustificationType (Justification::centred);
+        lblClipEvents[ch]->setJustificationType (Justification::centred);
+        lblAvgEventLength[ch]->setJustificationType (Justification::centred);
+        lblMaxEventLength[ch]->setJustificationType (Justification::centred);
+    }
+}
+void ClipStatsComponent::assignProcessor (ClipCounterProcessor* clipCounterProcessor)
+{
+    processor = clipCounterProcessor;
+}
+void ClipStatsComponent::updateStats()
+{
+    jassert (numChannels == processor->getNumChannels());
+    for (auto ch = 0; ch < numChannels; ++ch)
+    {
+        lblClippedSamples[ch]->setText (String (processor->getNumClippedSamples (ch)), dontSendNotification);
+        lblClipEvents[ch]->setText (String (processor->getNumClipEvents (ch)), dontSendNotification);
+        lblAvgEventLength[ch]->setText (String (processor->getAvgClipLength (ch), 1), dontSendNotification);
+        lblMaxEventLength[ch]->setText (String (processor->getMaxClipLength (ch)), dontSendNotification);
+    }
+    repaint();
 }

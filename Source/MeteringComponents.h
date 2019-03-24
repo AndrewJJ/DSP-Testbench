@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MeteringProcessors.h"
 
 /** 
 *  A 3 colour vertical meter bar component with dB levels mapped exponentially.
@@ -20,9 +21,13 @@ class MeterBar final : public Component, public SettableTooltipClient
 public:
 	
     MeterBar();
-    MeterBar (const float minimumLevelDb, const float cautionLevelDb,
-                               const float alertLevelDb, const float maximumLevelDb);
-    ~MeterBar();
+    MeterBar (
+        const float minimumLevelDb,
+        const float cautionLevelDb,
+        const float alertLevelDb,
+        const float maximumLevelDb
+    );
+    ~MeterBar() = default;
 
     void paint (Graphics&) override;
     void resized() override;
@@ -53,8 +58,7 @@ private:
 };
 
 /**
- *  Background for the main meter in the AnalyserComponent.
- *  
+ *  Background for the main meter in the AnalyserComponent. *  
  */
 class MainMeterBackground : public Component
 {
@@ -86,4 +90,45 @@ private:
     const float maxExp = dsp::FastMathApproximations::exp (scaleMax / scaleSpan);
     const float minExp = dsp::FastMathApproximations::exp (scaleMin / scaleSpan);
     float scaling;
+};
+
+/**
+ * A component which displays statistics relating to clipping of the audio signal.
+ */
+class ClipStatsComponent final : public Component
+{
+public:
+    ClipStatsComponent();
+    ~ClipStatsComponent() = default;
+
+    void paint (Graphics&) override;
+    void resized() override;
+
+    // Set the number of channels
+    void setNumChannels (const int numberOfChannels);
+
+    //  Assign the processor that this component will reference
+    void assignProcessor (ClipCounterProcessor* clipCounterProcessor);
+
+    //  Update the statistics displayed in this component from the referenced processor
+    void updateStats();
+
+private:
+    int numChannels = 0;
+
+    ClipCounterProcessor* processor;
+
+    Label lblClippedSamplesTitle;
+    Label lblClipEventsTitle;
+    Label lblAvgEventLengthTitle;
+    Label lblMaxEventLengthTitle;
+    TextButton btnReset;
+
+    OwnedArray<Label> lblChannelHeadings;
+    OwnedArray<Label> lblClippedSamples;
+    OwnedArray<Label> lblClipEvents;
+    OwnedArray<Label> lblAvgEventLength;
+    OwnedArray<Label> lblMaxEventLength;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClipStatsComponent)
 };

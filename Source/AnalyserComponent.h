@@ -81,11 +81,15 @@ private:
     Oscilloscope oscilloscope;
     Goniometer goniometer;
 
-    PeakMeterProcessor peakMeterProcessor;
-    VUMeterProcessor vuMeterProcessor;
+    PeakMeterProcessor peakMeterProcessor{};
+    VUMeterProcessor vuMeterProcessor{};
     MainMeterBackground mainMeterBackground{};
     OwnedArray<MeterBar> peakMeterBars{};
     OwnedArray<MeterBar> vuMeterBars{};
+
+    ClipCounterProcessor clipCounterProcessor{};
+    ClipStatsComponent clipStatsComponent{};
+
     int numChannels = 0;
 
     Atomic<bool> statusActive = true;
