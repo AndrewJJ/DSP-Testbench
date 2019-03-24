@@ -83,7 +83,7 @@ private:
 
     PeakMeterProcessor peakMeterProcessor;
     VUMeterProcessor vuMeterProcessor;
-    MainMeterBackground mainMeterBackground;
+    MainMeterBackground mainMeterBackground{};
     OwnedArray<MeterBar> peakMeterBars{};
     OwnedArray<MeterBar> vuMeterBars{};
     int numChannels = 0;
