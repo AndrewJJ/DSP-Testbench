@@ -227,20 +227,20 @@ void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double
 }
 void SynthesisTab::prepare (const dsp::ProcessSpec& spec)
 {
+    sampleRate = spec.sampleRate;
+    maxBlockSize = spec.maximumBlockSize;
+    const auto nyquist = round (sampleRate / 2.0);
+    sldFrequency.setRange (10.0, nyquist, 1.0);
+
+    calculateNumSweepSteps();
+    sweepStepIndex = 0;
+    sweepStepDelta = 1;
+
     for (auto&& oscillator : oscillators)
     {
         oscillator.setFrequency (static_cast<float> (currentFrequency));
         oscillator.prepare (spec);
     }
-
-    sampleRate = spec.sampleRate;
-    maxBlockSize = spec.maximumBlockSize;
-    
-    const auto nyquist = round (sampleRate / 2.0);
-    sldFrequency.setRange (10.0, nyquist, 1.0);
-
-    calculateNumSweepSteps();
-    resetSweep();
 
     impulseFunction.prepare (spec);
     stepFunction.prepare (spec);
