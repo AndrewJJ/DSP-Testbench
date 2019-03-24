@@ -128,7 +128,7 @@ long ClipCounterProcessor::getNumClipEvents(const int channelNumber) const
 }
 double ClipCounterProcessor::getAvgClipLength (const int channelNumber) const
 {
-    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels) && numClipEvents[channelNumber].load() > 0)
         return static_cast<double>(numClippedSamples[channelNumber].load()) / static_cast<double>(numClipEvents[channelNumber].load());
     else
         return 0.0;
