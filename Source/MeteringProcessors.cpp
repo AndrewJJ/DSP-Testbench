@@ -10,18 +10,18 @@
 
 #include "MeteringProcessors.h"
 
-float PeakMeterProcessor::getLevel (const int channelNum) const
+float PeakMeterProcessor::getLevel (const int channelNumber) const
 {
-    if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
-        return envelopeContinuation[channelNum].load();
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return envelopeContinuation[channelNumber].load();
     else
         return 0.0f;
 }
-float PeakMeterProcessor::getLevelDb (const int channelNum) const
+float PeakMeterProcessor::getLevelDb (const int channelNumber) const
 {
-    if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
     {
-        const auto env = envelopeContinuation[channelNum].load();
+        const auto env = envelopeContinuation[channelNumber].load();
         return Decibels::gainToDecibels (env);
     }
     else
@@ -65,18 +65,18 @@ void PeakMeterProcessor::reset ()
     envelopeContinuation.clear (numChannels);
 }
 
-float VUMeterProcessor::getLevel (const int channelNum) const
+float VUMeterProcessor::getLevel (const int channelNumber) const
 {
-    if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
-        return sqrtf (envelopeContinuation[channelNum].load());
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return sqrtf (envelopeContinuation[channelNumber].load());
     else
         return 0.0f;
 }
-float VUMeterProcessor::getLevelDb (const int channelNum) const
+float VUMeterProcessor::getLevelDb (const int channelNumber) const
 {
-    if (channelNum >= 0 && channelNum < static_cast<int> (numChannels))
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
     {
-        const auto level = sqrtf (envelopeContinuation[channelNum].load());
+        const auto level = sqrtf (envelopeContinuation[channelNumber].load());
         return Decibels::gainToDecibels (level);
     }
     else
@@ -117,4 +117,138 @@ void VUMeterProcessor::process (const dsp::ProcessContextReplacing<float>& conte
 void VUMeterProcessor::reset ()
 {
     envelopeContinuation.clear (numChannels);
+}
+
+long ClipCounterProcessor::getNumClipEvents(const int channelNumber) const
+{
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return numClipEvents[channelNumber].load();
+    else
+        return 0;
+}
+double ClipCounterProcessor::getAvgClipLength (const int channelNumber) const
+{
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return static_cast<double>(numClippedSamples[channelNumber].load()) / static_cast<double>(numClipEvents[channelNumber].load());
+    else
+        return 0.0;
+}
+long ClipCounterProcessor::getMaxClipLength (const int channelNumber) const
+{
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return maxClipLength[channelNumber].load();
+    else
+        return 0;
+}
+long ClipCounterProcessor::getNumClippedSamples (const int channelNumber) const
+{
+    if (channelNumber >= 0 && channelNumber < static_cast<int> (numChannels))
+        return numClippedSamples[channelNumber].load();
+    else
+        return 0;
+}
+size_t ClipCounterProcessor::getNumChannels () const
+{
+   return numChannels;
+}
+void ClipCounterProcessor::prepare (const dsp::ProcessSpec& spec)
+{
+    numChannels = spec.numChannels;
+
+	numClipEvents.allocate (numChannels, true);
+    maxClipLength.allocate (numChannels, true);
+    numClippedSamples.allocate (numChannels, true);
+    clipLengthContinuation.allocate (numChannels, true);
+}
+void ClipCounterProcessor::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    jassert (numChannels == context.getInputBlock().getNumChannels());
+    
+    const auto numSamples = context.getInputBlock().getNumSamples();
+	for (auto ch = 0; ch < static_cast<int> (numChannels); ++ch)
+	{
+        // Pointer to samples for this channel
+        const auto* x = context.getInputBlock().getChannelPointer(static_cast<int> (ch));
+
+        for (size_t i=0; i < numSamples; i++)
+        {
+            // Check if this sample is clipped
+            if (isClipped (x[i]))
+            {
+                numClippedSamples[ch] += 1;
+                if (clipLengthContinuation[ch] == 0)
+                {
+                    // We just started a new clip event
+	                numClipEvents[ch] += 1;
+                }
+                else
+                {
+                    // Clip had previously started and is still continuing
+                    if (clipLengthContinuation[ch].load() > maxClipLength[ch].load())
+                        maxClipLength[ch] = clipLengthContinuation[ch].load();                    
+                }
+                clipLengthContinuation[ch] += 1;
+            }
+            else
+            {
+                // Reset continuation
+                clipLengthContinuation[ch].store (0);
+            }
+        }
+
+        // TODO - delete
+
+        //{
+        //    // If this sample is clipped, then increment the continuation counter
+        //    if (isClipped (x[i]))
+        //    {
+        //        clipLengthContinuation[ch].store (clipLengthContinuation[ch] + 1);
+        //    }
+        //    else
+        //    {
+        //        // Sample wasn't clipped so need to check if we just finished a clip event
+        //        if (clipLengthContinuation[ch] > 0)
+        //        {
+        //            // We just finished a clip event, so update all the stats
+	       //         numClipEvents[ch] += 1;
+        //            sumClipLength[ch] += clipLengthContinuation[ch].load();
+        //            if (clipLengthContinuation[ch].load() > maxClipLength[ch].load())
+        //                maxClipLength[ch] = clipLengthContinuation[ch].load();
+        //            numClippedSamples[ch] += clipLengthContinuation[ch].load();
+        //            // Reset continuation
+        //            clipLengthContinuation[ch].store (0);
+        //        }
+        //    }
+        //}
+        //int i = 0;
+        //while (i < numSamples)
+        //{
+        //    if (clipLengthContinuation[ch] == 0)
+        //    {
+        //        // We weren't clipping at the end of the last block, so let's advance to next clip event
+        //        while (i < numSamples && !isClipped(x[i]))
+        //            i++;
+        //    }
+        //    if (i < numSamples)
+        //    {
+        //        // We're not at the end of the block, so we must have found a clip event
+        //        // So let's advance to the end of the clip event
+        //        while (i < numSamples && !isClipped(x[i]))
+        //            i++;
+        //    }
+	}
+}
+void ClipCounterProcessor::reset()
+{
+    for (auto ch = 0; ch < static_cast<int>(numChannels); ++ch)
+    {
+	    numClipEvents[ch].store (0);
+        maxClipLength[ch].store (0);
+        numClippedSamples[ch].store (0);
+        clipLengthContinuation[ch].store (0);
+    }
+}
+inline bool ClipCounterProcessor::isClipped (const float amplitude)
+{
+    return (amplitude > 1.0f || amplitude < -1.0f);
 }
