@@ -195,47 +195,6 @@ void ClipCounterProcessor::process (const dsp::ProcessContextReplacing<float>& c
                 clipLengthContinuation[ch].store (0);
             }
         }
-
-        // TODO - delete
-
-        //{
-        //    // If this sample is clipped, then increment the continuation counter
-        //    if (isClipped (x[i]))
-        //    {
-        //        clipLengthContinuation[ch].store (clipLengthContinuation[ch] + 1);
-        //    }
-        //    else
-        //    {
-        //        // Sample wasn't clipped so need to check if we just finished a clip event
-        //        if (clipLengthContinuation[ch] > 0)
-        //        {
-        //            // We just finished a clip event, so update all the stats
-	       //         numClipEvents[ch] += 1;
-        //            sumClipLength[ch] += clipLengthContinuation[ch].load();
-        //            if (clipLengthContinuation[ch].load() > maxClipLength[ch].load())
-        //                maxClipLength[ch] = clipLengthContinuation[ch].load();
-        //            numClippedSamples[ch] += clipLengthContinuation[ch].load();
-        //            // Reset continuation
-        //            clipLengthContinuation[ch].store (0);
-        //        }
-        //    }
-        //}
-        //int i = 0;
-        //while (i < numSamples)
-        //{
-        //    if (clipLengthContinuation[ch] == 0)
-        //    {
-        //        // We weren't clipping at the end of the last block, so let's advance to next clip event
-        //        while (i < numSamples && !isClipped(x[i]))
-        //            i++;
-        //    }
-        //    if (i < numSamples)
-        //    {
-        //        // We're not at the end of the block, so we must have found a clip event
-        //        // So let's advance to the end of the clip event
-        //        while (i < numSamples && !isClipped(x[i]))
-        //            i++;
-        //    }
 	}
 }
 void ClipCounterProcessor::reset()
