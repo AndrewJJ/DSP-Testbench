@@ -221,10 +221,10 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
         const auto* audioData = inputBlock->getChannelPointer (ch);
         fftProcessor.appendData (chNum, numSamples, audioData);
         audioScopeProcessor.appendData (chNum, numSamples, audioData);
-        peakMeterProcessor.process (context);
-        vuMeterProcessor.process (context);
-        clipCounterProcessor.process (context);
     }
+    peakMeterProcessor.process (context);
+    vuMeterProcessor.process (context);
+    clipCounterProcessor.process (context);
 }
 void AnalyserComponent::reset()
 {
