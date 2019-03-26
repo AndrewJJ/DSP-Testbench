@@ -35,7 +35,7 @@ SynthesisTab::SynthesisTab (String& sourceName)
     cmbWaveform.addItem ("White Noise", Waveform::whiteNoise);
     cmbWaveform.addItem ("Pink Noise", Waveform::pinkNoise);
     cmbWaveform.onChange = [this] { waveformUpdated(); };
-    cmbWaveform.setSelectedId (config->getIntAttribute ("WaveForm", Waveform::sine), sendNotificationAsync);
+    cmbWaveform.setSelectedId (config->getIntAttribute ("WaveForm", Waveform::sine), sendNotificationSync);
 
     addAndMakeVisible (sldFrequency);
     sldFrequency.setSliderStyle (Slider::ThreeValueHorizontal);
