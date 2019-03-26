@@ -227,7 +227,9 @@ void AnalyserComponent::process (const dsp::ProcessContextReplacing<float>& cont
     }
 }
 void AnalyserComponent::reset()
-{ }
+{
+    clipCounterProcessor.reset();
+}
 bool AnalyserComponent::isProcessing() const noexcept
 {
     return statusActive.get();
