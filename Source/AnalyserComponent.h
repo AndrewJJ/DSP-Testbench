@@ -38,6 +38,8 @@ public:
     void activateProcessing();
     void suspendProcessing();
 
+    void showClipStats();
+
 private:
 
     int getOscilloscopeMaximumBlockSize() const;
@@ -86,6 +88,7 @@ private:
     MainMeterBackground mainMeterBackground{};
     OwnedArray<MeterBar> peakMeterBars{};
     OwnedArray<MeterBar> vuMeterBars{};
+    OwnedArray<ClipIndicatorComponent> clipIndicators{};
 
     ClipCounterProcessor clipCounterProcessor{};
     ClipStatsComponent clipStatsComponent{};

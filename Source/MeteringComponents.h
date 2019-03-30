@@ -68,20 +68,29 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    Grid::Px getDesiredWidth (const int numChannels) const;
-    Rectangle<int> getMeterBarBoundsInParent (const int channel, const int numChannels, const bool isPeakMeter) const;
+
+    // Set the number of channels
+    void setNumChannels (const int numberOfChannels);
+
+    Grid::Px getDesiredWidth() const;
+    Rectangle<int> getMeterBarBoundsInParent (const int channel, const bool isPeakMeter) const;
+    Rectangle<int> getClipIndicatorBoundsInParent (const int channel) const;
     float getScaleMax() const;
     float getScaleMin() const;
 
 private:
-    Rectangle<int> getBarMeterAreaInParent() const;
-    Rectangle<int> getBarMeterArea() const;
+    int numChannels = 0;
+    Rectangle<int> clientArea{};
+    int channelWidth = 0;
+    int getChannelLeft (const int channel, const int offset = 0) const;
     void drawScale(Graphics& g) const;
 
     const int desiredBarWidth = GUI_BASE_SIZE_I;
     const int gap = GUI_BASE_GAP_I;
     const int dBScaleWidth = GUI_SIZE_I (0.9);
-    const float verticalMargin = static_cast<float> (gap) * 1.5f;
+    const int clipIndicatorHeight = GUI_SIZE_I (0.5);
+    const float topMargin = static_cast<float> (gap) * 0.3f;
+    const float bottomMargin = static_cast<float> (gap) * 1.5f;
 
     const float scaleMax = 6.0f;
     const float scaleMin = -60.0f;
@@ -89,11 +98,11 @@ private:
     const float scaleSpan = scaleMax - scaleMin;
     const float maxExp = dsp::FastMathApproximations::exp (scaleMax / scaleSpan);
     const float minExp = dsp::FastMathApproximations::exp (scaleMin / scaleSpan);
-    float scaling;
+    float scaling = 0.0f;
 };
 
 /**
- * A component which displays statistics relating to clipping of the audio signal.
+ *  A component which displays statistics relating to clipping of the audio signal.
  */
 class ClipStatsComponent final : public Component
 {
@@ -114,10 +123,15 @@ public:
     void updateStats();
 
 private:
+    int getDesiredWidth() const;
+    int getDesiredHeight() const;
+
     int numChannels = 0;
-
-    ClipCounterProcessor* processor;
-
+    ClipCounterProcessor* processor{};
+    const double headingWidth = 3.7;
+    const double rowHeight = 0.6;
+    const double gap = 2.0;
+    
     Label lblClippedSamplesTitle;
     Label lblClipEventsTitle;
     Label lblAvgEventLengthTitle;
@@ -131,4 +145,25 @@ private:
     OwnedArray<Label> lblMaxEventLength;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClipStatsComponent)
+};
+
+
+/**
+ *  Displays clip indicator relating to clipping of the audio signal
+ */
+class ClipIndicatorComponent final : public Component, public TooltipClient
+{
+public:
+    ClipIndicatorComponent (const int channel, ClipCounterProcessor* clipCounterProcessorToReferTo);
+    ~ClipIndicatorComponent() = default;
+    
+    void paint (Graphics& g) override;
+    void mouseDown (const MouseEvent& event) override;
+    String getTooltip() override;
+
+private:
+    int channelNumber = 0;
+    ClipCounterProcessor* clipCounterProcessor;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClipIndicatorComponent)
 };

@@ -9,6 +9,7 @@
 */
 
 #include "MeteringComponents.h"
+#include "AnalyserComponent.h"
 
 MeterBar::MeterBar()
 {
@@ -107,7 +108,7 @@ float MeterBar::dBtoPx (const float dB) const
     }
 }
 
-MainMeterBackground::MainMeterBackground ()
+MainMeterBackground::MainMeterBackground()
 {
     setBufferedToImage (true);
     setOpaque (true);
@@ -119,37 +120,47 @@ void MainMeterBackground::paint (Graphics& g)
 }
 void MainMeterBackground::resized()
 {
-    const auto channelHeight = getHeight() - 2 * verticalMargin;
+    const auto channelHeight = getHeight() - topMargin - bottomMargin - clipIndicatorHeight;
     scaling = channelHeight / (maxExp - minExp);
+
+    clientArea =  getBoundsInParent()
+        .reduced (GUI_BASE_GAP_I, 0)
+        .withTrimmedTop (static_cast<int> (topMargin))
+        .withTrimmedBottom (static_cast<int> (bottomMargin));
+    if (dBScaleWidth > 0)
+        clientArea = clientArea.withTrimmedRight (dBScaleWidth);
+        
+    channelWidth = clientArea.getWidth();
+    if (numChannels > 0)
+        channelWidth = (clientArea.getWidth() - gap * (numChannels + 1)) / numChannels;
 }
-Grid::Px MainMeterBackground::getDesiredWidth (const int numChannels) const
+void MainMeterBackground::setNumChannels(const int numberOfChannels)
+{
+    numChannels = numberOfChannels;
+}
+Grid::Px MainMeterBackground::getDesiredWidth() const
 {
     if (numChannels <1 )
         return  Grid::Px (0);
 
     return Grid::Px (dBScaleWidth + numChannels * desiredBarWidth + (numChannels - 1) * gap);
 }
-Rectangle<int> MainMeterBackground::getMeterBarBoundsInParent(const int channel, const int numChannels, const bool isPeakMeter) const
+Rectangle<int> MainMeterBackground::getMeterBarBoundsInParent (const int channel, const bool isPeakMeter) const
 {
-    const auto barClientArea = getBarMeterAreaInParent();
-    if (numChannels < 1)
-        return barClientArea;
-
-    const auto channelWidth = ((barClientArea.getWidth() - gap * (numChannels + 1)) / numChannels);
-    int meterWidth;
-    int offset;
+    const auto barClientArea = clientArea.withTrimmedTop (clipIndicatorHeight);
+    auto meterWidth = channelWidth / 3;
+    auto offset = 0;
     if (isPeakMeter)
     {
         meterWidth = channelWidth * 2 / 3;
         offset = channelWidth - meterWidth;
     }
-    else
-    {
-        meterWidth = channelWidth / 3;
-        offset = 0;
-    }
-    const auto barLeft = barClientArea.getX() + (channelWidth + gap) * channel + offset + gap;
-    return barClientArea.withLeft (barLeft).withWidth (meterWidth);
+    return barClientArea.withLeft (getChannelLeft (channel, offset)).withWidth (meterWidth);
+}
+Rectangle<int> MainMeterBackground::getClipIndicatorBoundsInParent (const int channel) const
+{
+    const auto clipIndicatorClientArea = clientArea.withHeight (clipIndicatorHeight);
+    return clipIndicatorClientArea.withLeft (getChannelLeft (channel)).withWidth (channelWidth);
 }
 float MainMeterBackground::getScaleMax() const
 {
@@ -159,16 +170,9 @@ float MainMeterBackground::getScaleMin() const
 {
     return scaleMin;
 }
-Rectangle<int> MainMeterBackground::getBarMeterAreaInParent() const
+int MainMeterBackground::getChannelLeft (const int channel, const int offset) const
 {
-    if (dBScaleWidth == 0)
-        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5));
-    else
-        return this->getBoundsInParent().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
-}
-Rectangle<int> MainMeterBackground::getBarMeterArea() const
-{
-    return this->getBounds().reduced (GUI_BASE_GAP_I, GUI_GAP_I(1.5)).withTrimmedRight (dBScaleWidth);
+    return clientArea.getX() + (channelWidth + gap) * channel + offset + gap;
 }
 void MainMeterBackground::drawScale (Graphics& g) const
 {
@@ -180,10 +184,11 @@ void MainMeterBackground::drawScale (Graphics& g) const
     const auto textWidth = dBScaleWidth - 2 * gap;
     const auto numSteps = static_cast<int> (scaleSpan / scaleStep);
     const auto fontHeight = GUI_SIZE_F(0.4);
+    const auto backingHeight = static_cast<float> (getHeight());
 
     // Draw background
     g.setColour(Colour::fromRGB (20, 20, 20));
-    g.fillRoundedRectangle (0.0f, 0.0f, backingWidth, static_cast<float> (getHeight()), static_cast<float> (gap) * 0.5f);
+    g.fillRoundedRectangle (0.0f, 0.0f, backingWidth, backingHeight, static_cast<float> (gap) * 0.5f);
 
     g.setFont (fontHeight);
 
@@ -192,8 +197,7 @@ void MainMeterBackground::drawScale (Graphics& g) const
     {
         g.setColour (scaleColour);
         const auto dB = scaleMax - scaleStep * static_cast<float>(i);
-        // (max_exp - db_exp) / span_exp * getHeight()
-        const auto y = verticalMargin + (maxExp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * scaling;
+        const auto y = topMargin + clipIndicatorHeight + (maxExp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * scaling;
         g.drawRect (static_cast<float> (gap), y - 0.5f, tickWidth, 1.0f);
         if (dBScaleWidth > 0)
         {
@@ -210,7 +214,7 @@ void MainMeterBackground::drawScale (Graphics& g) const
                 Justification::centredLeft,
                 1);
         }
-    }
+    }  // NOLINT(hicpp-member-init)
 }
 
 ClipStatsComponent::ClipStatsComponent()
@@ -232,8 +236,6 @@ ClipStatsComponent::ClipStatsComponent()
     addAndMakeVisible (lblAvgEventLengthTitle);
     addAndMakeVisible (lblMaxEventLengthTitle);
     addAndMakeVisible (btnReset);
-
-    setSize (500,200);
 }
 void ClipStatsComponent::paint (Graphics& g)
 {
@@ -242,10 +244,9 @@ void ClipStatsComponent::paint (Graphics& g)
 void ClipStatsComponent::resized ()
 {
     using Track = Grid::TrackInfo;
-    const auto rowHeight = 0.6;
     Grid grid;
-    grid.rowGap = GUI_GAP_PX(2);
-    grid.columnGap = GUI_GAP_PX(2);
+    grid.rowGap = GUI_GAP_PX(gap);
+    grid.columnGap = GUI_GAP_PX(gap);
     grid.templateRows = {
         Track (1_fr),
         Track (GUI_BASE_SIZE_PX),
@@ -253,13 +254,10 @@ void ClipStatsComponent::resized ()
         Track (GUI_SIZE_PX (rowHeight)),
         Track (GUI_SIZE_PX (rowHeight)),
         Track (GUI_SIZE_PX (rowHeight)),
-        Track (GUI_SIZE_PX (rowHeight)),
         Track (1_fr)
     };
-    grid.templateColumns = { Track (GUI_SIZE_PX(3.7)) };
-    //grid.autoRows = Track (GUI_SIZE_PX(0.6));
+    grid.templateColumns = { Track (GUI_SIZE_PX(headingWidth)) };
     grid.autoColumns = Track (1_fr);
-    //grid.autoFlow = Grid::AutoFlow::column;
     grid.items.addArray ({
         GridItem ().withArea (1, GridItem::Span (numChannels + 1)),
         GridItem (btnReset).withArea (2, 1),
@@ -278,7 +276,7 @@ void ClipStatsComponent::resized ()
             GridItem (lblMaxEventLength[ch]).withArea (6, ch + 2)
         });
     }
-    grid.performLayout (getLocalBounds());
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I (gap)));
 }
 void ClipStatsComponent::setNumChannels(const int numberOfChannels)
 {
@@ -305,6 +303,8 @@ void ClipStatsComponent::setNumChannels(const int numberOfChannels)
         lblAvgEventLength[ch]->setJustificationType (Justification::centred);
         lblMaxEventLength[ch]->setJustificationType (Justification::centred);
     }
+
+    setSize (getDesiredWidth(), getDesiredHeight());
 }
 void ClipStatsComponent::assignProcessor (ClipCounterProcessor* clipCounterProcessor)
 {
@@ -312,6 +312,9 @@ void ClipStatsComponent::assignProcessor (ClipCounterProcessor* clipCounterProce
 }
 void ClipStatsComponent::updateStats()
 {
+    if (!isShowing())
+        return;
+
     jassert (numChannels == processor->getNumChannels());
     for (auto ch = 0; ch < numChannels; ++ch)
     {
@@ -321,4 +324,42 @@ void ClipStatsComponent::updateStats()
         lblMaxEventLength[ch]->setText (String (processor->getMaxClipLength (ch)), dontSendNotification);
     }
     repaint();
+}
+int ClipStatsComponent::getDesiredWidth() const
+{
+    const auto channelWidth = 2.0;
+    const auto gaps = gap * (numChannels + 2);
+    const auto width = GUI_SIZE_I (headingWidth + channelWidth * numChannels) + GUI_GAP_I (gaps);
+    // TODO - implement scrolling then limit max width to 800
+    const auto maxWidth = Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth();
+    return jlimit(100, maxWidth, width);
+}
+int ClipStatsComponent::getDesiredHeight() const
+{
+    return GUI_SIZE_I (1.0 + rowHeight * 4.0) + GUI_GAP_I (gap * 8.0);
+}
+ClipIndicatorComponent::ClipIndicatorComponent (const int channel, ClipCounterProcessor* clipCounterProcessorToReferTo)
+{
+    channelNumber = channel;
+    clipCounterProcessor = clipCounterProcessorToReferTo;
+}
+void ClipIndicatorComponent::paint (Graphics& g)
+{
+    if (clipCounterProcessor && clipCounterProcessor->getNumClipEvents (channelNumber) > 0)
+        g.setColour(Colours::red);
+    else
+        g.setColour(Colours::white.withAlpha (0.5f));
+
+    const float fontHeight = static_cast<float> (getHeight()) * 0.8f;
+    g.setFont (fontHeight);
+    g.drawFittedText ("CLIP", 0, 0, getWidth(), getHeight(), Justification::centredTop, 1);
+}
+void ClipIndicatorComponent::mouseDown (const MouseEvent&)
+{
+    auto* parent = dynamic_cast<AnalyserComponent*> (getParentComponent());
+    parent->showClipStats();
+}
+String ClipIndicatorComponent::getTooltip()
+{
+    return String("Click to show clip stats");
 }

@@ -75,8 +75,7 @@ AnalyserComponent::AnalyserComponent()
     goniometer.assignAudioScopeProcessor (&audioScopeProcessor);
 
     addAndMakeVisible (mainMeterBackground);
-
-    addAndMakeVisible (clipStatsComponent);
+    
     clipStatsComponent.assignProcessor (&clipCounterProcessor);
 
     // Construct config component last so it picks up the correct values
@@ -131,28 +130,29 @@ void AnalyserComponent::resized()
     analyserGrid.columnGap = GUI_GAP_PX(2);
     analyserGrid.templateRows = { Track (1_fr), Track (1_fr) };
     analyserGrid.templateColumns = {
-        Track (1_fr),                 // Scopes
+        Track (1_fr), // FFT & oscilloscope
         Track (phaseScopeWidth),
-        Track (GUI_SIZE_PX (3.7 + 2 * numChannels)),      // Clip Stats Component
-        Track (mainMeterBackground.getDesiredWidth (numChannels))
+        Track (mainMeterBackground.getDesiredWidth())
     };
     analyserGrid.items.addArray({
         GridItem (fftScope).withArea (1, 1),
         GridItem (oscilloscope).withArea (2, 1),
         GridItem (goniometer).withArea (GridItem::Span (2), 2),
-        GridItem (clipStatsComponent).withArea (GridItem::Span (2), 3),
-        GridItem (mainMeterBackground).withArea (GridItem::Span (2), 4)
+        GridItem (mainMeterBackground).withArea (GridItem::Span (2), 3)
     });
     analyserGrid.performLayout (analyserGridBounds);
 
-    // Set bounds of meter bars
+    // Set bounds of meter bars & clip indicators
     for (auto ch = 0; ch < numChannels; ++ch)
     {
         if (peakMeterBars[ch] != nullptr)
-            peakMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, true));
+            peakMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, true));
 
         if (vuMeterBars[ch] != nullptr)
-            vuMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, numChannels, false));
+            vuMeterBars[ch]->setBounds (mainMeterBackground.getMeterBarBoundsInParent (ch, false));
+
+        if (clipIndicators[ch] != nullptr)
+            clipIndicators[ch]->setBounds (mainMeterBackground.getClipIndicatorBoundsInParent (ch));
     }
 }
 void AnalyserComponent::timerCallback()
@@ -164,6 +164,9 @@ void AnalyserComponent::timerCallback()
 
         if (vuMeterBars[ch])
             vuMeterBars[ch]->setLevel (vuMeterProcessor.getLevelDb (ch));
+
+        if (clipIndicators[ch] != nullptr)
+            clipIndicators[ch]->repaint();
     }
     clipStatsComponent.updateStats();
 }
@@ -185,6 +188,7 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
             numChannels = static_cast<int> (spec.numChannels);
             peakMeterBars.clear();
             vuMeterBars.clear();
+            clipIndicators.clear();
             for (auto ch = 0; ch < numChannels; ++ch)
             {
                 // Add VU meters
@@ -198,7 +202,11 @@ void AnalyserComponent::prepare (const dsp::ProcessSpec& spec)
                 peakMeterBars[ch]->setMaxDb(mainMeterBackground.getScaleMax());
                 peakMeterBars[ch]->setMinDb(mainMeterBackground.getScaleMin());
                 peakMeterBars[ch]->setBackgroundColour (Colours::transparentBlack);
+
+                // Add clip indicators
+                addAndMakeVisible (clipIndicators.add (new ClipIndicatorComponent (ch, &clipCounterProcessor)));
             }
+            mainMeterBackground.setNumChannels (numChannels);
             clipStatsComponent.setNumChannels (numChannels);
             resized();
         }
@@ -251,6 +259,19 @@ void AnalyserComponent::suspendProcessing()
     btnPause->setEnabled (false);
     fftScope.setMouseMoveRepaintEnablement (true);
     oscilloscope.setMouseMoveRepaintEnablement (true);
+}
+void AnalyserComponent::showClipStats()
+{
+    // TODO - not happy with this being modal
+    //      - perhaps a hover window instead?
+    //      - would then need a double click action on the indicator to reset stats
+    DialogWindow::LaunchOptions launchOptions;
+    launchOptions.dialogTitle = "Clip Stats";
+    launchOptions.useNativeTitleBar = false;
+    launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+    launchOptions.componentToCentreAround = &mainMeterBackground;
+    launchOptions.content.set (&clipStatsComponent, false);
+    launchOptions.launchAsync();
 }
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {
