@@ -658,7 +658,7 @@ void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
 
     // But only output the block if currently playing
     if (transportSource && transportSource->isPlaying())
-        context.getOutputBlock().copy(fileReadBuffer);
+        context.getOutputBlock().copyFrom (fileReadBuffer);
     else
         context.getOutputBlock().clear();
 }
@@ -1010,7 +1010,7 @@ void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
         if (channelComponents[ch] != nullptr)
             linearGain = channelComponents[ch]->getLinearGain();
         for (auto i = 0; i < input.getNumSamples(); ++i)
-            input.getChannelPointer (ch)[i] *= linearGain;
+            output.getChannelPointer (ch)[i] = input.getChannelPointer (ch)[i] * linearGain;
     }
     temp.copy (input);
     
