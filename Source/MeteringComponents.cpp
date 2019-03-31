@@ -108,7 +108,7 @@ float MeterBar::dBtoPx (const float dB) const
     }
 }
 
-MainMeterBackground::MainMeterBackground()
+MainMeterBackground::MainMeterBackground()  // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 {
     setBufferedToImage (true);
     setOpaque (true);
@@ -214,10 +214,10 @@ void MainMeterBackground::drawScale (Graphics& g) const
                 Justification::centredLeft,
                 1);
         }
-    }  // NOLINT(hicpp-member-init)
+    }  // NOLINT(hicpp-member-init, cppcoreguidelines-pro-type-member-init)
 }
 
-ClipStatsComponent::ClipStatsComponent()
+ClipStatsComponent::ClipStatsComponent()  // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 {
     lblClippedSamplesTitle.setText ("Clipped samples", dontSendNotification);
     lblClipEventsTitle.setText ("Clip events", dontSendNotification);
@@ -236,6 +236,10 @@ ClipStatsComponent::ClipStatsComponent()
     addAndMakeVisible (lblAvgEventLengthTitle);
     addAndMakeVisible (lblMaxEventLengthTitle);
     addAndMakeVisible (btnReset);
+
+    setSize (getDesiredWidth(), getDesiredHeight());
+
+    // TODO - implement scrolling
 }
 void ClipStatsComponent::paint (Graphics& g)
 {
@@ -256,7 +260,7 @@ void ClipStatsComponent::resized ()
         Track (GUI_SIZE_PX (rowHeight)),
         Track (1_fr)
     };
-    grid.templateColumns = { Track (GUI_SIZE_PX(headingWidth)) };
+    grid.templateColumns = { Track (GUI_SIZE_PX(headingWidth)), Track (GUI_GAP_PX(spacerWidth)) };
     grid.autoColumns = Track (1_fr);
     grid.items.addArray ({
         GridItem ().withArea (1, GridItem::Span (numChannels + 1)),
@@ -269,11 +273,11 @@ void ClipStatsComponent::resized ()
     for (auto ch = 0; ch < numChannels; ++ch)
     {
         grid.items.addArray ({
-            GridItem (lblChannelHeadings[ch]).withArea (2, ch + 2),
-            GridItem (lblClippedSamples[ch]).withArea (3, ch + 2),
-            GridItem (lblClipEvents[ch]).withArea (4, ch + 2),
-            GridItem (lblAvgEventLength[ch]).withArea (5, ch + 2),
-            GridItem (lblMaxEventLength[ch]).withArea (6, ch + 2)
+            GridItem (lblChannelHeadings[ch]).withArea (2, ch + 3),
+            GridItem (lblClippedSamples[ch]).withArea (3, ch + 3),
+            GridItem (lblClipEvents[ch]).withArea (4, ch + 3),
+            GridItem (lblAvgEventLength[ch]).withArea (5, ch + 3),
+            GridItem (lblMaxEventLength[ch]).withArea (6, ch + 3)
         });
     }
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I (gap)));
@@ -327,12 +331,12 @@ void ClipStatsComponent::updateStats()
 }
 int ClipStatsComponent::getDesiredWidth() const
 {
-    const auto channelWidth = 2.0;
+    const auto channelWidth = 1.8;
     const auto gaps = gap * (numChannels + 2);
-    const auto width = GUI_SIZE_I (headingWidth + channelWidth * numChannels) + GUI_GAP_I (gaps);
-    // TODO - implement scrolling then limit max width to 800
-    const auto maxWidth = Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth();
-    return jlimit(100, maxWidth, width);
+    const auto width = GUI_SIZE_I (headingWidth + channelWidth * numChannels) + GUI_GAP_I (spacerWidth + gaps);
+    const auto minWidth = GUI_SIZE_I (headingWidth + channelWidth) + GUI_GAP_I (spacerWidth);
+    const auto maxWidth = jmax ( 800, Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth() - 100);
+    return jlimit(minWidth, maxWidth, width);
 }
 int ClipStatsComponent::getDesiredHeight() const
 {

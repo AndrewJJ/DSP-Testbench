@@ -142,6 +142,9 @@ void AnalyserComponent::resized()
     });
     analyserGrid.performLayout (analyserGridBounds);
 
+    // Force a resize of meters so positions of related components need to be updated even if the actual meter background didn't change size.
+    mainMeterBackground.resized();
+
     // Set bounds of meter bars & clip indicators
     for (auto ch = 0; ch < numChannels; ++ch)
     {
@@ -262,16 +265,21 @@ void AnalyserComponent::suspendProcessing()
 }
 void AnalyserComponent::showClipStats()
 {
-    // TODO - not happy with this being modal
-    //      - perhaps a hover window instead?
-    //      - would then need a double click action on the indicator to reset stats
     DialogWindow::LaunchOptions launchOptions;
     launchOptions.dialogTitle = "Clip Stats";
     launchOptions.useNativeTitleBar = false;
     launchOptions.dialogBackgroundColour = Colour (0xff323e44);
     launchOptions.componentToCentreAround = &mainMeterBackground;
+    launchOptions.resizable = false;
     launchOptions.content.set (&clipStatsComponent, false);
-    launchOptions.launchAsync();
+    if (!clipStatsWindow)
+        clipStatsWindow.reset (launchOptions.create());
+    if (clipStatsWindow)
+    {
+        clipStatsWindow->setVisible (true);
+        clipStatsWindow->setAlwaysOnTop (true);
+        clipStatsWindow->addToDesktop();
+    }
 }
 int AnalyserComponent::getOscilloscopeMaximumBlockSize() const
 {

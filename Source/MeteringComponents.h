@@ -122,15 +122,16 @@ public:
     //  Update the statistics displayed in this component from the referenced processor
     void updateStats();
 
-private:
     int getDesiredWidth() const;
     int getDesiredHeight() const;
 
+private:
     int numChannels = 0;
     ClipCounterProcessor* processor{};
     const double headingWidth = 3.7;
+    const double spacerWidth = 2.5;
     const double rowHeight = 0.6;
-    const double gap = 2.0;
+    const double gap = 1.0;
     
     Label lblClippedSamplesTitle;
     Label lblClipEventsTitle;
@@ -138,11 +139,11 @@ private:
     Label lblMaxEventLengthTitle;
     TextButton btnReset;
 
-    OwnedArray<Label> lblChannelHeadings;
-    OwnedArray<Label> lblClippedSamples;
-    OwnedArray<Label> lblClipEvents;
-    OwnedArray<Label> lblAvgEventLength;
-    OwnedArray<Label> lblMaxEventLength;
+    OwnedArray<Label> lblChannelHeadings{};
+    OwnedArray<Label> lblClippedSamples{};
+    OwnedArray<Label> lblClipEvents{};
+    OwnedArray<Label> lblAvgEventLength{};
+    OwnedArray<Label> lblMaxEventLength{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClipStatsComponent)
 };
