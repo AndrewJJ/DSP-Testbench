@@ -92,6 +92,7 @@ private:
 
     ClipCounterProcessor clipCounterProcessor{};
     ClipStatsComponent clipStatsComponent{};
+    Viewport clipStatsViewport{};
     std::unique_ptr<DialogWindow> clipStatsWindow{};
 
     int numChannels = 0;

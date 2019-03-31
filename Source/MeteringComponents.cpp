@@ -225,6 +225,9 @@ ClipStatsComponent::ClipStatsComponent()  // NOLINT(cppcoreguidelines-pro-type-m
     lblMaxEventLengthTitle.setText ("Max clip length", dontSendNotification);
 
     btnReset.setButtonText ("Reset");
+    btnReset.setColour (ComboBox::outlineColourId, Colours::darkgrey);
+    btnReset.setColour (TextButton::ColourIds::buttonColourId, Colour (0x303030));
+    btnReset.setColour (TextButton::ColourIds::textColourOffId, Colours::lightgrey);
     btnReset.onClick = [this]
     {
         if (processor)
@@ -238,46 +241,41 @@ ClipStatsComponent::ClipStatsComponent()  // NOLINT(cppcoreguidelines-pro-type-m
     addAndMakeVisible (btnReset);
 
     setSize (getDesiredWidth(), getDesiredHeight());
-
-    // TODO - implement scrolling
 }
 void ClipStatsComponent::paint (Graphics& g)
 {
     g.fillAll (Colours::black);
 }
-void ClipStatsComponent::resized ()
+void ClipStatsComponent::resized()
 {
     using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_GAP_PX(gap);
     grid.columnGap = GUI_GAP_PX(gap);
     grid.templateRows = {
-        Track (1_fr),
         Track (GUI_BASE_SIZE_PX),
         Track (GUI_SIZE_PX (rowHeight)),
         Track (GUI_SIZE_PX (rowHeight)),
         Track (GUI_SIZE_PX (rowHeight)),
         Track (GUI_SIZE_PX (rowHeight)),
-        Track (1_fr)
     };
-    grid.templateColumns = { Track (GUI_SIZE_PX(headingWidth)), Track (GUI_GAP_PX(spacerWidth)) };
-    grid.autoColumns = Track (1_fr);
+    grid.templateColumns = { Track (GUI_SIZE_PX (headingWidth)), Track (GUI_GAP_PX (spacerWidth)) };
+    grid.autoColumns = Track (GUI_SIZE_PX (channelWidth));
     grid.items.addArray ({
-        GridItem ().withArea (1, GridItem::Span (numChannels + 1)),
-        GridItem (btnReset).withArea (2, 1),
-        GridItem (lblClippedSamplesTitle).withArea (3, 1),
-        GridItem (lblClipEventsTitle).withArea (4, 1),
-        GridItem (lblAvgEventLengthTitle).withArea (5, 1),
-        GridItem (lblMaxEventLengthTitle).withArea (6, 1)
+        GridItem (btnReset).withArea (1, 1),
+        GridItem (lblClippedSamplesTitle).withArea (2, 1),
+        GridItem (lblClipEventsTitle).withArea (3, 1),
+        GridItem (lblAvgEventLengthTitle).withArea (4, 1),
+        GridItem (lblMaxEventLengthTitle).withArea (5, 1)
     });
     for (auto ch = 0; ch < numChannels; ++ch)
     {
         grid.items.addArray ({
-            GridItem (lblChannelHeadings[ch]).withArea (2, ch + 3),
-            GridItem (lblClippedSamples[ch]).withArea (3, ch + 3),
-            GridItem (lblClipEvents[ch]).withArea (4, ch + 3),
-            GridItem (lblAvgEventLength[ch]).withArea (5, ch + 3),
-            GridItem (lblMaxEventLength[ch]).withArea (6, ch + 3)
+            GridItem (lblChannelHeadings[ch]).withArea (1, ch + 3),
+            GridItem (lblClippedSamples[ch]).withArea (2, ch + 3),
+            GridItem (lblClipEvents[ch]).withArea (3, ch + 3),
+            GridItem (lblAvgEventLength[ch]).withArea (4, ch + 3),
+            GridItem (lblMaxEventLength[ch]).withArea (5, ch + 3)
         });
     }
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I (gap)));
@@ -294,7 +292,7 @@ void ClipStatsComponent::setNumChannels(const int numberOfChannels)
 
     for (auto ch = 0; ch < numberOfChannels; ++ch)
     {
-        addAndMakeVisible (lblChannelHeadings.add (new Label(String(), "Ch " + String(ch + 1))));
+        addAndMakeVisible (lblChannelHeadings.add (new Label(String(), String(ch + 1))));
         addAndMakeVisible (lblClippedSamples.add (new Label()));
         addAndMakeVisible (lblClipEvents.add (new Label()));
         addAndMakeVisible (lblAvgEventLength.add (new Label()));
@@ -302,6 +300,7 @@ void ClipStatsComponent::setNumChannels(const int numberOfChannels)
         
         lblChannelHeadings[ch]->setFont( Font(GUI_SIZE_I(0.7), Font::bold));
         lblChannelHeadings[ch]->setJustificationType (Justification::centred);
+        lblChannelHeadings[ch]->setTooltip ("Channel " + String (ch + 1));
         lblClippedSamples[ch]->setJustificationType (Justification::centred);
         lblClipEvents[ch]->setJustificationType (Justification::centred);
         lblAvgEventLength[ch]->setJustificationType (Justification::centred);
@@ -329,19 +328,21 @@ void ClipStatsComponent::updateStats()
     }
     repaint();
 }
+int ClipStatsComponent::getMinWidth() const
+{
+    return GUI_SIZE_I (headingWidth + channelWidth) + GUI_GAP_I (spacerWidth);
+}
 int ClipStatsComponent::getDesiredWidth() const
 {
-    const auto channelWidth = 1.8;
     const auto gaps = gap * (numChannels + 2);
-    const auto width = GUI_SIZE_I (headingWidth + channelWidth * numChannels) + GUI_GAP_I (spacerWidth + gaps);
-    const auto minWidth = GUI_SIZE_I (headingWidth + channelWidth) + GUI_GAP_I (spacerWidth);
-    const auto maxWidth = jmax ( 800, Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth() - 100);
-    return jlimit(minWidth, maxWidth, width);
+    const auto desiredWidth = GUI_SIZE_I (headingWidth + channelWidth * numChannels) + GUI_GAP_I (spacerWidth + gaps);
+    return jmax (getMinWidth(), desiredWidth);
 }
 int ClipStatsComponent::getDesiredHeight() const
 {
     return GUI_SIZE_I (1.0 + rowHeight * 4.0) + GUI_GAP_I (gap * 8.0);
 }
+
 ClipIndicatorComponent::ClipIndicatorComponent (const int channel, ClipCounterProcessor* clipCounterProcessorToReferTo)
 {
     channelNumber = channel;

@@ -122,17 +122,20 @@ public:
     //  Update the statistics displayed in this component from the referenced processor
     void updateStats();
 
+    int getMinWidth() const;
     int getDesiredWidth() const;
     int getDesiredHeight() const;
 
 private:
+
     int numChannels = 0;
     ClipCounterProcessor* processor{};
     const double headingWidth = 3.7;
     const double spacerWidth = 2.5;
+    const double channelWidth = 1.8;
     const double rowHeight = 0.6;
     const double gap = 1.0;
-    
+
     Label lblClippedSamplesTitle;
     Label lblClipEventsTitle;
     Label lblAvgEventLengthTitle;

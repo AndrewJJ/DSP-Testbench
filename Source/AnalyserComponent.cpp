@@ -77,6 +77,8 @@ AnalyserComponent::AnalyserComponent()
     addAndMakeVisible (mainMeterBackground);
     
     clipStatsComponent.assignProcessor (&clipCounterProcessor);
+    clipStatsViewport.setViewedComponent (&clipStatsComponent, false);
+    clipStatsViewport.setScrollBarsShown (false, true);
 
     // Construct config component last so it picks up the correct values
     configComponent.reset(new AnalyserConfigComponent(this));
@@ -265,13 +267,18 @@ void AnalyserComponent::suspendProcessing()
 }
 void AnalyserComponent::showClipStats()
 {
+    const auto maxWidth = jmax ( 992, Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth() - 100);
+    const auto viewPortWidth = jmin (clipStatsComponent.getDesiredWidth(), maxWidth);
+    clipStatsViewport.setSize (viewPortWidth, clipStatsComponent.getDesiredHeight());
+
     DialogWindow::LaunchOptions launchOptions;
     launchOptions.dialogTitle = "Clip Stats";
     launchOptions.useNativeTitleBar = false;
     launchOptions.dialogBackgroundColour = Colour (0xff323e44);
     launchOptions.componentToCentreAround = &mainMeterBackground;
     launchOptions.resizable = false;
-    launchOptions.content.set (&clipStatsComponent, false);
+    launchOptions.content.set (&clipStatsViewport, false);
+
     if (!clipStatsWindow)
         clipStatsWindow.reset (launchOptions.create());
     if (clipStatsWindow)
