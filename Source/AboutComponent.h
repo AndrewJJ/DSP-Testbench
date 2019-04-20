@@ -12,25 +12,28 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class AboutComponent: public Component
+class AboutComponent : public Component
 {
 public:
-    AboutComponent ();
-    ~AboutComponent() = default;
 
+    AboutComponent();
+    ~AboutComponent() = default;
     void paint (Graphics& g) override;
     void resized() override;
 
 private:
-    ComponentBoundsConstrainer constrainer;
-    ResizableBorderComponent resizableBorderComponent;
 
-    Label lblVersion;
-    TextEditor txtVersion;
-    Label lblCredits;
-    TextEditor txtDisclaimer;
-    Label lblDisclaimer;
-    TextEditor txtCredits;
+    void insertTitle (const String& title, const bool insertLineBefore = true);
+    void insertSubtitle (const String& subtitle, const bool insertLineBefore = true);
+    void insertText (const String& text, const bool breakLine = false);
+    void insertBreak (const float height = 0.2f);
+    void insertBullet (const bool insertBreakBefore = true);
+    void insertCopyright (const String& copyrightOwner, const int year);
+
+    TextEditor txtEditor;    
+    const Font titleFont = Font (GUI_SIZE_F(0.85));
+    const Font subtitleFont = Font (GUI_SIZE_F(0.65));
+    const Font textFont = Font (GUI_SIZE_F(0.60));
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AboutComponent)
 };

@@ -47,6 +47,7 @@ public:
         std::unique_ptr<DrawableButton> btnAudioDevice;
         std::unique_ptr<DrawableButton> btnSnapshot;
         std::unique_ptr<DrawableButton> btnAbout;
+        std::unique_ptr<ComponentBoundsConstrainer> aboutConstrainer;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
     };

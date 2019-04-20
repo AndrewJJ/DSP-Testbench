@@ -121,12 +121,16 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     btnAbout->onClick = [this]
     {
         DialogWindow::LaunchOptions launchOptions;
-        launchOptions.dialogTitle = "About";
+        launchOptions.dialogTitle = "About " + getApp().getApplicationName() + "(v" + String (ProjectInfo::versionString) + ")";
         launchOptions.useNativeTitleBar = false;
         launchOptions.dialogBackgroundColour = Colour (0xff323e44);
         launchOptions.componentToCentreAround = mainContentComponent;
         launchOptions.content.set (new AboutComponent(), true);
-        launchOptions.launchAsync();
+        launchOptions.resizable = true;
+        auto* dw = launchOptions.launchAsync();
+        aboutConstrainer.reset(new ComponentBoundsConstrainer());
+        aboutConstrainer->setMinimumSize (800, 600);
+        dw->setConstrainer(aboutConstrainer.get());
     };
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::paint(Graphics & g)
