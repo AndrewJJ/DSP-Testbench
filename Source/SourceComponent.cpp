@@ -584,7 +584,7 @@ WaveTab::WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromC
     btnPlay.setColour (TextButton::buttonOnColourId, Colours::green);
     btnPlay.onClick = [this] {
         if (!audioThumbnailComponent->isFileLoaded())
-            btnPlay.setToggleState(false, dontSendNotification);
+            btnPlay.setToggleState (false, dontSendNotification);
         else if (btnPlay.getToggleState())
             play();
         else
@@ -598,10 +598,20 @@ WaveTab::WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromC
     addAndMakeVisible (btnLoop);
     btnLoop.setButtonText ("Loop");
     btnLoop.setClickingTogglesState (true);
-    btnLoop.setToggleState(true, dontSendNotification);
+    btnLoop.setToggleState (true, dontSendNotification);
     btnLoop.setColour (TextButton::buttonOnColourId, Colours::green);
     btnLoop.onClick = [this] { 
         readerSource->setLooping (btnLoop.getToggleState());
+    };
+
+    addAndMakeVisible (btnSnapshotMode);
+    btnSnapshotMode.setButtonText ("|<");
+    btnSnapshotMode.setTooltip ("Play from start when snapshot triggered");
+    btnSnapshotMode.setClickingTogglesState (true);
+    btnSnapshotMode.setToggleState (true, dontSendNotification);
+    btnSnapshotMode.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnSnapshotMode.onClick = [this] { 
+        playFromStartOnSnapshot = btnSnapshotMode.getToggleState();
     };
 
     // Delay load of initial file using timer so that audio device is set up
@@ -617,10 +627,10 @@ void WaveTab::resized ()
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-    grid.templateRows = { Track (1_fr), GUI_BASE_SIZE_PX };
-    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr) };
-    grid.items.addArray({   GridItem (audioThumbnailComponent.get()).withArea ({ }, GridItem::Span (4)),
-                            GridItem (btnLoad), GridItem (btnPlay), GridItem (btnStop), GridItem (btnLoop)
+    grid.templateRows = { Track (1_fr), Track (GUI_BASE_SIZE_PX) };
+    grid.templateColumns = { Track (1_fr), Track (1_fr), Track (1_fr), Track (1_fr), Track (GUI_SIZE_PX(1)) };
+    grid.items.addArray({   GridItem (audioThumbnailComponent.get()).withArea ({ }, GridItem::Span (5)),
+                            GridItem (btnLoad), GridItem (btnPlay), GridItem (btnStop), GridItem (btnLoop), GridItem (btnSnapshotMode)
                         });    
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
@@ -706,13 +716,37 @@ bool WaveTab::isPlaying() const
 {
     return btnPlay.getToggleState();
 }
-void WaveTab::prepForSnapshot (const bool shouldPlayFromStart)
+void WaveTab::storePlayState()
 {
-    if (shouldPlayFromStart)
+    if (transportSource)
+    {
+        // Store playing state so we can resume after snapshot if play from start is configured
+        snapShotPlayStateResume = isPlaying();
+        // Store current play position so we can start the snapshot from here if play from start is not configured
+        snapShotPlayStatePosition = transportSource->getCurrentPosition();
+    }
+    else
+    {
+        snapShotPlayStateResume = false;
+        snapShotPlayStatePosition = 0.0;
+    }
+}
+void WaveTab::prepForSnapshot()
+{
+    if (playFromStartOnSnapshot)
     {
         stop();
         play();
     }
+}
+void WaveTab::setSnapshotMode(const bool shouldPlayFromStart)
+{
+    playFromStartOnSnapshot = shouldPlayFromStart;
+    btnSnapshotMode.setToggleState (shouldPlayFromStart, sendNotificationSync);
+}
+bool WaveTab::getSnapshotMode() const
+{
+    return playFromStartOnSnapshot;
 }
 bool WaveTab::loadFile (const File& fileToPlay)
 {
@@ -763,9 +797,21 @@ void WaveTab::init()
             transportSource->setSource (readerSource.get(), roundToInt (device->getCurrentSampleRate()), &DSPTestbenchApplication::getApp(), reader->sampleRate);
             // tell the main window about this so that it can do the seeking behaviour...
             audioThumbnailComponent->setTransportSource (transportSource.get());
+            
             if (btnPlay.getToggleState())
                 transportSource->start();
+            
+            if (playFromStartOnSnapshot && snapShotPlayStateResume)
+            {
+                btnPlay.setToggleState(true, sendNotificationSync);
+                snapShotPlayStateResume = false;
+            }
         }
+    }
+    
+    if (!playFromStartOnSnapshot)
+    {
+        transportSource->setPosition (snapShotPlayStatePosition);
     }
 }
 void WaveTab::play()
@@ -1138,6 +1184,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     synthesisTab.reset (new SynthesisTab (sourceName));
     //sampleTab.reset (new SampleTab());
     waveTab.reset (new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying")));
+    waveTab->setSnapshotMode (config->getBoolAttribute ("WaveFileShouldPlayFromStartOnSnapshot"));
     audioTab.reset (new AudioTab (audioDeviceManager));
     addAndMakeVisible (tabbedComponent.get());
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
@@ -1157,6 +1204,7 @@ SourceComponent::~SourceComponent()
     config->setAttribute ("TabIndex", tabbedComponent->getCurrentTabIndex());
     config->setAttribute ("WaveFilePath", waveTab->getFilePath());
     config->setAttribute ("WaveFilePlaying", waveTab->isPlaying());
+    config->setAttribute ("WaveFileShouldPlayFromStartOnSnapshot", waveTab->getSnapshotMode());
     
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
@@ -1255,12 +1303,15 @@ void SourceComponent::reset ()
     audioTab->reset();
     gain.reset();
 }
+void SourceComponent::storeWavePlayerState() const
+{
+    waveTab->storePlayState();
+}
 void SourceComponent::prepForSnapShot()
 {
     synthesisTab->reset();
     //sampleTab->reset();
-    // TODO - add a configuration option to define shouldPlayFromStart behaviour
-    waveTab->prepForSnapshot (false);
+    waveTab->prepForSnapshot();
     audioTab->reset();
     gain.reset();
 }
@@ -1274,7 +1325,7 @@ void SourceComponent::setOtherSource (SourceComponent* otherSourceComponent)
     otherSource = otherSourceComponent;
     synthesisTab->setOtherSource (otherSourceComponent);
 }
-SynthesisTab* SourceComponent::getSynthesisTab ()
+SynthesisTab* SourceComponent::getSynthesisTab() const
 {
     return synthesisTab.get();
 }

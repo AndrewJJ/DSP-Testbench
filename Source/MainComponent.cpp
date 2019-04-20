@@ -217,6 +217,9 @@ void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
 }
 void MainContentComponent::triggerSnapshot ()
 {
+    srcComponentA->storeWavePlayerState();
+    srcComponentB->storeWavePlayerState();
+
     deviceManager.closeAudioDevice();
     
     // Reset components to ensure consistent behaviour for hold function

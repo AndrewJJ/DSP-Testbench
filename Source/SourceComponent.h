@@ -160,7 +160,10 @@ public:
     void timerCallback() override;
     String getFilePath() const;
     bool isPlaying() const;
-    void prepForSnapshot (const bool shouldPlayFromStart);
+    void storePlayState();
+    void prepForSnapshot();
+    void setSnapshotMode (const bool shouldPlayFromStart);
+    bool getSnapshotMode() const;
 
     class AudioThumbnailComponent : public Component,
                                     public FileDragAndDropTarget,
@@ -214,6 +217,7 @@ private:
     TextButton btnPlay;
     TextButton btnStop;
     TextButton btnLoop;
+    TextButton btnSnapshotMode;
 
     AudioFormatManager formatManager;
     std::unique_ptr<AudioFormatReader> reader{};
@@ -232,6 +236,9 @@ private:
     uint32 maxBlockSize;
     String initialFilePath;
     bool playOnInitialise;
+    bool playFromStartOnSnapshot = false;
+    bool snapShotPlayStateResume = false;
+    double snapShotPlayStatePosition = 0.0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
@@ -370,11 +377,12 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
+    void storeWavePlayerState() const;
     void prepForSnapShot();
 
     Mode getMode() const;
     void setOtherSource (SourceComponent* otherSourceComponent);
-    SynthesisTab* getSynthesisTab();
+    SynthesisTab* getSynthesisTab() const;
     void mute();
 
 private:
