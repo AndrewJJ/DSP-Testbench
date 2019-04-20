@@ -21,9 +21,9 @@ AboutComponent::AboutComponent()
     txtEditor.setColour (TextEditor::ColourIds::backgroundColourId, Colours::black);
 
     insertTitle ("Application description", Colours::white, false);
-    insertText ("DSP Testbench is designed to help users of the JUCE framework to analyse their DSP code by providing ");
+    insertText ("DSP Testbench is designed to help developers using the JUCE framework to analyse their DSP by providing ");
     insertText ("a test harness for code inheriting from juce::dsp::ProcessorBase. The harness provides signal sources, ");
-    insertText ("routing, analysis and monitoring functions. See the README.md for developer notes.", true);
+    insertText ("routing, analysis and monitoring functions. See README.md for developer notes.", true);
 
     insertSubtitle ("Title bar controls");
     insertText ("Besides the usual window sizing buttons, the title bar hosts the following controls:", true);
