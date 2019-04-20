@@ -23,9 +23,9 @@ public:
 
 private:
 
-    void insertTitle (const String& title, const bool insertLineBefore = true);
-    void insertSubtitle (const String& subtitle, const bool insertLineBefore = true);
-    void insertText (const String& text, const bool breakLine = false);
+    void insertTitle (const String& title, const Colour textColour = Colours::white, const bool insertLineBefore = true);
+    void insertSubtitle (const String& subtitle, const Colour textColour = Colours::white, const bool insertLineBefore = true);
+    void insertText (const String& text, const bool breakLine = false, const Colour textColour = Colour (0xffd0d0d0));
     void insertBreak (const float height = 0.2f);
     void insertBullet (const bool insertBreakBefore = true);
     void insertCopyright (const String& copyrightOwner, const int year);
