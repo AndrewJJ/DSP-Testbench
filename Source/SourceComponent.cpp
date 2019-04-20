@@ -312,8 +312,6 @@ void SynthesisTab::reset()
         oscillator.setFrequency (static_cast<float> (currentFrequency), true);
     }
 
-    resetSweep();
-
     impulseFunction.reset();
     stepFunction.reset();
     resetSweep();
@@ -381,7 +379,8 @@ void SynthesisTab::resetSweep ()
 {
     sweepStepIndex = 0;
     sweepStepDelta = 1;
-    currentFrequency = sweepStartFrequency;
+    if (isSweepEnabled)
+        currentFrequency = sweepStartFrequency;
 }
 double SynthesisTab::getSweepFrequency() const
 {
