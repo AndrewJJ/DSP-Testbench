@@ -34,7 +34,7 @@ public:
     class DspTestBenchMenuComponent : public Component
     {
     public:
-        DspTestBenchMenuComponent (MainContentComponent* mainContentComponent);
+        explicit DspTestBenchMenuComponent (MainContentComponent* mainContentComponent);
         void paint (Graphics& g) override;
         void resized() override;
         
@@ -104,8 +104,8 @@ public:
     private:
         TooltipWindow tooltipWindow;
         AudioDeviceManager deviceManager;
-        std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel;
-        std::unique_ptr<XmlElement> config;
+        std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel{};
+        std::unique_ptr<XmlElement> config{};
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
