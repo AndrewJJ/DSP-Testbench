@@ -27,9 +27,10 @@ AboutComponent::AboutComponent()
 
     insertSubtitle ("Title bar controls");
     insertText ("Besides the usual window sizing buttons, the title bar hosts the following controls:", true);
+    insertBullet(); insertText ("CPU meter (hover to see estimate of buffer under/overruns, click to reset)");
     insertBullet(); insertText ("Snapshot (see below for more on this cool feature!)");
     insertBullet(); insertText ("Audio device settings");
-    insertBullet(); insertText ("About (you already know what this does!)", true);
+    insertBullet(); insertText ("About (you already know what this does :) )", true);
     insertBreak();
     insertText ("Most of the application settings are automatically saved and restored each time you restart the app.", true);
 
@@ -56,7 +57,7 @@ AboutComponent::AboutComponent()
     insertBullet(); insertText ("FFT scope with logarithmic frequency scale (0 to -80dB amplitude scale)");
     insertBullet(); insertText ("Oscilloscope");
     insertBullet(); insertText ("Phase scope");
-    insertBullet(); insertText ("Level meter with RMS (narrow) and peak (wide) meters for each channel");
+    insertBullet(); insertText ("Level meter with VU (narrow) and peak (wide) meters for each channel");
     insertBullet(); insertText ("Clip indicators (click to popup clip stats window with reset button)");
     insertBullet(); insertText ("Pause button to freeze the display (audio is not paused)");
     insertBullet(); insertText ("Expand button");

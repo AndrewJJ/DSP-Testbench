@@ -37,6 +37,24 @@ public:
         DspTestBenchMenuComponent (MainContentComponent* mainContentComponent);
         void paint (Graphics& g) override;
         void resized() override;
+        
+        class CpuMeter final : public Component, public Timer, public SettableTooltipClient
+        {
+        public:
+            CpuMeter ();
+            ~CpuMeter() = default;
+            void paint (Graphics& g) override;
+            void resized() override;
+            void timerCallback() override;
+            void mouseDown (const MouseEvent& event) override;
+
+        private:
+            int bufferXrunCount = 0;
+            double cpuEnvelope = 0.0;
+            int updateFrequency = 25;
+            double releaseTime = 0.65 * static_cast<double> (updateFrequency);
+            double releaseConstant = 1.0f - exp (-1.0f / releaseTime);
+        };
 
     private:
         MainContentComponent* mainContentComponent;
@@ -48,6 +66,7 @@ public:
         std::unique_ptr<DrawableButton> btnSnapshot;
         std::unique_ptr<DrawableButton> btnAbout;
         std::unique_ptr<ComponentBoundsConstrainer> aboutConstrainer;
+        CpuMeter cpuMeter;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
     };
@@ -83,6 +102,7 @@ public:
         */
 
     private:
+        TooltipWindow tooltipWindow;
         AudioDeviceManager deviceManager;
         std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel;
         std::unique_ptr<XmlElement> config;
@@ -97,5 +117,4 @@ public:
 private:
     DspTestBenchLnF dspTestBenchLnF{};
     std::unique_ptr<MainWindow> mainWindow{};
-    TooltipWindow tooltipWindow;
 };

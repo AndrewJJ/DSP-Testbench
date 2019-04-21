@@ -82,10 +82,12 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
         getApp().getMainWindow().setFullScreen (shouldBeFullScreen);
     };
 
+    addAndMakeVisible (cpuMeter);
+
     btnSnapshot.reset (new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
     addAndMakeVisible (btnSnapshot.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::screenshot_svg, BinaryData::screenshot_svgSize, Colours::black, Colours::red);
-    btnSnapshot->setTooltip("Restart audio briefly, then hold a snapshot of the result for analysis");
+    btnSnapshot->setTooltip ("Restart audio briefly, then hold a snapshot of the result for analysis");
     btnSnapshot->setClickingTogglesState(true);
     btnSnapshot->onClick = [this]
     {
@@ -98,7 +100,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     btnAudioDevice.reset (new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
     addAndMakeVisible (btnAudioDevice.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice.get(), BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
-    btnAudioDevice->setTooltip("Configure audio device settings");
+    btnAudioDevice->setTooltip ("Configure audio device settings");
     btnAudioDevice->onClick = [this]
     {
         AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
@@ -117,11 +119,11 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     btnAbout.reset (new DrawableButton ("About", DrawableButton::ImageFitted));
     addAndMakeVisible (btnAbout.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnAbout.get(), BinaryData::about_svg, BinaryData::about_svgSize, Colours::black);
-    btnAbout->setTooltip("Show information about DSP Testbench (including attributions)");
+    btnAbout->setTooltip ("Show information about DSP Testbench (including attributions)");
     btnAbout->onClick = [this]
     {
         DialogWindow::LaunchOptions launchOptions;
-        launchOptions.dialogTitle = "About " + getApp().getApplicationName() + "(v" + String (ProjectInfo::versionString) + ")";
+        launchOptions.dialogTitle = "About " + getApp().getApplicationName() + " (v" + String (ProjectInfo::versionString) + ")";
         launchOptions.useNativeTitleBar = false;
         launchOptions.dialogBackgroundColour = Colour (0xff323e44);
         launchOptions.componentToCentreAround = mainContentComponent;
@@ -141,30 +143,94 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
 {
     using Track = Grid::TrackInfo;
     const auto margin = 2;
+    const auto cpuMeterSize = GUI_SIZE_PX (3.0);
     const auto snapshotButtonSize = GUI_SIZE_PX (1);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
     const auto aboutBtnSize = GUI_SIZE_PX (1.1);
     const auto windowButtonSize = GUI_BASE_SIZE_PX;
-    //const auto separatingGap = Track(GUI_BASE_GAP_PX);
+    const auto separatingGap = Track(GUI_GAP_PX (4));
     const auto windowButtonGap = Track(GUI_GAP_PX (4));
 
     Grid grid;
 
     grid.templateRows = { Track (1_fr) };
-    grid.templateColumns = { Track (GUI_SIZE_PX (6)), Track (1_fr), Track (snapshotButtonSize), Track (audioDeviceBtnSize), Track (aboutBtnSize), windowButtonGap, Track (windowButtonSize), Track (windowButtonSize), Track (windowButtonSize) };
+    grid.templateColumns = { 
+        Track (GUI_SIZE_PX (6)),
+        Track (1_fr),
+        Track (cpuMeterSize),
+        separatingGap,
+        Track (snapshotButtonSize),
+        Track (audioDeviceBtnSize),
+        Track (aboutBtnSize),
+        windowButtonGap,
+        Track (windowButtonSize),
+        Track (windowButtonSize),
+        Track (windowButtonSize)
+    };
 
     grid.items.addArray({   
-                            GridItem (lblTitle),
-                            GridItem (), // expander
-                            GridItem (btnSnapshot.get()),
-                            GridItem (btnAudioDevice.get()),
-                            GridItem (btnAbout.get()),
-                            GridItem (), // windowButtonGap
-                            GridItem (btnMinimise.get()), GridItem (btnMaximise.get()), GridItem (btnClose.get())
-                        });
+        GridItem (lblTitle),
+        GridItem (), // expander
+        GridItem (cpuMeter),
+        GridItem (), // separatingGap
+        GridItem (btnSnapshot.get()),
+        GridItem (btnAudioDevice.get()),
+        GridItem (btnAbout.get()),
+        GridItem (), // windowButtonGap
+        GridItem (btnMinimise.get()), GridItem (btnMaximise.get()), GridItem (btnClose.get())
+    });
 
     grid.autoFlow = Grid::AutoFlow::column;
     grid.performLayout (getLocalBounds().reduced (margin, margin));
+}
+
+DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::CpuMeter()
+{
+    setOpaque (true);
+    setPaintingIsUnclipped (true);
+    startTimerHz (updateFrequency);
+}
+void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::paint (Graphics & g)
+{
+    g.setColour (Colour (0xff263238));
+    g.fillRect (getLocalBounds());
+
+    const auto canvasRect = getLocalBounds().reduced (0, 4);
+    const auto lblWidth = GUI_SIZE_I (1.1);
+    const auto lblRect = canvasRect.withWidth (lblWidth);
+    const auto meterRect = canvasRect.withTrimmedLeft (lblWidth);
+
+    g.setColour (Colours::black);
+    g.fillRect (meterRect);
+
+    const auto w = static_cast<int> (static_cast<double>(meterRect.getWidth()) * cpuEnvelope);
+    g.setColour (Colour (0xff705090));
+    g.fillRect (meterRect.withWidth (w));
+
+    g.setFont (GUI_SIZE_F (0.5));
+    g.setColour (Colours::white);
+    g.drawText ("CPU", lblRect, Justification::centredLeft, false);
+    g.drawText ( String (static_cast<int> (cpuEnvelope * 100.0)) + "%", meterRect, Justification::centred, false);
+}
+void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::resized()
+{}
+void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::timerCallback()
+{
+    AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
+    const auto currentCpu = deviceMgr->getCpuUsage();
+    if (currentCpu > cpuEnvelope)
+        cpuEnvelope = currentCpu; // Instant attack
+    else
+        cpuEnvelope += (releaseConstant * (currentCpu - cpuEnvelope));
+    bufferXrunCount += deviceMgr->getXRunCount();
+    repaint();
+
+    // TODO - tooltip won't show until it has been displayed for another component
+    setTooltip (String (bufferXrunCount) + " under/overruns");
+}
+void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::mouseDown (const MouseEvent& /* event */)
+{
+    bufferXrunCount = 0;
 }
 
 StringArray DSPTestbenchApplication::DummyMenuBarModel::getMenuBarNames()
