@@ -151,7 +151,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ClipStatsComponent)
 };
 
-
 /**
  *  Displays clip indicator relating to clipping of the audio signal
  */
