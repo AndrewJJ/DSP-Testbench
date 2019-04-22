@@ -30,6 +30,14 @@ public:
     void systemRequestedQuit() override;
     void anotherInstanceStarted (const String& commandLine) override;
 
+    static DSPTestbenchApplication& getApp();
+    Component& getMainComponent();
+    ApplicationProperties appProperties;
+
+private:
+    DspTestBenchLnF dspTestBenchLnF{};
+    TooltipWindow tooltipWindow;
+
     // Custom menu bar component for this application
     class DspTestBenchMenuComponent : public Component
     {
@@ -49,7 +57,8 @@ public:
             void mouseDown (const MouseEvent& event) override;
 
         private:
-            int bufferXrunCount = 0;
+            int bufferXruns = 0;
+            int bufferXrunOffset = 0;
             double cpuEnvelope = 0.0;
             int updateFrequency = 25;
             double releaseTime = 0.65 * static_cast<double> (updateFrequency);
@@ -102,19 +111,12 @@ public:
         */
 
     private:
-        TooltipWindow tooltipWindow;
         AudioDeviceManager deviceManager;
         std::unique_ptr<DummyMenuBarModel> dummyMenuBarModel{};
         std::unique_ptr<XmlElement> config{};
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
 
-    static DSPTestbenchApplication& getApp();
-    MainWindow& getMainWindow();
-    Component& getMainComponent();
-    ApplicationProperties appProperties;
-
-private:
-    DspTestBenchLnF dspTestBenchLnF{};
     std::unique_ptr<MainWindow> mainWindow{};
+    MainWindow& getMainWindow();
 };

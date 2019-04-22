@@ -222,15 +222,21 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::timerCallback
         cpuEnvelope = currentCpu; // Instant attack
     else
         cpuEnvelope += (releaseConstant * (currentCpu - cpuEnvelope));
-    bufferXrunCount += deviceMgr->getXRunCount();
     repaint();
+    
+    bufferXruns = deviceMgr->getXRunCount();
+    if (bufferXruns < bufferXrunOffset)
+    {
+        // Device must have been reset, so we need to reset the offset to avoid displaying negative result
+        bufferXrunOffset = 0;
+    }
 
-    // TODO - tooltip won't show until it has been displayed for another component
-    setTooltip (String (bufferXrunCount) + " under/overruns");
+    setTooltip (String (bufferXruns - bufferXrunOffset) + " under/overruns");
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::mouseDown (const MouseEvent& /* event */)
 {
-    bufferXrunCount = 0;
+    AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
+    bufferXrunOffset = deviceMgr->getXRunCount();;
 }
 
 StringArray DSPTestbenchApplication::DummyMenuBarModel::getMenuBarNames()
