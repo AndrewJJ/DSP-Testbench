@@ -574,12 +574,11 @@ WaveTab::WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromC
 
     addAndMakeVisible (btnLoad);
     btnLoad.setButtonText ("Load");
-    btnLoad.setTooltip ("Load wave file");
     btnLoad.onClick = [this] { chooseFile(); };
 
     addAndMakeVisible (btnPlay);
     btnPlay.setButtonText ("Play");
-    btnPlay.setTooltip ("Play/pause (playing will loop once the end of the file is reached)");
+    btnPlay.setTooltip ("Play/pause");
     btnPlay.setClickingTogglesState (true);
     btnPlay.setColour (TextButton::buttonOnColourId, Colours::green);
     btnPlay.onClick = [this] {
