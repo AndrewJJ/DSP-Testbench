@@ -68,7 +68,7 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
     addAndMakeVisible (btnInvert);
     btnInvert.setButtonText (TRANS("Invert"));
     btnInvert.setClickingTogglesState (true);
-    btnInvert.setColour (TextButton::buttonOnColourId, Colours::green);
+    btnInvert.setColour (TextButton::buttonOnColourId, Colours::darkorange);
     statusInvert.set (config->getBoolAttribute ("Invert"));
     btnInvert.setToggleState (statusInvert.get(), dontSendNotification);
     btnInvert.onClick = [this] { statusInvert = btnInvert.getToggleState(); };

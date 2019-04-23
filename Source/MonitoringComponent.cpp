@@ -35,7 +35,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);
-    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    lblTitle.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
 
     addAndMakeVisible (sldGain);
     sldGain.setTooltip (TRANS("Allows gain adjustment of the output to your audio device"));
