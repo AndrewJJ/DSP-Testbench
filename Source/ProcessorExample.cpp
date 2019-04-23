@@ -9,7 +9,6 @@
 */
 
 #include "ProcessorExample.h"
-#include "FastApproximations.h"
 
 LpfExample::LpfExample()
 : ProcessorHarness (2)
