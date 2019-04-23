@@ -11,12 +11,13 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ProcessorHarness.h"
 
 class ProcessorComponent final : public Component, dsp::ProcessorBase
 {
 public:
     
-    ProcessorComponent (const String processorId, const int numberOfControls);
+    ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest, const int numberOfControls);
     ~ProcessorComponent();
 
     void paint (Graphics& g) override;
@@ -26,7 +27,7 @@ public:
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
-    void reset () override;
+    void reset() override;
 
     bool isSourceConnectedA() const noexcept;
     bool isSourceConnectedB() const noexcept;
@@ -41,21 +42,19 @@ public:
 
 private:
     
-    class ControlComponent : public Component, public Slider::Listener
+    class ControlComponent : public Component
     {
     public:
-        ControlComponent (String controlName);
-
+        ControlComponent (const int index, ProcessorHarness* processorBeingControlled);
         void paint (Graphics& g) override;
         void resized() override;
-
-        void sliderValueChanged (Slider* sliderThatWasChanged) override;
-
         double getCurrentControlValue() const;
 
     private:
-        Label lblControl;
-        Slider sldControl;
+        int controlIndex;
+        ProcessorHarness* processor;
+        Label lblControl {};
+        Slider sldControl {};
         Atomic<double> currentControlValue;
     };
 
@@ -97,6 +96,8 @@ private:
     Viewport viewport;
     OwnedArray<ControlComponent> controlArray {};
     ControlArrayComponent controlArrayComponent;
+
+    std::shared_ptr<ProcessorHarness> processor {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorComponent)
 };

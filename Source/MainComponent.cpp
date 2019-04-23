@@ -10,6 +10,7 @@
 
 #include "MainComponent.h"
 #include "Main.h"
+#include "ProcessorExample.h"
 
 MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
     : AudioAppComponent (deviceManager)
@@ -18,8 +19,14 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
 
     srcComponentA.reset (new SourceComponent ("A", &deviceManager));
     srcComponentB.reset (new SourceComponent ("B", &deviceManager));
-    procComponentA.reset (new ProcessorComponent ("A", 3));
-    procComponentB.reset (new ProcessorComponent ("B", 3));
+
+    // =================================================================================================================================
+    // TODO - create the processors to be tested (it's OK to leave it uncreated if you don't need it)
+    // =================================================================================================================================
+    procComponentA.reset (new ProcessorComponent ("A", new LpfExample(), 1));
+    procComponentB.reset (new ProcessorComponent ("B", nullptr, 3));
+    // =================================================================================================================================
+
     analyserComponent.reset (new AnalyserComponent());
     monitoringComponent.reset (new MonitoringComponent(&deviceManager));
 

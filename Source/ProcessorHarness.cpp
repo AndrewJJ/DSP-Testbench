@@ -1,26 +1,29 @@
 /*
   ==============================================================================
 
-    TestProcessor.cpp
+    ProcessorHarness.cpp
     Created: 11 Jan 2018 9:47:24am
     Author:  Andrew Jerrim
 
   ==============================================================================
 */
 
-#include "TestProcessor.h"
+#include "ProcessorHarness.h"
 
-TestProcessor::TestProcessor()
+ProcessorHarness::ProcessorHarness (const int numberOfControlValues)
     : currentSpec ()
-{ }
-void TestProcessor::prepare (const dsp::ProcessSpec& spec)
+{
+    for (auto i = 0; i < numberOfControlValues; ++i)
+        controlValues.emplace_back (0.0f);
+}
+void ProcessorHarness::prepareHarness (const dsp::ProcessSpec& spec)
 {
     currentSpec = spec;
 
     const auto start = Time::getMillisecondCounterHiRes();
 
 // =====================
-    prepareToBeTested(spec);
+    prepare (spec);
 // =====================
 
     const auto duration = Time::getMillisecondCounterHiRes() - start;
@@ -35,12 +38,12 @@ void TestProcessor::prepare (const dsp::ProcessSpec& spec)
     procDurationSum = 0.0;
     procDurationCount = 0.0;
 }
-void TestProcessor::process (const dsp::ProcessContextReplacing<float>& context)
+void ProcessorHarness::processHarness (const dsp::ProcessContextReplacing<float>& context)
 {
     const auto start = Time::getMillisecondCounterHiRes();
     
 // =====================
-    processToBeTested (context);
+    process (context);
 // =====================
 
     const auto duration = Time::getMillisecondCounterHiRes() - start;
@@ -49,12 +52,12 @@ void TestProcessor::process (const dsp::ProcessContextReplacing<float>& context)
     procDurationSum += duration;
     procDurationCount++;
 }
-void TestProcessor::reset ()
+void ProcessorHarness::resetHarness ()
 {
     const auto start = Time::getMillisecondCounterHiRes();
 
 // =====================
-    resetToBeTested();
+    reset();
 // =====================
 
     const auto duration = Time::getMillisecondCounterHiRes() - start;
@@ -63,59 +66,69 @@ void TestProcessor::reset ()
     resetDurationSum += duration;
     resetDurationCount++;
 }
-dsp::ProcessSpec TestProcessor::getCurrentProcessSpec () const
+void ProcessorHarness::setControlValue(const int index, const float value)
+{
+    jassert (index >= 0 && index < controlValues.size());
+    controlValues[index].set (value);
+}
+float ProcessorHarness::getControlValue(const int index) const
+{
+    jassert (index >= 0 && index < controlValues.size());
+    return controlValues[index].get();
+}
+dsp::ProcessSpec ProcessorHarness::getCurrentProcessSpec () const
 {
     return currentSpec;
 }
-double TestProcessor::queryPrepareDurationAverage () const
+double ProcessorHarness::queryPrepareDurationAverage () const
 {
     return prepDurationSum / prepDurationCount;
 }
-double TestProcessor::queryPrepareDurationMax () const
+double ProcessorHarness::queryPrepareDurationMax () const
 {
     return prepDurationMax;
 }
-double TestProcessor::queryPrepareDurationMin() const
+double ProcessorHarness::queryPrepareDurationMin() const
 {
     return prepDurationMin;
 }
-double TestProcessor::queryPrepareDurationNumSamples () const
+double ProcessorHarness::queryPrepareDurationNumSamples () const
 {
     return prepDurationCount;
 }
-double TestProcessor::queryProcessingDurationAverage () const
+double ProcessorHarness::queryProcessingDurationAverage () const
 {
     return procDurationSum / procDurationCount;
 }
-double TestProcessor::queryProcessingDurationMax () const
+double ProcessorHarness::queryProcessingDurationMax () const
 {
     return procDurationMax;
 }
-double TestProcessor::queryProcessingDurationMin() const
+double ProcessorHarness::queryProcessingDurationMin() const
 {
     return procDurationMin;
 }
-double TestProcessor::queryProcessingDurationNumSamples () const
+double ProcessorHarness::queryProcessingDurationNumSamples () const
 {
     return procDurationCount;
 }
-double TestProcessor::queryResetDurationAverage () const
+double ProcessorHarness::queryResetDurationAverage () const
 {
     return resetDurationSum / resetDurationCount;
 }
-double TestProcessor::queryResetDurationMax () const
+double ProcessorHarness::queryResetDurationMax () const
 {
     return resetDurationMax;
 }
-double TestProcessor::queryResetDurationMin() const
+double ProcessorHarness::queryResetDurationMin() const
 {
     return resetDurationMin;
 }
-double TestProcessor::queryResetDurationNumSamples () const
+double ProcessorHarness::queryResetDurationNumSamples () const
 {
     return resetDurationCount;
 }
-void TestProcessor::resetStatistics ()
+void ProcessorHarness::resetStatistics ()
 {
     prepDurationMin = 1.0E100;
     prepDurationMax = -1.0;
@@ -132,6 +145,9 @@ void TestProcessor::resetStatistics ()
     resetDurationSum = 0.0;
     resetDurationCount = 0.0;
 }
+
+
+// ======================================================
 
 
 bool is_sse_aligned (const float* data)

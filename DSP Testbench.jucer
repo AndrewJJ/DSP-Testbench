@@ -57,6 +57,10 @@
               file="Source/SourceComponent.h"/>
       </GROUP>
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
+        <FILE id="SmKk7s" name="ProcessorExample.cpp" compile="1" resource="0"
+              file="Source/ProcessorExample.cpp"/>
+        <FILE id="QJMr0b" name="ProcessorExample.h" compile="0" resource="0"
+              file="Source/ProcessorExample.h"/>
         <FILE id="kYn7rt" name="AudioDataTransfer.h" compile="0" resource="0"
               file="Source/AudioDataTransfer.h"/>
         <FILE id="DV9dVd" name="FastApproximations.h" compile="0" resource="0"
@@ -73,9 +77,10 @@
         <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>
         <FILE id="i22995" name="PulseFunctions.h" compile="0" resource="0"
               file="Source/PulseFunctions.h"/>
-        <FILE id="uNS7YK" name="TestProcessor.cpp" compile="1" resource="0"
-              file="Source/TestProcessor.cpp"/>
-        <FILE id="z3PBri" name="TestProcessor.h" compile="0" resource="0" file="Source/TestProcessor.h"/>
+        <FILE id="uNS7YK" name="ProcessorHarness.cpp" compile="1" resource="0"
+              file="Source/ProcessorHarness.cpp"/>
+        <FILE id="z3PBri" name="ProcessorHarness.h" compile="0" resource="0"
+              file="Source/ProcessorHarness.h"/>
       </GROUP>
     </GROUP>
   </MAINGROUP>

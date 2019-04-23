@@ -29,6 +29,10 @@
 			isa = PBXBuildFile;
 			fileRef = 8A4A8DEF27B44AE93658C97D;
 		};
+		CE75A440BD90A40D1D704CE0 = {
+			isa = PBXBuildFile;
+			fileRef = 62918B35B88651E2FCE69ECC;
+		};
 		EAEC5A969B432DAE0C2DFBDB = {
 			isa = PBXBuildFile;
 			fileRef = EE37E93158A394F0070B2700;
@@ -101,13 +105,17 @@
 			isa = PBXBuildFile;
 			fileRef = 90F797BA5DD310F3F8058F2E;
 		};
+		72D05F597F5F734261FAB997 = {
+			isa = PBXBuildFile;
+			fileRef = A52DE88C4FA3B60C9E810A68;
+		};
 		A44FDB87495CD5A09DECE3C3 = {
 			isa = PBXBuildFile;
 			fileRef = 01A58540D890CE30D29B7C6F;
 		};
-		DB8A429734D0A5DE97CFEEAD = {
+		BD125957D733F5A476A991A9 = {
 			isa = PBXBuildFile;
-			fileRef = 0EC888D60D720F3802B6A82F;
+			fileRef = AE3CFB6CFD8F992F9230DF52;
 		};
 		25C8A9B51C871B3FBF0ED9A2 = {
 			isa = PBXBuildFile;
@@ -200,13 +208,6 @@
 			path = ../../Source/Main.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
-		0EC888D60D720F3802B6A82F = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			name = TestProcessor.cpp;
-			path = ../../Source/TestProcessor.cpp;
-			sourceTree = "SOURCE_ROOT";
-		};
 		157AD64AC922253682B688B6 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
@@ -226,13 +227,6 @@
 			lastKnownFileType = sourcecode.c.h;
 			name = MeteringComponents.h;
 			path = ../../Source/MeteringComponents.h;
-			sourceTree = "SOURCE_ROOT";
-		};
-		1FA67A2A9EDA46C16E7702F4 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.h;
-			name = TestProcessor.h;
-			path = ../../Source/TestProcessor.h;
 			sourceTree = "SOURCE_ROOT";
 		};
 		2235D7FA30FBC3DE33A78A6E = {
@@ -402,6 +396,13 @@
 			includeInIndex = 0;
 			path = "DSP Testbench.app";
 			sourceTree = "BUILT_PRODUCTS_DIR";
+		};
+		62918B35B88651E2FCE69ECC = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = CoreAudioKit.framework;
+			path = System/Library/Frameworks/CoreAudioKit.framework;
+			sourceTree = SDKROOT;
 		};
 		6324C203D82C2E537A690411 = {
 			isa = PBXFileReference;
@@ -585,11 +586,25 @@
 			path = ../../Source/AudioDataTransfer.h;
 			sourceTree = "SOURCE_ROOT";
 		};
+		A52DE88C4FA3B60C9E810A68 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = ProcessorExample.cpp;
+			path = ../../Source/ProcessorExample.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
 		A9A5C812AB383BA1CB7FBB64 = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
 			name = play.svg;
 			path = ../../Resources/play.svg;
+			sourceTree = "SOURCE_ROOT";
+		};
+		AE3CFB6CFD8F992F9230DF52 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = ProcessorHarness.cpp;
+			path = ../../Source/ProcessorHarness.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
 		B16B8A655A5C64B77A62BC33 = {
@@ -739,6 +754,13 @@
 			path = ../../Source/Goniometer.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
+		DE13D066805B4BF6268E7437 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = ProcessorHarness.h;
+			path = ../../Source/ProcessorHarness.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		E47B7D632DABF2F0EA52CD5A = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
@@ -752,6 +774,13 @@
 			name = CoreMIDI.framework;
 			path = System/Library/Frameworks/CoreMIDI.framework;
 			sourceTree = SDKROOT;
+		};
+		F058D35AD4322DAD4944816A = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = ProcessorExample.h;
+			path = ../../Source/ProcessorExample.h;
+			sourceTree = "SOURCE_ROOT";
 		};
 		F06CF79E7E23D319382B60CC = {
 			isa = PBXFileReference;
@@ -821,6 +850,8 @@
 		4344371771A6C4DCD7996A34 = {
 			isa = PBXGroup;
 			children = (
+				A52DE88C4FA3B60C9E810A68,
+				F058D35AD4322DAD4944816A,
 				A34483B06D1B6F39F642005A,
 				240662947DAE42D9C731890A,
 				8214C9F6F738324825B6B797,
@@ -830,8 +861,8 @@
 				85E0422BB39E278B95AF5FC8,
 				3EAA28994203F8FE7BD0860D,
 				D5A204FC49FC303F8E85AB18,
-				0EC888D60D720F3802B6A82F,
-				1FA67A2A9EDA46C16E7702F4,
+				AE3CFB6CFD8F992F9230DF52,
+				DE13D066805B4BF6268E7437,
 			);
 			name = Processing;
 			sourceTree = "<group>";
@@ -917,6 +948,7 @@
 				7618C0F23346E577D64A40A2,
 				70BC544C10ACD6AC0927AD1D,
 				8A4A8DEF27B44AE93658C97D,
+				62918B35B88651E2FCE69ECC,
 				EE37E93158A394F0070B2700,
 				CA06C1089354EE648FB6DD37,
 				3848E2EFE337B59F7B2BF3F8,
@@ -1169,8 +1201,9 @@
 				CB0C67C0C116057F35030F56,
 				756F573F96BB6468940BE589,
 				7C708D011C95F47E45B825FD,
+				72D05F597F5F734261FAB997,
 				A44FDB87495CD5A09DECE3C3,
-				DB8A429734D0A5DE97CFEEAD,
+				BD125957D733F5A476A991A9,
 				25C8A9B51C871B3FBF0ED9A2,
 				8EAB6C6F6517013DE91521FA,
 				FBA7BBAE58DB45DB8B80D850,
@@ -1197,6 +1230,7 @@
 				0DABC59E16D9E650732629DC,
 				6FDF94DEF1647DE3CD2E6377,
 				79F80DA2E9B29F662FF96A6F,
+				CE75A440BD90A40D1D704CE0,
 				EAEC5A969B432DAE0C2DFBDB,
 				1459F416236A2DA0ABA878D4,
 				E6C9888E50203F1766D900AA,

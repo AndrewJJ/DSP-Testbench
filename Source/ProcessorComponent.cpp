@@ -11,10 +11,12 @@
 #include "ProcessorComponent.h"
 #include "Main.h"
 
-ProcessorComponent::ProcessorComponent (const String processorId, const int numberOfControls)
+ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest, const int numberOfControls)
     :   keyName ("Processor" + processorId),
         controlArrayComponent (&controlArray)
 {
+    processor.reset (processorToTest);
+    
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
@@ -80,7 +82,7 @@ ProcessorComponent::ProcessorComponent (const String processorId, const int numb
     btnMute.onClick = [this] { statusMute = btnMute.getToggleState(); };
 
     for (auto i = 0; i < numberOfControls; ++i)
-        controlArray.add (new ControlComponent ("Control " + String (i+1)));
+        controlArray.add (new ControlComponent (i, processor.get()));
     controlArrayComponent.initialiseControls();
 
     viewport.setScrollBarsShown (true, false);
@@ -153,70 +155,83 @@ float ProcessorComponent::getMinimumHeight() const
     const auto totalItemGaps = GUI_GAP_F(2);
     return innerMargin + totalItemHeight + totalItemGaps;
 }
-void ProcessorComponent::prepare (const dsp::ProcessSpec&)
+void ProcessorComponent::prepare (const dsp::ProcessSpec& spec)
 {
-    // TODO - ProcessorComponent::prepare
+    if (processor)
+        processor->prepareHarness (spec);
 }
-void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>&)
+void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    // TODO - ProcessorComponent::process
-    //const auto controlValue0 = controlArray[0]->getCurrentControlValue();
+    if (processor)
+        processor->processHarness (context);
 }
-void ProcessorComponent::reset ()
+void ProcessorComponent::reset()
 {
-    // TODO - ProcessorComponent::reset
+    if (processor)
+        processor->resetHarness();
 }
-bool ProcessorComponent::isSourceConnectedA () const noexcept
+bool ProcessorComponent::isSourceConnectedA() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return statusSourceA.get();
 }
-bool ProcessorComponent::isSourceConnectedB () const noexcept
+bool ProcessorComponent::isSourceConnectedB() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return statusSourceB.get();
 }
-bool ProcessorComponent::isProcessorEnabled () const noexcept
+bool ProcessorComponent::isProcessorEnabled() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return !statusDisable.get();
 }
-bool ProcessorComponent::isInverted () const noexcept
+bool ProcessorComponent::isInverted() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return statusInvert.get();
 }
-bool ProcessorComponent::isMuted () const noexcept
+bool ProcessorComponent::isMuted() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return statusMute.get();
 }
-bool ProcessorComponent::isActive () const noexcept
+bool ProcessorComponent::isActive() const noexcept
 {
     return !statusDisable.get() && !statusMute.get();
 }
-void ProcessorComponent::mute ()
+void ProcessorComponent::mute()
 {
     btnMute.setToggleState (true, sendNotificationSync);
 }
 
 
-ProcessorComponent::ControlComponent::ControlComponent (String controlName)
-    : lblControl (controlName),
-      sldControl (controlName + " slider")
+ProcessorComponent::ControlComponent::ControlComponent (const int index, ProcessorHarness* processorBeingControlled)
+    : controlIndex (index),
+      processor (processorBeingControlled)
 {
+    auto controlName = "Control " + String (index + 1);
+    auto defaultControlValue = 0.0;
+    if (processor)
+    {
+        controlName = processor->getControlName (controlIndex);
+        defaultControlValue = static_cast<double> (processor->getDefaultControlValue (controlIndex));
+    }
     lblControl.setText (controlName, dontSendNotification);
     lblControl.setFont (Font (GUI_SIZE_F(0.5), Font::plain).withTypefaceStyle ("Regular"));
     lblControl.setJustificationType (Justification::centredLeft);
     lblControl.setEditable (false, false, false);
     lblControl.setColour (TextEditor::textColourId, Colours::black);
-    lblControl.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    lblControl.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
     addAndMakeVisible (lblControl);
 
     sldControl.setRange (0, 1, 0.001);
     sldControl.setSliderStyle (Slider::LinearHorizontal);
     sldControl.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
-    sldControl.addListener (this);
+    sldControl.onValueChange = [this]
+    {
+        processor->setControlValue (controlIndex, static_cast<float> (sldControl.getValue()));
+    };
+    sldControl.setValue (defaultControlValue, sendNotificationSync);
     addAndMakeVisible (sldControl);
 }
 void ProcessorComponent::ControlComponent::paint (Graphics&)
@@ -241,11 +256,6 @@ void ProcessorComponent::ControlComponent::resized()
                         });
 
     grid.performLayout (getLocalBounds());
-}
-void ProcessorComponent::ControlComponent::sliderValueChanged (Slider* sliderThatWasChanged)
-{
-    if (sliderThatWasChanged == &sldControl)
-        currentControlValue.set (sldControl.getValue());
 }
 double ProcessorComponent::ControlComponent::getCurrentControlValue() const
 {

@@ -149,8 +149,9 @@
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp"/>
     <ClCompile Include="..\..\Source\MeteringComponents.cpp"/>
     <ClCompile Include="..\..\Source\SourceComponent.cpp"/>
+    <ClCompile Include="..\..\Source\ProcessorExample.cpp"/>
     <ClCompile Include="..\..\Source\MeteringProcessors.cpp"/>
-    <ClCompile Include="..\..\Source\TestProcessor.cpp"/>
+    <ClCompile Include="..\..\Source\ProcessorHarness.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1579,9 +1580,6 @@
     <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\layout\juce_GridItem.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\layout\juce_GridUnitTests.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\layout\juce_GroupComponent.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -1973,6 +1971,7 @@
     <ClInclude Include="..\..\Source\ProcessorComponent.h"/>
     <ClInclude Include="..\..\Source\MeteringComponents.h"/>
     <ClInclude Include="..\..\Source\SourceComponent.h"/>
+    <ClInclude Include="..\..\Source\ProcessorExample.h"/>
     <ClInclude Include="..\..\Source\AudioDataTransfer.h"/>
     <ClInclude Include="..\..\Source\FastApproximations.h"/>
     <ClInclude Include="..\..\Source\FftProcessor.h"/>
@@ -1981,7 +1980,7 @@
     <ClInclude Include="..\..\Source\AudioScopeProcessor.h"/>
     <ClInclude Include="..\..\Source\PolyBLEP.h"/>
     <ClInclude Include="..\..\Source\PulseFunctions.h"/>
-    <ClInclude Include="..\..\Source\TestProcessor.h"/>
+    <ClInclude Include="..\..\Source\ProcessorHarness.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
@@ -2357,6 +2356,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\time\juce_RelativeTime.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\time\juce_Time.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\unit_tests\juce_UnitTest.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_core\unit_tests\juce_UnitTestCategories.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\xml\juce_XmlDocument.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\xml\juce_XmlElement.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\zip\zlib\crc32.h"/>
