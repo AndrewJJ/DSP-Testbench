@@ -38,8 +38,6 @@ public:
     bool isActive() const noexcept;
     void mute();
 
-    // TODO - provide methods to name controls (perhaps an array of names)
-
 private:
     
     class ControlComponent : public Component
@@ -84,7 +82,6 @@ private:
     TextButton btnInvert;
     TextButton btnMute;
 
-    // TODO - add a bypass button to allow direct analysis of a source?
     // TODO - add variable delay so that signals can be time aligned?
 
     Atomic<bool> statusSourceA = true;

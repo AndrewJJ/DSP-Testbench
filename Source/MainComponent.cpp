@@ -20,12 +20,12 @@ MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
     srcComponentA.reset (new SourceComponent ("A", &deviceManager));
     srcComponentB.reset (new SourceComponent ("B", &deviceManager));
 
-    // =================================================================================================================================
-    // TODO - create the processors to be tested (it's OK to leave it uncreated if you don't need it)
-    // =================================================================================================================================
+// =================================================================================================================================
+// +++      Here is where to instantiate the processors being tested (it's OK to leave one as nullptr if you don't need it)      +++
+// =================================================================================================================================
     procComponentA.reset (new ProcessorComponent ("A", new LpfExample(), 1));
     procComponentB.reset (new ProcessorComponent ("B", nullptr, 3));
-    // =================================================================================================================================
+// =================================================================================================================================
 
     analyserComponent.reset (new AnalyserComponent());
     monitoringComponent.reset (new MonitoringComponent(&deviceManager));
@@ -275,7 +275,6 @@ void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor
             temporaryBuffer.clear(); 
         
         // Perform processing
-        // TODO - consider not encapsulating process methods in ProcessorComponents (in which case would need to pass a pointer to correct processor object)
         processor->process (dsp::ProcessContextReplacing<float> (temporaryBuffer));
         
         // Invert processor output as appropriate
