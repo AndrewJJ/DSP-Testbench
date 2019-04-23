@@ -31,11 +31,9 @@ public:
 
     bool isSourceConnectedA() const noexcept;
     bool isSourceConnectedB() const noexcept;
-    bool isProcessorEnabled() const noexcept;
+    bool isEnabled() const noexcept;
     bool isInverted() const noexcept;
     bool isMuted() const noexcept;
-    // Returns true if this processor is producing audio
-    bool isActive() const noexcept;
     void mute();
 
 private:

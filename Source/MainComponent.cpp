@@ -102,17 +102,17 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     srcComponentB->process(dsp::ProcessContextReplacing<float> (srcBufferB));
 
     // Run audio through processors
-    if (procComponentA->isActive())
+    if (procComponentA->isEnabled())
     {
         routeSourcesAndProcess (procComponentA.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
-        if (procComponentB->isActive()) // both active
+        if (procComponentB->isEnabled()) // both active
         {
             routeSourcesAndProcess (procComponentB.get(), tempBuffer);
             outputBlock.add (tempBuffer);
         }
     }
-    else if (procComponentB->isActive()) // processor A inactive
+    else if (procComponentB->isEnabled()) // processor A inactive
     {
         routeSourcesAndProcess (procComponentB.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
@@ -260,25 +260,22 @@ void MainContentComponent::setAnalyserExpanded (const bool shouldBeExpanded)
 }
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
-    if (processor->isProcessorEnabled())
+    // Route signal sources
+    if (processor->isSourceConnectedA())
     {
-        // Route signal sources
-        if (processor->isSourceConnectedA())
-        {
-            temporaryBuffer.copy(srcBufferA);
-            if (processor->isSourceConnectedB()) // both sources connected
-                temporaryBuffer.add (srcBufferB);
-        }
-        else if (processor->isSourceConnectedB()) // source A not connected
-            temporaryBuffer.copy(srcBufferB);
-        else // Neither source is connected
-            temporaryBuffer.clear(); 
-        
-        // Perform processing
-        processor->process (dsp::ProcessContextReplacing<float> (temporaryBuffer));
-        
-        // Invert processor output as appropriate
-        if (processor->isInverted())
-            temporaryBuffer.multiply(-1.0f);
+        temporaryBuffer.copy(srcBufferA);
+        if (processor->isSourceConnectedB()) // both sources connected
+            temporaryBuffer.add (srcBufferB);
     }
+    else if (processor->isSourceConnectedB()) // source A not connected
+        temporaryBuffer.copy(srcBufferB);
+    else // Neither source is connected
+        temporaryBuffer.clear(); 
+    
+    // Perform processing
+    processor->process (dsp::ProcessContextReplacing<float> (temporaryBuffer));
+    
+    // Invert processor output as appropriate
+    if (processor->isInverted())
+        temporaryBuffer.multiply(-1.0f);
 }

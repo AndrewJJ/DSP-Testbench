@@ -164,6 +164,8 @@ void ProcessorComponent::process (const dsp::ProcessContextReplacing<float>& con
 {
     if (processor)
         processor->processHarness (context);
+    if (statusMute.get())
+        context.getOutputBlock().clear();
 }
 void ProcessorComponent::reset()
 {
@@ -180,7 +182,7 @@ bool ProcessorComponent::isSourceConnectedB() const noexcept
     // We use a local variable so method is safe to use for audio processing
     return statusSourceB.get();
 }
-bool ProcessorComponent::isProcessorEnabled() const noexcept
+bool ProcessorComponent::isEnabled() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return !statusDisable.get();
@@ -194,10 +196,6 @@ bool ProcessorComponent::isMuted() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return statusMute.get();
-}
-bool ProcessorComponent::isActive() const noexcept
-{
-    return !statusDisable.get() && !statusMute.get();
 }
 void ProcessorComponent::mute()
 {
