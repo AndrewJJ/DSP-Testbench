@@ -12,7 +12,7 @@
 #include "Main.h"
 #include "ProcessorExample.h"
 
-MainContentComponent::MainContentComponent(AudioDeviceManager& deviceManager)
+MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
     : AudioAppComponent (deviceManager)
 {
     holdAudio.set (false);

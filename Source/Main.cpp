@@ -51,9 +51,9 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     : mainContentComponent (mainContentComponent_)
 {
     addAndMakeVisible (lblTitle);
-    lblTitle.setText(getApp().getApplicationName(), dontSendNotification);
-    lblTitle.setColour(Label::ColourIds::textColourId, Colours::white);
-    lblTitle.setFont(dynamic_cast<DspTestBenchLnF*> (&getLookAndFeel())->getTitleFont());
+    lblTitle.setText (getApp().getApplicationName(), dontSendNotification);
+    lblTitle.setColour (Label::ColourIds::textColourId, cols::titleFontColour());
+    lblTitle.setFont (dynamic_cast<DspTestBenchLnF*> (&getLookAndFeel())->getTitleFont());
 
     // Allow dragging of the window via the underlying functionality from ResizableWindow
     this->setInterceptsMouseClicks (false, true);

@@ -375,7 +375,7 @@ void SynthesisTab::updateSweepEnablement ()
     else
         stopTimer();
 }
-void SynthesisTab::resetSweep ()
+void SynthesisTab::resetSweep()
 {
     sweepStepIndex = 0;
     sweepStepDelta = 1;
@@ -430,7 +430,7 @@ void SynthesisTab::calculateNumSweepSteps()
 //void SampleTab::reset()
 //{ }
 
-WaveTab::AudioThumbnailComponent::AudioThumbnailComponent(AudioDeviceManager* deviceManager, AudioFormatManager* formatManager)
+WaveTab::AudioThumbnailComponent::AudioThumbnailComponent (AudioDeviceManager* deviceManager, AudioFormatManager* formatManager)
     : audioDeviceManager (deviceManager),
       audioFormatManager (formatManager),
       thumbnailCache (5),
