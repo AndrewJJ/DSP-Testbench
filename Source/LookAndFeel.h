@@ -24,14 +24,7 @@ public:
 
     void drawDrawableButton (Graphics&, DrawableButton&,
                              bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
-        
-    /** Draws a StretchableLayoutResizerBar. */
-	void drawStretchableLayoutResizerBar (Graphics&, int w, int h, bool isVerticalBar, bool isMouseOver, bool isMouseDragging) override;
 
-    /**	Sets up images for a DrawableButton from binary data for a single image. This will replace an original colour in
-     *	the image with alternate colours the normal, over, down and disabled images. So naturally this works best with
-     *	single colour SVG icons.
-     */
     /**	Defines typical colours to be used by our application. */
     struct ApplicationColours
     {

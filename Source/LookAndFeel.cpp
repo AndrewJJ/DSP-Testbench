@@ -79,13 +79,6 @@ void DspTestBenchLnF::drawDrawableButton (Graphics& g, DrawableButton& button,
     }
 }
 
-void DspTestBenchLnF::drawStretchableLayoutResizerBar (Graphics& g, int w, int h, bool, bool isMouseOver, bool isMouseDragging)
-{
-	const auto fillColour = (isMouseOver || isMouseDragging) ? Colour (0xff705090).darker (0.15f) : Colour (0xff705090);
-	g.fillAll (fillColour);
-	drawDots (g, juce::Rectangle<int> (0, 0, w, h), fillColour.darker (), 4);
-}
-
 void DspTestBenchLnF::setImagesForDrawableButton(DrawableButton * button, const void * imageData, const size_t imageDataSize, const Colour original)
 {
     OwnedArray<Drawable> drawableArray;
