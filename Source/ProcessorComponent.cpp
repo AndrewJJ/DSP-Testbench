@@ -105,8 +105,7 @@ ProcessorComponent::~ProcessorComponent()
 }
 void ProcessorComponent::paint (Graphics& g)
 {
-    const auto fillColour = Colour (0x300081ff);
-    g.setColour (fillColour);
+    g.setColour (DspTestBenchLnF::ApplicationColours::processorBackground());
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), GUI_GAP_F(2));
 }
 void ProcessorComponent::resized()

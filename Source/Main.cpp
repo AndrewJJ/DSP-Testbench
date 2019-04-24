@@ -50,6 +50,8 @@ void DSPTestbenchApplication::anotherInstanceStarted (const String&)
 DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* mainContentComponent_)
     : mainContentComponent (mainContentComponent_)
 {
+    using cols = DspTestBenchLnF::ApplicationColours;
+
     addAndMakeVisible (lblTitle);
     lblTitle.setText (getApp().getApplicationName(), dontSendNotification);
     lblTitle.setColour (Label::ColourIds::textColourId, cols::titleFontColour());
@@ -88,7 +90,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
     addAndMakeVisible (btnSnapshot.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::screenshot_svg, BinaryData::screenshot_svgSize, Colours::black, Colours::red);
     btnSnapshot->setTooltip ("Restart audio briefly, then hold a snapshot of the result for analysis");
-    btnSnapshot->setClickingTogglesState(true);
+    btnSnapshot->setClickingTogglesState (true);
     btnSnapshot->onClick = [this]
     {
         if (btnSnapshot->getToggleState())
@@ -110,7 +112,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
         launchOptions.dialogTitle = "Audio device settings";
         //launchOptions.resizable = true;
         launchOptions.useNativeTitleBar = false;
-        launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+        launchOptions.dialogBackgroundColour = cols::componentBackground();
         launchOptions.componentToCentreAround = mainContentComponent;
         launchOptions.content.set (deviceSelector, true);
         launchOptions.launchAsync();
@@ -125,7 +127,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
         DialogWindow::LaunchOptions launchOptions;
         launchOptions.dialogTitle = "About " + getApp().getApplicationName() + " (v" + String (ProjectInfo::versionString) + ")";
         launchOptions.useNativeTitleBar = false;
-        launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+        launchOptions.dialogBackgroundColour = cols::componentBackground();
         launchOptions.componentToCentreAround = mainContentComponent;
         launchOptions.content.set (new AboutComponent(), true);
         launchOptions.resizable = true;
@@ -137,7 +139,7 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::paint(Graphics & g)
 {
-    g.fillAll (Colour(0xff263238));
+    g.fillAll (DspTestBenchLnF::ApplicationColours::titleMenuBackground());
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
 {
@@ -192,7 +194,9 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::CpuMeter()
 }
 void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::paint (Graphics & g)
 {
-    g.setColour (Colour (0xff263238));
+    using cols = DspTestBenchLnF::ApplicationColours;
+
+    g.setColour (cols::titleMenuBackground());
     g.fillRect (getLocalBounds());
 
     const auto canvasRect = getLocalBounds().reduced (0, 4);
@@ -200,15 +204,15 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::CpuMeter::paint (Graphi
     const auto lblRect = canvasRect.withWidth (lblWidth);
     const auto meterRect = canvasRect.withTrimmedLeft (lblWidth);
 
-    g.setColour (Colours::black);
+    g.setColour (cols::meterBackground());
     g.fillRect (meterRect);
 
     const auto w = static_cast<int> (static_cast<double>(meterRect.getWidth()) * cpuEnvelope);
-    g.setColour (Colour (0xff705090));
+    g.setColour (cols::cpuMeterBarColour());
     g.fillRect (meterRect.withWidth (w));
 
     g.setFont (GUI_SIZE_F (0.5));
-    g.setColour (Colours::white);
+    g.setColour (cols::titleFontColour());
     g.drawText ("CPU", lblRect, Justification::centredLeft, false);
     g.drawText ( String (static_cast<int> (cpuEnvelope * 100.0)) + "%", meterRect, Justification::centred, false);
 }

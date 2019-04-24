@@ -274,7 +274,7 @@ void AnalyserComponent::showClipStats()
     DialogWindow::LaunchOptions launchOptions;
     launchOptions.dialogTitle = "Clip Stats";
     launchOptions.useNativeTitleBar = false;
-    launchOptions.dialogBackgroundColour = Colour (0xff323e44);
+    launchOptions.dialogBackgroundColour = DspTestBenchLnF::ApplicationColours::componentBackground();
     launchOptions.componentToCentreAround = &mainMeterBackground;
     launchOptions.resizable = false;
     launchOptions.content.set (&clipStatsViewport, false);

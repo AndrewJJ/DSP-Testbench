@@ -32,6 +32,23 @@ public:
      *	the image with alternate colours the normal, over, down and disabled images. So naturally this works best with
      *	single colour SVG icons.
      */
+    /**	Defines typical colours to be used by our application. */
+    struct ApplicationColours
+    {
+        static Colour componentBackground       ()             { return Colour (0xff323e44); }
+        static Colour titleMenuBackground       ()             { return Colour (0xff263238); }
+        static Colour sourceBackground          ()             { return Colours::darkgrey; }
+        static Colour processorBackground       ()             { return Colour (0x300081ff); }
+        static Colour meterBackground           ()             { return Colours::black; }
+        static Colour audioThumbnailForeground  ()             { return Colours::white; }
+        static Colour audioThumbnailBackground  ()             { return sourceBackground(); }
+        static Colour audioThumbnailCursor      ()             { return Colours::black; }
+        static Colour titleFontColour           ()             { return Colours::white; }
+        static Colour normalFontColour          ()             { return Colour (0xffd0d0d0); }
+        static Colour cpuMeterBarColour         ()             { return Colour (0xff705090); }
+    };
+
+    /**	Provides colours for our DrawableButtons. */
     struct DrawableButtonColours
     {
         static Colour normal     ()                            { return Colour (0xFFE0E0E0); }
@@ -44,6 +61,10 @@ public:
         static Colour disabledOn (const Colour /*normalOn*/)   { return disabled(); }
     };
 
+    /**	Sets up images for a DrawableButton from binary data for a single image. This will replace an original colour in
+     *	the image with alternate colours the normal, over, down and disabled images. So naturally this works best with
+     *	single colour SVG icons.
+     */
     static void setImagesForDrawableButton (
         DrawableButton* button,                 /**< DrawableButton to setup. */
         const void* imageData,			    	/**< Binary image data (typically SVG, but can be anything that juce::ImageFileFormat understands. */

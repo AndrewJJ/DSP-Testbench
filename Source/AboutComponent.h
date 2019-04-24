@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "LookAndFeel.h"
 
 class AboutComponent : public Component
 {
@@ -23,17 +24,19 @@ public:
 
 private:
 
-    void insertTitle (const String& title, const Colour textColour = Colours::white, const bool insertLineBefore = true);
-    void insertSubtitle (const String& subtitle, const Colour textColour = Colours::white, const bool insertLineBefore = true);
-    void insertText (const String& text, const bool breakLine = false, const Colour textColour = Colour (0xffd0d0d0));
+    using cols = DspTestBenchLnF::ApplicationColours;
+
+    void insertTitle (const String& title, const Colour textColour = cols::titleFontColour(), const bool insertLineBefore = true);
+    void insertSubtitle (const String& subtitle, const Colour textColour = cols::titleFontColour(), const bool insertLineBefore = true);
+    void insertText (const String& text, const bool breakLine = false, const Colour textColour = cols::normalFontColour());
     void insertBreak (const float height = 0.2f);
     void insertBullet (const bool insertBreakBefore = true);
     void insertCopyright (const String& copyrightOwner, const int year);
 
     TextEditor txtEditor;    
-    const Font titleFont = Font (GUI_SIZE_F(0.85));
-    const Font subtitleFont = Font (GUI_SIZE_F(0.65));
-    const Font textFont = Font (GUI_SIZE_F(0.60));
+    const Font titleFont = Font (GUI_SIZE_F (0.85));
+    const Font subtitleFont = Font (GUI_SIZE_F (0.65));
+    const Font textFont = Font (GUI_SIZE_F (0.60));
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AboutComponent)
 };

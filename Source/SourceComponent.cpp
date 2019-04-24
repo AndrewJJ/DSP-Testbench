@@ -444,16 +444,18 @@ WaveTab::AudioThumbnailComponent::~AudioThumbnailComponent()
 }
 void WaveTab::AudioThumbnailComponent::paint (Graphics& g)
 {
-    g.fillAll (Colour (0xff495358));
+    using cols = DspTestBenchLnF::ApplicationColours;
 
-    g.setColour (Colours::white);
+    g.fillAll (cols::audioThumbnailBackground()); 
+
+    g.setColour (cols::audioThumbnailForeground());
 
     if (thumbnail.getTotalLength() > 0.0)
     {
         thumbnail.drawChannels (g, getLocalBounds().reduced (2),
                                 0.0, thumbnail.getTotalLength(), 1.0f);
 
-        g.setColour (Colours::black);
+        g.setColour (cols::audioThumbnailCursor());
         g.fillRect (static_cast<float> (currentPosition * getWidth()), 0.0f,
                     1.0f, static_cast<float> (getHeight()));
     }
@@ -1149,7 +1151,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);
-    lblTitle.setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    lblTitle.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
 
     addAndMakeVisible (sldGain);
     sldGain.setTooltip (TRANS("Adjusts the gain of this source"));
@@ -1212,7 +1214,7 @@ SourceComponent::~SourceComponent()
 }
 void SourceComponent::paint (Graphics& g)
 {
-    g.setColour (Colours::darkgrey);
+    g.setColour (DspTestBenchLnF::ApplicationColours::sourceBackground());
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth()), static_cast<float> (getHeight()), GUI_GAP_F(2));
 }
 void SourceComponent::resized()

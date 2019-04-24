@@ -27,9 +27,9 @@ MeterBar::MeterBar (const float minimumLevelDb, const float cautionLevelDb,
 }
 void MeterBar::paint (Graphics& g)
 {
-    auto colourNormal  = Colour (0xff00ff00);
+    auto colourNormal  = Colours::lime;
 	auto colourCaution = Colours::yellow;
-	auto colourAlert   = Colour (0xffff0000);
+	auto colourAlert   = Colours::red;
 
     const auto fullHeight = static_cast<float> (getHeight());
 	const auto gradientHeight = fullHeight * 0.5f;

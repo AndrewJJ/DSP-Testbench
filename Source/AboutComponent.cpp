@@ -105,7 +105,7 @@ AboutComponent::AboutComponent()
 }
 void AboutComponent::paint(Graphics & g)
 {
-    g.fillAll (Colour (0xff323e44));
+    g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
 }
 void AboutComponent::resized()
 {

@@ -105,7 +105,7 @@ void Goniometer::paintWaveform (Graphics& g) const
     const auto cy = plotBoundsFloat.getCentreY() - 0.5f;
     const auto unitRadius = plotBoundsFloat.getWidth() / 2.0f;
 
-    g.setColour (Colour(0xFFFFFF00).withMultipliedAlpha (0.5f));
+    g.setColour (Colours::yellow.withMultipliedAlpha (0.5f));
 
     // Iterate through samples
     for (auto i = 0; i < buffer.getNumSamples(); i++)
