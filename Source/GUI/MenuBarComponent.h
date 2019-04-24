@@ -24,34 +24,46 @@ public:
     class CpuMeter final : public Component, public Timer, public SettableTooltipClient
     {
     public:
-        CpuMeter ();
+        CpuMeter();
         ~CpuMeter() = default;
         void paint (Graphics& g) override;
-        void resized() override;
         void timerCallback() override;
-        void mouseDown (const MouseEvent& event) override;
 
     private:
-        int bufferXruns = 0;
-        int bufferXrunOffset = 0;
         double cpuEnvelope = 0.0;
         int updateFrequency = 25;
         double releaseTime = 0.65 * static_cast<double> (updateFrequency);
         double releaseConstant = 1.0f - exp (-1.0f / releaseTime);
     };
 
+    class XRunMeter final : public Component, public Timer, public SettableTooltipClient
+    {
+    public:
+        XRunMeter();
+        ~XRunMeter() = default;
+        void paint (Graphics& g) override;
+        void timerCallback() override;
+        void mouseDown (const MouseEvent& event) override;
+
+    private:
+        int bufferXruns = 0;
+        int bufferXrunOffset = 0;
+        int updateFrequency = 25;
+    };
+
 private:
     MainContentComponent* mainContentComponent;
     Label lblTitle;
-    std::unique_ptr<Button> btnClose;
-    std::unique_ptr<Button> btnMinimise;
-    std::unique_ptr<Button> btnMaximise;
-    std::unique_ptr<DrawableButton> btnAudioDevice;
-    std::unique_ptr<DrawableButton> btnSnapshot;
-    std::unique_ptr<DrawableButton> btnBenchmark;
-    std::unique_ptr<DrawableButton> btnAbout;
-    std::unique_ptr<ComponentBoundsConstrainer> aboutConstrainer;
+    std::unique_ptr<Button> btnClose{};
+    std::unique_ptr<Button> btnMinimise{};
+    std::unique_ptr<Button> btnMaximise{};
+    std::unique_ptr<DrawableButton> btnAudioDevice{};
+    std::unique_ptr<DrawableButton> btnSnapshot{};
+    std::unique_ptr<DrawableButton> btnBenchmark{};
+    std::unique_ptr<DrawableButton> btnAbout{};
+    std::unique_ptr<ComponentBoundsConstrainer> aboutConstrainer{};
     CpuMeter cpuMeter;
+    XRunMeter xRunMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DspTestBenchMenuComponent)
 };

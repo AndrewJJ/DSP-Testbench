@@ -52,6 +52,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
     };
 
     addAndMakeVisible (cpuMeter);
+    addAndMakeVisible (xRunMeter);
 
     btnSnapshot.reset (new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
     addAndMakeVisible (btnSnapshot.get());
@@ -133,6 +134,7 @@ void DspTestBenchMenuComponent::resized()
     using Track = Grid::TrackInfo;
     const auto margin = 2;
     const auto cpuMeterSize = GUI_SIZE_PX (3.0);
+    const auto xRunMeterSize = GUI_SIZE_PX (3.0);
     const auto benchmarkButtonSize = GUI_SIZE_PX (1);
     const auto snapshotButtonSize = GUI_SIZE_PX (1);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
@@ -149,6 +151,8 @@ void DspTestBenchMenuComponent::resized()
         Track (1_fr),
         Track (cpuMeterSize),
         separatingGap,
+        Track (xRunMeterSize),
+        separatingGap,
         Track (snapshotButtonSize),
         Track (benchmarkButtonSize),
         Track (audioDeviceBtnSize),
@@ -163,6 +167,8 @@ void DspTestBenchMenuComponent::resized()
         GridItem (lblTitle),
         GridItem (), // expander
         GridItem (cpuMeter),
+        GridItem (), // separatingGap
+        GridItem (xRunMeter),
         GridItem (), // separatingGap
         GridItem (btnSnapshot.get()),
         GridItem (btnBenchmark.get()),
@@ -181,6 +187,7 @@ DspTestBenchMenuComponent::CpuMeter::CpuMeter()
     setOpaque (true);
     setPaintingIsUnclipped (true);
     startTimerHz (updateFrequency);
+    SettableTooltipClient::setTooltip ("Average amount of CPU time spent in audio callbacks");
 }
 void DspTestBenchMenuComponent::CpuMeter::paint (Graphics & g)
 {
@@ -206,8 +213,6 @@ void DspTestBenchMenuComponent::CpuMeter::paint (Graphics & g)
     g.drawText ("CPU", lblRect, Justification::centredLeft, false);
     g.drawText ( String (static_cast<int> (cpuEnvelope * 100.0)) + "%", meterRect, Justification::centred, false);
 }
-void DspTestBenchMenuComponent::CpuMeter::resized()
-{}
 void DspTestBenchMenuComponent::CpuMeter::timerCallback()
 {
     AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
@@ -217,20 +222,43 @@ void DspTestBenchMenuComponent::CpuMeter::timerCallback()
     else
         cpuEnvelope += (releaseConstant * (currentCpu - cpuEnvelope));
     repaint();
-    
+}
+
+DspTestBenchMenuComponent::XRunMeter::XRunMeter()
+{
+    setOpaque (true);
+    setPaintingIsUnclipped (true);
+    startTimerHz (updateFrequency);
+    SettableTooltipClient::setTooltip ("Buffer under/overruns");
+}
+void DspTestBenchMenuComponent::XRunMeter::paint (Graphics & g)
+{
+    using cols = DspTestBenchLnF::ApplicationColours;
+
+    g.setColour (cols::titleMenuBackground());
+    g.fillRect (getLocalBounds());
+
+    const auto canvasRect = getLocalBounds().reduced (0, 4);
+    g.setFont (GUI_SIZE_F (0.5));
+    g.setColour (cols::titleFontColour());
+    g.drawText ("XRuns: " + String (bufferXruns - bufferXrunOffset), canvasRect, Justification::centredLeft, true);
+}
+void DspTestBenchMenuComponent::XRunMeter::timerCallback()
+{
+    AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     bufferXruns = deviceMgr->getXRunCount();
     if (bufferXruns < bufferXrunOffset)
     {
         // Device must have been reset, so we need to reset the offset to avoid displaying negative result
         bufferXrunOffset = 0;
     }
-
-    setTooltip (String (bufferXruns - bufferXrunOffset) + " under/overruns");
+    repaint();
 }
-void DspTestBenchMenuComponent::CpuMeter::mouseDown (const MouseEvent& /* event */)
+void DspTestBenchMenuComponent::XRunMeter::mouseDown (const MouseEvent& /* event */)
 {
     AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     bufferXrunOffset = deviceMgr->getXRunCount();;
+    repaint();
 }
 
 StringArray DummyMenuBarModel::getMenuBarNames()
@@ -244,4 +272,5 @@ PopupMenu DummyMenuBarModel::getMenuForIndex(int /*topLevelMenuIndex*/, const St
 void DummyMenuBarModel::menuItemSelected(int /*menuItemID*/, int /*topLevelMenuIndex*/)
 {
 }
+
 
