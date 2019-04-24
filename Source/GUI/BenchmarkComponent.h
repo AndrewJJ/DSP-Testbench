@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "ProcessorHarness.h"
+#include "../Processing/ProcessorHarness.h"
 
 class BenchmarkComponent : public Component, public Timer
 {

@@ -436,46 +436,49 @@
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>DSP Testbench\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\AboutComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\AboutComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\AnalyserComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\AnalyserComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\BenchmarkComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\BenchmarkComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Goniometer.cpp">
+    <ClCompile Include="..\..\Source\GUI\Goniometer.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\LookAndFeel.cpp">
+    <ClCompile Include="..\..\Source\GUI\LookAndFeel.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MainComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\MainComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MeteringComponents.cpp">
+    <ClCompile Include="..\..\Source\GUI\MenuBarComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MonitoringComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\MeteringComponents.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Oscilloscope.cpp">
+    <ClCompile Include="..\..\Source\GUI\MonitoringComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProcessorComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\Oscilloscope.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\SourceComponent.cpp">
+    <ClCompile Include="..\..\Source\GUI\ProcessorComponent.cpp">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProcessorExamples.cpp">
+    <ClCompile Include="..\..\Source\GUI\SourceComponent.cpp">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Processing\MeteringProcessors.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MeteringProcessors.cpp">
+    <ClCompile Include="..\..\Source\Processing\ProcessorExamples.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProcessorHarness.cpp">
+    <ClCompile Include="..\..\Source\Processing\ProcessorHarness.cpp">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
@@ -2433,70 +2436,73 @@
     <ClInclude Include="..\..\Source\Main.h">
       <Filter>DSP Testbench\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AboutComponent.h">
+    <ClInclude Include="..\..\Source\GUI\AboutComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AnalyserComponent.h">
+    <ClInclude Include="..\..\Source\GUI\AnalyserComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\BenchmarkComponent.h">
+    <ClInclude Include="..\..\Source\GUI\BenchmarkComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\FftScope.h">
+    <ClInclude Include="..\..\Source\GUI\FftScope.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Goniometer.h">
+    <ClInclude Include="..\..\Source\GUI\Goniometer.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\LookAndFeel.h">
+    <ClInclude Include="..\..\Source\GUI\LookAndFeel.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MainComponent.h">
+    <ClInclude Include="..\..\Source\GUI\MainComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MeteringComponents.h">
+    <ClInclude Include="..\..\Source\GUI\MenuBarComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MonitoringComponent.h">
+    <ClInclude Include="..\..\Source\GUI\MeteringComponents.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Oscilloscope.h">
+    <ClInclude Include="..\..\Source\GUI\MonitoringComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ProcessorComponent.h">
+    <ClInclude Include="..\..\Source\GUI\Oscilloscope.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\SourceComponent.h">
+    <ClInclude Include="..\..\Source\GUI\ProcessorComponent.h">
       <Filter>DSP Testbench\Source\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ProcessorExamples.h">
+    <ClInclude Include="..\..\Source\GUI\SourceComponent.h">
+      <Filter>DSP Testbench\Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Processing\AudioDataTransfer.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AudioDataTransfer.h">
+    <ClInclude Include="..\..\Source\Processing\AudioScopeProcessor.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\FastApproximations.h">
+    <ClInclude Include="..\..\Source\Processing\FastApproximations.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\FftProcessor.h">
+    <ClInclude Include="..\..\Source\Processing\FftProcessor.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MeteringProcessors.h">
+    <ClInclude Include="..\..\Source\Processing\MeteringProcessors.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\NoiseGenerators.h">
+    <ClInclude Include="..\..\Source\Processing\NoiseGenerators.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\AudioScopeProcessor.h">
+    <ClInclude Include="..\..\Source\Processing\PolyBLEP.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PolyBLEP.h">
+    <ClInclude Include="..\..\Source\Processing\ProcessorExamples.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PulseFunctions.h">
+    <ClInclude Include="..\..\Source\Processing\ProcessorHarness.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ProcessorHarness.h">
+    <ClInclude Include="..\..\Source\Processing\PulseFunctions.h">
       <Filter>DSP Testbench\Source\Processing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">

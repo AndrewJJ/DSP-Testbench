@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "ProcessorHarness.h"
+#include "../Processing/ProcessorHarness.h"
 
 class ProcessorComponent final : public Component, dsp::ProcessorBase
 {

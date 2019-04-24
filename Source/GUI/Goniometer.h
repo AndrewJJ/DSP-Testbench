@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "AudioScopeProcessor.h"
+#include "../Processing/AudioScopeProcessor.h"
 
 class Goniometer final : public Component, public Timer
 {

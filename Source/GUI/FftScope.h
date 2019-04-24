@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "FftProcessor.h"
-#include "FastApproximations.h"
+#include "../Processing/FftProcessor.h"
+#include "../Processing/FastApproximations.h"
 
 template <int Order>
 class FftScope final : public Component, public Timer

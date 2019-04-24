@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "AudioScopeProcessor.h"
+#include "../Processing/AudioScopeProcessor.h"
 
 class Oscilloscope final : public Component, public Timer
 {

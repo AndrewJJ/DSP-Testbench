@@ -9,7 +9,7 @@
 */
 
 #include "AnalyserComponent.h"
-#include "Main.h"
+#include "../Main.h"
 
 AnalyserComponent::AnalyserComponent()
     : keyName ("Analyser")

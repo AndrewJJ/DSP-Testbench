@@ -11,13 +11,13 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "FftProcessor.h"
 #include "FftScope.h"
-#include "AudioScopeProcessor.h"
 #include "Oscilloscope.h"
 #include "Goniometer.h"
-#include "MeteringProcessors.h"
 #include "MeteringComponents.h"
+#include "../Processing/FftProcessor.h"
+#include "../Processing/AudioScopeProcessor.h"
+#include "../Processing/MeteringProcessors.h"
 
 class AnalyserComponent final :  public Component, public dsp::ProcessorBase, public Timer
 {

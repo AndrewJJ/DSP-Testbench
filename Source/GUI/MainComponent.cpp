@@ -9,8 +9,8 @@
 */
 
 #include "MainComponent.h"
-#include "Main.h"
-#include "ProcessorExamples.h"
+#include "../Main.h"
+#include "../Processing/ProcessorExamples.h"
 
 MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
     : AudioAppComponent (deviceManager)

@@ -10,7 +10,7 @@
 
 #include "SourceComponent.h"
 #include <utility>
-#include "Main.h"
+#include "../Main.h"
 
 SynthesisTab::SynthesisTab (String& sourceName)
     : keyName (sourceName + "_Synthesis")

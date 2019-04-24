@@ -22,71 +22,75 @@
       <FILE id="IOa0ND" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="DiaKD6" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <GROUP id="{1DC2B37E-CED9-5EBC-3FDA-AEB0328475FB}" name="GUI">
-        <FILE id="h8EIwW" name="AboutComponent.cpp" compile="1" resource="0"
-              file="Source/AboutComponent.cpp"/>
-        <FILE id="CnkNfz" name="AboutComponent.h" compile="0" resource="0"
-              file="Source/AboutComponent.h"/>
-        <FILE id="CsTDKi" name="AnalyserComponent.cpp" compile="1" resource="0"
-              file="Source/AnalyserComponent.cpp"/>
-        <FILE id="aJXaij" name="AnalyserComponent.h" compile="0" resource="0"
-              file="Source/AnalyserComponent.h"/>
-        <FILE id="nRsyct" name="BenchmarkComponent.cpp" compile="1" resource="0"
-              file="Source/BenchmarkComponent.cpp"/>
-        <FILE id="HAmNx8" name="BenchmarkComponent.h" compile="0" resource="0"
-              file="Source/BenchmarkComponent.h"/>
-        <FILE id="a2WOfv" name="FftScope.h" compile="0" resource="0" file="Source/FftScope.h"/>
-        <FILE id="Fpe4lR" name="Goniometer.cpp" compile="1" resource="0" file="Source/Goniometer.cpp"/>
-        <FILE id="OtVSxw" name="Goniometer.h" compile="0" resource="0" file="Source/Goniometer.h"/>
-        <FILE id="pQxDYC" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
-        <FILE id="KJ14w1" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
-        <FILE id="D0lQdS" name="MainComponent.cpp" compile="1" resource="0"
-              file="Source/MainComponent.cpp"/>
-        <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-        <FILE id="c5TyN0" name="MeteringComponents.cpp" compile="1" resource="0"
-              file="Source/MeteringComponents.cpp"/>
-        <FILE id="RRcELw" name="MeteringComponents.h" compile="0" resource="0"
-              file="Source/MeteringComponents.h"/>
-        <FILE id="rY2ABv" name="MonitoringComponent.cpp" compile="1" resource="0"
-              file="Source/MonitoringComponent.cpp"/>
-        <FILE id="LNuBdq" name="MonitoringComponent.h" compile="0" resource="0"
-              file="Source/MonitoringComponent.h"/>
-        <FILE id="EBIo1S" name="Oscilloscope.cpp" compile="1" resource="0"
-              file="Source/Oscilloscope.cpp"/>
-        <FILE id="gzgCJa" name="Oscilloscope.h" compile="0" resource="0" file="Source/Oscilloscope.h"/>
-        <FILE id="ly6BEc" name="ProcessorComponent.cpp" compile="1" resource="0"
-              file="Source/ProcessorComponent.cpp"/>
-        <FILE id="ZFfP7O" name="ProcessorComponent.h" compile="0" resource="0"
-              file="Source/ProcessorComponent.h"/>
-        <FILE id="HZtJRF" name="SourceComponent.cpp" compile="1" resource="0"
-              file="Source/SourceComponent.cpp"/>
-        <FILE id="PC1I7w" name="SourceComponent.h" compile="0" resource="0"
-              file="Source/SourceComponent.h"/>
+        <FILE id="QJnKYe" name="AboutComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/AboutComponent.cpp"/>
+        <FILE id="QZM4Ww" name="AboutComponent.h" compile="0" resource="0"
+              file="Source/GUI/AboutComponent.h"/>
+        <FILE id="NTcPXP" name="AnalyserComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/AnalyserComponent.cpp"/>
+        <FILE id="iwkrzl" name="AnalyserComponent.h" compile="0" resource="0"
+              file="Source/GUI/AnalyserComponent.h"/>
+        <FILE id="iKvVds" name="BenchmarkComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/BenchmarkComponent.cpp"/>
+        <FILE id="ZOMyAe" name="BenchmarkComponent.h" compile="0" resource="0"
+              file="Source/GUI/BenchmarkComponent.h"/>
+        <FILE id="lsM5Oh" name="FftScope.h" compile="0" resource="0" file="Source/GUI/FftScope.h"/>
+        <FILE id="nYhbZj" name="Goniometer.cpp" compile="1" resource="0" file="Source/GUI/Goniometer.cpp"/>
+        <FILE id="GPd28l" name="Goniometer.h" compile="0" resource="0" file="Source/GUI/Goniometer.h"/>
+        <FILE id="gzm5U1" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/GUI/LookAndFeel.cpp"/>
+        <FILE id="zbtKqC" name="LookAndFeel.h" compile="0" resource="0" file="Source/GUI/LookAndFeel.h"/>
+        <FILE id="qj639d" name="MainComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/MainComponent.cpp"/>
+        <FILE id="G8P1u6" name="MainComponent.h" compile="0" resource="0" file="Source/GUI/MainComponent.h"/>
+        <FILE id="LVpHeo" name="MenuBarComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/MenuBarComponent.cpp"/>
+        <FILE id="xQEmal" name="MenuBarComponent.h" compile="0" resource="0"
+              file="Source/GUI/MenuBarComponent.h"/>
+        <FILE id="Xq7PrD" name="MeteringComponents.cpp" compile="1" resource="0"
+              file="Source/GUI/MeteringComponents.cpp"/>
+        <FILE id="hdZP1m" name="MeteringComponents.h" compile="0" resource="0"
+              file="Source/GUI/MeteringComponents.h"/>
+        <FILE id="HfwDno" name="MonitoringComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/MonitoringComponent.cpp"/>
+        <FILE id="V8Dt4h" name="MonitoringComponent.h" compile="0" resource="0"
+              file="Source/GUI/MonitoringComponent.h"/>
+        <FILE id="OkWhkD" name="Oscilloscope.cpp" compile="1" resource="0"
+              file="Source/GUI/Oscilloscope.cpp"/>
+        <FILE id="Y0Slm9" name="Oscilloscope.h" compile="0" resource="0" file="Source/GUI/Oscilloscope.h"/>
+        <FILE id="jOx3Gw" name="ProcessorComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/ProcessorComponent.cpp"/>
+        <FILE id="HCgCX2" name="ProcessorComponent.h" compile="0" resource="0"
+              file="Source/GUI/ProcessorComponent.h"/>
+        <FILE id="qQA6ZG" name="SourceComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/SourceComponent.cpp"/>
+        <FILE id="GXZwn6" name="SourceComponent.h" compile="0" resource="0"
+              file="Source/GUI/SourceComponent.h"/>
       </GROUP>
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
-        <FILE id="SmKk7s" name="ProcessorExamples.cpp" compile="1" resource="0"
-              file="Source/ProcessorExamples.cpp"/>
-        <FILE id="QJMr0b" name="ProcessorExamples.h" compile="0" resource="0"
-              file="Source/ProcessorExamples.h"/>
-        <FILE id="kYn7rt" name="AudioDataTransfer.h" compile="0" resource="0"
-              file="Source/AudioDataTransfer.h"/>
-        <FILE id="DV9dVd" name="FastApproximations.h" compile="0" resource="0"
-              file="Source/FastApproximations.h"/>
-        <FILE id="q9WLJV" name="FftProcessor.h" compile="0" resource="0" file="Source/FftProcessor.h"/>
-        <FILE id="JFT69S" name="MeteringProcessors.cpp" compile="1" resource="0"
-              file="Source/MeteringProcessors.cpp"/>
-        <FILE id="tfjF02" name="MeteringProcessors.h" compile="0" resource="0"
-              file="Source/MeteringProcessors.h"/>
-        <FILE id="UeLa0S" name="NoiseGenerators.h" compile="0" resource="0"
-              file="Source/NoiseGenerators.h"/>
-        <FILE id="sl0iD1" name="AudioScopeProcessor.h" compile="0" resource="0"
-              file="Source/AudioScopeProcessor.h"/>
-        <FILE id="DVNr9b" name="PolyBLEP.h" compile="0" resource="0" file="Source/PolyBLEP.h"/>
-        <FILE id="i22995" name="PulseFunctions.h" compile="0" resource="0"
-              file="Source/PulseFunctions.h"/>
-        <FILE id="uNS7YK" name="ProcessorHarness.cpp" compile="1" resource="0"
-              file="Source/ProcessorHarness.cpp"/>
-        <FILE id="z3PBri" name="ProcessorHarness.h" compile="0" resource="0"
-              file="Source/ProcessorHarness.h"/>
+        <FILE id="aNz0q1" name="AudioDataTransfer.h" compile="0" resource="0"
+              file="Source/Processing/AudioDataTransfer.h"/>
+        <FILE id="Q3hti9" name="AudioScopeProcessor.h" compile="0" resource="0"
+              file="Source/Processing/AudioScopeProcessor.h"/>
+        <FILE id="f1lXNB" name="FastApproximations.h" compile="0" resource="0"
+              file="Source/Processing/FastApproximations.h"/>
+        <FILE id="K4eBwg" name="FftProcessor.h" compile="0" resource="0" file="Source/Processing/FftProcessor.h"/>
+        <FILE id="SrNrr3" name="MeteringProcessors.cpp" compile="1" resource="0"
+              file="Source/Processing/MeteringProcessors.cpp"/>
+        <FILE id="XxdnYb" name="MeteringProcessors.h" compile="0" resource="0"
+              file="Source/Processing/MeteringProcessors.h"/>
+        <FILE id="rwwCVB" name="NoiseGenerators.h" compile="0" resource="0"
+              file="Source/Processing/NoiseGenerators.h"/>
+        <FILE id="om5N3N" name="PolyBLEP.h" compile="0" resource="0" file="Source/Processing/PolyBLEP.h"/>
+        <FILE id="IfO35n" name="ProcessorExamples.cpp" compile="1" resource="0"
+              file="Source/Processing/ProcessorExamples.cpp"/>
+        <FILE id="xlEnx9" name="ProcessorExamples.h" compile="0" resource="0"
+              file="Source/Processing/ProcessorExamples.h"/>
+        <FILE id="CvElOk" name="ProcessorHarness.cpp" compile="1" resource="0"
+              file="Source/Processing/ProcessorHarness.cpp"/>
+        <FILE id="nwZvWp" name="ProcessorHarness.h" compile="0" resource="0"
+              file="Source/Processing/ProcessorHarness.h"/>
+        <FILE id="abmInf" name="PulseFunctions.h" compile="0" resource="0"
+              file="Source/Processing/PulseFunctions.h"/>
       </GROUP>
     </GROUP>
   </MAINGROUP>

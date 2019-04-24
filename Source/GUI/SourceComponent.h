@@ -11,11 +11,11 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PolyBLEP.h"
-#include "PulseFunctions.h"
-#include "NoiseGenerators.h"
-#include "MeteringProcessors.h"
 #include "MeteringComponents.h"
+#include "../Processing/PolyBLEP.h"
+#include "../Processing/PulseFunctions.h"
+#include "../Processing/NoiseGenerators.h"
+#include "../Processing/MeteringProcessors.h"
 
 // Forward declaration
 class SourceComponent;

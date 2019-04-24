@@ -9,7 +9,7 @@
 */
 
 #include "ProcessorComponent.h"
-#include "Main.h"
+#include "../Main.h"
 
 ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest, const int numberOfControls)
     :   keyName ("Processor" + processorId),

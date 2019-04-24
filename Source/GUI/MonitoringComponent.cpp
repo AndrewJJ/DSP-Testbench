@@ -9,7 +9,7 @@
 */
 
 #include "MonitoringComponent.h"
-#include "Main.h"
+#include "../Main.h"
 
 MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager)
     : deviceManager (audioDeviceManager),

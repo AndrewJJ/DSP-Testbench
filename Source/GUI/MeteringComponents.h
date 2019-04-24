@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "MeteringProcessors.h"
+#include "../Processing/MeteringProcessors.h"
 
 /** 
 *  A 3 colour vertical meter bar component with dB levels mapped exponentially.
