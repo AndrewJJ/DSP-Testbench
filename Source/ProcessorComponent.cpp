@@ -181,7 +181,7 @@ bool ProcessorComponent::isSourceConnectedB() const noexcept
     // We use a local variable so method is safe to use for audio processing
     return statusSourceB.get();
 }
-bool ProcessorComponent::isEnabled() const noexcept
+bool ProcessorComponent::isProcessorEnabled() const noexcept
 {
     // We use a local variable so method is safe to use for audio processing
     return !statusDisable.get();

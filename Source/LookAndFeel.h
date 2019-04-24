@@ -28,17 +28,20 @@ public:
     /**	Defines typical colours to be used by our application. */
     struct ApplicationColours
     {
-        static Colour componentBackground       ()             { return Colour (0xff323e44); }
-        static Colour titleMenuBackground       ()             { return Colour (0xff263238); }
-        static Colour sourceBackground          ()             { return Colours::darkgrey; }
-        static Colour processorBackground       ()             { return Colour (0x300081ff); }
-        static Colour meterBackground           ()             { return Colours::black; }
-        static Colour audioThumbnailForeground  ()             { return Colours::white; }
-        static Colour audioThumbnailBackground  ()             { return sourceBackground(); }
-        static Colour audioThumbnailCursor      ()             { return Colours::black; }
-        static Colour titleFontColour           ()             { return Colours::white; }
-        static Colour normalFontColour          ()             { return Colour (0xffd0d0d0); }
-        static Colour cpuMeterBarColour         ()             { return Colour (0xff705090); }
+        static Colour componentBackground        ()            { return Colour (0xff323e44); }
+        static Colour titleMenuBackground        ()            { return Colour (0xff263238); }
+        static Colour sourceBackground           ()            { return Colours::darkgrey; }
+        static Colour processorBackground        ()            { return Colour (0x300081ff); }
+        static Colour meterBackground            ()            { return Colours::black; }
+        static Colour audioThumbnailForeground   ()            { return Colours::white; }
+        static Colour audioThumbnailBackground   ()            { return sourceBackground(); }
+        static Colour audioThumbnailCursor       ()            { return Colours::black; }
+        static Colour titleFontColour            ()            { return Colours::white; }
+        static Colour normalFontColour           ()            { return Colour (0xffd0d0d0); }
+        static Colour cpuMeterBarColour          ()            { return Colour (0xff705090); }
+        static Colour benchmarkHeadingBackground ()            { return Colours::black; }
+        static Colour benchmarkRow               ()            { return componentBackground().darker(0.2f); }
+        static Colour benchmarkAlternateRow      ()            { return Colours::darkgrey; }
     };
 
     /**	Provides colours for our DrawableButtons. */

@@ -11,6 +11,7 @@
 #include "Main.h"
 #include "MainComponent.h"
 #include "AboutComponent.h"
+#include "BenchmarkComponent.h"
 
 DSPTestbenchApplication::DSPTestbenchApplication ()
     : TimeSliceThread ("Audio File Reader Thread")
@@ -99,6 +100,26 @@ DSPTestbenchApplication::DspTestBenchMenuComponent::DspTestBenchMenuComponent (M
             mainContentComponent->resumeStreaming();
     };
 
+    btnBenchmark.reset (new DrawableButton ("Benchmark", DrawableButton::ImageFitted));
+    addAndMakeVisible (btnBenchmark.get());
+    DspTestBenchLnF::setImagesForDrawableButton (btnBenchmark.get(), BinaryData::dashboard_gauge_svg, BinaryData::dashboard_gauge_svgSize, Colours::black);
+    btnBenchmark->setTooltip ("Run performance benchmarks");
+    btnBenchmark->onClick = [this]
+    {
+        AudioDeviceManager* deviceMgr =  getApp().getMainWindow().getAudioDeviceManager();
+        const auto blockSize = deviceMgr->getCurrentAudioDevice()->getCurrentBufferSizeSamples();
+        // TODO - close audio device (and restart on exit)
+        DialogWindow::LaunchOptions launchOptions;
+        // TODO - change block size in title bar if testing independent of audio device
+        launchOptions.dialogTitle = "Performance benchmarks (block size = " + String (blockSize) + ")";
+        launchOptions.useNativeTitleBar = false;
+        launchOptions.dialogBackgroundColour = cols::componentBackground();
+        launchOptions.componentToCentreAround = mainContentComponent;
+        launchOptions.content.set (new BenchmarkComponent (mainContentComponent->getProcessorHarness (0), mainContentComponent->getProcessorHarness (1)), true);
+        launchOptions.resizable = false;
+        launchOptions.launchAsync();
+    };
+
     btnAudioDevice.reset (new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
     addAndMakeVisible (btnAudioDevice.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice.get(), BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
@@ -146,6 +167,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
     using Track = Grid::TrackInfo;
     const auto margin = 2;
     const auto cpuMeterSize = GUI_SIZE_PX (3.0);
+    const auto benchmarkButtonSize = GUI_SIZE_PX (1);
     const auto snapshotButtonSize = GUI_SIZE_PX (1);
     const auto audioDeviceBtnSize = GUI_SIZE_PX (1.3);
     const auto aboutBtnSize = GUI_SIZE_PX (1.1);
@@ -162,6 +184,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
         Track (cpuMeterSize),
         separatingGap,
         Track (snapshotButtonSize),
+        Track (benchmarkButtonSize),
         Track (audioDeviceBtnSize),
         Track (aboutBtnSize),
         windowButtonGap,
@@ -176,6 +199,7 @@ void DSPTestbenchApplication::DspTestBenchMenuComponent::resized()
         GridItem (cpuMeter),
         GridItem (), // separatingGap
         GridItem (btnSnapshot.get()),
+        GridItem (btnBenchmark.get()),
         GridItem (btnAudioDevice.get()),
         GridItem (btnAbout.get()),
         GridItem (), // windowButtonGap

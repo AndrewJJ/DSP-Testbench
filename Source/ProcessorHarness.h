@@ -62,43 +62,52 @@ public:
 
     dsp::ProcessSpec getCurrentProcessSpec() const;
 
-    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec. */
+
+    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryPrepareDurationAverage() const;
 
-    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryPrepareDurationMax() const;
 
-    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryPrepareDurationMin() const;
 
     /** Returns the number of times processToBeTested() has been called since statistics were reset. */
     double queryPrepareDurationNumSamples() const;
 
 
-    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryProcessingDurationAverage() const;
     
-    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryProcessingDurationMax() const;
     
-    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryProcessingDurationMin() const;
     
     /** Returns the number of times processToBeTested() has been called since statistics were reset. */
     double queryProcessingDurationNumSamples() const;
 
     
-    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryResetDurationAverage() const;
     
-    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryResetDurationMax() const;
     
-    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec. */
+    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
     double queryResetDurationMin() const;
     
     /** Returns the number of times processToBeTested() has been called since statistics were reset. */
     double queryResetDurationNumSamples() const;
+
+    
+    /** Utility function to query performance by routine & value indices (returns time statistics in milliseconds). */
+    double queryByIndex (const int routineIndex, const int valueIndex) const;
+
+    /** Utility function to determine query index according to routine & value indices (returns time statistics in milliseconds). */
+    static int getQueryIndex (const int routineIndex, const int valueIndex);
+
 
     /** Reset statistics */
     void resetStatistics();

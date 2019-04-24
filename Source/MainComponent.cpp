@@ -10,7 +10,7 @@
 
 #include "MainComponent.h"
 #include "Main.h"
-#include "ProcessorExample.h"
+#include "ProcessorExamples.h"
 
 MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
     : AudioAppComponent (deviceManager)
@@ -102,17 +102,17 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     srcComponentB->process(dsp::ProcessContextReplacing<float> (srcBufferB));
 
     // Run audio through processors
-    if (procComponentA->isEnabled())
+    if (procComponentA->isProcessorEnabled())
     {
         routeSourcesAndProcess (procComponentA.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
-        if (procComponentB->isEnabled()) // both active
+        if (procComponentB->isProcessorEnabled()) // both active
         {
             routeSourcesAndProcess (procComponentB.get(), tempBuffer);
             outputBlock.add (tempBuffer);
         }
     }
-    else if (procComponentB->isEnabled()) // processor A inactive
+    else if (procComponentB->isProcessorEnabled()) // processor A inactive
     {
         routeSourcesAndProcess (procComponentB.get(), tempBuffer);
         outputBlock.copy (tempBuffer);
@@ -257,6 +257,14 @@ void MainContentComponent::setAnalyserExpanded (const bool shouldBeExpanded)
 {
     analyserIsExpanded = shouldBeExpanded;
     resized();
+}
+ProcessorHarness * MainContentComponent::getProcessorHarness(const int index)
+{
+    jassert (index >=0 && index < 2);
+    if (index == 0)
+        return procComponentA->processor.get();
+    else
+        return procComponentB->processor.get();
 }
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {

@@ -69,6 +69,14 @@
 			isa = PBXBuildFile;
 			fileRef = 086E4A52AE790692A4E6DECC;
 		};
+		99465B5EFCACAC1FA5A5A5DE = {
+			isa = PBXBuildFile;
+			fileRef = C56E9B67CB0C10D156B8D1AA;
+		};
+		06C93F68D6EEFFBE307ED7A3 = {
+			isa = PBXBuildFile;
+			fileRef = CE4C034D8135F9C426E8C54B;
+		};
 		7348FF205041A90D6298AED8 = {
 			isa = PBXBuildFile;
 			fileRef = DC0613D2BF234E0429C2CEF8;
@@ -81,9 +89,9 @@
 			isa = PBXBuildFile;
 			fileRef = C8FA8D0D7E3913E62EE1B60B;
 		};
-		99465B5EFCACAC1FA5A5A5DE = {
+		756F573F96BB6468940BE589 = {
 			isa = PBXBuildFile;
-			fileRef = C56E9B67CB0C10D156B8D1AA;
+			fileRef = 2427407740E58E0F7BB0C69C;
 		};
 		39FCFA73BF04527FF80EC50A = {
 			isa = PBXBuildFile;
@@ -97,17 +105,13 @@
 			isa = PBXBuildFile;
 			fileRef = 4262035AC243AA9FB01E63FB;
 		};
-		756F573F96BB6468940BE589 = {
-			isa = PBXBuildFile;
-			fileRef = 2427407740E58E0F7BB0C69C;
-		};
 		7C708D011C95F47E45B825FD = {
 			isa = PBXBuildFile;
 			fileRef = 90F797BA5DD310F3F8058F2E;
 		};
-		72D05F597F5F734261FAB997 = {
+		A5C8D55E9B5C7708E6C87437 = {
 			isa = PBXBuildFile;
-			fileRef = A52DE88C4FA3B60C9E810A68;
+			fileRef = EEB9596E9C0D7A8D6A6D7C92;
 		};
 		A44FDB87495CD5A09DECE3C3 = {
 			isa = PBXBuildFile;
@@ -334,6 +338,13 @@
 			path = ../../Source/ProcessorComponent.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
+		45DF9904FEF233BB36335726 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = ProcessorExamples.h;
+			path = ../../Source/ProcessorExamples.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		48AA58C184E61680C04703A2 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.cpp;
@@ -409,6 +420,13 @@
 			lastKnownFileType = file;
 			name = "juce_dsp";
 			path = "../../../JUCE/modules/juce_dsp";
+			sourceTree = "SOURCE_ROOT";
+		};
+		6592212913CAB0BF900B7E07 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.svg;
+			name = "dashboard_gauge.svg";
+			path = "../../Resources/dashboard_gauge.svg";
 			sourceTree = "SOURCE_ROOT";
 		};
 		6646E06F5211371183AC642D = {
@@ -544,6 +562,13 @@
 			path = ../../Source/SourceComponent.h;
 			sourceTree = "SOURCE_ROOT";
 		};
+		8F6E1EDC0466FF25419F4EA5 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = BenchmarkComponent.h;
+			path = ../../Source/BenchmarkComponent.h;
+			sourceTree = "SOURCE_ROOT";
+		};
 		90F797BA5DD310F3F8058F2E = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.cpp;
@@ -584,13 +609,6 @@
 			lastKnownFileType = sourcecode.c.h;
 			name = AudioDataTransfer.h;
 			path = ../../Source/AudioDataTransfer.h;
-			sourceTree = "SOURCE_ROOT";
-		};
-		A52DE88C4FA3B60C9E810A68 = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.cpp;
-			name = ProcessorExample.cpp;
-			path = ../../Source/ProcessorExample.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
 		A9A5C812AB383BA1CB7FBB64 = {
@@ -712,6 +730,13 @@
 			path = ../../Source/LookAndFeel.h;
 			sourceTree = "SOURCE_ROOT";
 		};
+		CE4C034D8135F9C426E8C54B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = BenchmarkComponent.cpp;
+			path = ../../Source/BenchmarkComponent.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
 		CE928AD52C0E01910D1E0A35 = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
@@ -775,11 +800,11 @@
 			path = System/Library/Frameworks/CoreMIDI.framework;
 			sourceTree = SDKROOT;
 		};
-		F058D35AD4322DAD4944816A = {
+		EEB9596E9C0D7A8D6A6D7C92 = {
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.h;
-			name = ProcessorExample.h;
-			path = ../../Source/ProcessorExample.h;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = ProcessorExamples.cpp;
+			path = ../../Source/ProcessorExamples.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
 		F06CF79E7E23D319382B60CC = {
@@ -809,6 +834,7 @@
 				96171B3D2EDD5DAAADF050EB,
 				E47B7D632DABF2F0EA52CD5A,
 				3E3981955075B1EC86979ADD,
+				6592212913CAB0BF900B7E07,
 				CE928AD52C0E01910D1E0A35,
 				B50A5EC0AAF5E1F36C224F5B,
 				76365AD4F7DF4ABC70F4F74B,
@@ -824,23 +850,25 @@
 			children = (
 				086E4A52AE790692A4E6DECC,
 				0C322780E089295383B6E1AF,
+				C56E9B67CB0C10D156B8D1AA,
+				767339650AC8626218DA75EA,
+				CE4C034D8135F9C426E8C54B,
+				8F6E1EDC0466FF25419F4EA5,
+				50CE662A28B100C3C96D48A3,
 				DC0613D2BF234E0429C2CEF8,
 				8C47762E2B2ED0F5A5B390F8,
 				BE48E32A7AAD0E2016977876,
 				CAE1B11543E67924A4A41A50,
-				6F6F8C021069916C87A3DDFC,
 				C8FA8D0D7E3913E62EE1B60B,
-				C56E9B67CB0C10D156B8D1AA,
-				767339650AC8626218DA75EA,
-				50CE662A28B100C3C96D48A3,
+				6F6F8C021069916C87A3DDFC,
+				2427407740E58E0F7BB0C69C,
+				1EA74AF02B4459DD6DD8BA8A,
 				3503BC54116635BA63FC3B60,
 				C79C86C0DA02951358EF94F4,
 				48AA58C184E61680C04703A2,
 				FCD430E0BDE8E0C7FD247F9A,
 				4262035AC243AA9FB01E63FB,
 				31F65D6BF5962C870C4D2D1D,
-				2427407740E58E0F7BB0C69C,
-				1EA74AF02B4459DD6DD8BA8A,
 				90F797BA5DD310F3F8058F2E,
 				8DD7B02F56BC4D21326F4B32,
 			);
@@ -850,8 +878,8 @@
 		4344371771A6C4DCD7996A34 = {
 			isa = PBXGroup;
 			children = (
-				A52DE88C4FA3B60C9E810A68,
-				F058D35AD4322DAD4944816A,
+				EEB9596E9C0D7A8D6A6D7C92,
+				45DF9904FEF233BB36335726,
 				A34483B06D1B6F39F642005A,
 				240662947DAE42D9C731890A,
 				8214C9F6F738324825B6B797,
@@ -1192,16 +1220,17 @@
 			files = (
 				9455D39755C38DFF4907B998,
 				5824D950A51646401DC96BB4,
+				99465B5EFCACAC1FA5A5A5DE,
+				06C93F68D6EEFFBE307ED7A3,
 				7348FF205041A90D6298AED8,
 				78CF12ECA08677F4152B529C,
 				A1BA0D72ADB896FF98E61FA7,
-				99465B5EFCACAC1FA5A5A5DE,
+				756F573F96BB6468940BE589,
 				39FCFA73BF04527FF80EC50A,
 				7C1B6D35FC8B4AC66DC0BAB0,
 				CB0C67C0C116057F35030F56,
-				756F573F96BB6468940BE589,
 				7C708D011C95F47E45B825FD,
-				72D05F597F5F734261FAB997,
+				A5C8D55E9B5C7708E6C87437,
 				A44FDB87495CD5A09DECE3C3,
 				BD125957D733F5A476A991A9,
 				25C8A9B51C871B3FBF0ED9A2,

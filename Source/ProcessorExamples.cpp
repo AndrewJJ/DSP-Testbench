@@ -1,14 +1,14 @@
 /*
   ==============================================================================
 
-    ProcessorExample.cpp
+    ProcessorExamples.cpp
     Created: 23 Apr 2019 7:50:32pm
     Author:  Andrew
 
   ==============================================================================
 */
 
-#include "ProcessorExample.h"
+#include "ProcessorExamples.h"
 
 LpfExample::LpfExample()
 : ProcessorHarness (2)

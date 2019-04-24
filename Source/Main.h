@@ -73,6 +73,7 @@ private:
         std::unique_ptr<Button> btnMaximise;
         std::unique_ptr<DrawableButton> btnAudioDevice;
         std::unique_ptr<DrawableButton> btnSnapshot;
+        std::unique_ptr<DrawableButton> btnBenchmark;
         std::unique_ptr<DrawableButton> btnAbout;
         std::unique_ptr<ComponentBoundsConstrainer> aboutConstrainer;
         CpuMeter cpuMeter;

@@ -68,12 +68,12 @@ void ProcessorHarness::resetHarness ()
 }
 void ProcessorHarness::setControlValue(const int index, const float value)
 {
-    jassert (index >= 0 && index < controlValues.size());
+    jassert (index >= 0 && index < static_cast<int>(controlValues.size()));
     controlValues[index].set (value);
 }
 float ProcessorHarness::getControlValue(const int index) const
 {
-    jassert (index >= 0 && index < controlValues.size());
+    jassert (index >= 0 && index < static_cast<int>(controlValues.size()));
     return controlValues[index].get();
 }
 dsp::ProcessSpec ProcessorHarness::getCurrentProcessSpec () const
@@ -127,6 +127,48 @@ double ProcessorHarness::queryResetDurationMin() const
 double ProcessorHarness::queryResetDurationNumSamples () const
 {
     return resetDurationCount;
+}
+double ProcessorHarness::queryByIndex (const int routineIndex, const int valueIndex) const
+{
+    jassert (routineIndex >= 0 && routineIndex < 3);
+    jassert (valueIndex >= 0 && valueIndex < 4);
+    switch (routineIndex)
+    {
+        case 0:
+            switch (valueIndex)
+            {
+                case 0: return queryPrepareDurationMin();
+                case 1: return queryPrepareDurationAverage();
+                case 2: return queryPrepareDurationMax();
+                case 3: return queryPrepareDurationNumSamples();
+                default: return 0.0;
+            }
+        case 1:
+            switch (valueIndex)
+            {
+                case 0: return queryProcessingDurationMin();
+                case 1: return queryProcessingDurationAverage();
+                case 2: return queryProcessingDurationMax();
+                case 3: return queryProcessingDurationNumSamples();
+                default: return 0.0;
+            }
+        case 2:
+            switch (valueIndex)
+            {
+                case 0: return queryResetDurationMin();
+                case 1: return queryResetDurationAverage();
+                case 2: return queryResetDurationMax();
+                case 3: return queryResetDurationNumSamples();
+                default: return 0.0;
+            }
+        default: return 0.0;
+    }
+}
+int ProcessorHarness::getQueryIndex (const int routineIndex, const int valueIndex)
+{
+    jassert (routineIndex >= 0 && routineIndex < 3);
+    jassert (valueIndex >= 0 && valueIndex < 4);
+    return routineIndex * 4 + valueIndex ;
 }
 void ProcessorHarness::resetStatistics ()
 {

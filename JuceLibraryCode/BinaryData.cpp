@@ -157,18 +157,57 @@ static const unsigned char temp_binary_data_2[] =
 
 const char* configure_svg = (const char*) temp_binary_data_2;
 
-//================== expand.svg ==================
+//================== dashboard_gauge.svg ==================
 static const unsigned char temp_binary_data_3[] =
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+"<svg\n"
+"   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+"   xmlns:cc=\"http://creativecommons.org/ns#\"\n"
+"   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+"   xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+"   xmlns=\"http://www.w3.org/2000/svg\"\n"
+"   xml:space=\"preserve\"\n"
+"   viewBox=\"0 0 30 30\"\n"
+"   version=\"1.1\"\n"
+"   style=\"enable-background:new 0 0 30 30;\"\n"
+"   id=\"Layer_1\">\n"
+"\t<metadata\n"
+"     id=\"metadata3697\">\n"
+"\t\t<rdf:RDF>\n"
+"\t\t\t<cc:Work\n"
+"         rdf:about=\"\">\n"
+"\t\t\t\t<dc:format>image/svg+xml</dc:format>\n"
+"\t\t\t\t<dc:type\n"
+"           rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\" />\n"
+"\t\t\t\t<dc:title/>\n"
+"\t\t\t</cc:Work>\n"
+"\t\t</rdf:RDF>\n"
+"\t</metadata>\n"
+"\t<defs\n"
+"     id=\"defs3695\" />\n"
+"\t<path\n"
+"     id=\"path3690\"\n"
+"     d=\"M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M15,5c0.552,0,1,0.448,1,1  c0,0.552-0.448,1-1,1s-1-0.448-1-1C14,5.448,14.448,5,15,5z M6,16c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1s1,0.448,1,1  C7,15.5"
+"52,6.552,16,6,16z M9.343,22.071c-0.391,0.391-1.024,0.391-1.414,0c-0.391-0.391-0.391-1.024,0-1.414  c0.391-0.391,1.024-0.391,1.414,0C9.734,21.047,9.734,21.681,9.343,22.071z M9.343,9.343c-0.391,0.391-1.024,0.391-1.414,0  c-0.391-0.391-0.391-1.024,0-1.4"
+"14c0.391-0.391,1.024-0.391,1.414,0C9.734,8.319,9.734,8.953,9.343,9.343z M13.586,16.414  c-0.781-0.781-0.781-2.047,0-2.828c0.491-0.491,4.477-3.36,7.372-5.425c0.581-0.414,1.296,0.301,0.881,0.881  c-2.065,2.895-4.934,6.881-5.425,7.372C15.633,17.195,14.3"
+"67,17.195,13.586,16.414z M22.071,22.071  c-0.391,0.391-1.024,0.391-1.414,0s-0.391-1.024,0-1.414c0.391-0.391,1.024-0.391,1.414,0  C22.462,21.047,22.462,21.681,22.071,22.071z M24,16c-0.552,0-1-0.448-1-1c0-0.552,0.448-1,1-1s1,0.448,1,1  C25,15.552,24.55"
+"2,16,24,16z\" />\n"
+"</svg>";
+
+const char* dashboard_gauge_svg = (const char*) temp_binary_data_3;
+
+//================== expand.svg ==================
+static const unsigned char temp_binary_data_4[] =
 "<?xml version=\"1.0\" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg enable-background=\"new 0 0 512 512\" height=\"512px\" id=\"Layer_1\" version=\"1.1\" viewBox=\"0 0 512 512\" width=\"512"
 "px\" xml:space=\"preserve\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><g><g><path d=\"M178.375,287.812L73.094,393.094L32,352c-17.688,0-32,14.312-32,32v96c0,17.688,14.312,32,32,32h96    c17.688,0,32-14.312,32-32"
 "l-41.095-41.062l105.281-105.312L178.375,287.812z M480,0h-96c-17.688,0-32,14.328-32,32l41.094,41.094    L287.812,178.375l45.812,45.812l105.281-105.266L480,160c17.688,0,32-14.312,32-32V32C512,14.328,497.688,0,480,0z M480,352    l-41.095,41.094l-105.28-"
 "105.281l-45.812,45.812l105.281,105.312L352,480c0,17.688,14.312,32,32,32h96c17.688,0,32-14.312,32-32    v-96C512,366.312,497.688,352,480,352z M160,32c0-17.672-14.312-32-32-32H32C14.312,0,0,14.328,0,32v96c0,17.688,14.312,32,32,32    l41.094-41.078l105."
 "281,105.266l45.812-45.812L118.906,73.094L160,32z\"/></g></g></svg>";
 
-const char* expand_svg = (const char*) temp_binary_data_3;
+const char* expand_svg = (const char*) temp_binary_data_4;
 
 //================== mute.svg ==================
-static const unsigned char temp_binary_data_4[] =
+static const unsigned char temp_binary_data_5[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -193,10 +232,10 @@ static const unsigned char temp_binary_data_4[] =
 "     d=\"M 256.266,511.868 128.332,383.936 H 32.381 c -17.678,0 -31.983,-14.307 -31.983,-31.983 V 160.05 c 0,-17.679 14.307,-31.983 31.983,-31.983 h 95.951 L 256.266,0.133 c 0,0 31.983,-3.998 31.983,31.983 0,173.535 0,425.718 0,447.769 0,35.981 -31.9"
 "83,31.983 -31.983,31.983 z\" /></svg>";
 
-const char* mute_svg = (const char*) temp_binary_data_4;
+const char* mute_svg = (const char*) temp_binary_data_5;
 
 //================== pause.svg ==================
-static const unsigned char temp_binary_data_5[] =
+static const unsigned char temp_binary_data_6[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -228,10 +267,10 @@ static const unsigned char temp_binary_data_5[] =
 "     id=\"path10\" />\n"
 "</svg>\n";
 
-const char* pause_svg = (const char*) temp_binary_data_5;
+const char* pause_svg = (const char*) temp_binary_data_6;
 
 //================== play.svg ==================
-static const unsigned char temp_binary_data_6[] =
+static const unsigned char temp_binary_data_7[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -263,10 +302,10 @@ static const unsigned char temp_binary_data_6[] =
 "     d=\"M 0,0 V 14 L 11,7 Z\" />\n"
 "</svg>\n";
 
-const char* play_svg = (const char*) temp_binary_data_6;
+const char* play_svg = (const char*) temp_binary_data_7;
 
 //================== phase_invert.svg ==================
-static const unsigned char temp_binary_data_7[] =
+static const unsigned char temp_binary_data_8[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -309,10 +348,10 @@ static const unsigned char temp_binary_data_7[] =
 "  </g>\n"
 "</svg>\n";
 
-const char* phase_invert_svg = (const char*) temp_binary_data_7;
+const char* phase_invert_svg = (const char*) temp_binary_data_8;
 
 //================== screenshot.svg ==================
-static const unsigned char temp_binary_data_8[] =
+static const unsigned char temp_binary_data_9[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 "<svg\n"
 "   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
@@ -355,7 +394,7 @@ static const unsigned char temp_binary_data_8[] =
 "       cy=\"21\"\n"
 "       cx=\"18\" /></g></svg>";
 
-const char* screenshot_svg = (const char*) temp_binary_data_8;
+const char* screenshot_svg = (const char*) temp_binary_data_9;
 
 
 const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
@@ -371,6 +410,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
         case 0xb02b82b2:  numBytes = 1085; return about_svg;
         case 0xe28b1a11:  numBytes = 2554; return audio_settings_svg;
         case 0x73626d8b:  numBytes = 1950; return configure_svg;
+        case 0x8a79d633:  numBytes = 1752; return dashboard_gauge_svg;
         case 0x2030ef3f:  numBytes = 1044; return expand_svg;
         case 0x33c78b3e:  numBytes = 1242; return mute_svg;
         case 0x3175289b:  numBytes = 781; return pause_svg;
@@ -389,6 +429,7 @@ const char* namedResourceList[] =
     "about_svg",
     "audio_settings_svg",
     "configure_svg",
+    "dashboard_gauge_svg",
     "expand_svg",
     "mute_svg",
     "pause_svg",
@@ -402,6 +443,7 @@ const char* originalFilenames[] =
     "about.svg",
     "audio_settings.svg",
     "configure.svg",
+    "dashboard_gauge.svg",
     "expand.svg",
     "mute.svg",
     "pause.svg",

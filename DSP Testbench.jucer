@@ -8,6 +8,8 @@
       <FILE id="gFEf8y" name="audio_settings.svg" compile="0" resource="1"
             file="Resources/audio_settings.svg"/>
       <FILE id="oxrZc5" name="configure.svg" compile="0" resource="1" file="Resources/configure.svg"/>
+      <FILE id="mlVDor" name="dashboard_gauge.svg" compile="0" resource="1"
+            file="Resources/dashboard_gauge.svg"/>
       <FILE id="BWpEYx" name="expand.svg" compile="0" resource="1" file="Resources/expand.svg"/>
       <FILE id="oN8B0r" name="mute.svg" compile="0" resource="1" file="Resources/mute.svg"/>
       <FILE id="Dk9plj" name="pause.svg" compile="0" resource="1" file="Resources/pause.svg"/>
@@ -24,18 +26,26 @@
               file="Source/AboutComponent.cpp"/>
         <FILE id="CnkNfz" name="AboutComponent.h" compile="0" resource="0"
               file="Source/AboutComponent.h"/>
-        <FILE id="Fpe4lR" name="Goniometer.cpp" compile="1" resource="0" file="Source/Goniometer.cpp"/>
-        <FILE id="OtVSxw" name="Goniometer.h" compile="0" resource="0" file="Source/Goniometer.h"/>
-        <FILE id="pQxDYC" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
-        <FILE id="KJ14w1" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
-        <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-        <FILE id="D0lQdS" name="MainComponent.cpp" compile="1" resource="0"
-              file="Source/MainComponent.cpp"/>
         <FILE id="CsTDKi" name="AnalyserComponent.cpp" compile="1" resource="0"
               file="Source/AnalyserComponent.cpp"/>
         <FILE id="aJXaij" name="AnalyserComponent.h" compile="0" resource="0"
               file="Source/AnalyserComponent.h"/>
+        <FILE id="nRsyct" name="BenchmarkComponent.cpp" compile="1" resource="0"
+              file="Source/BenchmarkComponent.cpp"/>
+        <FILE id="HAmNx8" name="BenchmarkComponent.h" compile="0" resource="0"
+              file="Source/BenchmarkComponent.h"/>
         <FILE id="a2WOfv" name="FftScope.h" compile="0" resource="0" file="Source/FftScope.h"/>
+        <FILE id="Fpe4lR" name="Goniometer.cpp" compile="1" resource="0" file="Source/Goniometer.cpp"/>
+        <FILE id="OtVSxw" name="Goniometer.h" compile="0" resource="0" file="Source/Goniometer.h"/>
+        <FILE id="pQxDYC" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
+        <FILE id="KJ14w1" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
+        <FILE id="D0lQdS" name="MainComponent.cpp" compile="1" resource="0"
+              file="Source/MainComponent.cpp"/>
+        <FILE id="CXkO96" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+        <FILE id="c5TyN0" name="MeteringComponents.cpp" compile="1" resource="0"
+              file="Source/MeteringComponents.cpp"/>
+        <FILE id="RRcELw" name="MeteringComponents.h" compile="0" resource="0"
+              file="Source/MeteringComponents.h"/>
         <FILE id="rY2ABv" name="MonitoringComponent.cpp" compile="1" resource="0"
               file="Source/MonitoringComponent.cpp"/>
         <FILE id="LNuBdq" name="MonitoringComponent.h" compile="0" resource="0"
@@ -47,20 +57,16 @@
               file="Source/ProcessorComponent.cpp"/>
         <FILE id="ZFfP7O" name="ProcessorComponent.h" compile="0" resource="0"
               file="Source/ProcessorComponent.h"/>
-        <FILE id="c5TyN0" name="MeteringComponents.cpp" compile="1" resource="0"
-              file="Source/MeteringComponents.cpp"/>
-        <FILE id="RRcELw" name="MeteringComponents.h" compile="0" resource="0"
-              file="Source/MeteringComponents.h"/>
         <FILE id="HZtJRF" name="SourceComponent.cpp" compile="1" resource="0"
               file="Source/SourceComponent.cpp"/>
         <FILE id="PC1I7w" name="SourceComponent.h" compile="0" resource="0"
               file="Source/SourceComponent.h"/>
       </GROUP>
       <GROUP id="{1929A062-3E27-DDE2-B0FB-A0FF3E05992D}" name="Processing">
-        <FILE id="SmKk7s" name="ProcessorExample.cpp" compile="1" resource="0"
-              file="Source/ProcessorExample.cpp"/>
-        <FILE id="QJMr0b" name="ProcessorExample.h" compile="0" resource="0"
-              file="Source/ProcessorExample.h"/>
+        <FILE id="SmKk7s" name="ProcessorExamples.cpp" compile="1" resource="0"
+              file="Source/ProcessorExamples.cpp"/>
+        <FILE id="QJMr0b" name="ProcessorExamples.h" compile="0" resource="0"
+              file="Source/ProcessorExamples.h"/>
         <FILE id="kYn7rt" name="AudioDataTransfer.h" compile="0" resource="0"
               file="Source/AudioDataTransfer.h"/>
         <FILE id="DV9dVd" name="FastApproximations.h" compile="0" resource="0"

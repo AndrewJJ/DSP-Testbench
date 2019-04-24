@@ -36,6 +36,8 @@ public:
     void resumeStreaming();
     void setAnalyserExpanded (bool shouldBeExpanded);
 
+    ProcessorHarness* getProcessorHarness (const int index);
+
 private:
 
     ThreadPool threadPool;

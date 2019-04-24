@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    ProcessorExample.h
+    ProcessorExamples.h
     Created: 23 Apr 2019 7:50:32pm
     Author:  Andrew
 

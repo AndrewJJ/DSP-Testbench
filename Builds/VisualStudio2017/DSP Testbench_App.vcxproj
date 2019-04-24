@@ -140,16 +140,17 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\AboutComponent.cpp"/>
+    <ClCompile Include="..\..\Source\AnalyserComponent.cpp"/>
+    <ClCompile Include="..\..\Source\BenchmarkComponent.cpp"/>
     <ClCompile Include="..\..\Source\Goniometer.cpp"/>
     <ClCompile Include="..\..\Source\LookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\AnalyserComponent.cpp"/>
+    <ClCompile Include="..\..\Source\MeteringComponents.cpp"/>
     <ClCompile Include="..\..\Source\MonitoringComponent.cpp"/>
     <ClCompile Include="..\..\Source\Oscilloscope.cpp"/>
     <ClCompile Include="..\..\Source\ProcessorComponent.cpp"/>
-    <ClCompile Include="..\..\Source\MeteringComponents.cpp"/>
     <ClCompile Include="..\..\Source\SourceComponent.cpp"/>
-    <ClCompile Include="..\..\Source\ProcessorExample.cpp"/>
+    <ClCompile Include="..\..\Source\ProcessorExamples.cpp"/>
     <ClCompile Include="..\..\Source\MeteringProcessors.cpp"/>
     <ClCompile Include="..\..\Source\ProcessorHarness.cpp"/>
     <ClCompile Include="..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.cpp">
@@ -1961,17 +1962,18 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\AboutComponent.h"/>
+    <ClInclude Include="..\..\Source\AnalyserComponent.h"/>
+    <ClInclude Include="..\..\Source\BenchmarkComponent.h"/>
+    <ClInclude Include="..\..\Source\FftScope.h"/>
     <ClInclude Include="..\..\Source\Goniometer.h"/>
     <ClInclude Include="..\..\Source\LookAndFeel.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\AnalyserComponent.h"/>
-    <ClInclude Include="..\..\Source\FftScope.h"/>
+    <ClInclude Include="..\..\Source\MeteringComponents.h"/>
     <ClInclude Include="..\..\Source\MonitoringComponent.h"/>
     <ClInclude Include="..\..\Source\Oscilloscope.h"/>
     <ClInclude Include="..\..\Source\ProcessorComponent.h"/>
-    <ClInclude Include="..\..\Source\MeteringComponents.h"/>
     <ClInclude Include="..\..\Source\SourceComponent.h"/>
-    <ClInclude Include="..\..\Source\ProcessorExample.h"/>
+    <ClInclude Include="..\..\Source\ProcessorExamples.h"/>
     <ClInclude Include="..\..\Source\AudioDataTransfer.h"/>
     <ClInclude Include="..\..\Source\FastApproximations.h"/>
     <ClInclude Include="..\..\Source\FftProcessor.h"/>
@@ -2699,6 +2701,7 @@
     <None Include="..\..\Resources\about.svg"/>
     <None Include="..\..\Resources\audio_settings.svg"/>
     <None Include="..\..\Resources\configure.svg"/>
+    <None Include="..\..\Resources\dashboard_gauge.svg"/>
     <None Include="..\..\Resources\expand.svg"/>
     <None Include="..\..\Resources\mute.svg"/>
     <None Include="..\..\Resources\pause.svg"/>

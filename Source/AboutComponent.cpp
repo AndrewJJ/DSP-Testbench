@@ -28,7 +28,8 @@ AboutComponent::AboutComponent()
     insertSubtitle ("Title bar controls");
     insertText ("Besides the usual window sizing buttons, the title bar hosts the following controls:", true);
     insertBullet(); insertText ("CPU meter (hover to see number of buffer under/overruns, click to reset)");
-    insertBullet(); insertText ("Snapshot (see below for more on this cool feature!)");
+    insertBullet(); insertText ("Snapshot");
+    insertBullet(); insertText ("Performance benchmarks");
     insertBullet(); insertText ("Audio device settings");
     insertBullet(); insertText ("About (you already know what this does :) )", true);
     insertBreak();
@@ -75,6 +76,10 @@ AboutComponent::AboutComponent()
     insertText ("examine the resulting output. Normal operation can be resumed by toggling the snapshot button again. When a snapshot is triggered, the audio ");
     insertText ("device is stopped and restarted and all modules are reset so that the same 4096 samples will be generated and processed every single time. ");
     insertText ("The only exception to this is if the wave file player has its' right hand button disabled, in which case playback will be from the current position.", true);
+    
+    insertSubtitle ("Performance benchmarks");
+    insertText ("The benchmark functionality starts your processor(s) on another thread and pumps audio through, gathering statistics on how much time has ");
+    insertText ("been spent running your routines. A single block of audio is repeated from source A.", true);
     
     insertTitle ("Credits & Attributions");
     insertText ("ASIO Interface Technology by Steinberg Media Technologies GmbH", true);

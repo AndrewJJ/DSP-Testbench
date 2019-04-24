@@ -31,10 +31,12 @@ public:
 
     bool isSourceConnectedA() const noexcept;
     bool isSourceConnectedB() const noexcept;
-    bool isEnabled() const noexcept;
+    bool isProcessorEnabled() const noexcept;
     bool isInverted() const noexcept;
     bool isMuted() const noexcept;
     void mute();
+
+    std::shared_ptr<ProcessorHarness> processor {};
 
 private:
     
@@ -91,8 +93,6 @@ private:
     Viewport viewport;
     OwnedArray<ControlComponent> controlArray {};
     ControlArrayComponent controlArrayComponent;
-
-    std::shared_ptr<ProcessorHarness> processor {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorComponent)
 };
