@@ -262,6 +262,9 @@ void Oscilloscope::paintWaveform (Graphics& g) const
     {
         auto* y = buffer.getReadPointer (ch);
 
+        if (isnan (y[0]))
+            break;
+
         // Draw a line representing the wave data for this channel
         Path p;
         p.preallocateSpace ((getWidth() + 1) * 3);
