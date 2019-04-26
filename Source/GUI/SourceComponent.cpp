@@ -350,8 +350,8 @@ void SynthesisTab::waveformUpdated()
     btnSweepEnabled.setVisible (isSelectedWaveformOscillatorBased());
     btnSweepReset.setVisible (isSelectedWaveformOscillatorBased());
     sldFrequency.setVisible (isSelectedWaveformOscillatorBased());
-    lblPreDelay.setVisible (!isSelectedWaveformOscillatorBased());
-    sldPreDelay.setVisible (!isSelectedWaveformOscillatorBased());
+    lblPreDelay.setVisible (currentWaveform == Waveform::impulse || currentWaveform == Waveform::step);
+    sldPreDelay.setVisible (currentWaveform == Waveform::impulse || currentWaveform == Waveform::step);
     lblPulseWidth.setVisible (currentWaveform == Waveform::impulse);
     sldPulseWidth.setVisible (currentWaveform == Waveform::impulse);
     btnPulsePolarity.setVisible (!isSelectedWaveformOscillatorBased());
