@@ -73,18 +73,28 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
     btnBenchmark->setTooltip ("Run performance benchmarks");
     btnBenchmark->onClick = [this]
     {
-        AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
-        const auto blockSize = deviceMgr->getCurrentAudioDevice()->getCurrentBufferSizeSamples();
-        // TODO - close audio device (and restart on exit)
-        DialogWindow::LaunchOptions launchOptions;
-        // TODO - change block size in title bar if testing independent of audio device
-        launchOptions.dialogTitle = "Performance benchmarks (block size = " + String (blockSize) + ")";
-        launchOptions.useNativeTitleBar = false;
-        launchOptions.dialogBackgroundColour = cols::componentBackground();
-        launchOptions.componentToCentreAround = mainContentComponent;
-        launchOptions.content.set (new BenchmarkComponent (mainContentComponent->getProcessorHarness (0), mainContentComponent->getProcessorHarness (1)), true);
-        launchOptions.resizable = false;
-        launchOptions.launchAsync();
+        auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+        auto* currentDevice = deviceMgr->getCurrentAudioDevice();
+        if (currentDevice)
+        {
+            deviceMgr->closeAudioDevice();
+            DialogWindow::LaunchOptions launchOptions;
+            launchOptions.dialogTitle = "Performance benchmarks";
+            launchOptions.useNativeTitleBar = false;
+            launchOptions.dialogBackgroundColour = cols::componentBackground();
+            launchOptions.componentToCentreAround = mainContentComponent;
+            launchOptions.content.set (new BenchmarkComponent (
+                mainContentComponent->getProcessorHarness (0),
+                mainContentComponent->getProcessorHarness (1),
+                mainContentComponent->getSourceComponentA()
+            ), true);
+            launchOptions.resizable = false;
+            launchOptions.launchAsync();
+        }
+        else
+        {
+            AlertWindow::showMessageBox (AlertWindow::AlertIconType::WarningIcon, "Audio device problem", "No current audio device, please check your settings.");
+        }
     };
 
     btnAudioDevice.reset (new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
@@ -93,12 +103,11 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
     btnAudioDevice->setTooltip ("Configure audio device settings");
     btnAudioDevice->onClick = [this]
     {
-        AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
-        AudioDeviceSelectorComponent* deviceSelector = new AudioDeviceSelectorComponent (*deviceMgr, 1, 1024, 1, 1024, false, false, false, false);
+        auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+        auto* deviceSelector = new AudioDeviceSelectorComponent (*deviceMgr, 1, 1024, 1, 1024, false, false, false, false);
         deviceSelector->setSize (500, 300);
         DialogWindow::LaunchOptions launchOptions;
         launchOptions.dialogTitle = "Audio device settings";
-        //launchOptions.resizable = true;
         launchOptions.useNativeTitleBar = false;
         launchOptions.dialogBackgroundColour = cols::componentBackground();
         launchOptions.componentToCentreAround = mainContentComponent;
@@ -120,9 +129,9 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
         launchOptions.content.set (new AboutComponent(), true);
         launchOptions.resizable = true;
         auto* dw = launchOptions.launchAsync();
-        aboutConstrainer.reset(new ComponentBoundsConstrainer());
+        aboutConstrainer.reset (new ComponentBoundsConstrainer());
         aboutConstrainer->setMinimumSize (800, 600);
-        dw->setConstrainer(aboutConstrainer.get());
+        dw->setConstrainer (aboutConstrainer.get());
     };
 }
 void DspTestBenchMenuComponent::paint(Graphics & g)
@@ -215,7 +224,7 @@ void DspTestBenchMenuComponent::CpuMeter::paint (Graphics & g)
 }
 void DspTestBenchMenuComponent::CpuMeter::timerCallback()
 {
-    AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+    auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     const auto currentCpu = deviceMgr->getCpuUsage();
     if (currentCpu > cpuEnvelope)
         cpuEnvelope = currentCpu; // Instant attack
@@ -245,7 +254,7 @@ void DspTestBenchMenuComponent::XRunMeter::paint (Graphics & g)
 }
 void DspTestBenchMenuComponent::XRunMeter::timerCallback()
 {
-    AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+    auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     bufferXruns = deviceMgr->getXRunCount();
     if (bufferXruns < bufferXrunOffset)
     {
@@ -256,7 +265,7 @@ void DspTestBenchMenuComponent::XRunMeter::timerCallback()
 }
 void DspTestBenchMenuComponent::XRunMeter::mouseDown (const MouseEvent& /* event */)
 {
-    AudioDeviceManager* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+    auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     bufferXrunOffset = deviceMgr->getXRunCount();;
     repaint();
 }

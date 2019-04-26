@@ -9,14 +9,21 @@
 */
 
 #include "BenchmarkComponent.h"
-#include "LookAndFeel.h"
+#include "../Main.h"
 
-BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB)
+BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB, SourceComponent* sourceComponent)
+    : benchmarkThread (&harnesses, sourceComponent)
 {
     jassert (values.size() == valueTooltips.size());
 
     harnesses.emplace_back (processorHarnessA);
     harnesses.emplace_back (processorHarnessB);
+
+    if (processorHarnessA)
+        processorHarnessA->resetStatistics();
+
+    if (processorHarnessB)
+        processorHarnessB->resetStatistics();
 
     using cols = DspTestBenchLnF::ApplicationColours;
 
@@ -66,12 +73,29 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA, Pro
 
     setSize (690, 290);
 
-    // TODO - start running benchmarks
-    // TODO - maybe allow user to run using different block sizes?
+    // TODO - allow user to run using different block sizes, number of channels, sample rate
+    dsp::ProcessSpec spec;
+    spec.sampleRate = 44100.0;
+    spec.maximumBlockSize = 1024;
+    spec.numChannels = 2;
+    
+    // Start running benchmarks on a different thread
+    benchmarkThread.setTestCycles (10);
+    benchmarkThread.setProcessingIterations (100);
+    benchmarkThread.setProcessSpec (spec);
+    benchmarkThread.setPriority (Thread::realtimeAudioPriority);
+    benchmarkThread.startThread();
+
+    // TODO - add a Thread listener and indicator that tests are still running or have finished
 
     startTimerHz (5);
 }
-void BenchmarkComponent::paint(Graphics & g)
+BenchmarkComponent::~BenchmarkComponent()
+{
+    auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
+    deviceMgr->restartLastAudioDevice();
+}
+void BenchmarkComponent::paint (Graphics & g)
 {
     g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
 }
@@ -173,16 +197,16 @@ void BenchmarkComponent::timerCallback()
                     switch (v)
                     {
                         case 0: if (queryValue < 1.0E100)
-                                    txt = String (queryValue, 3);
+                                    txt = String (queryValue * 1000.0, 1);
                                 break;
                         case 1: if (isfinite(queryValue))
-                                    txt = String (queryValue, 3);
+                                    txt = String (queryValue * 1000.0, 1);
                                 break;
                         case 2: if (queryValue > 0.0)
-                                    txt = String (queryValue, 3);
+                                    txt = String (queryValue * 1000.0, 1);
                                 break;
                         case 3: if (queryValue > 0.0)
-                                    txt = String (queryValue, 0);
+                                    txt = String (static_cast<int> (queryValue));
                                 break;
                         default: break;
                     }
@@ -196,4 +220,71 @@ int BenchmarkComponent::getValueLabelIndex (const int processorIndex, const int 
 {
     const auto offset = (processorIndex == 0) ? 0 : static_cast<int> (routines.size() * values.size());
     return ProcessorHarness::getQueryIndex (routineIndex, valueIndex) + offset;
+}
+
+BenchmarkComponent::BenchmarkThread::BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent)
+    : Thread ("BenchmarkThread"),
+      srcComponent (sourceComponent)
+{
+    processingHarnesses = harnesses;
+}
+BenchmarkComponent::BenchmarkThread::~BenchmarkThread()
+{
+    // This can cause a NaN on one of the audio channels if processing on the ordinary thread is resumed while this one is still running
+    // So wait a while for the thread to exit.
+    stopThread (5000);
+}
+void BenchmarkComponent::BenchmarkThread::run()
+{
+    jassert (testCycles > 0 && processingIterations > 0);
+    jassert (testSpec.numChannels > 0 && testSpec.maximumBlockSize > 0 && testSpec.sampleRate > 0);
+
+    const dsp::ProcessContextReplacing<float> context (*audioBlock.get());
+
+    for (auto c = 0; c < testCycles; ++c)
+    {
+        for (auto h : *processingHarnesses)
+        {
+            if (h)
+            {
+                h->resetHarness();
+                if (threadShouldExit())
+                    return;
+                
+                h->prepareHarness (testSpec);
+                if (threadShouldExit())
+                    return;
+                
+                for (auto i = 0; i < processingIterations; ++i)
+                {
+                    h->processHarness (context);
+                    if (threadShouldExit())
+                        return;
+                }
+            }
+            yield();
+        }
+    }
+}
+void BenchmarkComponent::BenchmarkThread::setTestCycles (const int cycles)
+{
+    testCycles = cycles;
+}
+void BenchmarkComponent::BenchmarkThread::setProcessingIterations (const int iterations)
+{
+    processingIterations = iterations;
+}
+void BenchmarkComponent::BenchmarkThread::setProcessSpec (dsp::ProcessSpec & spec)
+{
+    jassert (spec.numChannels > 0 && spec.maximumBlockSize > 0 && spec.sampleRate > 0);
+    testSpec = spec;
+
+    // Initialise audio block
+    audioBlock.reset (new dsp::AudioBlock<float> (heapBlock, testSpec.numChannels, testSpec.maximumBlockSize));
+
+    // Fill block with audio data from source component
+    jassert (srcComponent);
+    srcComponent->prepare (spec);
+    const dsp::ProcessContextReplacing<float> context (*audioBlock.get());
+    srcComponent->process (context);
 }

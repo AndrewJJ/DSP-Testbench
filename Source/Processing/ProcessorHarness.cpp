@@ -18,6 +18,14 @@ ProcessorHarness::ProcessorHarness (const int numberOfControlValues)
 }
 void ProcessorHarness::prepareHarness (const dsp::ProcessSpec& spec)
 {
+    if (currentSpec.numChannels != spec.numChannels || currentSpec.sampleRate != spec.sampleRate || currentSpec.maximumBlockSize != spec.maximumBlockSize)
+    {
+        // Reset process duration statistics as these will not be valid if the spec has changed
+        procDurationMin = 0.0;
+        procDurationMax = 0.0;
+        procDurationSum = 0.0;
+        procDurationCount = 0.0;
+    }
     currentSpec = spec;
 
     const auto start = Time::getMillisecondCounterHiRes();
@@ -31,12 +39,6 @@ void ProcessorHarness::prepareHarness (const dsp::ProcessSpec& spec)
     if (duration>prepDurationMax) prepDurationMax = duration;
     prepDurationSum += duration;
     prepDurationCount++;
-
-    // Reset process duration statistics as these will not be valid if the spec has changed
-    procDurationMin = 0.0;
-    procDurationMax = 0.0;
-    procDurationSum = 0.0;
-    procDurationCount = 0.0;
 }
 void ProcessorHarness::processHarness (const dsp::ProcessContextReplacing<float>& context)
 {
@@ -170,7 +172,7 @@ int ProcessorHarness::getQueryIndex (const int routineIndex, const int valueInde
     jassert (valueIndex >= 0 && valueIndex < 4);
     return routineIndex * 4 + valueIndex ;
 }
-void ProcessorHarness::resetStatistics ()
+void ProcessorHarness::resetStatistics()
 {
     prepDurationMin = 1.0E100;
     prepDurationMax = -1.0;

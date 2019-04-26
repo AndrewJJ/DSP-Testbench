@@ -37,6 +37,7 @@ public:
     void setAnalyserExpanded (bool shouldBeExpanded);
 
     ProcessorHarness* getProcessorHarness (const int index);
+    SourceComponent* getSourceComponentA();
 
 private:
 

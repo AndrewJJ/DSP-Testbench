@@ -12,32 +12,62 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../Processing/ProcessorHarness.h"
+#include "SourceComponent.h"
 
 class BenchmarkComponent : public Component, public Timer
 {
 public:
 
-    BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB);
-    ~BenchmarkComponent() = default;
+    /** Pass in pointers to both process harnesses and the source component for the audio to into them. */
+    BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB, SourceComponent* sourceComponent);
+    ~BenchmarkComponent();
     void paint (Graphics& g) override;
     void resized() override;
     void timerCallback() override;
 
 private:
 
+    class BenchmarkThread : public Thread
+    {
+    public:
+        BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent);
+        ~BenchmarkThread();
+
+        void run() override;
+
+        /** Set number of full test cycles to run (reset, prepare, processing). */
+        void setTestCycles (const int cycles);
+
+        /** Set number of times to iterate the processing within each cycle. */
+        void setProcessingIterations (const int iterations);
+        
+        /**< Set ProcessSpec to test against. */
+        void setProcessSpec (dsp::ProcessSpec& spec);
+
+    private:
+        std::vector<ProcessorHarness*>* processingHarnesses{};
+        SourceComponent* srcComponent;
+        int testCycles = 0;
+        int processingIterations = 0;
+        dsp::ProcessSpec testSpec {};
+        HeapBlock<char> heapBlock{};
+        std::unique_ptr<dsp::AudioBlock<float>> audioBlock{};
+    };
+
     int getValueLabelIndex (const int processorIndex, const int routineIndex, const int valueIndex) const;
 
-    OwnedArray<Label> processorLabels;
-    OwnedArray<Label> routineLabels;
-    OwnedArray<Label> valueTitleLabels;
-    OwnedArray<Label> valueLabels;
+    OwnedArray<Label> processorLabels{};
+    OwnedArray<Label> routineLabels{};
+    OwnedArray<Label> valueTitleLabels{};
+    OwnedArray<Label> valueLabels{};
 
     const std::vector<String> processors = { "Processor A", "Processor B" };
     const std::vector<String> routines = { "Prepare", "Process", "Reset" };
     const std::vector<String> values = { "Min", "Avg", "Max", "#" };
-    const std::vector<String> valueTooltips = { "Minimum time for routine (msec)", "Average time for routine (msec)", "Maximum time for routine (msec)", "Number of times this routine was run" };
+    const std::vector<String> valueTooltips = { "Minimum time for routine (microseconds)", "Average time for routine (microseconds)", "Maximum time for routine (microseconds)", "Number of times this routine was run" };
 
-    std::vector<ProcessorHarness*> harnesses;
+    std::vector<ProcessorHarness*> harnesses{};
+    BenchmarkThread benchmarkThread;
     
     const Font titleFont = Font (GUI_SIZE_F (0.7f)).boldened();
     const Font normalFont = Font (GUI_SIZE_F (0.55f));

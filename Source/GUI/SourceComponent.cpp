@@ -1087,6 +1087,9 @@ void AudioTab::timerCallback ()
 void AudioTab::channelsChanged()
 {
     const auto currentDevice = audioDeviceManager->getCurrentAudioDevice();
+    if (!currentDevice)
+        return;
+
     const auto numInputChannels = static_cast<uint32> (currentDevice->getActiveInputChannels().countNumberOfSetBits());
     const auto numOutputChannels = static_cast<uint32> (currentDevice->getActiveOutputChannels().countNumberOfSetBits());
 

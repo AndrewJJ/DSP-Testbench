@@ -79,7 +79,7 @@ AboutComponent::AboutComponent()
     
     insertSubtitle ("Performance benchmarks");
     insertText ("The benchmark functionality starts your processor(s) on another thread and pumps audio through, gathering statistics on how much time has ");
-    insertText ("been spent running your routines. A single block of audio is repeated from source A.", true);
+    insertText ("been spent running your routines. A single block of audio is repeated from source A (using live audio input will not work).", true);
     
     insertTitle ("Credits & Attributions");
     insertText ("ASIO Interface Technology by Steinberg Media Technologies GmbH", true);

@@ -266,6 +266,10 @@ ProcessorHarness * MainContentComponent::getProcessorHarness(const int index)
     else
         return procComponentB->processor.get();
 }
+SourceComponent* MainContentComponent::getSourceComponentA ()
+{
+    return srcComponentA.get();
+}
 void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor, dsp::AudioBlock<float>& temporaryBuffer)
 {
     // Route signal sources
