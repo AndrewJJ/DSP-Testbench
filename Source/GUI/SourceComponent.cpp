@@ -561,7 +561,7 @@ bool WaveTab::AudioThumbnailComponent::isFileLoaded() const
     return fileLoaded;
 }
 
-WaveTab::WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromConfig, const bool shouldPlayOnInitialise_)
+WaveTab::WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise_)
     :   audioDeviceManager (deviceManager),
         sampleRate (0.0),
         maxBlockSize (0),
@@ -876,7 +876,7 @@ AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessor
     btnOutputSelection.setTooltip ("Assign input channel " + String (channelIndex) + " to different output channels");
     btnOutputSelection.setTriggeredOnMouseDown (true);
     btnOutputSelection.onClick  = [this] {
-        auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
+        const auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
         getOutputMenu().showMenuAsync (options, new MenuCallback (this));
     };
     addAndMakeVisible (btnOutputSelection);
@@ -971,7 +971,7 @@ AudioTab::ChannelComponent::MenuCallback::MenuCallback (ChannelComponent* parent
 PopupMenu AudioTab::ChannelComponent::getOutputMenu() const
 {
     PopupMenu menu;
-    for (int ch = 0; ch < numOutputs; ++ch)
+    for (auto ch = 0; ch < numOutputs; ++ch)
         menu.addItem (ch + 1, "Output " + String (ch), true, isOutputSelected (ch));
     return menu;
 }

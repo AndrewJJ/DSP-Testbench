@@ -109,10 +109,10 @@ private:
         dsp::PolyBlepOscillator<float>::saw
     };
 
-    dsp::WhiteNoiseGenerator whiteNoise;
-    dsp::PinkNoiseGenerator pinkNoise;
-    dsp::PulseFunctionBase<float> impulseFunction;
-    dsp::StepFunction<float> stepFunction;
+    dsp::WhiteNoiseGenerator whiteNoise {};
+    dsp::PinkNoiseGenerator pinkNoise {};
+    dsp::PulseFunctionBase<float> impulseFunction {};
+    dsp::StepFunction<float> stepFunction {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthesisTab)
 };
@@ -144,7 +144,7 @@ private:
 class WaveTab final : public Component, public dsp::ProcessorBase, public ChangeListener, public Timer
 {
 public:
-    explicit WaveTab (AudioDeviceManager* deviceManager, String initialFilePathFromConfig, const bool shouldPlayOnInitialise);
+    explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise);
     ~WaveTab();
 
     void paint (Graphics& g) override;
@@ -286,7 +286,7 @@ private:
         void setActive (bool shouldBeActive);
         void setNumOutputChannels (const int numberOfOutputChannels);
         BigInteger getSelectedOutputs() const;
-        bool isOutputSelected (const int channelNumer) const;
+        bool isOutputSelected (const int channelNumber) const;
         // Resets
         void reset();
         // Queries meter processor to update meter value
