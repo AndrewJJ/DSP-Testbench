@@ -24,11 +24,11 @@ MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
 // +++      Here is where to instantiate the processors being tested (it's OK to leave one as nullptr if you don't need it)      +++
 // =================================================================================================================================
     procComponentA.reset (new ProcessorComponent ("A", new LpfExample()));
-    procComponentB.reset (new ProcessorComponent ("B", nullptr));
+    procComponentB.reset (new ProcessorComponent ("B", new ThruExample()));
 // =================================================================================================================================
 
     analyserComponent.reset (new AnalyserComponent());
-    monitoringComponent.reset (new MonitoringComponent (&deviceManager));
+    monitoringComponent.reset (new MonitoringComponent (&deviceManager, procComponentA.get(), procComponentB.get()));
 
     addAndMakeVisible (srcComponentA.get());
     addAndMakeVisible (srcComponentB.get());
@@ -258,7 +258,7 @@ void MainContentComponent::setAnalyserExpanded (const bool shouldBeExpanded)
     analyserIsExpanded = shouldBeExpanded;
     resized();
 }
-ProcessorHarness * MainContentComponent::getProcessorHarness (const int index)
+ProcessorHarness* MainContentComponent::getProcessorHarness (const int index)
 {
     jassert (index >=0 && index < 2);
     if (index == 0)

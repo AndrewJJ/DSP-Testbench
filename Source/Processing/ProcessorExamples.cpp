@@ -11,11 +11,10 @@
 #include "ProcessorExamples.h"
 
 LpfExample::LpfExample()
-: ProcessorHarness (1)
+: ProcessorHarness (2)
 {
     init();
 }
-
 void LpfExample::prepare (const dsp::ProcessSpec & spec)
 {
     numChannels = spec.numChannels;
@@ -23,7 +22,6 @@ void LpfExample::prepare (const dsp::ProcessSpec & spec)
     z1.allocate (numChannels, true);
     z2.allocate (numChannels, true);
 }
-
 void LpfExample::process (const dsp::ProcessContextReplacing<float>& context)
 {
     jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
@@ -40,34 +38,32 @@ void LpfExample::process (const dsp::ProcessContextReplacing<float>& context)
             const auto sample = in[i] * a0 + z1[ch];
             z1[ch] = in[i] * a1 + z2[ch] - b1 * sample;
             z2[ch] = in[i] * a0 - b2 * sample;
-            out[i] = static_cast<float> (sample);
+            out[i] = static_cast<float> (sample * getControlValue (1));
         }
     }
 }
-
 void LpfExample::reset()
 {
    init();
 }
-
 String LpfExample::getControlName (const int index)
 {
     switch (index)
     {
         case 0: return String ("Frequency");
+        case 1: return String ("Linear gain");
         default: return "Control " + String (index);
     }
 }
-
 double LpfExample::getDefaultControlValue (const int index)
 {
     switch (index)
     {
         case 0: return 0.75;
+        case 1: return 1.0;
         default: return 0.0;
     }
 }
-
 void LpfExample::init()
 {
     a0 = 1.0;
@@ -80,7 +76,6 @@ void LpfExample::init()
         z2[ch] = 0.0;
     }
 }
-
 void LpfExample::calculateCoefficients()
 {
     // We're logarithmically mapping the 0..1 range of the control to 10Hz..20kHz
@@ -92,4 +87,29 @@ void LpfExample::calculateCoefficients()
     a1 = 2.0 * a0;
     b1 = 2.0 * (kk - 1.0) * norm;
     b2 = (1.0 - k + kk) * norm;
+}
+
+
+// ==============================================================================
+
+
+ThruExample::ThruExample()
+: ProcessorHarness (0)
+{ }
+void ThruExample::prepare (const dsp::ProcessSpec & /*spec*/)
+{ }
+void ThruExample::process (const dsp::ProcessContextReplacing<float>& context)
+{
+    jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
+    context.getOutputBlock().copy (context.getInputBlock());
+}
+void ThruExample::reset()
+{ }
+String ThruExample::getControlName (const int /*index*/)
+{
+    return "";
+}
+double ThruExample::getDefaultControlValue (const int /*index*/)
+{
+    return 0.0;
 }

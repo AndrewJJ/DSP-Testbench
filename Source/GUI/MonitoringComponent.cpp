@@ -11,9 +11,11 @@
 #include "MonitoringComponent.h"
 #include "../Main.h"
 
-MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager)
+MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager, ProcessorComponent* processorA, ProcessorComponent* processorB)
     : deviceManager (audioDeviceManager),
-    keyName ("Monitoring")
+      keyName ("Monitoring"),
+      processorComponentA (processorA),
+      processorComponentB (processorB)
 {
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
@@ -46,6 +48,31 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     sldGain.setValue (config->getDoubleAttribute ("OutputGain"));
     sldGain.onValueChange = [this] { monitoringGain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
+    addAndMakeVisible (btnCompare);
+    btnCompare.setTooltip (TRANS("Toggles muting of processors A & B in turn (only works if both processors are enabled)"));
+    btnCompare.setButtonText ("A/B");
+    btnCompare.onClick = [this, processorA, processorB]
+    {
+        // Only do anything if both processor are enabled
+        if (processorA && processorB && processorA->isProcessorEnabled() && processorB->isProcessorEnabled())
+        {
+            const auto a = processorA->isMuted();
+            const auto b = processorB->isMuted();
+            if (a != b)
+            {
+                // Invert states
+                processorA->muteProcessor (!a);
+                processorB->muteProcessor (!b);
+            }
+            else
+            {
+                // If both have the same state, then mute B first
+                processorA->muteProcessor (false);
+                processorB->muteProcessor (true);                
+            }
+        }
+    };
+    
     addAndMakeVisible (btnLimiter);
     btnLimiter.setTooltip (TRANS("Activate limiter on output"));
     btnLimiter.setButtonText (TRANS("Limiter"));
@@ -91,12 +118,13 @@ void MonitoringComponent::resized()
     grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
                         };
 
-    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(1.7)) };
+    grid.templateColumns = { Track (GUI_SIZE_PX(4)), Track (1_fr), Track (GUI_SIZE_PX(1.3)), Track (GUI_SIZE_PX(2.0)), Track (GUI_SIZE_PX(1.7)) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
+                            GridItem (btnCompare),
                             GridItem (btnLimiter),
                             GridItem (btnMute)
                         });

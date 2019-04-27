@@ -33,8 +33,8 @@ public:
     bool isProcessorEnabled() const noexcept;
     bool isInverted() const noexcept;
     bool isMuted() const noexcept;
-    void muteProcessor();
-    void disableProcessor();
+    void muteProcessor (const bool shouldBeMuted = true);
+    void disableProcessor (const bool shouldBeDisabled = true);
 
     std::shared_ptr<ProcessorHarness> processor {};
 

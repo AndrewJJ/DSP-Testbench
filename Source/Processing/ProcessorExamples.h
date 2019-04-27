@@ -23,8 +23,9 @@ public:
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
+
     String getControlName (const int index) override;
-    double getDefaultControlValue (const int index);
+    double getDefaultControlValue (const int index) override;
 
 private:
     void init();
@@ -32,6 +33,27 @@ private:
 
     int numChannels = 0;
     double freqConversionFactor = 0.0;
-    double a0, a1, b1, b2;
+    double a0 = 0.0, a1 = 0.0, b1 = 0.0, b2 = 0.0;
     HeapBlock<double> z1, z2;
+};
+
+
+// ==============================================================================
+
+
+/** 
+ * Example processor implementing a straight through scheme (i.e. audio not altered). This is used for testing the application.
+ */
+class ThruExample : public ProcessorHarness
+{
+public:
+    ThruExample ();
+    ~ThruExample () = default;
+
+    void prepare (const dsp::ProcessSpec& spec) override;
+    void process (const dsp::ProcessContextReplacing<float>& context) override;
+    void reset() override;
+
+    String getControlName (const int index) override;
+    double getDefaultControlValue (const int index) override;
 };

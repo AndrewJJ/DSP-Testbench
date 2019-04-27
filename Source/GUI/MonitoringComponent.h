@@ -11,12 +11,13 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ProcessorComponent.h"
 
 class MonitoringComponent final : public Component, public dsp::ProcessorBase
 {
 public:
 
-    explicit MonitoringComponent (AudioDeviceManager* audioDeviceManager);
+    explicit MonitoringComponent (AudioDeviceManager* audioDeviceManager, ProcessorComponent* processorA, ProcessorComponent* processorB);
     ~MonitoringComponent();
 
     void paint (Graphics& g) override;
@@ -35,9 +36,12 @@ private:
     AudioDeviceManager* deviceManager;
     String keyName;
     std::unique_ptr<XmlElement> config;
+    ProcessorComponent* processorComponentA;
+    ProcessorComponent* processorComponentB;
 
     Label lblTitle;
     Slider sldGain;
+    TextButton btnCompare;
     TextButton btnLimiter;
     TextButton btnMute;
 

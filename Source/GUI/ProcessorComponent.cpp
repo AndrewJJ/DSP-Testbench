@@ -210,13 +210,13 @@ bool ProcessorComponent::isMuted() const noexcept
     // We use a local variable so method is safe to use for audio processing
     return statusMute.get();
 }
-void ProcessorComponent::muteProcessor()
+void ProcessorComponent::muteProcessor (const bool shouldBeMuted)
 {
-    btnMute.setToggleState (true, sendNotificationSync);
+    btnMute.setToggleState (shouldBeMuted, sendNotificationSync);
 }
-void ProcessorComponent::disableProcessor()
+void ProcessorComponent::disableProcessor (const bool shouldBeDisabled)
 {
-    btnDisable.setToggleState (true, sendNotificationSync);
+    btnDisable.setToggleState (shouldBeDisabled, sendNotificationSync);
 }
 
 ProcessorComponent::ControlComponent::ControlComponent (const int index, ProcessorHarness* processorBeingControlled)
