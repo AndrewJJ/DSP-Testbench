@@ -11,23 +11,28 @@
 #include "BenchmarkComponent.h"
 #include "../Main.h"
 
-BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB, SourceComponent* sourceComponent)
-    : benchmarkThread (&harnesses, sourceComponent)
+BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
+                                        ProcessorHarness* processorHarnessB,
+                                        SourceComponent* sourceComponent)
+    : spec (),
+      benchmarkThread (&harnesses, sourceComponent)
 {
-    jassert (values.size() == valueTooltips.size());
+    benchmarkThread.setPriority (Thread::realtimeAudioPriority);
 
     harnesses.emplace_back (processorHarnessA);
     harnesses.emplace_back (processorHarnessB);
+    if (processorHarnessA) processorHarnessA->resetStatistics();
+    if (processorHarnessB) processorHarnessB->resetStatistics();
 
-    if (processorHarnessA)
-        processorHarnessA->resetStatistics();
+    // Read configuration from application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    config.reset (propertiesFile->getXmlValue (keyName));
+    if (!config)
+        config.reset(new XmlElement (keyName));
 
-    if (processorHarnessB)
-        processorHarnessB->resetStatistics();
-
+    // Initialise labels for showing results
     using cols = DspTestBenchLnF::ApplicationColours;
-
-    // Initialise labels
+    jassert (values.size() == valueTooltips.size());
     for (const auto& p : processors)
     {
         auto* lblP = processorLabels.add (new Label ("", p));
@@ -71,29 +76,102 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA, Pro
         }
     }
 
-    setSize (690, 290);
+    lblBlockSize.setText ("Block size", dontSendNotification);
+    lblBlockSize.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblBlockSize);
+    cmbBlockSize.setTooltip ("This allows you to assess overhead, loop unrolling optimisations, etc. - but note that accuracy can be poor for very short processing times (e.g. single channel at a small block size)");
+    for (auto i = 1; i < 9; ++i)
+    {
+        const auto id = static_cast<int> (pow (2, i + 4));
+        cmbBlockSize.addItem (String (id), id);
+    }
+    cmbBlockSize.onChange = [this] { spec.maximumBlockSize = cmbBlockSize.getSelectedId(); };
+    cmbBlockSize.setSelectedId (config->getIntAttribute ("BlockSize", 1024));
+    addAndMakeVisible (cmbBlockSize);
 
-    // TODO - allow user to run using different block sizes, number of channels, sample rate
-    dsp::ProcessSpec spec;
-    spec.sampleRate = 44100.0;
-    spec.maximumBlockSize = 1024;
-    spec.numChannels = 2;
-    
-    // Start running benchmarks on a different thread
-    benchmarkThread.setTestCycles (10);
-    benchmarkThread.setProcessingIterations (100);
-    benchmarkThread.setProcessSpec (spec);
-    benchmarkThread.setPriority (Thread::realtimeAudioPriority);
-    benchmarkThread.startThread();
+    lblChannels.setText ("Channels", dontSendNotification);
+    lblChannels.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblChannels);
+    for (auto i = 1; i < 6; ++i)
+    {
+        const auto id = static_cast<int> (pow (2, i - 1));
+        cmbChannels.addItem (String (id), id);
+    }
+    cmbChannels.onChange = [this] { spec.numChannels = cmbChannels.getSelectedId(); };
+    cmbChannels.setSelectedId (config->getIntAttribute ("NumChannels", 2));
+    addAndMakeVisible (cmbChannels);
 
-    // TODO - add a Thread listener and indicator that tests are still running or have finished
+    lblSampleRate.setText ("Sample rate", dontSendNotification);
+    lblSampleRate.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblSampleRate);
+    cmbSampleRate.addItem ("32000", 32000);
+    cmbSampleRate.addItem ("44100", 44100);
+    cmbSampleRate.addItem ("48000", 48000);
+    cmbSampleRate.addItem ("96000", 96000);
+    cmbSampleRate.addItem ("192000", 192000);
+    cmbSampleRate.onChange = [this] { spec.sampleRate = cmbSampleRate.getSelectedId(); };
+    cmbSampleRate.setSelectedId (config->getIntAttribute ("SampleRate", 44100));
+    addAndMakeVisible (cmbSampleRate);
 
+    lblCycles.setText ("Test cycles", dontSendNotification);
+    lblCycles.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblCycles);
+    cmbCycles.setTooltip ("Number of full test cycles to run (reset, prepare, processing)");
+    cmbCycles.addItem ("10", 10);
+    cmbCycles.addItem ("100", 100);
+    cmbCycles.onChange = [this] { benchmarkThread.setTestCycles (cmbCycles.getSelectedId()); };
+    cmbCycles.setSelectedId (config->getIntAttribute ("TestCycles", 10));
+    addAndMakeVisible (cmbCycles);
+
+    lblIterations.setText ("Process iterations", dontSendNotification);
+    lblIterations.setJustificationType (Justification::centredRight);
+    addAndMakeVisible (lblIterations);
+    cmbIterations.setTooltip ("Number of times to iterate the processing within each cycle");
+    cmbIterations.addItem ("10", 10);
+    cmbIterations.addItem ("100", 100);
+    cmbIterations.addItem ("1000", 1000);
+    cmbIterations.addItem ("10000", 10000);
+    cmbIterations.onChange = [this] { benchmarkThread.setProcessingIterations (cmbIterations.getSelectedId()); };
+    cmbIterations.setSelectedId (config->getIntAttribute ("ProcessIterations", 1000));
+    addAndMakeVisible (cmbIterations);
+
+    btnStart.setButtonText ("Start tests");
+    btnStart.setColour (TextButton::buttonColourId, Colours::green);
+    btnStart.onClick = [this]
+    {
+        // Start running benchmarks on a different thread
+        benchmarkThread.setProcessSpec (spec);
+        benchmarkThread.runThread();
+    };
+    addAndMakeVisible (btnStart);
+
+    btnReset.setButtonText ("Reset stats");
+    btnReset.onClick = [this]
+    {
+        for (auto h : harnesses)
+            if (h) h->resetStatistics();
+    };
+    addAndMakeVisible (btnReset);
+
+    setSize (690, 430);
     startTimerHz (5);
 }
 BenchmarkComponent::~BenchmarkComponent()
 {
     auto* deviceMgr = DSPTestbenchApplication::getApp().getMainWindow().getAudioDeviceManager();
     deviceMgr->restartLastAudioDevice();
+
+    // Update configuration from class state
+    config->setAttribute ("BlockSize", cmbBlockSize.getSelectedId());
+    config->setAttribute ("NumChannels", cmbChannels.getSelectedId());
+    config->setAttribute ("SampleRate", cmbSampleRate.getSelectedId());
+    config->setAttribute ("TestCycles", cmbCycles.getSelectedId());
+    config->setAttribute ("ProcessIterations", cmbIterations.getSelectedId());
+    
+    // Save configuration to application properties
+    auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
+    propertiesFile->setValue(keyName, config.get());
+    propertiesFile->saveIfNeeded();
 }
 void BenchmarkComponent::paint (Graphics & g)
 {
@@ -109,10 +187,10 @@ void BenchmarkComponent::resized()
     const auto valueColumnWidth = GUI_SIZE_PX (3.7);
     const auto gap = GUI_BASE_GAP_PX;
 
-    Grid grid;
-    grid.rowGap = gap;
-    grid.columnGap = gap;
-    grid.templateRows = {
+    Grid resultsGrid;
+    resultsGrid.rowGap = gap;
+    resultsGrid.columnGap = gap;
+    resultsGrid.templateRows = {
         Track (1_fr),               // row  1 is for centering
         Track (titleRowHeight),     // row  2 is for processor A title and value column titles
         Track (valueRowHeight),     // row  3 is for processor A prepare routine results
@@ -125,7 +203,7 @@ void BenchmarkComponent::resized()
         Track (valueRowHeight),     // row 10 is for processor B reset routine results
         Track (1_fr)                // row 11 is for centering
     };
-    grid.templateColumns = {
+    resultsGrid.templateColumns = {
         Track (1_fr),               // column 1 is for centering 
         Track (titleColumnWidth),   // column 2 is for titles
         Track (valueColumnWidth),   // column 3 is for min values
@@ -134,8 +212,7 @@ void BenchmarkComponent::resized()
         Track (valueColumnWidth),   // column 6 is for sample counts
         Track (1_fr)                // column 7 is for centering
     };
-
-    grid.items.addArray({
+    resultsGrid.items.addArray({
 
         GridItem().withArea (1, 1),
 
@@ -175,11 +252,44 @@ void BenchmarkComponent::resized()
                 const auto idxLabel = getValueLabelIndex (p, r, v);
                 const auto row = offsetP + r;
                 const auto col = v + 3;
-                grid.items.add (GridItem (valueLabels[idxLabel]).withArea (row, col));
+                resultsGrid.items.add (GridItem (valueLabels[idxLabel]).withArea (row, col));
             }
         }
     }
-    grid.performLayout (getLocalBounds());
+
+    
+    const auto controlColumnWidth = GUI_SIZE_PX (4.2);
+    const auto controlRowHeight = GUI_SIZE_PX (0.8);
+
+    Grid controlsGrid;
+    controlsGrid.rowGap = gap;
+    controlsGrid.columnGap = gap;
+    controlsGrid.templateRows = {
+        Track (controlRowHeight),
+        Track (controlRowHeight),
+        Track (controlRowHeight),
+        Track (controlRowHeight)
+    };
+    controlsGrid.templateColumns = {
+        Track (1_fr),               // for centering 
+        Track (controlColumnWidth),
+        Track (controlColumnWidth),
+        Track (GUI_GAP_PX (2)),     // for spacing
+        Track (controlColumnWidth),
+        Track (controlColumnWidth),
+        Track (1_fr)                // centering
+    };
+    controlsGrid.items.addArray({
+        GridItem().withArea (1, 1, 6, 1),
+        GridItem().withArea (1, 7, 6, 7),
+        GridItem (lblBlockSize),    GridItem (cmbBlockSize),    GridItem(),     GridItem (lblCycles),       GridItem (cmbCycles),
+        GridItem (lblChannels),     GridItem (cmbChannels),     GridItem(),     GridItem (lblIterations),   GridItem (cmbIterations),
+        GridItem (lblSampleRate),   GridItem (cmbSampleRate),   GridItem(),     GridItem(),                 GridItem(),
+        GridItem(),                 GridItem (),                GridItem(),     GridItem (btnStart),        GridItem (btnReset)
+    });
+
+    resultsGrid.performLayout (getLocalBounds().withHeight (290));
+    controlsGrid.performLayout (getLocalBounds().withTrimmedTop (290));
 }
 void BenchmarkComponent::timerCallback()
 {
@@ -199,7 +309,7 @@ void BenchmarkComponent::timerCallback()
                         case 0: if (queryValue < 1.0E100)
                                     txt = String (queryValue * 1000.0, 1);
                                 break;
-                        case 1: if (isfinite(queryValue))
+                        case 1: if (isfinite (queryValue))
                                     txt = String (queryValue * 1000.0, 1);
                                 break;
                         case 2: if (queryValue > 0.0)
@@ -223,16 +333,13 @@ int BenchmarkComponent::getValueLabelIndex (const int processorIndex, const int 
 }
 
 BenchmarkComponent::BenchmarkThread::BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent)
-    : Thread ("BenchmarkThread"),
+    : ThreadWithProgressWindow ("Benchmark is running", true, true),
       srcComponent (sourceComponent)
 {
+    // Note that we use the default timeout of 10 seconds for exiting the thread. This is needed as the benchmark can cause a NaN on one of the audio channels if
+    // processing on the ordinary thread is resumed while this one is still running. This is quite unlikely if given a second to exit, so 10 seconds should be pretty safe.
+
     processingHarnesses = harnesses;
-}
-BenchmarkComponent::BenchmarkThread::~BenchmarkThread()
-{
-    // This can cause a NaN on one of the audio channels if processing on the ordinary thread is resumed while this one is still running
-    // So wait a while for the thread to exit.
-    stopThread (5000);
 }
 void BenchmarkComponent::BenchmarkThread::run()
 {
@@ -240,31 +347,45 @@ void BenchmarkComponent::BenchmarkThread::run()
     jassert (testSpec.numChannels > 0 && testSpec.maximumBlockSize > 0 && testSpec.sampleRate > 0);
 
     const dsp::ProcessContextReplacing<float> context (*audioBlock.get());
+    
+    // Only count non null harnesses
+    auto numHarnesses = 0;
+    if ((*processingHarnesses)[0]) numHarnesses++;
+    if ((*processingHarnesses)[1]) numHarnesses++;
 
+    auto numerator = 0;
+    const auto denominator = static_cast<double> (numHarnesses * testCycles * (2 + processingIterations));
+
+    setProgress (0.0);
     for (auto c = 0; c < testCycles; ++c)
     {
-        for (auto h : *processingHarnesses)
+        for (auto p : *processingHarnesses)
         {
-            if (h)
+            if (p)
             {
-                h->resetHarness();
-                if (threadShouldExit())
-                    return;
+                p->resetHarness();
+                numerator++;
+                if (threadShouldExit()) return;
                 
-                h->prepareHarness (testSpec);
-                if (threadShouldExit())
-                    return;
+                p->prepareHarness (testSpec);
+                numerator++;
+                if (threadShouldExit()) return;
                 
                 for (auto i = 0; i < processingIterations; ++i)
                 {
-                    h->processHarness (context);
-                    if (threadShouldExit())
-                        return;
+                    p->processHarness (context);
+                    numerator++;
+                    if (threadShouldExit()) return;
+                    setProgress (static_cast<double> (numerator) / denominator);
+                    yield();
                 }
             }
-            yield();
         }
     }
+}
+void BenchmarkComponent::BenchmarkThread::threadComplete (bool /* userPressedCancel */)
+{
+    // Nothing to do here!
 }
 void BenchmarkComponent::BenchmarkThread::setTestCycles (const int cycles)
 {

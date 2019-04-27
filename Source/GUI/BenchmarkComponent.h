@@ -27,13 +27,14 @@ public:
 
 private:
 
-    class BenchmarkThread : public Thread
+    class BenchmarkThread : public ThreadWithProgressWindow
     {
     public:
         BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent);
-        ~BenchmarkThread();
+        ~BenchmarkThread() = default;
 
         void run() override;
+        void threadComplete (bool userPressedCancel) override;
 
         /** Set number of full test cycles to run (reset, prepare, processing). */
         void setTestCycles (const int cycles);
@@ -60,6 +61,11 @@ private:
     OwnedArray<Label> routineLabels{};
     OwnedArray<Label> valueTitleLabels{};
     OwnedArray<Label> valueLabels{};
+    Label lblChannels, lblBlockSize, lblSampleRate, lblCycles, lblIterations;
+    ComboBox cmbChannels, cmbBlockSize, cmbSampleRate, cmbCycles, cmbIterations;
+    TextButton btnStart, btnReset;
+
+    dsp::ProcessSpec spec;
 
     const std::vector<String> processors = { "Processor A", "Processor B" };
     const std::vector<String> routines = { "Prepare", "Process", "Reset" };
@@ -68,7 +74,9 @@ private:
 
     std::vector<ProcessorHarness*> harnesses{};
     BenchmarkThread benchmarkThread;
-    
+    std::unique_ptr<XmlElement> config {};
+    const String keyName = "Benchmarking";
+        
     const Font titleFont = Font (GUI_SIZE_F (0.7f)).boldened();
     const Font normalFont = Font (GUI_SIZE_F (0.55f));
 
