@@ -930,10 +930,6 @@ void AudioTab::ChannelComponent::setActive (bool shouldBeActive)
 {
     active = shouldBeActive;
 }
-void AudioTab::ChannelComponent::setNumOutputChannels (const int numberOfOutputChannels)
-{
-    numOutputs = numberOfOutputChannels;
-}
 BigInteger AudioTab::ChannelComponent::getSelectedOutputs() const
 {
     return selectedOutputChannels;
@@ -1146,6 +1142,10 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     if (!config)
         config.reset(new XmlElement (sourceName));
 
+    // Restore output channel mask from config
+    const auto mask = config->getStringAttribute ("OutputChannelMask");
+    selectedOutputChannels.parseString (mask, 2);
+
     gain.setRampDurationSeconds (0.01);
     
     addAndMakeVisible (lblTitle);
@@ -1164,6 +1164,39 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldGain.setValue (config->getDoubleAttribute ("SourceGain"));
     sldGain.onValueChange = [this] { gain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
+
+    addAndMakeVisible (btnOutputSelection);
+    btnOutputSelection.setButtonText (TRANS("Outs"));
+    btnOutputSelection.setTooltip (TRANS("Select which output channels are active (others are muted)"));
+    btnOutputSelection.onClick = [this]
+    {
+        if (audioDeviceManager)
+        {
+            if (const auto* currentDevice = audioDeviceManager->getCurrentAudioDevice())
+            {
+                const auto newNumOutputs = currentDevice->getActiveOutputChannels().countNumberOfSetBits();
+                if (numOutputs == -1)
+                {
+                    // If the output channel mask has been set
+                    if (selectedOutputChannels.countNumberOfSetBits() > 0)
+                    {
+                        // We won't change the output channel mappings from what is saved
+                        numOutputs = newNumOutputs;
+                    }
+                    else
+                    {
+                        // Enable each new output channel
+                        const auto firstNewChannel = jmax (0, numOutputs - 1);
+                        for (auto ch = firstNewChannel; ch < newNumOutputs; ++ch)
+                            selectedOutputChannels.setBit(ch);
+                        numOutputs = newNumOutputs;
+                    }
+                }
+            }
+        }
+        const auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
+        getOutputMenu().showMenuAsync (options, new MenuCallback (this));
+    };
 
     addAndMakeVisible (btnInvert);
     btnInvert.setButtonText (TRANS("Invert"));
@@ -1209,6 +1242,7 @@ SourceComponent::~SourceComponent()
     config->setAttribute ("WaveFilePath", waveTab->getFilePath());
     config->setAttribute ("WaveFilePlaying", waveTab->isPlaying());
     config->setAttribute ("WaveFileShouldPlayFromStartOnSnapshot", waveTab->getSnapshotMode());
+    config->setAttribute ("OutputChannelMask", selectedOutputChannels.toString (2));
     
     // Save configuration to application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
@@ -1227,12 +1261,12 @@ void SourceComponent::resized()
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
     grid.templateRows = { Track (GUI_BASE_SIZE_PX), Track (Grid::Px (getDesiredTabComponentHeight())) };
-    grid.templateColumns = { GUI_SIZE_PX(3.0), 1_fr, GUI_SIZE_PX(2), GUI_SIZE_PX(1.7) };
+    grid.templateColumns = { GUI_SIZE_PX(3.0), 1_fr, GUI_SIZE_PX(1.7), GUI_SIZE_PX(2), GUI_SIZE_PX(1.7) };
     grid.autoFlow = Grid::AutoFlow::row;
     grid.items.addArray({   GridItem (lblTitle),
                             GridItem (sldGain).withMargin (GridItem::Margin (0.0f, GUI_GAP_F(3), 0.0f, 0.0f)),
-                            GridItem (btnInvert), GridItem (btnMute),
-                            GridItem (tabbedComponent.get()).withArea ({ }, GridItem::Span (4))
+                            GridItem (btnOutputSelection), GridItem (btnInvert), GridItem (btnMute),
+                            GridItem (tabbedComponent.get()).withArea ({ }, GridItem::Span (5))
                         });    
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 }
@@ -1295,6 +1329,15 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
 
         if (isInverted)
             context.getOutputBlock().multiply(-1.0f);
+
+        // Mute disabled output channels
+        for (auto ch = 0; ch < numOutputs; ++ch)
+        {
+            if (!selectedOutputChannels[ch])
+            {
+                context.getOutputBlock().getSingleChannelBlock (static_cast<size_t> (ch)).clear();
+            }
+        }
     }
     else
         context.getOutputBlock().clear();
@@ -1352,4 +1395,33 @@ float SourceComponent::getDesiredTabComponentHeight() const
     const auto tabMargin = GUI_GAP_F(4);
     const auto tabButtonBarDepth = GUI_BASE_GAP_F + tabBorder + 1.0f;
     return tabInnerHeight + tabBorder + tabMargin + tabButtonBarDepth;
+}
+bool SourceComponent::isOutputSelected (const int channelNumber) const
+{
+    return selectedOutputChannels[static_cast<int> (channelNumber)];
+}
+void SourceComponent::toggleOutputSelection (const int channelNumber)
+{
+    if (selectedOutputChannels[channelNumber] == 1)
+        selectedOutputChannels.clearBit (channelNumber);
+    else
+        selectedOutputChannels.setBit (channelNumber);
+}
+PopupMenu SourceComponent::getOutputMenu() const
+{
+    PopupMenu menu;
+    const auto* currentDevice = audioDeviceManager->getCurrentAudioDevice();
+    if (currentDevice)
+    {
+        for (auto ch = 0; ch < numOutputs; ++ch)
+            menu.addItem (ch + 1, "Output " + String (ch), true, isOutputSelected (ch));
+    }
+    return menu;
+}
+SourceComponent::MenuCallback::MenuCallback (SourceComponent* parentComponent)
+    : parent (parentComponent)
+{ }
+void SourceComponent::MenuCallback::modalStateFinished (int returnValue)
+{
+    parent->toggleOutputSelection (returnValue - 1);
 }

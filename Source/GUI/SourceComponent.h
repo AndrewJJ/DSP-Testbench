@@ -284,7 +284,6 @@ private:
         void sliderValueChanged (Slider* slider) override;
 
         void setActive (bool shouldBeActive);
-        void setNumOutputChannels (const int numberOfOutputChannels);
         BigInteger getSelectedOutputs() const;
         bool isOutputSelected (const int channelNumber) const;
         // Resets
@@ -297,7 +296,6 @@ private:
 
         void toggleOutputSelection (const int channelNumber);
         PopupMenu getOutputMenu() const;
-
         class MenuCallback final : public ModalComponentManager::Callback
         {
         public:
@@ -394,8 +392,21 @@ private:
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
 
+    bool isOutputSelected (const int channelNumber) const;
+    void toggleOutputSelection (const int channelNumber);
+    PopupMenu getOutputMenu() const;
+    class MenuCallback final : public ModalComponentManager::Callback
+    {
+    public:
+        explicit MenuCallback (SourceComponent* parentComponent);
+        void modalStateFinished (int returnValue) override;
+    private:
+        SourceComponent* parent;
+    };
+    
     Label lblTitle;
     Slider sldGain;
+    TextButton btnOutputSelection;
     TextButton btnInvert;
     TextButton btnMute;
     std::unique_ptr<TabbedComponent> tabbedComponent{};
@@ -407,6 +418,8 @@ private:
     SourceComponent* otherSource = nullptr;
     bool isInverted = false;
     bool isMuted = false;
+    BigInteger selectedOutputChannels = 0;
+    int numOutputs = -1;
 
     dsp::Gain<float> gain;
 
