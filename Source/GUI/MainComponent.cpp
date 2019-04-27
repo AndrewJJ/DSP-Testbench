@@ -218,8 +218,8 @@ void MainContentComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
     if (source == &deviceManager)
     {
-        std::unique_ptr<XmlElement> xml(deviceManager.createStateXml());
-        DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue("AudioDeviceState", xml.get());
+        std::unique_ptr<XmlElement> xml (deviceManager.createStateXml());
+        DSPTestbenchApplication::getApp().appProperties.getUserSettings()->setValue ("AudioDeviceState", xml.get());
     }
 }
 void MainContentComponent::triggerSnapshot ()
@@ -258,7 +258,7 @@ void MainContentComponent::setAnalyserExpanded (const bool shouldBeExpanded)
     analyserIsExpanded = shouldBeExpanded;
     resized();
 }
-ProcessorHarness * MainContentComponent::getProcessorHarness(const int index)
+ProcessorHarness * MainContentComponent::getProcessorHarness (const int index)
 {
     jassert (index >=0 && index < 2);
     if (index == 0)
@@ -266,7 +266,7 @@ ProcessorHarness * MainContentComponent::getProcessorHarness(const int index)
     else
         return procComponentB->processor.get();
 }
-SourceComponent* MainContentComponent::getSourceComponentA ()
+SourceComponent* MainContentComponent::getSourceComponentA()
 {
     return srcComponentA.get();
 }
@@ -275,12 +275,12 @@ void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor
     // Route signal sources
     if (processor->isSourceConnectedA())
     {
-        temporaryBuffer.copy(srcBufferA);
+        temporaryBuffer.copy (srcBufferA);
         if (processor->isSourceConnectedB()) // both sources connected
             temporaryBuffer.add (srcBufferB);
     }
     else if (processor->isSourceConnectedB()) // source A not connected
-        temporaryBuffer.copy(srcBufferB);
+        temporaryBuffer.copy (srcBufferB);
     else // Neither source is connected
         temporaryBuffer.clear(); 
     
@@ -289,5 +289,5 @@ void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor
     
     // Invert processor output as appropriate
     if (processor->isInverted())
-        temporaryBuffer.multiply(-1.0f);
+        temporaryBuffer.multiply (-1.0f);
 }
