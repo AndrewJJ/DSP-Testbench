@@ -49,7 +49,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     sldGain.onValueChange = [this] { monitoringGain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
     addAndMakeVisible (btnCompare);
-    btnCompare.setTooltip (TRANS("Toggles muting of processors A & B in turn (only works if both processors are enabled)"));
+    btnCompare.setTooltip (TRANS("Toggles muting of processors A & B in turn"));
     btnCompare.setButtonText ("A/B");
     btnCompare.onClick = [this, processorA, processorB]
     {
@@ -70,6 +70,10 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
                 processorA->muteProcessor (false);
                 processorB->muteProcessor (true);                
             }
+        }
+        else
+        {
+            AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::InfoIcon, "A/B comparison", "Both processors need to be enabled for A/B comparison to work", "OK");
         }
     };
     
