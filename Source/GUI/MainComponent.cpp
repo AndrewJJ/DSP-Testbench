@@ -23,12 +23,12 @@ MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
 // =================================================================================================================================
 // +++      Here is where to instantiate the processors being tested (it's OK to leave one as nullptr if you don't need it)      +++
 // =================================================================================================================================
-    procComponentA.reset (new ProcessorComponent ("A", new LpfExample(), 1));
-    procComponentB.reset (new ProcessorComponent ("B", nullptr, 3));
+    procComponentA.reset (new ProcessorComponent ("A", new LpfExample()));
+    procComponentB.reset (new ProcessorComponent ("B", nullptr));
 // =================================================================================================================================
 
     analyserComponent.reset (new AnalyserComponent());
-    monitoringComponent.reset (new MonitoringComponent(&deviceManager));
+    monitoringComponent.reset (new MonitoringComponent (&deviceManager));
 
     addAndMakeVisible (srcComponentA.get());
     addAndMakeVisible (srcComponentB.get());
@@ -180,7 +180,7 @@ void MainContentComponent::resized()
         procComponentB->setVisible (true);
         
         const auto srcComponentHeight = Grid::Px (jmax (srcComponentA->getMinimumHeight(), srcComponentB->getMinimumHeight()));
-        const auto procComponentHeight = Grid::Px (jmax (procComponentA->getMinimumHeight(), procComponentB->getMinimumHeight()));
+        const auto procComponentHeight = Grid::Px (jmax (procComponentA->getPreferredHeight(), procComponentB->getPreferredHeight()));
 
         // Assume both source components have the same width and that this is also sufficient for the processor components
         const auto srcWidth = srcComponentA->getMinimumWidth();

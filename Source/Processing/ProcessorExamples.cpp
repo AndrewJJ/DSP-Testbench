@@ -11,7 +11,7 @@
 #include "ProcessorExamples.h"
 
 LpfExample::LpfExample()
-: ProcessorHarness (2)
+: ProcessorHarness (1)
 {
     init();
 }
@@ -55,21 +55,17 @@ String LpfExample::getControlName (const int index)
     switch (index)
     {
         case 0: return String ("Frequency");
+        default: return "Control " + String (index);
     }
-    // If you hit this assert then you haven't defined enough control names!
-    jassertfalse;
-    return String();
 }
 
-float LpfExample::getDefaultControlValue (const int index)
+double LpfExample::getDefaultControlValue (const int index)
 {
     switch (index)
     {
-        case 0: return 0.75f;
+        case 0: return 0.75;
+        default: return 0.0;
     }
-    // If you hit this assert then you haven't defined enough control names!
-    jassertfalse;
-    return 0.0f;
 }
 
 void LpfExample::init()

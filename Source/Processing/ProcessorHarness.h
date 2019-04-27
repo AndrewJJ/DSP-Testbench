@@ -39,7 +39,7 @@ public:
     /** You will need to override this to return the default values of your controls.
      *  NOTE - the controls are floats in the range 0..1.
      */
-    virtual float getDefaultControlValue (const int index) = 0;
+    virtual double getDefaultControlValue (const int index) = 0;
     
     // =================================================================================================================================
 
@@ -53,11 +53,17 @@ public:
     void resetHarness();
 
 
+    /** Returns the number of control values for this processor. */
+    int getNumControls() const;
+
     /** Set control value (0..1). */
-    void setControlValue (const int index, const float value);
+    void setControlValue (const int index, const double value);
     
     /** Get control value (0..1). */
-    float getControlValue (const int index) const;
+    double getControlValue (const int index) const;
+
+    /** Get control value as float (0..1). */
+    float getControlValueAsFloat (const int index) const;
 
 
     dsp::ProcessSpec getCurrentProcessSpec() const;
@@ -118,8 +124,8 @@ private:
     double prepDurationMin = 1.0E100, prepDurationMax = -1.0, prepDurationSum = 0.0, prepDurationCount = 0.0;
     double procDurationMin = 1.0E100, procDurationMax = -1.0, procDurationSum = 0.0, procDurationCount = 0.0;
     double resetDurationMin = 1.0E100, resetDurationMax = -1.0, resetDurationSum = 0.0, resetDurationCount = 0.0;
-    
-    std::vector <Atomic<float>> controlValues;
+
+    std::vector <Atomic<double>> controlValues;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorHarness);
 };

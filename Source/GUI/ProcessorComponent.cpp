@@ -11,12 +11,12 @@
 #include "ProcessorComponent.h"
 #include "../Main.h"
 
-ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest, const int numberOfControls)
+ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest)
     :   keyName ("Processor" + processorId),
         controlArrayComponent (&controlArray)
 {
     processor.reset (processorToTest);
-    
+
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
@@ -81,8 +81,17 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
     btnMute.setToggleState (statusMute.get(), dontSendNotification);
     btnMute.onClick = [this] { statusMute = btnMute.getToggleState(); };
 
-    for (auto i = 0; i < numberOfControls; ++i)
-        controlArray.add (new ControlComponent (i, processor.get()));
+    if (!processor)
+    {
+        disableProcessor();
+        muteProcessor();
+        setEnabled (false);
+    }
+    else
+    {
+        for (auto i = 0; i < processor->getNumControls(); ++i)
+            controlArray.add (new ControlComponent (i, processor.get()));
+    }
     controlArrayComponent.initialiseControls();
 
     viewport.setScrollBarsShown (true, false);
@@ -141,18 +150,23 @@ void ProcessorComponent::resized()
     const auto controlWidth = viewport.getWidth() - viewport.getLookAndFeel().getDefaultScrollbarWidth();
     controlArrayComponent.setSize (controlWidth, static_cast<int> (controlArrayComponent.getPreferredHeight()));
 }
-float ProcessorComponent::getMinimumWidth() const
+//float ProcessorComponent::getMinimumWidth() const
+//{
+//    // Nominal value, because we are happy to have same width as the source component
+//    return GUI_SIZE_F(10);
+//}
+float ProcessorComponent::getPreferredHeight() const
 {
-    // Nominal value, because we are happy to have same width as the source component
-    return GUI_SIZE_F(10);
-}
-float ProcessorComponent::getMinimumHeight() const
-{
-    // This is an exact calculation of the height we want
+    // This is the height needed to show 3 controls (176 pixels converted back to GUI units for a base size of 30.0)
+    const auto maxHeight = GUI_SIZE_F(5.866666666f);
+
+    // This is the height needed to show all controls
     const auto innerMargin = GUI_GAP_F(4);
     const auto totalItemHeight = GUI_SIZE_F(1 + 0.2) + controlArrayComponent.getPreferredHeight();
     const auto totalItemGaps = GUI_GAP_F(2);
-    return innerMargin + totalItemHeight + totalItemGaps;
+    const auto height = innerMargin + totalItemHeight + totalItemGaps;
+
+    return  jmin (height, maxHeight);
 }
 void ProcessorComponent::prepare (const dsp::ProcessSpec& spec)
 {
@@ -196,11 +210,14 @@ bool ProcessorComponent::isMuted() const noexcept
     // We use a local variable so method is safe to use for audio processing
     return statusMute.get();
 }
-void ProcessorComponent::mute()
+void ProcessorComponent::muteProcessor()
 {
     btnMute.setToggleState (true, sendNotificationSync);
 }
-
+void ProcessorComponent::disableProcessor()
+{
+    btnDisable.setToggleState (true, sendNotificationSync);
+}
 
 ProcessorComponent::ControlComponent::ControlComponent (const int index, ProcessorHarness* processorBeingControlled)
     : controlIndex (index),
@@ -211,7 +228,7 @@ ProcessorComponent::ControlComponent::ControlComponent (const int index, Process
     if (processor)
     {
         controlName = processor->getControlName (controlIndex);
-        defaultControlValue = static_cast<double> (processor->getDefaultControlValue (controlIndex));
+        defaultControlValue = processor->getDefaultControlValue (controlIndex);
     }
     lblControl.setText (controlName, dontSendNotification);
     lblControl.setFont (Font (GUI_SIZE_F(0.5), Font::plain).withTypefaceStyle ("Regular"));
@@ -222,11 +239,12 @@ ProcessorComponent::ControlComponent::ControlComponent (const int index, Process
     addAndMakeVisible (lblControl);
 
     sldControl.setRange (0, 1, 0.001);
+    sldControl.setDoubleClickReturnValue (true, defaultControlValue);
     sldControl.setSliderStyle (Slider::LinearHorizontal);
     sldControl.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
     sldControl.onValueChange = [this]
     {
-        processor->setControlValue (controlIndex, static_cast<float> (sldControl.getValue()));
+        processor->setControlValue (controlIndex, sldControl.getValue());
     };
     sldControl.setValue (defaultControlValue, sendNotificationSync);
     addAndMakeVisible (sldControl);
@@ -241,16 +259,13 @@ void ProcessorComponent::ControlComponent::resized()
 
     using Track = Grid::TrackInfo;
 
-    grid.templateRows = {   Track (GUI_BASE_SIZE_PX)
-                        };
+    grid.templateRows = { Track (GUI_BASE_SIZE_PX) };
     
-    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (1_fr) };
+    grid.templateColumns = { Track (GUI_SIZE_PX (3)), Track (1_fr) };
 
     grid.autoFlow = Grid::AutoFlow::row;
 
-    grid.items.addArray({   GridItem (lblControl),
-                            GridItem (sldControl)
-                        });
+    grid.items.addArray({ GridItem (lblControl), GridItem (sldControl) });
 
     grid.performLayout (getLocalBounds());
 }
@@ -258,7 +273,6 @@ double ProcessorComponent::ControlComponent::getCurrentControlValue() const
 {
     return currentControlValue.get();
 }
-
 ProcessorComponent::ControlArrayComponent::ControlArrayComponent (OwnedArray<ControlComponent>* controlComponentsToReferTo)
     : controlComponents (controlComponentsToReferTo)
 {
@@ -280,7 +294,7 @@ void ProcessorComponent::ControlArrayComponent::resized()
     for (auto controlComponent : *controlComponents)
         grid.items.add (GridItem (controlComponent));
 
-    grid.performLayout (getLocalBounds());
+    grid.performLayout (getLocalBounds().withTrimmedRight (GUI_GAP_F(1)));
 }
 float ProcessorComponent::ControlArrayComponent::getPreferredHeight() const
 {
@@ -288,7 +302,7 @@ float ProcessorComponent::ControlArrayComponent::getPreferredHeight() const
     const auto numControls = controlComponents->size();
     const auto innerMargin = GUI_GAP_F(2);
     const auto totalItemHeight = GUI_SIZE_F(numControls);
-    const auto totalItemGaps = GUI_GAP_F(numControls -1);
+    const auto totalItemGaps = GUI_GAP_F(numControls - 1);
     return innerMargin + totalItemHeight + totalItemGaps;
 }
 void ProcessorComponent::ControlArrayComponent::initialiseControls()

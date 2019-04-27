@@ -68,15 +68,23 @@ void ProcessorHarness::resetHarness ()
     resetDurationSum += duration;
     resetDurationCount++;
 }
-void ProcessorHarness::setControlValue(const int index, const float value)
+int ProcessorHarness::getNumControls() const
 {
-    jassert (index >= 0 && index < static_cast<int>(controlValues.size()));
+    return static_cast<int> (controlValues.size());
+}
+void ProcessorHarness::setControlValue (const int index, const double value)
+{
+    jassert (index >= 0 && index < getNumControls());
     controlValues[index].set (value);
 }
-float ProcessorHarness::getControlValue(const int index) const
+double ProcessorHarness::getControlValue (const int index) const
 {
-    jassert (index >= 0 && index < static_cast<int>(controlValues.size()));
+    jassert (index >= 0 && index < getNumControls());
     return controlValues[index].get();
+}
+float ProcessorHarness::getControlValueAsFloat (const int index) const
+{
+    return static_cast<float> (getControlValue (index));
 }
 dsp::ProcessSpec ProcessorHarness::getCurrentProcessSpec () const
 {

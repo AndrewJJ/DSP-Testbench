@@ -17,13 +17,12 @@ class ProcessorComponent final : public Component, dsp::ProcessorBase
 {
 public:
     
-    ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest, const int numberOfControls);
+    ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest);
     ~ProcessorComponent();
 
     void paint (Graphics& g) override;
     void resized() override;
-    float getMinimumWidth() const;
-    float getMinimumHeight() const;
+    float getPreferredHeight() const;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -34,7 +33,8 @@ public:
     bool isProcessorEnabled() const noexcept;
     bool isInverted() const noexcept;
     bool isMuted() const noexcept;
-    void mute();
+    void muteProcessor();
+    void disableProcessor();
 
     std::shared_ptr<ProcessorHarness> processor {};
 
