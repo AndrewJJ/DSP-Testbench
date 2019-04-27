@@ -1161,7 +1161,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     sldGain.setRange (-100, 50, 0.1);
     sldGain.setDoubleClickReturnValue (true, 0.0);
     sldGain.setSliderStyle (Slider::LinearHorizontal);
-    sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.5), GUI_SIZE_I(0.7));
+    sldGain.setTextBoxStyle (Slider::TextBoxRight, false, GUI_SIZE_I(2.0), GUI_SIZE_I(0.7));
     sldGain.setValue (config->getDoubleAttribute ("SourceGain"));
     sldGain.onValueChange = [this] { gain.setGainDecibels (static_cast<float> (sldGain.getValue())); };
 
