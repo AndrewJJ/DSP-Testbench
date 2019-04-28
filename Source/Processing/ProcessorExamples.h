@@ -24,6 +24,7 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
+    String getProcessorName() override;
     String getControlName (const int index) override;
     double getDefaultControlValue (const int index) override;
 
@@ -54,6 +55,7 @@ public:
     void process (const dsp::ProcessContextReplacing<float>& context) override;
     void reset() override;
 
+    String getProcessorName() override;
     String getControlName (const int index) override;
     double getDefaultControlValue (const int index) override;
 };

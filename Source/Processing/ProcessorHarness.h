@@ -33,6 +33,9 @@ public:
     /** You will need to override this reset() method with your own code. */
     void reset() override = 0;
 
+    /** You will need to override this to return the name of your processor. */
+    virtual String getProcessorName() = 0;
+
     /** You will need to override this to return the names of your controls. */
     virtual String getControlName (const int index) = 0;
 

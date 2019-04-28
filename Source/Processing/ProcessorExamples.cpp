@@ -46,6 +46,10 @@ void LpfExample::reset()
 {
    init();
 }
+String LpfExample::getProcessorName()
+{
+    return String ("LPF");
+}
 String LpfExample::getControlName (const int index)
 {
     switch (index)
@@ -105,6 +109,10 @@ void ThruExample::process (const dsp::ProcessContextReplacing<float>& context)
 }
 void ThruExample::reset()
 { }
+String ThruExample::getProcessorName()
+{
+    return String ("Thru");
+}
 String ThruExample::getControlName (const int /*index*/)
 {
     return "";

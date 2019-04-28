@@ -32,7 +32,8 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
     }
 
     addAndMakeVisible (lblTitle);
-    lblTitle.setText (TRANS("Processor") + " " + processorId, dontSendNotification);
+    lblTitle.setText (processorToTest->getProcessorName(), dontSendNotification);
+    lblTitle.setTooltip ("Processor " + processorId);
     lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
