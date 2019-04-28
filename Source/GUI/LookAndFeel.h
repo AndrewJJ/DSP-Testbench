@@ -29,6 +29,7 @@ public:
     struct ApplicationColours
     {
         static Colour componentBackground        ()            { return Colour (0xff323e44); }
+        static Colour componentOutline           ()            { return Colours::white; }
         static Colour titleMenuBackground        ()            { return Colour (0xff263238); }
         static Colour sourceBackground           ()            { return Colours::darkgrey; }
         static Colour processorBackground        ()            { return Colour (0x300081ff); }

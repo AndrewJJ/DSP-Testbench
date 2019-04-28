@@ -294,7 +294,7 @@ void ProcessorComponent::ControlArrayComponent::resized()
     for (auto controlComponent : *controlComponents)
         grid.items.add (GridItem (controlComponent));
 
-    grid.performLayout (getLocalBounds().withTrimmedRight (GUI_GAP_I(1)));
+    grid.performLayout (getLocalBounds().withTrimmedRight (GUI_BASE_GAP_I));
 }
 float ProcessorComponent::ControlArrayComponent::getPreferredHeight() const
 {
