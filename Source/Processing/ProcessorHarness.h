@@ -132,13 +132,3 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorHarness);
 };
-
-
-// ======================================================
-
-
-/** Returns true if the specified pointer points to 16 byte aligned data. */
-static inline bool is_sse_aligned (const float* data);
-
-/** Returns a string describing the buffer alignment status. */
-static String get_buffer_alignment_status (AudioBuffer<float>& buffer);

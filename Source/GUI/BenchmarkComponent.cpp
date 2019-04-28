@@ -15,7 +15,7 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
                                         ProcessorHarness* processorHarnessB,
                                         SourceComponent* sourceComponent)
     : spec (),
-      benchmarkThread (&harnesses, sourceComponent)
+      benchmarkThread (&harnesses, sourceComponent, this)
 {
     benchmarkThread.setPriority (Thread::realtimeAudioPriority);
 
@@ -150,8 +150,13 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
     {
         for (auto h : harnesses)
             if (h) h->resetStatistics();
+        lblBufferAlignmentStatus.setText (String(), sendNotificationSync);
     };
     addAndMakeVisible (btnReset);
+
+    lblBufferAlignmentStatus.setJustificationType (Justification::centredRight);
+    lblBufferAlignmentStatus.setColour (Label::textColourId, Colours::lightgrey);
+    addAndMakeVisible (lblBufferAlignmentStatus);
 
     setSize (690, 430);
     startTimerHz (5);
@@ -256,7 +261,6 @@ void BenchmarkComponent::resized()
             }
         }
     }
-
     
     const auto controlColumnWidth = GUI_SIZE_PX (4.2);
     const auto controlRowHeight = GUI_SIZE_PX (0.8);
@@ -285,7 +289,7 @@ void BenchmarkComponent::resized()
         GridItem (lblBlockSize),    GridItem (cmbBlockSize),    GridItem(),     GridItem (lblCycles),       GridItem (cmbCycles),
         GridItem (lblChannels),     GridItem (cmbChannels),     GridItem(),     GridItem (lblIterations),   GridItem (cmbIterations),
         GridItem (lblSampleRate),   GridItem (cmbSampleRate),   GridItem(),     GridItem(),                 GridItem(),
-        GridItem(),                 GridItem (),                GridItem(),     GridItem (btnStart),        GridItem (btnReset)
+        GridItem (lblBufferAlignmentStatus).withArea ({}, GridItem::Span (2)),  GridItem(), GridItem (btnStart), GridItem (btnReset)
     });
 
     resultsGrid.performLayout (getLocalBounds().withHeight (290));
@@ -326,15 +330,20 @@ void BenchmarkComponent::timerCallback()
         }
     }
 }
+void BenchmarkComponent::setBufferAlignmentStatus (const String& status)
+{
+    lblBufferAlignmentStatus.setText (status, sendNotificationSync);
+}
 int BenchmarkComponent::getValueLabelIndex (const int processorIndex, const int routineIndex, const int valueIndex) const
 {
     const auto offset = (processorIndex == 0) ? 0 : static_cast<int> (routines.size() * values.size());
     return ProcessorHarness::getQueryIndex (routineIndex, valueIndex) + offset;
 }
 
-BenchmarkComponent::BenchmarkThread::BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent)
+BenchmarkComponent::BenchmarkThread::BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent, BenchmarkComponent* benchmarkComponent)
     : ThreadWithProgressWindow ("Benchmark is running", true, true),
-      srcComponent (sourceComponent)
+      srcComponent (sourceComponent),
+      parent (benchmarkComponent)
 {
     // Note that we use the default timeout of 10 seconds for exiting the thread. This is needed as the benchmark can cause a NaN on one of the audio channels if
     // processing on the ordinary thread is resumed while this one is still running. This is quite unlikely if given a second to exit, so 10 seconds should be pretty safe.
@@ -402,10 +411,26 @@ void BenchmarkComponent::BenchmarkThread::setProcessSpec (dsp::ProcessSpec & spe
 
     // Initialise audio block
     audioBlock.reset (new dsp::AudioBlock<float> (heapBlock, testSpec.numChannels, testSpec.maximumBlockSize));
+    parent->setBufferAlignmentStatus (getAudioBlockAlignmentStatus());
 
     // Fill block with audio data from source component
     jassert (srcComponent);
     srcComponent->prepare (spec);
     const dsp::ProcessContextReplacing<float> context (*audioBlock.get());
     srcComponent->process (context);
+}
+bool BenchmarkComponent::BenchmarkThread::isSseAligned (const float* data)
+{
+    return (reinterpret_cast<uintptr_t>(data) & 0xF) == 0;
+}
+String BenchmarkComponent::BenchmarkThread::getAudioBlockAlignmentStatus() const
+{
+    auto bufIsAligned = true;
+	for (auto ch = 0; ch < static_cast<int> (audioBlock->getNumChannels()); ++ch)
+		bufIsAligned = bufIsAligned && isSseAligned (audioBlock->getChannelPointer (ch));
+
+	if (bufIsAligned)
+		return "AudioBlock is SSE aligned";
+	else
+		return "AudioBlock is not SSE aligned";
 }

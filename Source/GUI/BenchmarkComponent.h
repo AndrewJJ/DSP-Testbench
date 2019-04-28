@@ -24,13 +24,14 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void timerCallback() override;
+    void setBufferAlignmentStatus (const String &status);
 
 private:
 
     class BenchmarkThread : public ThreadWithProgressWindow
     {
     public:
-        BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent);
+        BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent, BenchmarkComponent* benchmarkComponent);
         ~BenchmarkThread() = default;
 
         void run() override;
@@ -46,8 +47,16 @@ private:
         void setProcessSpec (dsp::ProcessSpec& spec);
 
     private:
+
+        /** Returns true if the specified pointer points to 16 byte aligned data. */
+        static inline bool isSseAligned (const float* data);
+
+        /** Returns a string describing the buffer alignment status. */
+        String getAudioBlockAlignmentStatus() const;
+
         std::vector<ProcessorHarness*>* processingHarnesses{};
         SourceComponent* srcComponent;
+        BenchmarkComponent* parent;
         int testCycles = 0;
         int processingIterations = 0;
         dsp::ProcessSpec testSpec {};
@@ -61,7 +70,7 @@ private:
     OwnedArray<Label> routineLabels{};
     OwnedArray<Label> valueTitleLabels{};
     OwnedArray<Label> valueLabels{};
-    Label lblChannels, lblBlockSize, lblSampleRate, lblCycles, lblIterations;
+    Label lblChannels, lblBlockSize, lblSampleRate, lblCycles, lblIterations, lblBufferAlignmentStatus;
     ComboBox cmbChannels, cmbBlockSize, cmbSampleRate, cmbCycles, cmbIterations;
     TextButton btnStart, btnReset;
 

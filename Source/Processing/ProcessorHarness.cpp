@@ -197,27 +197,3 @@ void ProcessorHarness::resetStatistics()
     resetDurationSum = 0.0;
     resetDurationCount = 0.0;
 }
-
-
-// ======================================================
-
-
-bool is_sse_aligned (const float* data)
-{
-    return (reinterpret_cast<uintptr_t>(data) & 0xF) == 0;
-}
-
-String get_buffer_alignment_status (AudioBuffer<float>& buffer)
-{
-    auto bufIsAligned = true;
-	for (auto ch = 0; ch < buffer.getNumChannels(); ++ch)
-		bufIsAligned = bufIsAligned && is_sse_aligned (buffer.getArrayOfReadPointers ()[ch]);
-
-	String alignmentMsg;
-	if (bufIsAligned)
-		alignmentMsg = "AudioSampleBuffer is aligned";
-	else
-		alignmentMsg = "AudioSampleBuffer is not aligned";
-
-	return alignmentMsg;
-}
