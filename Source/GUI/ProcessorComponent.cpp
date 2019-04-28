@@ -119,42 +119,35 @@ void ProcessorComponent::paint (Graphics& g)
 }
 void ProcessorComponent::resized()
 {
+    using Track = Grid::TrackInfo;
     Grid grid;
     grid.rowGap = GUI_BASE_GAP_PX;
     grid.columnGap = GUI_BASE_GAP_PX;
-
-    using Track = Grid::TrackInfo;
-
-    grid.templateRows = {   Track (GUI_BASE_SIZE_PX),
-                            Track (GUI_SIZE_PX(0.2)),   // Blank row
-                            Track (1_fr)                // Remainder used for viewport
-                        };
-    
-    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track (1_fr), Track (GUI_SIZE_PX(2.2)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
-
+    grid.templateRows = {   
+        Track (GUI_BASE_SIZE_PX),
+        Track (GUI_SIZE_PX(0.2)),   // Blank row
+        Track (1_fr)                // Remainder used for viewport
+    };
+    grid.templateColumns = { Track (GUI_SIZE_PX(3)), Track (GUI_SIZE_PX(1.5)), Track (1_fr), Track (GUI_SIZE_PX(1.8)), Track (GUI_SIZE_PX(1.8)), Track(GUI_BASE_GAP_PX), Track (GUI_SIZE_PX(2.2)), Track (GUI_SIZE_PX(2)), Track (GUI_SIZE_PX(1.7)) };
     grid.autoFlow = Grid::AutoFlow::row;
-
-    grid.items.addArray({   GridItem (lblTitle).withArea ({}, GridItem::Span (2)),
-                            GridItem (btnSourceA),
-                            GridItem (btnSourceB),
-                            GridItem(),
-                            GridItem (btnDisable),
-                            GridItem (btnInvert),
-                            GridItem (btnMute),
-                            GridItem().withArea ({}, GridItem::Span (8)), // Blank row
-                            GridItem (viewport).withArea ({}, GridItem::Span (8))
-                        });
+    grid.items.addArray({  
+        GridItem (lblTitle).withArea ({}, GridItem::Span (2)),
+        GridItem(),
+        GridItem (btnSourceA),
+        GridItem (btnSourceB),
+        GridItem(),
+        GridItem (btnDisable),
+        GridItem (btnInvert),
+        GridItem (btnMute),
+        GridItem().withArea ({}, GridItem::Span (9)), // Blank row
+        GridItem (viewport).withArea ({}, GridItem::Span (9))
+    });
 
     grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
 
     const auto controlWidth = viewport.getWidth() - viewport.getLookAndFeel().getDefaultScrollbarWidth();
     controlArrayComponent.setSize (controlWidth, static_cast<int> (controlArrayComponent.getPreferredHeight()));
 }
-//float ProcessorComponent::getMinimumWidth() const
-//{
-//    // Nominal value, because we are happy to have same width as the source component
-//    return GUI_SIZE_F(10);
-//}
 float ProcessorComponent::getPreferredHeight() const
 {
     // This is the height needed to show 3 controls (176 pixels converted back to GUI units for a base size of 30.0)
