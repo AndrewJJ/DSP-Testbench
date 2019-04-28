@@ -857,7 +857,7 @@ AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessor
 
     lblChannel.setText ("In " + String (channelIndex), dontSendNotification);
     lblChannel.setJustificationType (Justification::centred);
-    lblChannel.setFont (Font(GUI_SIZE_F(0.5)).boldened());
+    lblChannel.setFont (Font (GUI_SIZE_F(0.5)).boldened());
     addAndMakeVisible (lblChannel);
 
     meterBar.setTooltip("Signal level for input channel " + String (channelIndex));
@@ -876,8 +876,10 @@ AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessor
     btnOutputSelection.setTooltip ("Assign input channel " + String (channelIndex) + " to different output channels");
     btnOutputSelection.setTriggeredOnMouseDown (true);
     btnOutputSelection.onClick  = [this] {
-        const auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
-        getOutputMenu().showMenuAsync (options, new MenuCallback (this));
+        channelSelectorPopup.reset (new ChannelSelectorPopup (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection));
+        channelSelectorPopup->onClose = [this] (BigInteger& channelMask) { selectedOutputChannels = channelMask; };
+        channelSelectorPopup->setOwner (&channelSelectorPopup);
+        channelSelectorPopup->show();
     };
     addAndMakeVisible (btnOutputSelection);
 }
@@ -934,13 +936,6 @@ BigInteger AudioTab::ChannelComponent::getSelectedOutputs() const
 {
     return selectedOutputChannels;
 }
-void AudioTab::ChannelComponent::toggleOutputSelection (const int channelNumber)
-{
-    if (selectedOutputChannels[channelNumber] == 1)
-        selectedOutputChannels.clearBit (channelNumber);
-    else
-        selectedOutputChannels.setBit (channelNumber);
-}
 bool AudioTab::ChannelComponent::isOutputSelected (const int channelNumber) const
 {
     return selectedOutputChannels[static_cast<int> (channelNumber)];
@@ -959,21 +954,6 @@ void AudioTab::ChannelComponent::refresh ()
 float AudioTab::ChannelComponent::getLinearGain() const
 {
     return currentLinearGain.get();
-}
-AudioTab::ChannelComponent::MenuCallback::MenuCallback (ChannelComponent* parentComponent)
-    : parent (parentComponent)
-{
-}
-PopupMenu AudioTab::ChannelComponent::getOutputMenu() const
-{
-    PopupMenu menu;
-    for (auto ch = 0; ch < numOutputs; ++ch)
-        menu.addItem (ch + 1, "Output " + String (ch), true, isOutputSelected (ch));
-    return menu;
-}
-void AudioTab::ChannelComponent::MenuCallback::modalStateFinished (int returnValue)
-{
-    parent->toggleOutputSelection (returnValue - 1);
 }
 
 AudioTab::InputArrayComponent::InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo)
@@ -1194,14 +1174,16 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
                 }
             }
         }
-        const auto options = PopupMenu::Options().withTargetComponent (&btnOutputSelection);
-        getOutputMenu().showMenuAsync (options, new MenuCallback (this));
+        channelSelectorPopup.reset (new ChannelSelectorPopup (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection));
+        channelSelectorPopup->onClose = [this] (BigInteger& channelMask) { selectedOutputChannels = channelMask; };
+        channelSelectorPopup->setOwner (&channelSelectorPopup);
+        channelSelectorPopup->show();
     };
 
     addAndMakeVisible (btnInvert);
     btnInvert.setButtonText (TRANS("Invert"));
     btnInvert.setClickingTogglesState (true);
-    btnInvert.setColour(TextButton::buttonOnColourId, Colours::green);
+    btnInvert.setColour (TextButton::buttonOnColourId, Colours::green);
     isInverted = config->getBoolAttribute ("Invert");
     btnInvert.setToggleState (isInverted, dontSendNotification);
     btnInvert.onClick = [this] { isInverted = btnInvert.getToggleState(); };
@@ -1209,7 +1191,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     addAndMakeVisible (btnMute);
     btnMute.setButtonText (TRANS("Mute"));
     btnMute.setClickingTogglesState (true);
-    btnMute.setColour(TextButton::buttonOnColourId, Colours::darkred);
+    btnMute.setColour (TextButton::buttonOnColourId, Colours::darkred);
     isMuted = config->getBoolAttribute ("Mute");
     btnMute.setToggleState (isMuted, dontSendNotification);
     btnMute.onClick = [this] {
@@ -1396,32 +1378,168 @@ float SourceComponent::getDesiredTabComponentHeight() const
     const auto tabButtonBarDepth = GUI_BASE_GAP_F + tabBorder + 1.0f;
     return tabInnerHeight + tabBorder + tabMargin + tabButtonBarDepth;
 }
-bool SourceComponent::isOutputSelected (const int channelNumber) const
+
+ChannelSelectorPopup::ChannelSelectorPopup (const int numberOfChannels, const String& channelLabelPrefix, const BigInteger& initialSelection, const Component* componentToPositionNear)
+    : numChannels (numberOfChannels),
+      channelMask (std::move(initialSelection)),
+      anchorComponent (componentToPositionNear)
 {
-    return selectedOutputChannels[static_cast<int> (channelNumber)];
-}
-void SourceComponent::toggleOutputSelection (const int channelNumber)
-{
-    if (selectedOutputChannels[channelNumber] == 1)
-        selectedOutputChannels.clearBit (channelNumber);
-    else
-        selectedOutputChannels.setBit (channelNumber);
-}
-PopupMenu SourceComponent::getOutputMenu() const
-{
-    PopupMenu menu;
-    const auto* currentDevice = audioDeviceManager->getCurrentAudioDevice();
-    if (currentDevice)
+    addKeyListener (this);
+
+    btnAll.setButtonText ("All");
+    btnAll.setTooltip ("Select all channels");
+    btnAll.onClick = [this]
     {
-        for (auto ch = 0; ch < numOutputs; ++ch)
-            menu.addItem (ch + 1, "Output " + String (ch), true, isOutputSelected (ch));
+        // Toggle all channel buttons on
+        for (auto b : channelArrayComponent.channelButtons)
+        {
+            b->setToggleState (true, sendNotificationSync);
+        }
+    };
+    addAndMakeVisible (btnAll);
+
+    btnNone.setButtonText ("None");
+    btnNone.setTooltip ("Deselect all channels");
+    btnNone.onClick = [this]
+    {
+        // Toggle all channel buttons off
+        for (auto b : channelArrayComponent.channelButtons)
+        {
+            b->setToggleState (false, sendNotificationSync);
+        }
+    };
+    addAndMakeVisible (btnNone);
+
+    btnDone.setButtonText ("OK");
+    btnDone.setColour (TextButton::ColourIds::buttonColourId, Colours::green);
+    btnDone.onClick = [this]
+    {
+        onClose (channelMask);
+        dismiss();
+    };
+    addAndMakeVisible (btnDone);
+
+    btnCancel.setButtonText ("Cancel");
+    btnCancel.setColour (TextButton::ColourIds::buttonColourId, Colours::darkred);
+    btnCancel.onClick = [this]
+    {
+        dismiss();
+    };
+    addAndMakeVisible (btnCancel);
+
+    // Create array of channel toggles
+    const auto prefix = (channelLabelPrefix != "") ? channelLabelPrefix : "Channel";
+    for (auto ch = 0; ch < numberOfChannels; ++ch)
+    {
+        auto* t = channelArrayComponent.channelButtons.add (new ToggleButton());
+        t->setButtonText (prefix + " " + String (ch));
+        t->setToggleState (channelMask[ch], dontSendNotification);
+        t->onStateChange = [this, ch, t] { channelMask.setBit (ch, t->getToggleState()); };
+        channelArrayComponent.addAndMakeVisible (t);
     }
-    return menu;
+
+    viewport.setScrollBarsShown (true, false);
+    viewport.setViewedComponent (&channelArrayComponent);
+    addAndMakeVisible (viewport);
+
+    // Size and position relative to anchor component
+    const auto popupWidth = GUI_SIZE_I (5.5);
+    const auto anchorRight = anchorComponent->getScreenX() + componentToPositionNear->getWidth() + GUI_BASE_GAP_I;
+    const auto anchorTop = anchorComponent->getScreenY();
+    const auto anchorDisplay = Desktop::getInstance().getDisplays().findDisplayForRect (anchorComponent->getScreenBounds());
+    const auto displayWidth = anchorDisplay.userArea.getWidth();
+    const auto displayHeight = anchorDisplay.userArea.getHeight();
+    const auto popupHeight = calculateHeight();
+    const auto left = jmin (anchorRight, displayWidth - popupWidth);
+    const auto top = jmin (anchorTop, displayHeight - popupHeight);
+    channelArrayComponent.setSize (popupWidth - GUI_GAP_I(4), getViewportInternalHeight());
+    setTopLeftPosition (left, top);
+    setSize (popupWidth, popupHeight);
 }
-SourceComponent::MenuCallback::MenuCallback (SourceComponent* parentComponent)
-    : parent (parentComponent)
-{ }
-void SourceComponent::MenuCallback::modalStateFinished (int returnValue)
+void ChannelSelectorPopup::paint (Graphics & g)
 {
-    parent->toggleOutputSelection (returnValue - 1);
+    g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
+    g.setColour (DspTestBenchLnF::ApplicationColours::componentOutline());
+    g.drawRect (getLocalBounds());
+}
+void ChannelSelectorPopup::resized()
+{
+    const auto viewportHeight = getHeight() - getHeightExcludingViewport();
+    using Track = Grid::TrackInfo;
+    Grid grid;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
+    grid.templateRows = { 
+        Track (GUI_BASE_SIZE_PX),
+        Track (Grid::Px (viewportHeight)),
+        Track (GUI_BASE_SIZE_PX)
+    };
+    grid.templateColumns = { Track (1_fr), Track (1_fr) };
+    grid.items.addArray( {
+            GridItem (btnAll), GridItem (btnNone),
+            GridItem (viewport).withArea ({}, GridItem::Span (2)),
+            GridItem (btnDone), GridItem (btnCancel)
+        });
+    grid.performLayout (getLocalBounds().reduced (GUI_GAP_I(2), GUI_GAP_I(2)));
+}
+bool ChannelSelectorPopup::keyPressed (const KeyPress& key, Component* /*originatingComponent*/)
+{
+    if (key == KeyPress::escapeKey)
+        dismiss();
+    return true;
+}
+void ChannelSelectorPopup::show()
+{
+    setVisible (true);
+    addToDesktop (ComponentPeer::StyleFlags::windowIsTemporary | ComponentPeer::StyleFlags::windowHasDropShadow);
+    this->toFront (true);
+}
+void ChannelSelectorPopup::setOwner(std::unique_ptr<ChannelSelectorPopup>* owner)
+{
+    myOwner = owner;
+}
+void ChannelSelectorPopup::dismiss()
+{
+    this->removeFromDesktop();
+    if (myOwner)
+        myOwner->reset();
+}
+int ChannelSelectorPopup::calculateHeight() const
+{
+    const auto desiredHeight = getHeightExcludingViewport() + getViewportInternalHeight();
+    return jlimit (getMinimumHeight(), getMaximumHeight(), desiredHeight);
+}
+int ChannelSelectorPopup::getMinimumHeight() const
+{
+    const auto minViewPortHeight = GUI_BASE_SIZE_I + GUI_BASE_GAP_I; // 1 channel with a small gap
+    return getHeightExcludingViewport() + minViewPortHeight;
+}
+int ChannelSelectorPopup::getMaximumHeight() const
+{
+    auto display = Desktop::getInstance().getDisplays().findDisplayForRect (anchorComponent->getScreenBounds());
+    return display.userArea.getHeight();
+}
+int ChannelSelectorPopup::getHeightExcludingViewport() const
+{
+    return GUI_SIZE_I(2) + GUI_GAP_I(2) + GUI_GAP_I(4);
+}
+int ChannelSelectorPopup::getViewportInternalHeight() const
+{
+    return GUI_SIZE_I (numChannels) + GUI_GAP_I (numChannels - 1);
+}
+void ChannelSelectorPopup::ChannelArrayComponent::paint (Graphics& g)
+{
+    g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
+}
+void ChannelSelectorPopup::ChannelArrayComponent::resized()
+{
+    using Track = Grid::TrackInfo;
+    Grid grid;
+    grid.rowGap = GUI_BASE_GAP_PX;
+    grid.columnGap = GUI_BASE_GAP_PX;
+    grid.autoRows = Track (GUI_BASE_SIZE_PX);
+    grid.templateColumns = { Track (1_fr) };
+    for (auto c : getChildren())
+        grid.items.add (GridItem (c));
+    grid.performLayout (getLocalBounds().withTrimmedRight (GUI_BASE_GAP_I));
 }

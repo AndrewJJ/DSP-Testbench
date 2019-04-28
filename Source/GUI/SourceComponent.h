@@ -17,8 +17,9 @@
 #include "../Processing/NoiseGenerators.h"
 #include "../Processing/MeteringProcessors.h"
 
-// Forward declaration
+// Forward declarations
 class SourceComponent;
+class ChannelSelectorPopup;
 
 enum Waveform
 {
@@ -294,17 +295,6 @@ private:
 
     private:
 
-        void toggleOutputSelection (const int channelNumber);
-        PopupMenu getOutputMenu() const;
-        class MenuCallback final : public ModalComponentManager::Callback
-        {
-        public:
-            explicit MenuCallback (ChannelComponent* parentComponent);
-            void modalStateFinished (int returnValue) override;
-        private:
-            ChannelComponent* parent;
-        };
-
         Label lblChannel;
         MeterBar meterBar{};
         Slider sldGain;
@@ -316,6 +306,7 @@ private:
         BigInteger selectedOutputChannels = 0;
         int channel = 0;
         Atomic<float> currentLinearGain = 1.0f;
+        std::unique_ptr<ChannelSelectorPopup> channelSelectorPopup {};
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
     };
@@ -392,18 +383,6 @@ private:
     float getDesiredTabComponentWidth() const;
     float getDesiredTabComponentHeight() const;
 
-    bool isOutputSelected (const int channelNumber) const;
-    void toggleOutputSelection (const int channelNumber);
-    PopupMenu getOutputMenu() const;
-    class MenuCallback final : public ModalComponentManager::Callback
-    {
-    public:
-        explicit MenuCallback (SourceComponent* parentComponent);
-        void modalStateFinished (int returnValue) override;
-    private:
-        SourceComponent* parent;
-    };
-    
     Label lblTitle;
     Slider sldGain;
     TextButton btnOutputSelection;
@@ -414,6 +393,7 @@ private:
     //std::unique_ptr<SampleTab> sampleTab;
     std::unique_ptr<WaveTab> waveTab{};
     std::unique_ptr<AudioTab> audioTab{};
+    std::unique_ptr<ChannelSelectorPopup> channelSelectorPopup {};
 
     SourceComponent* otherSource = nullptr;
     bool isInverted = false;
@@ -424,4 +404,54 @@ private:
     dsp::Gain<float> gain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceComponent)
+};
+
+class ChannelSelectorPopup : public Component, public KeyListener
+{
+public:
+    /** Creates a channel selector popup which you must call show() on.
+     *  onClose will be called when the popup is closed, with the channel mask passed as an argument.
+     */
+    explicit ChannelSelectorPopup (const int numberOfChannels, const String& channelLabelPrefix, const BigInteger& initialSelection, const Component* componentToPositionNear);
+    ~ChannelSelectorPopup() = default;
+
+    void paint (Graphics& g) override;
+    void resized() override;
+    bool keyPressed (const KeyPress & key, Component * originatingComponent) override;
+    void show();
+    void dismiss();
+    /** If you set the owner, then we'll delete ourselves when we finish. */
+    void setOwner (std::unique_ptr<ChannelSelectorPopup>* owner);
+
+    std::function<void (BigInteger&)> onClose;
+
+private:
+
+    class ChannelArrayComponent : public Component
+    {
+    public:
+        ChannelArrayComponent() = default;
+        ~ChannelArrayComponent() = default;
+        void paint (Graphics& g) override;
+        void resized() override;
+        int getRequiredHeight() const;
+        OwnedArray<ToggleButton> channelButtons {};
+    };
+
+    int calculateHeight() const;
+    int getMinimumHeight() const;
+    int getMaximumHeight() const;
+    int getHeightExcludingViewport() const;
+    int getViewportInternalHeight() const;
+
+    int numChannels = 0;
+    BigInteger channelMask {};
+    const Component* anchorComponent;
+    TextButton btnAll;
+    TextButton btnNone;
+    TextButton btnDone;
+    TextButton btnCancel;
+    Viewport viewport;
+    ChannelArrayComponent channelArrayComponent;
+    std::unique_ptr<ChannelSelectorPopup>* myOwner = nullptr;
 };
