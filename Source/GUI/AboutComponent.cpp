@@ -27,7 +27,7 @@ AboutComponent::AboutComponent()
 
     insertSubtitle ("Title bar controls");
     insertText ("Besides the usual window sizing buttons, the title bar hosts the following controls:", true);
-    insertBullet(); insertText ("CPU meter (hover to see number of buffer under/overruns, click to reset)");
+    insertBullet(); insertText ("CPU meter");
     insertBullet(); insertText ("Snapshot");
     insertBullet(); insertText ("Performance benchmarks");
     insertBullet(); insertText ("Audio device settings");
