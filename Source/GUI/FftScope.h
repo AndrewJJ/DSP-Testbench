@@ -415,7 +415,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
                     ySum += y[i];
                     count++;
                 }
-                aggY = toPxFromLinear (ySum / static_cast<float> (count));
+                aggY = ySum / static_cast<float> (count);
             }
             else // aggregate with maximum
             {
