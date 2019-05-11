@@ -219,7 +219,7 @@ private:
     void initialise (size_t lookupTableNumPoints = 0)
     {
         // Only implement lookup table for sine wave (the other waveforms are cheap to
-        // calculate anyway). Note that the lookup table approach works fine triangle and
+        // calculate anyway). Note that the lookup table approach works fine for triangle and
         // sawtooth, but produces unpleasant artefacts for square waves (perhaps because 
         // the transition doesn't exactly match where the PolyBLEP is applied).
         //
@@ -242,11 +242,8 @@ private:
         if (waveform == sine && lookupTableNumPoints != 0)
         {
             // Note that the period is shifted Pi ahead of what is used by the original juce::dsp::Oscillator class
-            auto* table = new LookupTableTransform<NumericType> (generator,
-                                                                 zero,
-                                                                 MathConstants<NumericType>::twoPi,
-                                                                 lookupTableNumPoints);
-            lookupTable.reset (table);
+            lookupTable = std::make_unique<LookupTableTransform<NumericType>> (generator, zero, MathConstants<NumericType>::twoPi, lookupTableNumPoints);
+            auto* table = lookupTable.get();
             generator = [table] (NumericType x) { return (*table) (x); };
         }
     }
