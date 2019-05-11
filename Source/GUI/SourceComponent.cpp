@@ -487,16 +487,8 @@ File WaveTab::AudioThumbnailComponent::getCurrentFile() const
 void WaveTab::AudioThumbnailComponent::setTransportSource (AudioTransportSource* newSource)
 {
     transportSource = newSource;
-
-    struct ResetCallback  : public CallbackMessage
-    {
-        ResetCallback (AudioThumbnailComponent& o) : owner (o) {}
-        void messageCallback() override    { owner.reset(); }
-
-        AudioThumbnailComponent& owner;
-    };
-
-    (new ResetCallback (*this))->post();
+    // Call reset from the message thread sometime after this method exits
+    MessageManager::callAsync ([this] { reset(); });
 }
 void WaveTab::AudioThumbnailComponent::clear ()
 {
