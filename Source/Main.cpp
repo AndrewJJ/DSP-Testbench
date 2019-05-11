@@ -24,7 +24,7 @@ void DSPTestbenchApplication::initialise (const String&)
     options.osxLibrarySubFolder = "Application Support";
     appProperties.setStorageParameters(options);
 
-    mainWindow.reset (new MainWindow (getApplicationName()));
+    mainWindow = std::make_unique<MainWindow> (getApplicationName());
     startThread();
 }
 void DSPTestbenchApplication::shutdown()
@@ -78,7 +78,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (const String& name)
     setResizeLimits (minWidth, minHeight, 10000, 10000);
 
     // Need to dummy this up so we can change the menu component height
-    dummyMenuBarModel.reset (new DummyMenuBarModel);
+    dummyMenuBarModel = std::make_unique<DummyMenuBarModel>();
     setMenuBar (dummyMenuBarModel.get());
     setMenuBarComponent (new DspTestBenchMenuComponent (dynamic_cast<MainContentComponent*> (getContentComponent())));
 
@@ -86,7 +86,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (const String& name)
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue ("Application"));
     if (!config)
-        config.reset(new XmlElement ("Application"));
+        config = std::make_unique<XmlElement> ("Application");
     const auto width = config->getIntAttribute ("WindowWidth", minWidth);
     const auto height = config->getIntAttribute ("WindowHeight", minHeight);
 

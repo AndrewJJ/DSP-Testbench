@@ -28,7 +28,7 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
     if (!config)
-        config.reset(new XmlElement (keyName));
+        config = std::make_unique<XmlElement> (keyName);
 
     // Initialise labels for showing results
     using cols = DspTestBenchLnF::ApplicationColours;
@@ -410,7 +410,7 @@ void BenchmarkComponent::BenchmarkThread::setProcessSpec (dsp::ProcessSpec & spe
     testSpec = spec;
 
     // Initialise audio block
-    audioBlock.reset (new dsp::AudioBlock<float> (heapBlock, testSpec.numChannels, testSpec.maximumBlockSize));
+    audioBlock = std::make_unique<dsp::AudioBlock<float>> (heapBlock, testSpec.numChannels, testSpec.maximumBlockSize);
     parent->setBufferAlignmentStatus (getAudioBlockAlignmentStatus());
 
     // Fill block with audio data from source component

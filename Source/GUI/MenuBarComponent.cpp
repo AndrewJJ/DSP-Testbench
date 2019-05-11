@@ -54,7 +54,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
     addAndMakeVisible (cpuMeter);
     addAndMakeVisible (xRunMeter);
 
-    btnSnapshot.reset (new DrawableButton ("Snapshot", DrawableButton::ImageFitted));
+    btnSnapshot = std::make_unique<DrawableButton> ("Snapshot", DrawableButton::ImageFitted);
     addAndMakeVisible (btnSnapshot.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnSnapshot.get(), BinaryData::screenshot_svg, BinaryData::screenshot_svgSize, Colours::black, Colours::red);
     btnSnapshot->setTooltip ("Restart audio briefly, then hold a snapshot of the result for analysis");
@@ -67,7 +67,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
             mainContentComponent->resumeStreaming();
     };
 
-    btnBenchmark.reset (new DrawableButton ("Benchmark", DrawableButton::ImageFitted));
+    btnBenchmark = std::make_unique<DrawableButton> ("Benchmark", DrawableButton::ImageFitted);
     addAndMakeVisible (btnBenchmark.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnBenchmark.get(), BinaryData::dashboard_gauge_svg, BinaryData::dashboard_gauge_svgSize, Colours::black);
     btnBenchmark->setTooltip ("Run performance benchmarks");
@@ -97,7 +97,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
         }
     };
 
-    btnAudioDevice.reset (new DrawableButton ("Audio Settings", DrawableButton::ImageFitted));
+    btnAudioDevice = std::make_unique<DrawableButton> ("Audio Settings", DrawableButton::ImageFitted);
     addAndMakeVisible (btnAudioDevice.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnAudioDevice.get(), BinaryData::audio_settings_svg, BinaryData::audio_settings_svgSize, Colours::black);
     btnAudioDevice->setTooltip ("Configure audio device settings");
@@ -115,7 +115,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
         launchOptions.launchAsync();
     };
 
-    btnAbout.reset (new DrawableButton ("About", DrawableButton::ImageFitted));
+    btnAbout = std::make_unique<DrawableButton> ("About", DrawableButton::ImageFitted);
     addAndMakeVisible (btnAbout.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnAbout.get(), BinaryData::about_svg, BinaryData::about_svgSize, Colours::black);
     btnAbout->setTooltip ("Show information about DSP Testbench (including attributions)");
@@ -129,7 +129,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
         launchOptions.content.set (new AboutComponent(), true);
         launchOptions.resizable = true;
         auto* dw = launchOptions.launchAsync();
-        aboutConstrainer.reset (new ComponentBoundsConstrainer());
+        aboutConstrainer = std::make_unique<ComponentBoundsConstrainer>();
         aboutConstrainer->setMinimumSize (800, 600);
         dw->setConstrainer (aboutConstrainer.get());
     };

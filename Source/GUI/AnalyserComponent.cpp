@@ -18,7 +18,7 @@ AnalyserComponent::AnalyserComponent()
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
     if (!config)
-        config.reset(new XmlElement (keyName));
+        config = std::make_unique<XmlElement> (keyName);
 
     lblTitle.setName ("Analyser label");
     lblTitle.setText ("Analyser", dontSendNotification);
@@ -29,12 +29,12 @@ AnalyserComponent::AnalyserComponent()
     lblTitle.setColour (TextEditor::backgroundColourId, Colours::transparentBlack);
     addAndMakeVisible (lblTitle);
 
-    btnConfig.reset (new DrawableButton ("Config", DrawableButton::ImageFitted));
+    btnConfig = std::make_unique<DrawableButton> ("Config", DrawableButton::ImageFitted);
     addAndMakeVisible (btnConfig.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnConfig.get(), BinaryData::configure_svg, BinaryData::configure_svgSize, Colours::black);
     btnConfig->setTooltip ("Configure analyser settings");
     
-    btnPause.reset (new DrawableButton ("Disable", DrawableButton::ImageFitted));
+    btnPause = std::make_unique<DrawableButton> ("Disable", DrawableButton::ImageFitted);
     addAndMakeVisible (btnPause.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnPause.get(), BinaryData::pause_svg, BinaryData::pause_svgSize, Colours::black, Colours::red);
     btnPause->setTooltip ("Pause the analyser");
@@ -48,7 +48,7 @@ AnalyserComponent::AnalyserComponent()
         oscilloscope.setMouseMoveRepaintEnablement (!statusActive.get());
     };
 
-    btnExpand.reset (new DrawableButton ("Expand", DrawableButton::ImageFitted));
+    btnExpand = std::make_unique<DrawableButton> ("Expand", DrawableButton::ImageFitted);
     addAndMakeVisible (btnExpand.get());
     DspTestBenchLnF::setImagesForDrawableButton (btnExpand.get(), BinaryData::expand_svg, BinaryData::expand_svgSize, Colours::black, Colours::yellow);
     btnExpand->setTooltip ("Expand analyser");
@@ -81,7 +81,7 @@ AnalyserComponent::AnalyserComponent()
     clipStatsViewport.setScrollBarsShown (false, true);
 
     // Construct config component last so it picks up the correct values
-    configComponent.reset(new AnalyserConfigComponent(this));
+    configComponent = std::make_unique<AnalyserConfigComponent> (this);
     btnConfig->onClick = [this] { 
         DialogWindow::showDialog ("Analyser configuration", configComponent.get(), nullptr, Colours::darkgrey, true);
     };

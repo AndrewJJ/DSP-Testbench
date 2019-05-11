@@ -23,7 +23,7 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
     if (!config)
     {
         // Define default properties to be used if user settings not already saved
-        config.reset(new XmlElement (keyName));
+        config = std::make_unique<XmlElement> (keyName);
         config->setAttribute ("SourceA", true);
         config->setAttribute ("SourceB", false);
         config->setAttribute ("Disable", false);

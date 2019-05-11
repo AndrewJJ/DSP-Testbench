@@ -22,7 +22,7 @@ SynthesisTab::SynthesisTab (String& sourceName)
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (keyName));
     if (!config)
-        config.reset(new XmlElement (keyName));
+        config = std::make_unique<XmlElement> (keyName);
 
     addAndMakeVisible (cmbWaveform);
     cmbWaveform.setTooltip ("Select a waveform");
@@ -570,7 +570,7 @@ WaveTab::WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePa
 {
     formatManager.registerBasicFormats();
 
-    audioThumbnailComponent.reset (new AudioThumbnailComponent (audioDeviceManager, &formatManager));
+    audioThumbnailComponent = std::make_unique<AudioThumbnailComponent> (audioDeviceManager, &formatManager);
     addAndMakeVisible (audioThumbnailComponent.get());
     audioThumbnailComponent->addChangeListener (this);
 
@@ -760,7 +760,7 @@ bool WaveTab::loadFile (const File& fileToPlay)
     reader.reset (formatManager.createReaderFor (fileToPlay));
     if (reader)
     {
-        readerSource.reset (new AudioFormatReaderSource (reader.get(), false));
+        readerSource = std::make_unique<AudioFormatReaderSource> (reader.get(), false);
         init();
         return true;
     }
@@ -785,7 +785,7 @@ void WaveTab::chooseFile()
 void WaveTab::init()
 {
     if (!transportSource)
-        transportSource.reset (new AudioTransportSource());
+        transportSource = std::make_unique<AudioTransportSource>();
 
     transportSource->prepareToPlay(maxBlockSize, sampleRate);
     transportSource->addChangeListener (this);
@@ -876,7 +876,7 @@ AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessor
     btnOutputSelection.setTooltip ("Assign input channel " + String (channelIndex) + " to different output channels");
     btnOutputSelection.setTriggeredOnMouseDown (true);
     btnOutputSelection.onClick  = [this] {
-        channelSelectorPopup.reset (new ChannelSelectorPopup (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection));
+        channelSelectorPopup = std::make_unique<ChannelSelectorPopup> (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection);
         channelSelectorPopup->onClose = [this] (BigInteger& channelMask) { selectedOutputChannels = channelMask; };
         channelSelectorPopup->setOwner (&channelSelectorPopup);
         channelSelectorPopup->show();
@@ -1120,7 +1120,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
     config.reset (propertiesFile->getXmlValue (sourceName));
     if (!config)
-        config.reset(new XmlElement (sourceName));
+        config = std::make_unique<XmlElement> (sourceName);
 
     // Restore output channel mask from config
     const auto mask = config->getStringAttribute ("OutputChannelMask");
@@ -1174,7 +1174,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
                 }
             }
         }
-        channelSelectorPopup.reset (new ChannelSelectorPopup (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection));
+        channelSelectorPopup = std::make_unique<ChannelSelectorPopup> (numOutputs, "Output", selectedOutputChannels, &btnOutputSelection);
         channelSelectorPopup->onClose = [this] (BigInteger& channelMask) { selectedOutputChannels = channelMask; };
         channelSelectorPopup->setOwner (&channelSelectorPopup);
         channelSelectorPopup->show();
@@ -1199,12 +1199,12 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
         audioTab->setRefresh (!isMuted);
     };
 
-    tabbedComponent.reset (new TabbedComponent (TabbedButtonBar::TabsAtTop));
-    synthesisTab.reset (new SynthesisTab (sourceName));
-    //sampleTab.reset (new SampleTab());
-    waveTab.reset (new WaveTab (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying")));
+    tabbedComponent = std::make_unique<TabbedComponent> (TabbedButtonBar::TabsAtTop);
+    synthesisTab = std::make_unique<SynthesisTab> (sourceName);
+    //sampleTab = std::make_unique<SampleTab>();
+    waveTab = std::make_unique<WaveTab> (audioDeviceManager, config->getStringAttribute ("WaveFilePath"), config->getBoolAttribute ("WaveFilePlaying"));
     waveTab->setSnapshotMode (config->getBoolAttribute ("WaveFileShouldPlayFromStartOnSnapshot"));
-    audioTab.reset (new AudioTab (audioDeviceManager));
+    audioTab = std::make_unique<AudioTab> (audioDeviceManager);
     addAndMakeVisible (tabbedComponent.get());
     tabbedComponent->setTabBarDepth (GUI_BASE_SIZE_I);
     tabbedComponent->addTab (TRANS("Synthesis"), Colours::darkgrey, synthesisTab.get(), false, Mode::Synthesis);

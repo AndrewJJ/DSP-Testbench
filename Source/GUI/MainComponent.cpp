@@ -17,18 +17,18 @@ MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
 {
     holdAudio.set (false);
 
-    srcComponentA.reset (new SourceComponent ("A", &deviceManager));
-    srcComponentB.reset (new SourceComponent ("B", &deviceManager));
+    srcComponentA = std::make_unique<SourceComponent> ("A", &deviceManager);
+    srcComponentB = std::make_unique<SourceComponent> ("B", &deviceManager);
 
 // =================================================================================================================================
 // +++      Here is where to instantiate the processors being tested (it's OK to leave one as nullptr if you don't need it)      +++
 // =================================================================================================================================
-    procComponentA.reset (new ProcessorComponent ("A", new LpfExample()));
-    procComponentB.reset (new ProcessorComponent ("B", new ThruExample()));
+    procComponentA = std::make_unique<ProcessorComponent> ("A", new LpfExample());
+    procComponentB = std::make_unique<ProcessorComponent> ("B", new ThruExample());
 // =================================================================================================================================
 
-    analyserComponent.reset (new AnalyserComponent());
-    monitoringComponent.reset (new MonitoringComponent (&deviceManager, procComponentA.get(), procComponentB.get()));
+    analyserComponent = std::make_unique<AnalyserComponent>();
+    monitoringComponent = std::make_unique<MonitoringComponent> (&deviceManager, procComponentA.get(), procComponentB.get());
 
     addAndMakeVisible (srcComponentA.get());
     addAndMakeVisible (srcComponentB.get());

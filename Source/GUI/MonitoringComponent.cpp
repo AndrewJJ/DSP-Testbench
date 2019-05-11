@@ -23,7 +23,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
     if (!config)
     {
         // Define default properties to be used if user settings not already saved
-        config.reset(new XmlElement (keyName));
+        config = std::make_unique<XmlElement> (keyName);
         config->setAttribute ("OutputGain", 0.0);
         config->setAttribute ("OutputLimiter", true);
         config->setAttribute ("OutputMute", false);
