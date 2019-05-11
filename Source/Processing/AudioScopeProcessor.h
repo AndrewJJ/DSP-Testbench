@@ -54,7 +54,7 @@ public:
     AudioScopeProcessor (const AudioScopeProcessor&) = delete;
     AudioScopeProcessor& operator= (const AudioScopeProcessor&) = delete;
     AudioScopeProcessor (AudioScopeProcessor&& other) = delete;
-    AudioScopeProcessor& operator=(AudioScopeProcessor&& other) = delete;
+    AudioScopeProcessor& operator= (AudioScopeProcessor&& other) = delete;
 };
 
 
@@ -68,23 +68,23 @@ inline AudioScopeProcessor::AudioScopeProcessor (): FixedBlockProcessor(frame_si
 
 inline void AudioScopeProcessor::prepare (const dsp::ProcessSpec& spec)
 {
-    FixedBlockProcessor::prepare(spec);
+    FixedBlockProcessor::prepare (spec);
 
     audioProbes.clear();
 
     // Add probes for each channel to transfer audio data to the GUI
     for (auto ch = 0; ch < static_cast<int>(spec.numChannels); ++ch)
-        audioProbes.add(new AudioProbe<OscilloscopeFrame>());
+        audioProbes.add (new AudioProbe<OscilloscopeFrame>());
 }
 
 inline void AudioScopeProcessor::performProcessing (const int channel)
 {
-    audioProbes[channel]->writeFrame(reinterpret_cast<const OscilloscopeFrame*>(buffer.getReadPointer(channel)));
+    audioProbes[channel]->writeFrame (reinterpret_cast<const OscilloscopeFrame*> (buffer.getReadPointer (channel)));
 }
 
 inline void AudioScopeProcessor::copyFrame (float* dest, const int channel) const
 {
-    audioProbes[channel]->copyFrame(reinterpret_cast<OscilloscopeFrame*>(dest));
+    audioProbes[channel]->copyFrame (reinterpret_cast<OscilloscopeFrame*>(dest));
 }
 
 inline ListenerRemovalCallback AudioScopeProcessor::addListenerCallback (ListenerCallback&& listenerCallback) const
@@ -93,7 +93,7 @@ inline ListenerRemovalCallback AudioScopeProcessor::addListenerCallback (Listene
     jassert (getNumChannels()>0);
 
     if (audioProbes.size() == getNumChannels() && audioProbes[getNumChannels() - 1])
-        return audioProbes[getNumChannels() - 1]->addListenerCallback (std::forward<ListenerCallback>(listenerCallback));
+        return audioProbes[getNumChannels() - 1]->addListenerCallback (std::forward<ListenerCallback> (listenerCallback));
 
     return {};
 }
