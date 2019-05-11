@@ -434,7 +434,6 @@ private:
         ~ChannelArrayComponent() = default;
         void paint (Graphics& g) override;
         void resized() override;
-        int getRequiredHeight() const;
         OwnedArray<ToggleButton> channelButtons {};
     };
 
