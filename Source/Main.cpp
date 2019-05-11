@@ -63,16 +63,15 @@ Component& DSPTestbenchApplication::getMainComponent()
     return *comp;
 }
 
-DSPTestbenchApplication::MainWindow::MainWindow (String name)
+DSPTestbenchApplication::MainWindow::MainWindow (const String& name)
     : DocumentWindow (name,
                       Desktop::getInstance().getDefaultLookAndFeel().findColour (ResizableWindow::backgroundColourId),
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (false);
     setTitleBarHeight (0);
-    MainContentComponent* mainContentComponent;
-    setContentOwned (mainContentComponent = new MainContentComponent(deviceManager), true);
-
+    setContentOwned (new MainContentComponent(deviceManager), true);
+    
     const auto minWidth = 992;
     const auto minHeight = 768;
     setResizable (true, false);
@@ -81,7 +80,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (String name)
     // Need to dummy this up so we can change the menu component height
     dummyMenuBarModel.reset (new DummyMenuBarModel);
     setMenuBar (dummyMenuBarModel.get());
-    setMenuBarComponent (new DspTestBenchMenuComponent (mainContentComponent));
+    setMenuBarComponent (new DspTestBenchMenuComponent (dynamic_cast<MainContentComponent*> (getContentComponent())));
 
     // Read application properties from settings file
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();

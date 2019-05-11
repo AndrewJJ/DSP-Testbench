@@ -41,7 +41,7 @@ public:
     {
     public:
 
-        MainWindow (String name);
+        explicit MainWindow (const String& name);
         ~MainWindow();
         void closeButtonPressed() override;
 
