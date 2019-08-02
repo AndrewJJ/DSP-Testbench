@@ -19,7 +19,7 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
 
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    config.reset (propertiesFile->getXmlValue (keyName));
+    config = propertiesFile->getXmlValue (keyName);
     if (!config)
     {
         // Define default properties to be used if user settings not already saved

@@ -16,7 +16,7 @@ AnalyserComponent::AnalyserComponent()
 {
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    config.reset (propertiesFile->getXmlValue (keyName));
+    config = propertiesFile->getXmlValue (keyName);
     if (!config)
         config = std::make_unique<XmlElement> (keyName);
 

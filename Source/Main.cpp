@@ -84,7 +84,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (const String& name)
 
     // Read application properties from settings file
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    config.reset (propertiesFile->getXmlValue ("Application"));
+    config = propertiesFile->getXmlValue ("Application");
     if (!config)
         config = std::make_unique<XmlElement> ("Application");
     const auto width = config->getIntAttribute ("WindowWidth", minWidth);

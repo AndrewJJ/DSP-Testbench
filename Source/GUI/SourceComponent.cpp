@@ -20,7 +20,7 @@ SynthesisTab::SynthesisTab (String& sourceName)
 
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    config.reset (propertiesFile->getXmlValue (keyName));
+    config = propertiesFile->getXmlValue (keyName);
     if (!config)
         config = std::make_unique<XmlElement> (keyName);
 
@@ -1110,7 +1110,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
 {
     // Read configuration from application properties
     auto* propertiesFile = DSPTestbenchApplication::getApp().appProperties.getUserSettings();
-    config.reset (propertiesFile->getXmlValue (sourceName));
+    config = propertiesFile->getXmlValue (sourceName);
     if (!config)
         config = std::make_unique<XmlElement> (sourceName);
 
