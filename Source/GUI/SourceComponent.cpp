@@ -1026,7 +1026,7 @@ void AudioTab::process (const dsp::ProcessContextReplacing<float>& context)
         for (auto i = 0; i < input.getNumSamples(); ++i)
             output.getChannelPointer (ch)[i] = input.getChannelPointer (ch)[i] * linearGain;
     }
-    temp.copy (input);
+    temp.copyFrom (input);
     
     // Add inputs to assigned outputs
     output.clear();
@@ -1302,7 +1302,7 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
         gain.process (context);
 
         if (isInverted)
-            context.getOutputBlock().multiply(-1.0f);
+            context.getOutputBlock().multiplyBy (-1.0f);
 
         // Mute disabled output channels
         for (auto ch = 0; ch < numOutputs; ++ch)

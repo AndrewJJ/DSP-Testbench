@@ -93,9 +93,9 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     
     // Copy current block into source buffers if needed
     if (srcComponentA->getMode() == SourceComponent::Mode::AudioIn)
-        srcBufferA.copy (outputBlock);
+        srcBufferA.copyFrom (outputBlock);
     if (srcComponentB->getMode() == SourceComponent::Mode::AudioIn)
-        srcBufferB.copy (outputBlock);
+        srcBufferB.copyFrom (outputBlock);
 
     // Generate audio from sources
     srcComponentA->process(dsp::ProcessContextReplacing<float> (srcBufferA));
@@ -105,7 +105,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     if (procComponentA->isProcessorEnabled())
     {
         routeSourcesAndProcess (procComponentA.get(), tempBuffer);
-        outputBlock.copy (tempBuffer);
+        outputBlock.copyFrom (tempBuffer);
         if (procComponentB->isProcessorEnabled()) // both active
         {
             routeSourcesAndProcess (procComponentB.get(), tempBuffer);
@@ -115,7 +115,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
     else if (procComponentB->isProcessorEnabled()) // processor A inactive
     {
         routeSourcesAndProcess (procComponentB.get(), tempBuffer);
-        outputBlock.copy (tempBuffer);
+        outputBlock.copyFrom (tempBuffer);
     }
     else // neither is active
         outputBlock.clear();
@@ -275,12 +275,12 @@ void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor
     // Route signal sources
     if (processor->isSourceConnectedA())
     {
-        temporaryBuffer.copy (srcBufferA);
+        temporaryBuffer.copyFrom (srcBufferA);
         if (processor->isSourceConnectedB()) // both sources connected
             temporaryBuffer.add (srcBufferB);
     }
     else if (processor->isSourceConnectedB()) // source A not connected
-        temporaryBuffer.copy (srcBufferB);
+        temporaryBuffer.copyFrom (srcBufferB);
     else // Neither source is connected
         temporaryBuffer.clear(); 
     
@@ -289,5 +289,5 @@ void MainContentComponent::routeSourcesAndProcess (ProcessorComponent* processor
     
     // Invert processor output as appropriate
     if (processor->isInverted())
-        temporaryBuffer.multiply (-1.0f);
+        temporaryBuffer.multiplyBy (-1.0f);
 }

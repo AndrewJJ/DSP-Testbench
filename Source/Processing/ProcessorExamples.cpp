@@ -105,7 +105,7 @@ void ThruExample::prepare (const dsp::ProcessSpec & /*spec*/)
 void ThruExample::process (const dsp::ProcessContextReplacing<float>& context)
 {
     jassert (context.getInputBlock().getNumChannels() == context.getOutputBlock().getNumChannels());
-    context.getOutputBlock().copy (context.getInputBlock());
+    context.getOutputBlock().copyFrom (context.getInputBlock());
 }
 void ThruExample::reset()
 { }
