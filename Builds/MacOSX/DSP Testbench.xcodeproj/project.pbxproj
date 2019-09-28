@@ -328,6 +328,13 @@
 			path = ../../JuceLibraryCode/AppConfig.h;
 			sourceTree = "SOURCE_ROOT";
 		};
+		3FD923A58A9C29E8BD678E98 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			name = "DSP Testbench.entitlements";
+			path = "DSP Testbench.entitlements";
+			sourceTree = "SOURCE_ROOT";
+		};
 		4A8C1A1EC0EE440AF360F9FD = {
 			isa = PBXFileReference;
 			lastKnownFileType = file.svg;
@@ -1308,7 +1315,7 @@
 		F2A9DE01DFF5477FEC460E6D = {
 			isa = PBXProject;
 			buildConfigurationList = 9791B1BE43C32DCAD26E259A;
-			attributes = { LastUpgradeCheck = 0930; ORGANIZATIONNAME = ""; TargetAttributes = { 1E8BD9C55163E95FC2D87C16 = { SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 0; }; }; }; }; };
+			attributes = { LastUpgradeCheck = 1100; ORGANIZATIONNAME = ""; TargetAttributes = { 1E8BD9C55163E95FC2D87C16 = { SystemCapabilities = {com.apple.ApplicationGroups.iOS = { enabled = 0; }; com.apple.InAppPurchase = { enabled = 0; }; com.apple.InterAppAudio = { enabled = 0; }; com.apple.Push = { enabled = 0; }; com.apple.Sandbox = { enabled = 0; }; com.apple.HardenedRuntime = { enabled = 0; }; }; }; }; };
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
 			mainGroup = 4EB71E97261909607E3138AA;
