@@ -14,7 +14,7 @@
 
 /**
 	This class inherits from FixedBlockProcessor so that it can run on the audio processing thread and allow an audio scope
-	do be delivered data at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
+	to be delivered data at a fixed block size, regardless of the block sized used by the audio device or host. An AudioProbe object
 	is then used to make the processed data available for use on other threads.
 */
 class AudioScopeProcessor final : public FixedBlockProcessor
