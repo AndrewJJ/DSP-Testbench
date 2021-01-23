@@ -79,8 +79,8 @@ ASIO Interface Technology by Steinberg Media Technologies GmbH
 
 This software makes use of certain code libraries, those portions of code are copyright as per below:
 
-- JUCE 5 - copyright © 2019 Raw Material Software
-- Application code - copyright © 2019 Oblique Audio
+- JUCE 6 - copyright © 2020 Raw Material Software
+- Application code - copyright © 2021 Oblique Audio
 - Fast maths approximations - copyright © 2011 Paul Mineiro
 - rand31pmc white noise generator - copyright © 2005 Robin Whittle
 - Pink noise filter - Paul Kellett
