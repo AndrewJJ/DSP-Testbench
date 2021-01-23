@@ -267,7 +267,12 @@ void AnalyserComponent::suspendProcessing()
 }
 void AnalyserComponent::showClipStats()
 {
-    const auto maxWidth = jmax ( 992, Desktop::getInstance().getDisplays().getMainDisplay().userArea.getWidth() - 100);
+    auto maxWidth = DSPTestbenchApplication::getApp().getMainWindow().getConstrainer()->getMinimumWidth();
+    if (const auto* primaryDisplay = Desktop::getInstance().getDisplays().getPrimaryDisplay())
+    {
+        const auto primaryDisplayWidth = primaryDisplay->userArea.getWidth() - 100;
+        maxWidth = jmax ( maxWidth, primaryDisplayWidth);
+    }
     const auto viewPortWidth = jmin (clipStatsComponent.getDesiredWidth(), maxWidth);
     clipStatsViewport.setSize (viewPortWidth, clipStatsComponent.getDesiredHeight());
 
