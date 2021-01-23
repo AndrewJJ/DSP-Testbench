@@ -38,6 +38,7 @@ Oscilloscope::Oscilloscope ()
         audioScopeProcessor (nullptr)
 {
     this->setOpaque (true);
+    this->setPaintingIsUnclipped (true);
 
     addAndMakeVisible (background);
     addAndMakeVisible (foreground);
