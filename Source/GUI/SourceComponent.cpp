@@ -1438,15 +1438,17 @@ ChannelSelectorPopup::ChannelSelectorPopup (const int numberOfChannels, const St
     const auto popupWidth = GUI_SIZE_I (5.5);
     const auto anchorRight = anchorComponent->getScreenX() + componentToPositionNear->getWidth() + GUI_BASE_GAP_I;
     const auto anchorTop = anchorComponent->getScreenY();
-    const auto anchorDisplay = Desktop::getInstance().getDisplays().findDisplayForRect (anchorComponent->getScreenBounds());
-    const auto displayWidth = anchorDisplay.userArea.getWidth();
-    const auto displayHeight = anchorDisplay.userArea.getHeight();
-    const auto popupHeight = calculateHeight();
-    const auto left = jmin (anchorRight, displayWidth - popupWidth);
-    const auto top = jmin (anchorTop, displayHeight - popupHeight);
-    channelArrayComponent.setSize (popupWidth - GUI_GAP_I(4), getViewportInternalHeight());
-    setTopLeftPosition (left, top);
-    setSize (popupWidth, popupHeight);
+    if (const auto* anchorDisplay = Desktop::getInstance().getDisplays().getDisplayForRect (anchorComponent->getScreenBounds()))
+    {
+        const auto displayWidth = anchorDisplay->userArea.getWidth();
+        const auto displayHeight = anchorDisplay->userArea.getHeight();
+        const auto popupHeight = calculateHeight();
+        const auto left = jmin (anchorRight, displayWidth - popupWidth);
+        const auto top = jmin (anchorTop, displayHeight - popupHeight);
+        channelArrayComponent.setSize (popupWidth - GUI_GAP_I(4), getViewportInternalHeight());
+        setTopLeftPosition (left, top);
+        setSize (popupWidth, popupHeight);
+    }
 }
 void ChannelSelectorPopup::paint (Graphics & g)
 {
@@ -1508,8 +1510,11 @@ int ChannelSelectorPopup::getMinimumHeight() const
 }
 int ChannelSelectorPopup::getMaximumHeight() const
 {
-    auto display = Desktop::getInstance().getDisplays().findDisplayForRect (anchorComponent->getScreenBounds());
-    return display.userArea.getHeight();
+    if (const auto* anchorDisplay = Desktop::getInstance().getDisplays().getDisplayForRect (anchorComponent->getScreenBounds()))
+    {
+        return anchorDisplay->userArea.getHeight();
+    }
+    return 100; // Arbitrary value
 }
 int ChannelSelectorPopup::getHeightExcludingViewport() const
 {
