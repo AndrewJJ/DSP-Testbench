@@ -97,6 +97,7 @@ DSPTestbenchApplication::MainWindow::MainWindow (const String& name)
 DSPTestbenchApplication::MainWindow::~MainWindow()
 {
     // Update configuration from class state
+    if (!config) config = std::make_unique<XmlElement> ("Application");
     config->setAttribute ("WindowWidth", getWidth());
     config->setAttribute ("WindowHeight", getHeight());
     
