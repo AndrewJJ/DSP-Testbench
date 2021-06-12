@@ -21,21 +21,21 @@
 class SourceComponent;
 class ChannelSelectorPopup;
 
-enum Waveform
+enum class Waveform : int
 {
-    sine = 1,
-    triangle,
-    square,
-    saw,
-    impulse,
-    step,
-    whiteNoise,
-    pinkNoise
+    Sine = 1, // Start from 1 because these are used for ComboBox itemIds and thus cannot be 0
+    Triangle,
+    Square,
+    Saw,
+    Impulse,
+    Step,
+    WhiteNoise,
+    PinkNoise
 };
 
-enum SweepMode
+enum class SweepMode : int
 {
-    Reverse = 1,
+    Reverse = 1, // Start from 1 because these are used for ComboBox itemIds and thus cannot be 0
     Wrap    
 };
 
@@ -82,7 +82,7 @@ private:
     
     SourceComponent* otherSource {};
     CriticalSection synthesiserCriticalSection;
-    Waveform currentWaveform = Waveform::sine;
+    Waveform currentWaveform = Waveform::Sine;
     double sampleRate = 0.0;
     uint32 maxBlockSize = 0;
     long numSweepSteps = 0;
@@ -360,6 +360,11 @@ public:
     void resized() override;
     float getMinimumWidth() const;
     float getMinimumHeight() const;
+
+    void focusOfChildComponentChanged(FocusChangeType /*cause*/) override
+    {
+        jassert(true);
+    }
 
     void changeListenerCallback (ChangeBroadcaster* source) override;
 

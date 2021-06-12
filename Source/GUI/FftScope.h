@@ -19,10 +19,10 @@ class FftScope final : public Component, public Timer
 public:
 
     /** Defines the method of aggregation used if a number of values fall within the same x pixel value) */
-    enum AggregationMethod
+    enum class AggregationMethod : int
     {
         Maximum = 1,    // This will better show the peak value of a harmonic, but will make white noise looks like it tails upwards
-        Average         // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
+        Average = 2     // This will lower the apparent peak of harmonics at higher frequencies, but will make white noise look flat
     };
 
     /** Defines the release characteristic for the envelope applied to each FFT amplitude bin. */

@@ -26,16 +26,16 @@ SynthesisTab::SynthesisTab (String& sourceName)
 
     addAndMakeVisible (cmbWaveform);
     cmbWaveform.setTooltip ("Select a waveform");
-    cmbWaveform.addItem ("Sine", Waveform::sine);
-    cmbWaveform.addItem ("Triangle", Waveform::triangle);
-    cmbWaveform.addItem ("Square", Waveform::square);
-    cmbWaveform.addItem ("Saw", Waveform::saw);
-    cmbWaveform.addItem ("Impulse", Waveform::impulse);
-    cmbWaveform.addItem ("Step", Waveform::step);
-    cmbWaveform.addItem ("White Noise", Waveform::whiteNoise);
-    cmbWaveform.addItem ("Pink Noise", Waveform::pinkNoise);
+    cmbWaveform.addItem ("Sine", static_cast<int> (Waveform::Sine));
+    cmbWaveform.addItem ("Triangle", static_cast<int> (Waveform::Triangle));
+    cmbWaveform.addItem ("Square", static_cast<int> (Waveform::Square));
+    cmbWaveform.addItem ("Saw", static_cast<int> (Waveform::Saw));
+    cmbWaveform.addItem ("Impulse", static_cast<int> (Waveform::Impulse));
+    cmbWaveform.addItem ("Step", static_cast<int> (Waveform::Step));
+    cmbWaveform.addItem ("White Noise", static_cast<int> (Waveform::WhiteNoise));
+    cmbWaveform.addItem ("Pink Noise", static_cast<int> (Waveform::PinkNoise));
     cmbWaveform.onChange = [this] { waveformUpdated(); };
-    cmbWaveform.setSelectedId (config->getIntAttribute ("WaveForm", Waveform::sine), sendNotificationSync);
+    cmbWaveform.setSelectedId (config->getIntAttribute ("WaveForm", static_cast<int> (Waveform::Sine)), sendNotificationSync);
 
     addAndMakeVisible (sldFrequency);
     sldFrequency.setSliderStyle (Slider::ThreeValueHorizontal);
@@ -65,10 +65,10 @@ SynthesisTab::SynthesisTab (String& sourceName)
     
     addAndMakeVisible (cmbSweepMode);
     cmbSweepMode.setTooltip ("Select whether the frequency sweep wraps or reverses when it reaches its maximum value");
-    cmbSweepMode.addItem ("Reverse", SweepMode::Reverse);
-    cmbSweepMode.addItem ("Wrap", SweepMode::Wrap);
+    cmbSweepMode.addItem ("Reverse", static_cast<int> (SweepMode::Reverse));
+    cmbSweepMode.addItem ("Wrap", static_cast<int> (SweepMode::Wrap));
     cmbSweepMode.onChange = [this] { currentSweepMode = static_cast<SweepMode> (cmbSweepMode.getSelectedId()); };
-    cmbSweepMode.setSelectedId (config->getIntAttribute ("SweepMode", SweepMode::Reverse), sendNotificationSync);
+    cmbSweepMode.setSelectedId (config->getIntAttribute ("SweepMode", static_cast<int> (SweepMode::Reverse)), sendNotificationSync);
 
     addAndMakeVisible (btnSweepEnabled);
     btnSweepEnabled.setButtonText ("Sweep");
@@ -217,10 +217,10 @@ void SynthesisTab::syncAndResetOscillator (const Waveform waveform, const double
                                            const double sweepStart, const double sweepEnd,
                                            const double newSweepDuration, const SweepMode sweepMode, const bool sweepEnabled)
 {
-    cmbWaveform.setSelectedId (waveform, sendNotificationSync);
+    cmbWaveform.setSelectedId (static_cast<int> (waveform), sendNotificationSync);
     sldFrequency.setMinAndMaxValues(sweepStart, sweepEnd, sendNotificationSync);
     sldFrequency.setValue(freq, sendNotificationSync);
-    cmbSweepMode.setSelectedId (sweepMode, sendNotificationSync);
+    cmbSweepMode.setSelectedId (static_cast<int> (sweepMode), sendNotificationSync);
     btnSweepEnabled.setToggleState(sweepEnabled, sendNotificationSync);
     sldSweepDuration.setValue(newSweepDuration, sendNotificationSync);
     this->reset();
@@ -277,25 +277,25 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
         }
 
         // Process current oscillator (note we adjust 1-based index to 0-based index)
-        oscillators[currentWaveform - 1].process (context);
+        oscillators[static_cast<int> (currentWaveform) - 1].process (context);
         return;
     }
-    if (currentWaveform == Waveform::whiteNoise)
+    if (currentWaveform == Waveform::WhiteNoise)
     {
         whiteNoise.process (context);
         return;
     }
-    if (currentWaveform == Waveform::pinkNoise)
+    if (currentWaveform == Waveform::PinkNoise)
     {
         pinkNoise.process (context);
         return;
     }
-    if (currentWaveform == Waveform::impulse)
+    if (currentWaveform == Waveform::Impulse)
     {
         impulseFunction.process (context);
         return;
     }
-    if (currentWaveform == Waveform::step)
+    if (currentWaveform == Waveform::Step)
     {
         stepFunction.process (context);
         return;
@@ -325,10 +325,10 @@ void SynthesisTab::timerCallback ()
 }
 bool SynthesisTab::isSelectedWaveformOscillatorBased() const
 {
-    return (    currentWaveform == Waveform::sine 
-             || currentWaveform == Waveform::saw 
-             || currentWaveform == Waveform::square 
-             || currentWaveform == Waveform::triangle
+    return (    currentWaveform == Waveform::Sine 
+             || currentWaveform == Waveform::Saw 
+             || currentWaveform == Waveform::Square 
+             || currentWaveform == Waveform::Triangle
            );
 }
 void SynthesisTab::waveformUpdated()
@@ -343,7 +343,7 @@ void SynthesisTab::waveformUpdated()
     btnSweepReset.setEnabled (isSelectedWaveformOscillatorBased());
     sldFrequency.setEnabled (isSelectedWaveformOscillatorBased());
     sldPreDelay.setEnabled (!isSelectedWaveformOscillatorBased());
-    sldPulseWidth.setEnabled (currentWaveform == Waveform::impulse);
+    sldPulseWidth.setEnabled (currentWaveform == Waveform::Impulse);
     btnPulsePolarity.setEnabled (!isSelectedWaveformOscillatorBased());
 
     // Set control visibility based on waveform type
@@ -352,15 +352,15 @@ void SynthesisTab::waveformUpdated()
     btnSweepEnabled.setVisible (isSelectedWaveformOscillatorBased());
     btnSweepReset.setVisible (isSelectedWaveformOscillatorBased());
     sldFrequency.setVisible (isSelectedWaveformOscillatorBased());
-    lblPreDelay.setVisible (currentWaveform == Waveform::impulse || currentWaveform == Waveform::step);
-    sldPreDelay.setVisible (currentWaveform == Waveform::impulse || currentWaveform == Waveform::step);
-    lblPulseWidth.setVisible (currentWaveform == Waveform::impulse);
-    sldPulseWidth.setVisible (currentWaveform == Waveform::impulse);
+    lblPreDelay.setVisible (currentWaveform == Waveform::Impulse || currentWaveform == Waveform::Step);
+    sldPreDelay.setVisible (currentWaveform == Waveform::Impulse || currentWaveform == Waveform::Step);
+    lblPulseWidth.setVisible (currentWaveform == Waveform::Impulse);
+    sldPulseWidth.setVisible (currentWaveform == Waveform::Impulse);
     btnPulsePolarity.setVisible (!isSelectedWaveformOscillatorBased());
 
-    if (currentWaveform == Waveform::impulse)
+    if (currentWaveform == Waveform::Impulse)
         sldPreDelay.setValue (static_cast<double> (impulseFunction.getPreDelay()), dontSendNotification);
-    else if (currentWaveform == Waveform::step)
+    else if (currentWaveform == Waveform::Step)
         sldPreDelay.setValue (static_cast<double> (stepFunction.getPreDelay()), dontSendNotification);
 
     // Trigger resized so we redraw the layout grid with different controls
