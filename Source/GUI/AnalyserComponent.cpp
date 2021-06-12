@@ -61,15 +61,15 @@ AnalyserComponent::AnalyserComponent()
 
     addAndMakeVisible (fftScope);
     fftScope.assignFftProcessor (&fftProcessor);
-    fftScope.setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", FftScope<12>::AggregationMethod::Maximum)));
-    fftScope.setReleaseCharacteristic (static_cast<const FftScope<12>::ReleaseCharacteristic> (config->getIntAttribute ("FftReleaseCharacteristic", FftScope<12>::ReleaseCharacteristic::Off)));
+    fftScope.setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod> (config->getIntAttribute ("FftAggregationMethod", static_cast<int> (FftScope<12>::AggregationMethod::Maximum))));
+    fftScope.setReleaseCharacteristic (static_cast<const FftScope<12>::ReleaseCharacteristic> (config->getIntAttribute ("FftReleaseCharacteristic", static_cast<int> (FftScope<12>::ReleaseCharacteristic::Off))));
 
     addAndMakeVisible (oscilloscope);
     oscilloscope.assignAudioScopeProcessor (&audioScopeProcessor);
     oscilloscope.setXMin (config->getIntAttribute ("ScopeXMin", 0));
     oscilloscope.setXMax (config->getIntAttribute ("ScopeXMax", oscilloscope.getDefaultXMaximum()));
     oscilloscope.setMaxAmplitude (static_cast<float> (config->getDoubleAttribute("ScopeMaxAmplitude", 1.0)));
-    oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", Oscilloscope::AggregationMethod::NearestSample)));
+    oscilloscope.setAggregationMethod (static_cast<const Oscilloscope::AggregationMethod> (config->getIntAttribute ("ScopeAggregationMethod", static_cast<int> (Oscilloscope::AggregationMethod::NearestSample))));
 
     addAndMakeVisible (goniometer);
     goniometer.assignAudioScopeProcessor (&audioScopeProcessor);
@@ -91,8 +91,8 @@ AnalyserComponent::AnalyserComponent()
 AnalyserComponent::~AnalyserComponent()
 {
     // Update configuration from class state
-    config->setAttribute ("FftAggregationMethod", fftScope.getAggregationMethod());
-    config->setAttribute ("FftReleaseCharacteristic", fftScope.getReleaseCharacteristic());
+    config->setAttribute ("FftAggregationMethod", static_cast<int> (fftScope.getAggregationMethod()));
+    config->setAttribute ("FftReleaseCharacteristic", static_cast<int> (fftScope.getReleaseCharacteristic()));
     config->setAttribute ("ScopeXMin", oscilloscope.getXMin());
     config->setAttribute ("ScopeXMax", oscilloscope.getXMax());
     config->setAttribute ("ScopeMaxAmplitude", oscilloscope.getMaxAmplitude());
@@ -308,10 +308,10 @@ AnalyserComponent::AnalyserConfigComponent::AnalyserConfigComponent (AnalyserCom
     addAndMakeVisible(lblFftAggregation);
 
     cmbFftAggregation.setTooltip ("Defines how to aggregate samples if there are more than one per pixel in the plot.\n\nThe maximum method will better show the peak value of a harmonic, but will make white noise looks like it tails upwards. The average method will make white noise look flat but is more computationally intensive.");
-    cmbFftAggregation.addItem ("Maximum", FftScope<12>::AggregationMethod::Maximum);
-    cmbFftAggregation.addItem ("Average", FftScope<12>::AggregationMethod::Average);
+    cmbFftAggregation.addItem ("Maximum", static_cast<int> (FftScope<12>::AggregationMethod::Maximum));
+    cmbFftAggregation.addItem ("Average", static_cast<int> (FftScope<12>::AggregationMethod::Average));
     addAndMakeVisible (cmbFftAggregation);
-    cmbFftAggregation.setSelectedId (fftScopePtr->getAggregationMethod(), dontSendNotification);
+    cmbFftAggregation.setSelectedId (static_cast<int> (fftScopePtr->getAggregationMethod()), dontSendNotification);
     cmbFftAggregation.onChange = [this, fftScopePtr]
     {
         fftScopePtr->setAggregationMethod (static_cast<const FftScope<12>::AggregationMethod>(cmbFftAggregation.getSelectedId()));
