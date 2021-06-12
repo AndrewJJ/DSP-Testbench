@@ -278,28 +278,30 @@ void SynthesisTab::process (const dsp::ProcessContextReplacing<float>& context)
 
         // Process current oscillator (note we adjust 1-based index to 0-based index)
         oscillators[currentWaveform - 1].process (context);
+        return;
     }
-    else if (currentWaveform == Waveform::whiteNoise)
+    if (currentWaveform == Waveform::whiteNoise)
     {
         whiteNoise.process (context);
+        return;
     }
-    else if (currentWaveform == Waveform::pinkNoise)
+    if (currentWaveform == Waveform::pinkNoise)
     {
         pinkNoise.process (context);
+        return;
     }
-    else if (currentWaveform == Waveform::impulse)
+    if (currentWaveform == Waveform::impulse)
     {
         impulseFunction.process (context);
+        return;
     }
-    else if (currentWaveform == Waveform::step)
+    if (currentWaveform == Waveform::step)
     {
         stepFunction.process (context);
+        return;
     }
-    else
-    {
-        // Catch all in case waveform undefined at some point
-        context.getOutputBlock().clear();
-    }
+    // Catch all in case waveform undefined at some point
+    context.getOutputBlock().clear();
 }
 void SynthesisTab::reset()
 {
