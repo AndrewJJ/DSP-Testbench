@@ -42,8 +42,8 @@ enum SweepMode
 class SynthesisTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
-    SynthesisTab (String& sourceName /**< Specifies the name of the Source being used */);
-    ~SynthesisTab();
+    explicit SynthesisTab (String& sourceName /**< Specifies the name of the Source being used */);
+    ~SynthesisTab() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -146,7 +146,7 @@ class WaveTab final : public Component, public dsp::ProcessorBase, public Change
 {
 public:
     explicit WaveTab (AudioDeviceManager* deviceManager, const String& initialFilePathFromConfig, const bool shouldPlayOnInitialise);
-    ~WaveTab();
+    ~WaveTab() override; 
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -174,7 +174,7 @@ public:
     {
     public:
         AudioThumbnailComponent(AudioDeviceManager* deviceManager, AudioFormatManager* formatManager);
-        ~AudioThumbnailComponent();
+        ~AudioThumbnailComponent() override;
 
         void paint (Graphics& g) override;
 
@@ -255,7 +255,7 @@ class AudioTab final : public Component, public dsp::ProcessorBase, public Timer
 {
 public:
     AudioTab (AudioDeviceManager* deviceManager);
-    ~AudioTab();
+    ~AudioTab() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -275,7 +275,7 @@ private:
     {
     public:
         ChannelComponent (PeakMeterProcessor* meterProcessorToQuery, const int numberOfOutputChannels, const int channelIndex);;
-        ~ChannelComponent();
+        ~ChannelComponent() override;
 
         void paint (Graphics& g) override;
         void resized() override;
@@ -315,7 +315,7 @@ private:
     {
     public:
         explicit InputArrayComponent (OwnedArray<ChannelComponent>* channelComponentsToReferTo);
-        ~InputArrayComponent();
+        ~InputArrayComponent() override;
 
         void paint (Graphics& g) override;
         void resized() override;
@@ -354,7 +354,7 @@ public:
     };
 
     SourceComponent (const String& sourceId, AudioDeviceManager* deviceManager);
-    ~SourceComponent();
+    ~SourceComponent() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -413,7 +413,7 @@ public:
      *  onClose will be called when the popup is closed, with the channel mask passed as an argument.
      */
     explicit ChannelSelectorPopup (const int numberOfChannels, const String& channelLabelPrefix, const BigInteger& initialSelection, const Component* componentToPositionNear);
-    ~ChannelSelectorPopup() = default;
+    ~ChannelSelectorPopup() override = default;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -431,7 +431,7 @@ private:
     {
     public:
         ChannelArrayComponent() = default;
-        ~ChannelArrayComponent() = default;
+        ~ChannelArrayComponent() override = default;
         void paint (Graphics& g) override;
         void resized() override;
         OwnedArray<ToggleButton> channelButtons {};

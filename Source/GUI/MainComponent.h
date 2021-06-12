@@ -21,7 +21,7 @@ class MainContentComponent final : public AudioAppComponent, public ChangeListen
 public:
 
     explicit MainContentComponent (AudioDeviceManager& deviceManager);
-    ~MainContentComponent() = default;
+    ~MainContentComponent() override = default;
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
