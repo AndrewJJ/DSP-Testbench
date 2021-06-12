@@ -449,7 +449,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
         auto lblY = currentY + offset;
         const auto lblW = GUI_SIZE_I(4.2);
         const auto lblH = GUI_SIZE_I(0.6);
-        auto lblJust = Justification::centredLeft;
+        auto lblJust = juce::Justification::centredLeft;
         if (lblX + lblW > getWidth())
         {
             lblX = currentX - offset - lblW;
