@@ -361,11 +361,6 @@ public:
     float getMinimumWidth() const;
     float getMinimumHeight() const;
 
-    void focusOfChildComponentChanged(FocusChangeType /*cause*/) override
-    {
-        jassert(true);
-    }
-
     void changeListenerCallback (ChangeBroadcaster* source) override;
 
     void prepare (const dsp::ProcessSpec& spec) override;
