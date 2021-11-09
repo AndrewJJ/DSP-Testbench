@@ -764,17 +764,17 @@ void WaveTab::chooseFile()
 {
     stop();
 
-    FileChooser fc ("Select an audio file...", File(), "*.wav;*.mp3;*.aif;");
-
-    if (fc.browseForFileToOpen())
+    fileChooser = std::make_unique<FileChooser> ("Select an audio file...", File::getSpecialLocation (File::userHomeDirectory), "*.wav;*.mp3;*.aif;");
+    
+    fileChooser->launchAsync (FileBrowserComponent::openMode, [this] (const FileChooser& chooser)
     {
-        const auto file = fc.getResult();
+        const auto file (chooser.getResult());
 
         if (!loadFile (file))
             NativeMessageBox::showOkCancelBox (AlertWindow::WarningIcon, "Error loading file", "Unable to load audio file", nullptr, nullptr);
         else
             audioThumbnailComponent->setCurrentFile (file);
-    }
+    });
 }
 void WaveTab::init()
 {

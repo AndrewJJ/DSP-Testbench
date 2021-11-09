@@ -240,6 +240,7 @@ private:
     bool playFromStartOnSnapshot = false;
     bool snapShotPlayStateResume = false;
     double snapShotPlayStatePosition = 0.0;
+    std::unique_ptr<FileChooser> fileChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };
@@ -400,7 +401,7 @@ private:
     bool isMuted = false;
     BigInteger selectedOutputChannels = 0;
     int numOutputs = -1;
-
+    
     dsp::Gain<float> gain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceComponent)

@@ -93,7 +93,7 @@ DspTestBenchMenuComponent::DspTestBenchMenuComponent (MainContentComponent* main
         }
         else
         {
-            AlertWindow::showMessageBox (AlertWindow::AlertIconType::WarningIcon, "Audio device problem", "No current audio device, please check your settings.");
+            AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon, "Audio device problem", "No current audio device, please check your settings.");
         }
     };
 

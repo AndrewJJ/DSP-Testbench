@@ -141,7 +141,7 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
     {
         // Start running benchmarks on a different thread
         benchmarkThread.setProcessSpec (spec);
-        benchmarkThread.runThread();
+        benchmarkThread.run();
     };
     addAndMakeVisible (btnStart);
 
