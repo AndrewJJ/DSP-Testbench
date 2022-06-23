@@ -20,6 +20,23 @@ AboutComponent::AboutComponent()
     txtEditor.setColour (TextEditor::ColourIds::outlineColourId, Colours::transparentBlack);
     txtEditor.setColour (TextEditor::ColourIds::backgroundColourId, Colours::black);
 
+    Timer::callAfterDelay (10, [this] { addAboutText(); });
+
+    setSize (800, 600);
+}
+void AboutComponent::paint(Graphics & g)
+{
+    g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
+}
+void AboutComponent::resized()
+{
+    txtEditor.setBounds(getLocalBounds().reduced(2,2));
+}
+void AboutComponent::addAboutText()
+{
+    txtEditor.clear();
+
+    insertBreak();
     insertTitle ("Application description", Colours::white, false);
     insertText ("DSP Testbench is designed to help developers using the JUCE framework to analyse their DSP by providing ");
     insertText ("a test harness for code inheriting from juce::dsp::ProcessorBase. The harness provides signal sources, ");
@@ -106,15 +123,7 @@ AboutComponent::AboutComponent()
     insertText ("These exclusions and limitations may not apply in all jurisdictions. You may have additional rights and some of these limitations may not apply to you.", true);
     insertBreak (0.5f);
 
-    setSize (800, 600);
-}
-void AboutComponent::paint(Graphics & g)
-{
-    g.fillAll (DspTestBenchLnF::ApplicationColours::componentBackground());
-}
-void AboutComponent::resized()
-{
-    txtEditor.setBounds(getLocalBounds().reduced(2,2));
+    txtEditor.setCaretPosition (0);
 }
 void AboutComponent::insertTitle (const String& title, const Colour textColour, const bool insertLineBefore)
 {

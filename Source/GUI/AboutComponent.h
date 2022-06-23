@@ -26,6 +26,7 @@ private:
 
     using cols = DspTestBenchLnF::ApplicationColours;
 
+    void addAboutText();
     void insertTitle (const String& title, const Colour textColour = cols::titleFontColour(), const bool insertLineBefore = true);
     void insertSubtitle (const String& subtitle, const Colour textColour = cols::titleFontColour(), const bool insertLineBefore = true);
     void insertText (const String& text, const bool breakLine = false, const Colour textColour = cols::normalFontColour());
