@@ -10,8 +10,8 @@
 		09225D91D6D8708775F71D46 /* SourceComponent.cpp */ = {isa = PBXBuildFile; fileRef = E1B58FA4A015906F93735652; };
 		09CCBA286C4D8D2266BAB6B0 /* MonitoringComponent.cpp */ = {isa = PBXBuildFile; fileRef = 6ECE5AC0EB8A8C56657F6259; };
 		0BE33930E16EB6A87A5C284D /* QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = 2317DFEBACE1AE8DB2D2A734; };
-		0DABC59E16D9E650732629DC /* Carbon.framework */ = {isa = PBXBuildFile; fileRef = 7618C0F23346E577D64A40A2; };
 		1459F416236A2DA0ABA878D4 /* DiscRecording.framework */ = {isa = PBXBuildFile; fileRef = CA06C1089354EE648FB6DD37; };
+		166AA4EAB19F7DE821FAFBA6 /* include_juce_audio_processors_ara.cpp */ = {isa = PBXBuildFile; fileRef = 902C91541BFCBFD0266818F7; };
 		174E5977A7FD2E05AE6BFF55 /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = 7E638336E5A3BCD39F50EAA6; };
 		1873A173FC03EBC065DF7F68 /* Goniometer.cpp */ = {isa = PBXBuildFile; fileRef = 9277EC8DDF6BA910490DA8A3; };
 		187F7EEEC051ED35E9069BA2 /* LookAndFeel.cpp */ = {isa = PBXBuildFile; fileRef = 652DC0BCE3EB12C9265847DA; };
@@ -23,6 +23,7 @@
 		398CD99D341BE4B09541365F /* OpenGL.framework */ = {isa = PBXBuildFile; fileRef = 6647183CCB33EA2ADD656D39; };
 		447A9BA25E8706193AD25C0D /* RecentFilesMenuTemplate.nib */ = {isa = PBXBuildFile; fileRef = 9C2F88E119C66CE2850D15AB; };
 		4BFB1011BB56D2D4868215C4 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = A8030B009267AC1B7DD97E84; };
+		524CC82F160697C95F57AE66 /* include_juce_audio_processors_lv2_libs.cpp */ = {isa = PBXBuildFile; fileRef = 3749DDBFFCA8EA04A93D15D8; };
 		5EE726D6F85F8BAC9CB42506 /* MainComponent.cpp */ = {isa = PBXBuildFile; fileRef = CEB4E717CA9D9D1CC1C86C23; };
 		6684E7BA141E2DB94BA512FB /* include_juce_opengl.mm */ = {isa = PBXBuildFile; fileRef = 99FA1E5FAB069E9E84537B0E; };
 		6FDF94DEF1647DE3CD2E6377 /* Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 70BC544C10ACD6AC0927AD1D; };
@@ -72,6 +73,7 @@
 		30F36555C9EA421DFA31DF39 /* juce_opengl */ /* juce_opengl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_opengl; path = ../../../JUCE/modules/juce_opengl; sourceTree = SOURCE_ROOT; };
 		3281A73A334C758EC3B3B811 /* AboutComponent.h */ /* AboutComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AboutComponent.h; path = ../../Source/GUI/AboutComponent.h; sourceTree = SOURCE_ROOT; };
 		3496F075F6D461B7FFDAB6DD /* juce_audio_utils */ /* juce_audio_utils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_utils; path = ../../../JUCE/modules/juce_audio_utils; sourceTree = SOURCE_ROOT; };
+		3749DDBFFCA8EA04A93D15D8 /* include_juce_audio_processors_lv2_libs.cpp */ /* include_juce_audio_processors_lv2_libs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_processors_lv2_libs.cpp; path = ../../JuceLibraryCode/include_juce_audio_processors_lv2_libs.cpp; sourceTree = SOURCE_ROOT; };
 		3848E2EFE337B59F7B2BF3F8 /* IOKit.framework */ /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		3E3981955075B1EC86979ADD /* configure.svg */ /* configure.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = configure.svg; path = ../../Resources/configure.svg; sourceTree = SOURCE_ROOT; };
 		3E3D73BFFE6E76E49C1EE681 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = ../../../JUCE/modules/juce_gui_extra; sourceTree = SOURCE_ROOT; };
@@ -100,7 +102,6 @@
 		70BC544C10ACD6AC0927AD1D /* Cocoa.framework */ /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		7256A1ACC1A2F3C5A3EA8A5C /* PolyBLEP.h */ /* PolyBLEP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PolyBLEP.h; path = ../../Source/Processing/PolyBLEP.h; sourceTree = SOURCE_ROOT; };
 		72B1A16E4F24E7903A7AB9F6 /* BinaryData.h */ /* BinaryData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BinaryData.h; path = ../../JuceLibraryCode/BinaryData.h; sourceTree = SOURCE_ROOT; };
-		7618C0F23346E577D64A40A2 /* Carbon.framework */ /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		76365AD4F7DF4ABC70F4F74B /* pause.svg */ /* pause.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = pause.svg; path = ../../Resources/pause.svg; sourceTree = SOURCE_ROOT; };
 		773A20963DE7CAB967AD01D1 /* ProcessorExamples.h */ /* ProcessorExamples.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessorExamples.h; path = ../../Source/Processing/ProcessorExamples.h; sourceTree = SOURCE_ROOT; };
 		77DCB6B0F746A6FC2D07483B /* Goniometer.h */ /* Goniometer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Goniometer.h; path = ../../Source/GUI/Goniometer.h; sourceTree = SOURCE_ROOT; };
@@ -111,6 +112,7 @@
 		8A29E96FF882A27914133EB1 /* juce_audio_processors */ /* juce_audio_processors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_audio_processors; path = ../../../JUCE/modules/juce_audio_processors; sourceTree = SOURCE_ROOT; };
 		8A4A8DEF27B44AE93658C97D /* CoreAudio.framework */ /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		8B882E348E01677B91CC4A35 /* PulseFunctions.h */ /* PulseFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PulseFunctions.h; path = ../../Source/Processing/PulseFunctions.h; sourceTree = SOURCE_ROOT; };
+		902C91541BFCBFD0266818F7 /* include_juce_audio_processors_ara.cpp */ /* include_juce_audio_processors_ara.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_processors_ara.cpp; path = ../../JuceLibraryCode/include_juce_audio_processors_ara.cpp; sourceTree = SOURCE_ROOT; };
 		9277EC8DDF6BA910490DA8A3 /* Goniometer.cpp */ /* Goniometer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Goniometer.cpp; path = ../../Source/GUI/Goniometer.cpp; sourceTree = SOURCE_ROOT; };
 		96171B3D2EDD5DAAADF050EB /* about.svg */ /* about.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = about.svg; path = ../../Resources/about.svg; sourceTree = SOURCE_ROOT; };
 		962DBF75CED6D586519F60CF /* MeteringComponents.h */ /* MeteringComponents.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MeteringComponents.h; path = ../../Source/GUI/MeteringComponents.h; sourceTree = SOURCE_ROOT; };
@@ -160,7 +162,6 @@
 			files = (
 				8C1E4735B28CB8B2BACFC015,
 				A7FBA8401090CC99E7989DBB,
-				0DABC59E16D9E650732629DC,
 				6FDF94DEF1647DE3CD2E6377,
 				79F80DA2E9B29F662FF96A6F,
 				CE75A440BD90A40D1D704CE0,
@@ -193,7 +194,6 @@
 			children = (
 				BA3113E0DCD45CC2949E7531,
 				B878769E827B551AE9AE0CFF,
-				7618C0F23346E577D64A40A2,
 				70BC544C10ACD6AC0927AD1D,
 				8A4A8DEF27B44AE93658C97D,
 				62918B35B88651E2FCE69ECC,
@@ -283,6 +283,8 @@
 				5CD9E5DC1C42AAE4479DDDF0,
 				C50335A7AEE81AC526323239,
 				269FFB389851949374A3288A,
+				902C91541BFCBFD0266818F7,
+				3749DDBFFCA8EA04A93D15D8,
 				C089FE9CD966EABB6FBFC788,
 				157AD64AC922253682B688B6,
 				7E638336E5A3BCD39F50EAA6,
@@ -386,7 +388,7 @@
 		F2A9DE01DFF5477FEC460E6D = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1310;
+				LastUpgradeCheck = 1340;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					1E8BD9C55163E95FC2D87C16 = {
@@ -466,6 +468,8 @@
 				FBA7BBAE58DB45DB8B80D850,
 				A78316FA49B28EC40A31C82A,
 				87E9E3AB4F7E757A825CFBB7,
+				166AA4EAB19F7DE821FAFBA6,
+				524CC82F160697C95F57AE66,
 				E2CBE87F8A005F15BC36CB1D,
 				708A1765BFD4F57AAD8B7DE5,
 				174E5977A7FD2E05AE6BFF55,
@@ -487,8 +491,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
@@ -505,10 +508,10 @@
 					"JucePlugin_Build_VST3=0",
 					"JucePlugin_Build_AU=0",
 					"JucePlugin_Build_AUv3=0",
-					"JucePlugin_Build_RTAS=0",
 					"JucePlugin_Build_AAX=0",
 					"JucePlugin_Build_Standalone=0",
 					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
@@ -521,9 +524,9 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules";
+				OTHER_LDFLAGS = "-weak_framework Metal -weak_framework MetalKit";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.DSPTestbench;
 				PRODUCT_NAME = "DSP Testbench";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;
 				VALID_ARCHS = "i386 x86_64 arm64 arm64e";
@@ -536,8 +539,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				DEAD_CODE_STRIPPING = YES;
@@ -554,10 +556,10 @@
 					"JucePlugin_Build_VST3=0",
 					"JucePlugin_Build_AU=0",
 					"JucePlugin_Build_AUv3=0",
-					"JucePlugin_Build_RTAS=0",
 					"JucePlugin_Build_AAX=0",
 					"JucePlugin_Build_Standalone=0",
 					"JucePlugin_Build_Unity=0",
+					"JucePlugin_Build_LV2=0",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
@@ -571,9 +573,9 @@
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules";
+				OTHER_LDFLAGS = "-weak_framework Metal -weak_framework MetalKit";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.DSPTestbench;
 				PRODUCT_NAME = "DSP Testbench";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				USE_HEADERMAP = NO;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;
 				VALID_ARCHS = "i386 x86_64 arm64 arm64e";
@@ -602,7 +604,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
@@ -651,7 +653,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
