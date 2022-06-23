@@ -85,8 +85,8 @@ AboutComponent::AboutComponent()
     insertText ("ASIO Interface Technology by Steinberg Media Technologies GmbH", true);
     insertBreak();
     insertText ("This software makes use of certain code libraries, those portions of code are copyright as per below:", true);
-    insertBullet(); insertText ("JUCE 5"); insertCopyright ("Raw Material Software", 2019);
-    insertBullet(); insertText ("Application code"); insertCopyright ("Oblique Audio", 2019);
+    insertBullet(); insertText ("JUCE 7"); insertCopyright ("Raw Material Software", 2022);
+    insertBullet(); insertText ("Application code"); insertCopyright ("Oblique Audio", 2022);
     insertBullet(); insertText ("Fast maths approximations"); insertCopyright ("Paul Mineiro", 2011);
     insertBullet(); insertText ("rand31pmc white noise generator"); insertCopyright ("Robin Whittle", 2005);
     insertBullet(); insertText ("Pink noise filter - Paul Kellett");
