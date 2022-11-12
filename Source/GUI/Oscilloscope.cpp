@@ -47,7 +47,7 @@ Oscilloscope::Oscilloscope ()
     foreground.setMouseCursor (MouseCursor::CrosshairCursor);
 
     dataFrameReady.set(false);
-    startTimer (5);
+    startTimer (50);
 }
 Oscilloscope::~Oscilloscope ()
 {

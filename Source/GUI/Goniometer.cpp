@@ -46,7 +46,7 @@ Goniometer::Goniometer ()
     addMouseListener (this, true);
 
     dataFrameReady.set(false);
-    startTimer (5);
+    startTimer (50);
 }
 Goniometer::~Goniometer ()
 {
