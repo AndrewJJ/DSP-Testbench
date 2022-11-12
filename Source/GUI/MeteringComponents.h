@@ -27,7 +27,7 @@ public:
         const float alertLevelDb,
         const float maximumLevelDb
     );
-    ~MeterBar() = default;
+    ~MeterBar() override = default;
 
     void paint (Graphics&) override;
     void resized() override;
@@ -40,7 +40,7 @@ public:
 private:
 
     void init();
-    float dBtoPx (const float dB) const;
+    [[nodiscard]] float dBtoPx (const float dB) const;
 
     float minDb       = -60.0f;
     float cautionDb   = -12.0f;
@@ -61,11 +61,11 @@ private:
 /**
  *  Background for the main meter in the AnalyserComponent. *  
  */
-class MainMeterBackground : public Component
+class MainMeterBackground final : public Component
 {
 public:
     MainMeterBackground();
-    ~MainMeterBackground() = default;
+    ~MainMeterBackground() override = default;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -73,17 +73,17 @@ public:
     // Set the number of channels
     void setNumChannels (const int numberOfChannels);
 
-    Grid::Px getDesiredWidth() const;
-    Rectangle<int> getMeterBarBoundsInParent (const int channel, const bool isPeakMeter) const;
-    Rectangle<int> getClipIndicatorBoundsInParent (const int channel) const;
-    float getScaleMax() const;
-    float getScaleMin() const;
+    [[nodiscard]] Grid::Px getDesiredWidth() const;
+    [[nodiscard]] Rectangle<int> getMeterBarBoundsInParent (const int channel, const bool isPeakMeter) const;
+    [[nodiscard]] Rectangle<int> getClipIndicatorBoundsInParent (const int channel) const;
+    [[nodiscard]] float getScaleMax() const;
+    [[nodiscard]] float getScaleMin() const;
 
 private:
     int numChannels = 0;
     Rectangle<int> clientArea{};
     int channelWidth = 0;
-    int getChannelLeft (const int channel, const int offset = 0) const;
+    [[nodiscard]] int getChannelLeft (const int channel, const int offset = 0) const;
     void drawScale(Graphics& g) const;
 
     const int desiredBarWidth = GUI_BASE_SIZE_I;
@@ -109,7 +109,7 @@ class ClipStatsComponent final : public Component
 {
 public:
     ClipStatsComponent();
-    ~ClipStatsComponent() = default;
+    ~ClipStatsComponent() override = default;
 
     void paint (Graphics&) override;
     void resized() override;
@@ -123,9 +123,9 @@ public:
     //  Update the statistics displayed in this component from the referenced processor
     void updateStats();
 
-    int getMinWidth() const;
-    int getDesiredWidth() const;
-    int getDesiredHeight() const;
+    [[nodiscard]] int getMinWidth() const;
+    [[nodiscard]] int getDesiredWidth() const;
+    [[nodiscard]] int getDesiredHeight() const;
 
 private:
 
@@ -159,7 +159,7 @@ class ClipIndicatorComponent final : public Component, public TooltipClient
 {
 public:
     ClipIndicatorComponent (const int channel, ClipCounterProcessor* clipCounterProcessorToReferTo);
-    ~ClipIndicatorComponent() = default;
+    ~ClipIndicatorComponent() override = default;
     
     void paint (Graphics& g) override;
     void mouseDown (const MouseEvent& event) override;

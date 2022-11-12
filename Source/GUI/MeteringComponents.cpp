@@ -126,7 +126,7 @@ void MainMeterBackground::paint (Graphics& g)
 }
 void MainMeterBackground::resized()
 {
-    const auto channelHeight = getHeight() - topMargin - bottomMargin - clipIndicatorHeight;
+    const auto channelHeight = static_cast<float> (getHeight() - clipIndicatorHeight) - topMargin - bottomMargin;
     scaling = channelHeight / (maxExp - minExp);
 
     clientArea =  getBoundsInParent()
@@ -184,7 +184,7 @@ void MainMeterBackground::drawScale (Graphics& g) const
 {
     const auto scaleColour = Colours::white.withAlpha (0.5f);
     const auto textColour = Colours::grey;
-    const auto backingWidth = static_cast<float>(getWidth() - static_cast<float> (dBScaleWidth));
+    const auto backingWidth = static_cast<float>(getWidth() - dBScaleWidth);
     const auto tickWidth = backingWidth - static_cast<float> (gap * 2);
     const auto textX = getWidth() - dBScaleWidth + gap;
     const auto textWidth = dBScaleWidth - 2 * gap;
@@ -203,7 +203,7 @@ void MainMeterBackground::drawScale (Graphics& g) const
     {
         g.setColour (scaleColour);
         const auto dB = scaleMax - scaleStep * static_cast<float>(i);
-        const auto y = topMargin + clipIndicatorHeight + (maxExp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * scaling;
+        const auto y = topMargin + static_cast<float> (clipIndicatorHeight) + (maxExp - dsp::FastMathApproximations::exp (dB / scaleSpan)) * scaling;
         g.drawRect (static_cast<float> (gap), y - 0.5f, tickWidth, 1.0f);
         if (dBScaleWidth > 0)
         {
