@@ -74,7 +74,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;C:\Develop\JUCE\modules;..\..\..\SDKs\ASIOSDK2.3\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -116,7 +116,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;C:\Develop\JUCE\modules;..\..\..\SDKs\ASIOSDK2.3\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -2290,6 +2290,9 @@
     <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_TopLevelWindow.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_VBlankAttachement.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2634,7 +2637,6 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\ordinals.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\stream_decoder.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\stream_encoder.h"/>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\win_utf8_io.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\oggvorbis\libvorbis-1.3.7\lib\books\coupled\res_books_51.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\oggvorbis\libvorbis-1.3.7\lib\books\coupled\res_books_stereo.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\oggvorbis\libvorbis-1.3.7\lib\books\floor\floor_books.h"/>
@@ -2869,6 +2871,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\scanning\juce_PluginDirectoryScanner.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\scanning\juce_PluginListComponent.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\utilities\ARA\juce_ARA_utils.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\utilities\ARA\juce_ARADebug.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\utilities\ARA\juce_ARADocumentController.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\utilities\ARA\juce_ARAModelObjects.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_processors\utilities\ARA\juce_ARAPlugInInstanceRoles.h"/>
@@ -2972,6 +2975,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_intel_SharedCode.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_mac_CFHelpers.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_mac_ObjCHelpers.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_native_ThreadPriorities.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_posix_IPAddress.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_posix_SharedCode.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\native\juce_win32_ComSmartPtr.h"/>
@@ -2981,6 +2985,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\network\juce_Socket.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\network\juce_URL.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\network\juce_WebInputStream.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_core\streams\juce_AndroidDocumentInputSource.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\streams\juce_BufferedInputStream.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\streams\juce_FileInputSource.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\streams\juce_InputSource.h"/>
@@ -3325,6 +3330,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\x11\juce_linux_X11_Symbols.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\x11\juce_linux_XWindowSystem.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\juce_mac_CGMetalLayerRenderer.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\juce_mac_PerScreenDisplayLinks.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\juce_MultiTouchMapper.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\juce_ScopedDPIAwarenessDisabler.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\native\juce_win32_ScopedThreadDPIAwarenessSetter.h"/>
@@ -3368,6 +3374,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_ThreadWithProgressWindow.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_TooltipWindow.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_TopLevelWindow.h"/>
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\windows\juce_VBlankAttachement.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeEditorComponent.h"/>
