@@ -13,17 +13,23 @@
 
 MeterBar::MeterBar()
 {
-    setPaintingIsUnclipped(true);
-    setOpaque (backgroundColour.isOpaque());
+    init();
 }
-MeterBar::MeterBar (const float minimumLevelDb, const float cautionLevelDb,
-                                                      const float alertLevelDb, const float maximumLevelDb)
+MeterBar::MeterBar(const float minimumLevelDb, const float cautionLevelDb,
+    const float alertLevelDb, const float maximumLevelDb)
 {
     minDb       = minimumLevelDb;
     cautionDb   = cautionLevelDb;
     alertDb     = alertLevelDb;
     maxDb       = maximumLevelDb;
     rangeDb     = maximumLevelDb - minimumLevelDb;
+
+    init();
+}
+void MeterBar::init()
+{
+    setPaintingIsUnclipped (true);
+    setOpaque (backgroundColour.isOpaque());
 }
 void MeterBar::paint (Graphics& g)
 {

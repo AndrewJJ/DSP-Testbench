@@ -39,6 +39,7 @@ public:
 
 private:
 
+    void init();
     float dBtoPx (const float dB) const;
 
     float minDb       = -60.0f;
