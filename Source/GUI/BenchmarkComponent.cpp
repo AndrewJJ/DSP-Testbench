@@ -17,8 +17,6 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
     : spec (),
       benchmarkThread (&harnesses, sourceComponent, this)
 {
-    benchmarkThread.setPriority (Thread::realtimeAudioPriority);
-
     harnesses.emplace_back (processorHarnessA);
     harnesses.emplace_back (processorHarnessB);
     if (processorHarnessA) processorHarnessA->resetStatistics();
@@ -141,7 +139,7 @@ BenchmarkComponent::BenchmarkComponent (ProcessorHarness* processorHarnessA,
     {
         // Start running benchmarks on a different thread
         benchmarkThread.setProcessSpec (spec);
-        benchmarkThread.run();
+        benchmarkThread.startRealtimeThread (Thread::RealtimeOptions());
     };
     addAndMakeVisible (btnStart);
 
