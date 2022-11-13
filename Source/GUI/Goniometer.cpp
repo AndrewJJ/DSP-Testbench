@@ -131,7 +131,6 @@ void Goniometer::paintScale (Graphics& g) const
     g.fillRect (getLocalBounds());
 
     const auto axisColour = Colours::darkgrey.darker();
-    const auto textColour = Colours::grey.darker();
 
     const auto plotBounds = getPlotBounds();
     const auto plotBoundsFloat = plotBounds.toFloat();
@@ -144,6 +143,7 @@ void Goniometer::paintScale (Graphics& g) const
 
     // TODO: draw labels
     //g.setFont (Font (GUI_SIZE_I(0.4)));
+    //const auto textColour = Colours::grey.darker();
     //g.setColour (textColour);
     //String lbl = "0";
     //lbl = String (yAmp) + ", " + ampStrDb;
