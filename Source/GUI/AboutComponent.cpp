@@ -153,7 +153,7 @@ void AboutComponent::insertText (const String& text, const bool breakLine, const
 }
 void AboutComponent::insertBreak (const float height)
 {
-    txtEditor.setFont (Font (GUI_SIZE_F(height)));
+    txtEditor.setFont (Font (GUI_SIZE_F(height)));  // NOLINT(clang-diagnostic-double-promotion)
     txtEditor.insertTextAtCaret ("\n");
 }
 void AboutComponent::insertBullet (const bool insertBreakBefore)

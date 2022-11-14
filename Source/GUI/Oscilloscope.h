@@ -25,7 +25,7 @@ public:
     };
 
     Oscilloscope();
-    ~Oscilloscope();
+    ~Oscilloscope() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -133,5 +133,5 @@ private:
 
     Atomic<bool> dataFrameReady;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Oscilloscope);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Oscilloscope)
 };

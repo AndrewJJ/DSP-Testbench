@@ -649,7 +649,7 @@ void WaveTab::prepare (const dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
     maxBlockSize = spec.maximumBlockSize;
-    fileReadBuffer.setSize(spec.numChannels, spec.maximumBlockSize, true, true, false);
+    fileReadBuffer.setSize (static_cast<int> (spec.numChannels), static_cast<int> (spec.maximumBlockSize), true, true, false);
     init();
 }
 void WaveTab::process (const dsp::ProcessContextReplacing<float>& context)
@@ -1285,7 +1285,7 @@ void SourceComponent::process (const dsp::ProcessContextReplacing<float>& contex
         // Process currently selected source
         const auto idx = static_cast<Mode> (tabbedComponent->getCurrentTabIndex()); // this should be safe to call from an audio routine
         switch (idx) {
-            case Synthesis:
+            case Synthesis:  // NOLINT(bugprone-branch-clone)
                 synthesisTab->process (context);
                 break;
             //case Sample:

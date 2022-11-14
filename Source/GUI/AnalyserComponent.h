@@ -24,7 +24,7 @@ class AnalyserComponent final :  public Component, public dsp::ProcessorBase, pu
 public:
 
     AnalyserComponent();
-    ~AnalyserComponent();
+    ~AnalyserComponent() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -48,7 +48,7 @@ private:
     {
     public:
         explicit AnalyserConfigComponent (AnalyserComponent* analyserToConfigure);
-        ~AnalyserConfigComponent()
+        ~AnalyserConfigComponent() override
         = default;
 
         //void paint (Graphics& g) override;

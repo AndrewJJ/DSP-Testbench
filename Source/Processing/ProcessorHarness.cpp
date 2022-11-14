@@ -18,7 +18,10 @@ ProcessorHarness::ProcessorHarness (const int numberOfControlValues)
 }
 void ProcessorHarness::prepareHarness (const dsp::ProcessSpec& spec)
 {
-    if (currentSpec.numChannels != spec.numChannels || currentSpec.sampleRate != spec.sampleRate || currentSpec.maximumBlockSize != spec.maximumBlockSize)
+    const auto numChannelsAreDifferent = currentSpec.numChannels != spec.numChannels;
+    const auto sampleRatesAreDifferent = static_cast<int> (currentSpec.sampleRate) != static_cast<int> (spec.sampleRate);
+    const auto blockSizesAreDifferent = currentSpec.maximumBlockSize != spec.maximumBlockSize;
+    if ( numChannelsAreDifferent || sampleRatesAreDifferent || blockSizesAreDifferent)
     {
         // Reset process duration statistics as these will not be valid if the spec has changed
         procDurationMin = 0.0;

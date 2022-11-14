@@ -162,8 +162,6 @@ void MonitoringComponent::prepare (const dsp::ProcessSpec& spec)
 }
 void MonitoringComponent::process (const dsp::ProcessContextReplacing<float>& context)
 {
-    dsp::AudioBlock<float> inputBlock;
-
     if (!isMuted()) // Probably not necessary, because main component doesn't call MonitoringComponent::process if monitoring is muted anyway!
     {
         // Apply gain

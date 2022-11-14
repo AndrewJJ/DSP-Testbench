@@ -79,7 +79,7 @@ public:
     }
 
     /** Returns the current frequency of the oscillator. */
-    NumericType getFrequency() const noexcept
+    [[nodiscard]] NumericType getFrequency() const noexcept
     {
         return frequency.getTargetValue();
     }

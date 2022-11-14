@@ -18,7 +18,7 @@ class ProcessorComponent final : public Component, dsp::ProcessorBase
 public:
     
     ProcessorComponent (const String& processorId, ProcessorHarness* processorToTest);
-    ~ProcessorComponent();
+    ~ProcessorComponent() override;
 
     void paint (Graphics& g) override;
     void resized() override;

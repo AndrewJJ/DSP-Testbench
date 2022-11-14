@@ -20,11 +20,11 @@ class PeakMeterProcessor final : public dsp::ProcessorBase
 {
 public:
 	PeakMeterProcessor() = default;
-    ~PeakMeterProcessor() = default;
+    ~PeakMeterProcessor() override = default;
 
-	float getLevel (const int channelNumber) const;
-	float getLevelDb (const int channelNumber) const;
-	size_t getNumChannels() const;
+    [[nodiscard]] float getLevel (const int channelNumber) const;
+    [[nodiscard]] float getLevelDb (const int channelNumber) const;
+    [[nodiscard]] size_t getNumChannels() const;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -32,7 +32,7 @@ public:
 
 private:
     size_t numChannels = 0;
-    HeapBlock <std::atomic <float>> envelopeContinuation;
+    HeapBlock <std::atomic <float>> envelopeContinuation{};
 	float releaseTimeConstant = 0.0f;
     const float antiDenormalFloat = 1e-15f;
     const float noSignalDbLevel = -150.0f;
@@ -49,11 +49,11 @@ class VUMeterProcessor final : public dsp::ProcessorBase
 {
 public:
 	VUMeterProcessor() = default;
-    ~VUMeterProcessor() = default;
+    ~VUMeterProcessor() override = default;
 
-	float getLevel (const int channelNumber) const;
-	float getLevelDb (const int channelNumber) const;
-	size_t getNumChannels() const;
+    [[nodiscard]] float getLevel (const int channelNumber) const;
+    [[nodiscard]] float getLevelDb (const int channelNumber) const;
+    [[nodiscard]] size_t getNumChannels() const;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -79,21 +79,21 @@ class ClipCounterProcessor final : public dsp::ProcessorBase
 public:
 
 	ClipCounterProcessor() = default;;
-    ~ClipCounterProcessor() = default;
+    ~ClipCounterProcessor() override = default;
 
     //Number of clip events
-    long getNumClipEvents (const int channelNumber) const;
+    [[nodiscard]] long getNumClipEvents (const int channelNumber) const;
 
     //Average clip event length
-    double getAvgClipLength (const int channelNumber) const;
+    [[nodiscard]] double getAvgClipLength (const int channelNumber) const;
 
     //Largest clip event length
-    long getMaxClipLength (const int channelNumber) const;
+    [[nodiscard]] long getMaxClipLength (const int channelNumber) const;
 
     //Total number of clipped samples
-    long getNumClippedSamples (const int channelNumber) const;
+    [[nodiscard]] long getNumClippedSamples (const int channelNumber) const;
 
-    size_t getNumChannels() const;
+    [[nodiscard]] size_t getNumChannels() const;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;

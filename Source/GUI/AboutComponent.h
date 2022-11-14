@@ -18,7 +18,7 @@ class AboutComponent : public Component
 public:
 
     AboutComponent();
-    ~AboutComponent() = default;
+    ~AboutComponent() override = default;
     void paint (Graphics& g) override;
     void resized() override;
 

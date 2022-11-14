@@ -149,7 +149,7 @@ public:
     *   choose whether to suspend non-essential processing (e.g. don't bother computing an FFT for a GUI if there are no GUIs attached).
     *   This is of no use if the observers call copyFrame() of their own volition (e.g. during a timerCallback).
     */
-	inline bool hasListeners() const
+    [[nodiscard]] inline bool hasListeners() const
 	{
 		return !listenerCallbacks.empty();
 	}
@@ -215,12 +215,12 @@ public:
     virtual void prepare (const dsp::ProcessSpec& spec)
     {
         jassert (spec.numChannels > 0);
-        numChannels = spec.numChannels;
+        numChannels = static_cast<int> (spec.numChannels);
         resizeBuffer();
     }
 
 	/** Gets the number of channels. */
-    int getNumChannels() const
+    [[nodiscard]] int getNumChannels() const
     {
         return numChannels;
     }
@@ -238,13 +238,13 @@ public:
     }
 
 	/** Gets the maximum block size. */
-    int getMaximumBlockSize() const
+    [[nodiscard]] int getMaximumBlockSize() const
     {
         return maxBlockSize;
     }
 
     /** Gets the current block size. */
-    int getCurrentBlockSize() const
+    [[nodiscard]] int getCurrentBlockSize() const
     {
         return currentBlockSize;
     }

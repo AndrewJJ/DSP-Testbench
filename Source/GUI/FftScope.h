@@ -35,7 +35,7 @@ public:
     };
 
     FftScope();
-    ~FftScope();
+    ~FftScope() override;
 
     void paint (Graphics& g) override;
     void resized() override;

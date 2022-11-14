@@ -20,7 +20,7 @@ class ProcessorHarness : public dsp::ProcessorBase
 public:
 	
     ProcessorHarness (const int numberOfControlValues);
-	~ProcessorHarness() = default;
+	~ProcessorHarness() override = default;
 
     // =================================================================================================================================
 
@@ -57,62 +57,62 @@ public:
 
 
     /** Returns the number of control values for this processor. */
-    int getNumControls() const;
+    [[nodiscard]] int getNumControls() const;
 
     /** Set control value (0..1). */
     void setControlValue (const int index, const double value);
     
     /** Get control value (0..1). */
-    double getControlValue (const int index) const;
+    [[nodiscard]] double getControlValue (const int index) const;
 
     /** Get control value as float (0..1). */
-    float getControlValueAsFloat (const int index) const;
+    [[nodiscard]] float getControlValueAsFloat (const int index) const;
 
 
-    dsp::ProcessSpec getCurrentProcessSpec() const;
-
-
-    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryPrepareDurationAverage() const;
-
-    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryPrepareDurationMax() const;
-
-    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryPrepareDurationMin() const;
-
-    /** Returns the number of times processToBeTested() has been called since statistics were reset. */
-    double queryPrepareDurationNumSamples() const;
+    [[nodiscard]] dsp::ProcessSpec getCurrentProcessSpec() const;
 
 
     /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryProcessingDurationAverage() const;
+    [[nodiscard]] double queryPrepareDurationAverage() const;
+
+    /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
+    [[nodiscard]] double queryPrepareDurationMax() const;
+
+    /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
+    [[nodiscard]] double queryPrepareDurationMin() const;
+
+    /** Returns the number of times processToBeTested() has been called since statistics were reset. */
+    [[nodiscard]] double queryPrepareDurationNumSamples() const;
+
+
+    /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
+    [[nodiscard]] double queryProcessingDurationAverage() const;
     
     /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryProcessingDurationMax() const;
+    [[nodiscard]] double queryProcessingDurationMax() const;
     
     /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryProcessingDurationMin() const;
+    [[nodiscard]] double queryProcessingDurationMin() const;
     
     /** Returns the number of times processToBeTested() has been called since statistics were reset. */
-    double queryProcessingDurationNumSamples() const;
+    [[nodiscard]] double queryProcessingDurationNumSamples() const;
 
     
     /** Returns the average time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryResetDurationAverage() const;
+    [[nodiscard]] double queryResetDurationAverage() const;
     
     /** Returns the maximum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryResetDurationMax() const;
+    [[nodiscard]] double queryResetDurationMax() const;
     
     /** Returns the minimum time it takes to run processToBeTested() at the current ProcessSpec (in milliseconds). */
-    double queryResetDurationMin() const;
+    [[nodiscard]] double queryResetDurationMin() const;
     
     /** Returns the number of times processToBeTested() has been called since statistics were reset. */
-    double queryResetDurationNumSamples() const;
+    [[nodiscard]] double queryResetDurationNumSamples() const;
 
     
     /** Utility function to query performance by routine & value indices (returns time statistics in milliseconds). */
-    double queryByIndex (const int routineIndex, const int valueIndex) const;
+    [[nodiscard]] double queryByIndex (const int routineIndex, const int valueIndex) const;
 
     /** Utility function to determine query index according to routine & value indices (returns time statistics in milliseconds). */
     static int getQueryIndex (const int routineIndex, const int valueIndex);
@@ -130,5 +130,5 @@ private:
 
     std::vector <Atomic<double>> controlValues;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorHarness);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorHarness)
 };

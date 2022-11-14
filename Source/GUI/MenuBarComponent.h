@@ -25,7 +25,7 @@ public:
     {
     public:
         CpuMeter();
-        ~CpuMeter() = default;
+        ~CpuMeter() override = default;
         void paint (Graphics& g) override;
         void timerCallback() override;
 
@@ -40,7 +40,7 @@ public:
     {
     public:
         XRunMeter();
-        ~XRunMeter() = default;
+        ~XRunMeter() override = default;
         void paint (Graphics& g) override;
         void timerCallback() override;
         void mouseDown (const MouseEvent& event) override;

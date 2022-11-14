@@ -47,7 +47,7 @@ static inline float fastlog2 (const float x)
 {
   union { float f; uint32_t i; } vx = { x };
   union { uint32_t i; float f; } mx = { (vx.i & 0x007FFFFF) | 0x3f000000 };
-  float y = static_cast<float> (vx.i);
+  auto y = static_cast<float> (vx.i);
   y *= 1.1920928955078125e-7f;
 
   return y - 124.22551499f
@@ -68,7 +68,7 @@ static inline float fastlog10 (const float x)
 static inline float fasterlog2 (const float x)
 {
   union { float f; uint32_t i; } vx = { x };
-  float y = static_cast<float> (vx.i);
+  auto y = static_cast<float> (vx.i);
   y *= 1.1920928955078125e-7f;
   return y - 126.94269504f;
 }
@@ -78,7 +78,7 @@ static inline float fasterlog (const float x)
 //  return 0.69314718f * fasterlog2 (x);
 
   union { float f; uint32_t i; } vx = { x };
-  float y = static_cast<float> (vx.i);
+auto y = static_cast<float> (vx.i);
   y *= 8.2629582881927490e-8f;
   return y - 87.989971088f;
 }
@@ -88,7 +88,7 @@ static inline float fasterlog10 (const float x)
 //  return 0.30103f * fasterlog2 (x);
 
   union { float f; uint32_t i; } vx = { x };
-  float y = static_cast<float> (vx.i);
+  auto y = static_cast<float> (vx.i);
   y *= 3.5885571916577900E-08f;
   return y - 38.2135589375f;
 }
@@ -100,8 +100,8 @@ static inline float fastpow2 (const float p)
   const float offset = (p < 0) ? 1.0f : 0.0f;
   const float clipp = (p < -126) ? -126.0f : p;
   const int w = static_cast<int> (clipp);
-  const float z = clipp - w + offset;
-  union { uint32_t i; float f; } v = { static_cast<uint32_t> ( (1 << 23) * (clipp + 121.2740575f + 27.7280233f / (4.84252568f - z) - 1.49012907f * z) ) };
+  const float z = clipp - static_cast<float> (w) + offset;
+  const union { uint32_t i; float f; } v = { static_cast<uint32_t> ( (1 << 23) * (clipp + 121.2740575f + 27.7280233f / (4.84252568f - z) - 1.49012907f * z) ) };
 
   return v.f;
 }

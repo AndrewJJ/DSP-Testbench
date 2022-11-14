@@ -18,7 +18,7 @@ class MonitoringComponent final : public Component, public dsp::ProcessorBase
 public:
 
     explicit MonitoringComponent (AudioDeviceManager* audioDeviceManager, ProcessorComponent* processorA, ProcessorComponent* processorB);
-    ~MonitoringComponent();
+    ~MonitoringComponent() override;
 
     void paint (Graphics& g) override;
     void resized() override;

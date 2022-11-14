@@ -17,7 +17,7 @@ LpfExample::LpfExample()
 }
 void LpfExample::prepare (const dsp::ProcessSpec & spec)
 {
-    numChannels = spec.numChannels;
+    numChannels = static_cast<int> (spec.numChannels);
     freqConversionFactor = MathConstants<double>::pi / spec.sampleRate;
     z1.allocate (numChannels, true);
     z2.allocate (numChannels, true);
@@ -35,9 +35,9 @@ void LpfExample::process (const dsp::ProcessContextReplacing<float>& context)
 
         for (size_t i = 0; i < context.getOutputBlock().getNumSamples(); i++)
         {
-            const auto sample = in[i] * a0 + z1[ch];
-            z1[ch] = in[i] * a1 + z2[ch] - b1 * sample;
-            z2[ch] = in[i] * a0 - b2 * sample;
+            const auto sample = static_cast<double> (in[i]) * a0 + z1[ch];
+            z1[ch] = static_cast<double> (in[i]) * a1 + z2[ch] - b1 * sample;
+            z2[ch] = static_cast<double> (in[i]) * a0 - b2 * sample;
             out[i] = static_cast<float> (sample * getControlValue (1));
         }
     }

@@ -240,7 +240,7 @@ private:
     bool playFromStartOnSnapshot = false;
     bool snapShotPlayStateResume = false;
     double snapShotPlayStatePosition = 0.0;
-    std::unique_ptr<FileChooser> fileChooser;
+    std::unique_ptr<FileChooser> fileChooser{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveTab)
 };

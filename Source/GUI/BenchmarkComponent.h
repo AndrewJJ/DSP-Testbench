@@ -20,7 +20,7 @@ public:
 
     /** Pass in pointers to both process harnesses and the source component for the audio to into them. */
     BenchmarkComponent (ProcessorHarness* processorHarnessA, ProcessorHarness* processorHarnessB, SourceComponent* sourceComponent);
-    ~BenchmarkComponent();
+    ~BenchmarkComponent() override;
     void paint (Graphics& g) override;
     void resized() override;
     void timerCallback() override;
@@ -32,7 +32,7 @@ private:
     {
     public:
         BenchmarkThread (std::vector<ProcessorHarness*>* harnesses, SourceComponent* sourceComponent, BenchmarkComponent* benchmarkComponent);
-        ~BenchmarkThread() = default;
+        ~BenchmarkThread() override = default;
 
         void run() override;
         void threadComplete (bool userPressedCancel) override;

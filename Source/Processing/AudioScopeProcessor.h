@@ -29,7 +29,7 @@ public:
     };
 
     explicit AudioScopeProcessor();
-    ~AudioScopeProcessor() = default;
+    ~AudioScopeProcessor() override = default;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void performProcessing (const int channel) override;
@@ -47,7 +47,7 @@ public:
 
 
 private:
-    OwnedArray <AudioProbe <OscilloscopeFrame>> audioProbes;
+    OwnedArray <AudioProbe <OscilloscopeFrame>> audioProbes{};
 
 public:
     // Declare non-copyable, non-movable

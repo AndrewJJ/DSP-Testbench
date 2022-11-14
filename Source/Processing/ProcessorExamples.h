@@ -18,7 +18,7 @@ class LpfExample : public ProcessorHarness
 {
 public:
     LpfExample();
-    ~LpfExample() = default;
+    ~LpfExample() override = default;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;
@@ -49,7 +49,7 @@ class ThruExample : public ProcessorHarness
 {
 public:
     ThruExample ();
-    ~ThruExample () = default;
+    ~ThruExample () override = default;
 
     void prepare (const dsp::ProcessSpec& spec) override;
     void process (const dsp::ProcessContextReplacing<float>& context) override;

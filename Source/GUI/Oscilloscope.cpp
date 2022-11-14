@@ -453,7 +453,7 @@ inline int Oscilloscope::toTimeFromPx (const float xInPixels) const
 }
 inline float Oscilloscope::toPxFromTime (const int xInSamples) const
 {
-    return (xInSamples - minXSamples) * xRatio;
+    return static_cast<float> (xInSamples - minXSamples) * xRatio;
 }
 Colour Oscilloscope::getColourForChannel (const int channel)
 {

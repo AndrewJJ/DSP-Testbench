@@ -17,7 +17,7 @@ class Goniometer final : public Component, public Timer
 public:
 
     Goniometer();
-    ~Goniometer();
+    ~Goniometer() override;
 
     void paint (Graphics& g) override;
     void resized() override;
@@ -65,5 +65,5 @@ private:
     friend class WeakReference<Goniometer>;
     Atomic<bool> dataFrameReady;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Goniometer);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Goniometer)
 };

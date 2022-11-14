@@ -23,15 +23,15 @@ public:
     PulseFunctionBase()
     = default;
 
-    ~PulseFunctionBase()
+    ~PulseFunctionBase() override
     = default;
     
     void prepare (const dsp::ProcessSpec&) override
     { sampleIndex = 0; }
 
-    virtual void process (const dsp::ProcessContextReplacing<SampleType>& context) override;
+    void process (const dsp::ProcessContextReplacing<SampleType>& context) override;
 
-    virtual void reset () override
+    void reset () override
     { sampleIndex = 0; }
 
     /**
@@ -39,8 +39,8 @@ public:
      */
     virtual void setPreDelay (const size_t numSamples)
     { preDelay = numSamples; }
-    
-    size_t getPreDelay() const
+
+    [[nodiscard]] size_t getPreDelay() const
     { return preDelay; }
 
     /**
@@ -48,8 +48,8 @@ public:
      */
     virtual void setPulseWidth (const size_t numSamples)
     { pulseWidth = numSamples; }
-    
-    size_t getPulseWidth() const
+
+    [[nodiscard]] size_t getPulseWidth() const
     { return pulseWidth; }
 
     /**
@@ -57,8 +57,8 @@ public:
      */
     void setPositivePolarity (const bool positive)
     { positivePolarity = positive; }
-    
-    bool getPositivePolarity() const
+
+    [[nodiscard]] bool getPositivePolarity() const
     { return positivePolarity; }
 
 protected:
@@ -109,7 +109,7 @@ class ImpulseFunction : public PulseFunctionBase<SampleType>
 {
 public:
     ImpulseFunction() = default;
-    ~ImpulseFunction() = default;
+    ~ImpulseFunction() override = default;
 };
 
 // =================================================================
@@ -124,7 +124,7 @@ public:
         PulseFunctionBase<SampleType> ();
         PulseFunctionBase<SampleType>::pulseWidth = std::numeric_limits<size_t>::max() - PulseFunctionBase<SampleType>::preDelay;
     }
-    ~StepFunction() = default;
+    ~StepFunction() override = default;
 
     void setPulseWidth (const size_t) override
     { }

@@ -29,7 +29,7 @@ public:
 	};
 
     explicit FftProcessor();
-    ~FftProcessor () = default;
+    ~FftProcessor () override = default;
 
     /** Note that this clears then sets AudioProbes per channel - so it must be called before any attached classes attempt to add listeners to the AudioProbes. */
     void prepare (const dsp::ProcessSpec& spec) override;

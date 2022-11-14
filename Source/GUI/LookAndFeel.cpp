@@ -144,7 +144,7 @@ void DspTestBenchLnF::drawDots (Graphics& g, const juce::Rectangle<int> bounds, 
 	const auto margin = marginRatio * b.getHeight();
 	const auto dotSize = b.getHeight() * (1.0f - marginRatio);
 	const auto adjNumDots = jmin (numDots, bounds.getWidth() / static_cast<int> (dotSize + margin));
-	b = b.withSizeKeepingCentre (dotSize * adjNumDots + margin * static_cast<float> (adjNumDots - 1), dotSize);
+	b = b.withSizeKeepingCentre (dotSize * static_cast<float> (adjNumDots) + margin * static_cast<float> (adjNumDots - 1), dotSize);
 	b.setWidth (dotSize);
 	for (auto i = 0; i < adjNumDots; ++i)
 	{
