@@ -200,7 +200,7 @@ FftScope<Order>::~FftScope ()
 {
     masterReference.clear();
     // Remove listener callbacks so we don't leave anything hanging if we pop up an FftScope then remove it
-    removeListenerCallback();
+    if (removeListenerCallback) removeListenerCallback();
 }
 
 template <int Order>

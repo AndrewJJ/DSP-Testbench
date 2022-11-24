@@ -53,7 +53,7 @@ Oscilloscope::~Oscilloscope ()
 {
     masterReference.clear();
     // Remove listener callbacks so we don't leave anything hanging if we pop up an Oscilloscope then remove it
-    removeListenerCallback();
+    if (removeListenerCallback) removeListenerCallback();
 }
 void Oscilloscope::paint (Graphics&)
 {

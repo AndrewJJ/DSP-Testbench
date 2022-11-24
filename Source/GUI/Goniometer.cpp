@@ -52,7 +52,7 @@ Goniometer::~Goniometer ()
 {
     masterReference.clear();
     // Remove listener callbacks so we don't leave anything hanging if we pop up an Goniometer then remove it
-    removeListenerCallback();
+    if (removeListenerCallback) removeListenerCallback();
 }
 void Goniometer::paint (Graphics&)
 {
