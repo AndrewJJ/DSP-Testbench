@@ -9,34 +9,34 @@
 namespace BinaryData
 {
     extern const char*   about_svg;
-    const int            about_svgSize = 1085;
+    const int            about_svgSize = 1108;
 
     extern const char*   audio_settings_svg;
-    const int            audio_settings_svgSize = 2554;
+    const int            audio_settings_svgSize = 2610;
 
     extern const char*   configure_svg;
-    const int            configure_svgSize = 1950;
+    const int            configure_svgSize = 1998;
 
     extern const char*   dashboard_gauge_svg;
-    const int            dashboard_gauge_svgSize = 1752;
+    const int            dashboard_gauge_svgSize = 1781;
 
     extern const char*   expand_svg;
     const int            expand_svgSize = 1044;
 
     extern const char*   mute_svg;
-    const int            mute_svgSize = 1242;
+    const int            mute_svgSize = 1263;
 
     extern const char*   pause_svg;
-    const int            pause_svgSize = 781;
+    const int            pause_svgSize = 811;
 
     extern const char*   play_svg;
-    const int            play_svgSize = 767;
+    const int            play_svgSize = 797;
 
     extern const char*   phase_invert_svg;
-    const int            phase_invert_svgSize = 1256;
+    const int            phase_invert_svgSize = 1297;
 
     extern const char*   screenshot_svg;
-    const int            screenshot_svgSize = 2436;
+    const int            screenshot_svgSize = 2475;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 10;
