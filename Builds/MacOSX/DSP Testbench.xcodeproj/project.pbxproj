@@ -38,6 +38,7 @@
 		8EB2784CA2CB58438DB9683F /* ProcessorComponent.cpp */ = {isa = PBXBuildFile; fileRef = E94DEABAE2D132C8B71B02A1; };
 		91E61E94DE4D4D71BBEDDCA6 /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = 5E52F27BA044F2AD72728192; };
 		9455D39755C38DFF4907B998 /* Main.cpp */ = {isa = PBXBuildFile; fileRef = 0D00FB15737917AC925255EF; };
+		998B68B4135DEA1F2CF6E846 /* Security.framework */ = {isa = PBXBuildFile; fileRef = 9BD6F5248FEDE7C9F33AE399; };
 		A78316FA49B28EC40A31C82A /* include_juce_audio_formats.mm */ = {isa = PBXBuildFile; fileRef = C50335A7AEE81AC526323239; };
 		A7FBA8401090CC99E7989DBB /* AudioToolbox.framework */ = {isa = PBXBuildFile; fileRef = B878769E827B551AE9AE0CFF; };
 		ABC77E974A436C3FFBD1F6C9 /* ProcessorHarness.cpp */ = {isa = PBXBuildFile; fileRef = 5F0EA7277E296F2AD0C92C95; };
@@ -119,6 +120,7 @@
 		963E905C278A08B42BE0B92F /* MeteringProcessors.h */ /* MeteringProcessors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MeteringProcessors.h; path = ../../Source/Processing/MeteringProcessors.h; sourceTree = SOURCE_ROOT; };
 		99FA1E5FAB069E9E84537B0E /* include_juce_opengl.mm */ /* include_juce_opengl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_opengl.mm; path = ../../JuceLibraryCode/include_juce_opengl.mm; sourceTree = SOURCE_ROOT; };
 		9BAD7CB9193C2D255F01722A /* ProcessorExamples.cpp */ /* ProcessorExamples.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ProcessorExamples.cpp; path = ../../Source/Processing/ProcessorExamples.cpp; sourceTree = SOURCE_ROOT; };
+		9BD6F5248FEDE7C9F33AE399 /* Security.framework */ /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9C2F88E119C66CE2850D15AB /* RecentFilesMenuTemplate.nib */ /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; name = RecentFilesMenuTemplate.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
 		A117664BFDE16F1B85BDFE93 /* screenshot.svg */ /* screenshot.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; name = screenshot.svg; path = ../../Resources/screenshot.svg; sourceTree = SOURCE_ROOT; };
 		A604E108B872D0EECF1B38FE /* MenuBarComponent.cpp */ /* MenuBarComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MenuBarComponent.cpp; path = ../../Source/GUI/MenuBarComponent.cpp; sourceTree = SOURCE_ROOT; };
@@ -171,6 +173,7 @@
 				E6C9888E50203F1766D900AA,
 				398CD99D341BE4B09541365F,
 				0BE33930E16EB6A87A5C284D,
+				998B68B4135DEA1F2CF6E846,
 				ADB2C068A3F693CB2EBE8035,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,6 +206,7 @@
 				3848E2EFE337B59F7B2BF3F8,
 				6647183CCB33EA2ADD656D39,
 				2317DFEBACE1AE8DB2D2A734,
+				9BD6F5248FEDE7C9F33AE399,
 				00C7B1EC4343FF064F9C4C84,
 			);
 			name = Frameworks;
