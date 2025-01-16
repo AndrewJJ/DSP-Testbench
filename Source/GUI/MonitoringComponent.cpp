@@ -33,7 +33,7 @@ MonitoringComponent::MonitoringComponent (AudioDeviceManager* audioDeviceManager
 
     addAndMakeVisible (lblTitle);
     lblTitle.setText (TRANS("Monitoring"), dontSendNotification);
-    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setFont (Font (FontOptions (GUI_SIZE_F(0.7), Font::bold)));
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);

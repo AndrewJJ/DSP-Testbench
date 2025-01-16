@@ -86,8 +86,8 @@ private:
     std::unique_ptr<XmlElement> config {};
     const String keyName = "Benchmarking";
         
-    const Font titleFont = Font (GUI_SIZE_F (0.7f)).boldened();
-    const Font normalFont = Font (GUI_SIZE_F (0.55f));
+    const Font titleFont = Font (FontOptions (GUI_SIZE_F (0.7f))).boldened();
+    const Font normalFont = Font (FontOptions (GUI_SIZE_F (0.55f)));
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BenchmarkComponent)
 };

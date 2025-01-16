@@ -304,7 +304,7 @@ void ClipStatsComponent::setNumChannels(const int numberOfChannels)
         addAndMakeVisible (lblAvgEventLength.add (new Label()));
         addAndMakeVisible (lblMaxEventLength.add (new Label()));
         
-        lblChannelHeadings[ch]->setFont( Font(GUI_SIZE_I(0.7), Font::bold));
+        lblChannelHeadings[ch]->setFont (Font (FontOptions (GUI_SIZE_I(0.7), Font::bold)));
         lblChannelHeadings[ch]->setJustificationType (Justification::centred);
         lblChannelHeadings[ch]->setTooltip ("Channel " + String (ch + 1));
         lblClippedSamples[ch]->setJustificationType (Justification::centred);

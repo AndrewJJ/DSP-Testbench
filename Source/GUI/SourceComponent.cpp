@@ -851,7 +851,7 @@ AudioTab::ChannelComponent::ChannelComponent (PeakMeterProcessor* meterProcessor
 
     lblChannel.setText ("In " + String (channelIndex), dontSendNotification);
     lblChannel.setJustificationType (Justification::centred);
-    lblChannel.setFont (Font (GUI_SIZE_F(0.5)).boldened());
+    lblChannel.setFont (Font (FontOptions (GUI_SIZE_F(0.5))).boldened());
     addAndMakeVisible (lblChannel);
 
     meterBar.setTooltip("Signal level for input channel " + String (channelIndex));
@@ -1124,7 +1124,7 @@ SourceComponent::SourceComponent (const String& sourceId, AudioDeviceManager* de
     
     addAndMakeVisible (lblTitle);
     lblTitle.setText (TRANS("Source") + " " + String (sourceId), dontSendNotification);
-    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setFont (Font (FontOptions (GUI_SIZE_F(0.7), Font::bold)));
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);

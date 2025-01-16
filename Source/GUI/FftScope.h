@@ -439,7 +439,7 @@ void FftScope<Order>::paintFft (Graphics& g) const
     if (currentX >= 0 && currentY >= 0)
     {
         g.setColour (Colours::white);
-        g.setFont (Font (GUI_SIZE_F(0.5)));
+        g.setFont (Font (FontOptions (GUI_SIZE_F(0.5))));
         const auto freq = toHzFromPx (static_cast<float> (currentX));
         const auto freqStr = hertzToString (freq, 2, true, true);
         const auto dbStr = String (toDbVFromPx (static_cast<float> (currentY)), 1);
@@ -475,7 +475,7 @@ void FftScope<Order>::paintFftScale (Graphics& g) const
     g.setColour (axisColour);
     g.drawRect (getLocalBounds().toFloat());
 
-    g.setFont (Font (GUI_SIZE_I(0.4)));
+    g.setFont (Font (FontOptions (GUI_SIZE_I(0.4))));
 
     // Plot dB scale (just halves, quarters or eighths)
     const auto maxTicks = getHeight() / GUI_SIZE_I(2);

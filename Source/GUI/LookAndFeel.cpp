@@ -54,7 +54,7 @@ int DspTestBenchLnF::getDefaultMenuBarHeight()
 
 Font DspTestBenchLnF::getTitleFont() const
 {
-    return Font (GUI_SIZE_F (titleMenuScalingFactor));
+    return Font (FontOptions (GUI_SIZE_F (titleMenuScalingFactor)));
 }
 
 void DspTestBenchLnF::drawDrawableButton (Graphics& g, DrawableButton& button,

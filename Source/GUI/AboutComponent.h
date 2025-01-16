@@ -35,9 +35,9 @@ private:
     void insertCopyright (const String& copyrightOwner, const int year);
 
     TextEditor txtEditor;    
-    const Font titleFont = Font (GUI_SIZE_F (0.85));
-    const Font subtitleFont = Font (GUI_SIZE_F (0.65));
-    const Font textFont = Font (GUI_SIZE_F (0.60));
+    const Font titleFont = Font (FontOptions (GUI_SIZE_F (0.85)));
+    const Font subtitleFont = Font (FontOptions (GUI_SIZE_F (0.65)));
+    const Font textFont = Font (FontOptions (GUI_SIZE_F (0.60)));
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AboutComponent)
 };

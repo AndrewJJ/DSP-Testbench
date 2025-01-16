@@ -338,7 +338,7 @@ void Oscilloscope::paintWaveform (Graphics& g) const
     if (currentX >= 0 && currentY >= 0 && !isMouseButtonDown (true))
     {
         g.setColour (Colours::white);
-        g.setFont (Font (GUI_SIZE_F(0.5)));
+        g.setFont (Font (FontOptions (GUI_SIZE_F(0.5))));
         const auto time = toTimeFromPx (static_cast<float> (currentX));
 
         const auto yAmp = toAmpFromPx (static_cast<float> (currentY));
@@ -375,7 +375,7 @@ void Oscilloscope::paintScale (Graphics& g) const
     g.setColour (axisColour);
     g.drawRect (getLocalBounds().toFloat());
 
-    g.setFont (Font (GUI_SIZE_I(0.4)));
+    g.setFont (Font (FontOptions (GUI_SIZE_I(0.4))));
 
     // Calculate number of divisions for amplitude scale (just halves, quarters or eighths)
     const auto maxDivsY = getHeight() / GUI_SIZE_I(2);

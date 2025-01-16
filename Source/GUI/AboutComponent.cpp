@@ -102,7 +102,7 @@ void AboutComponent::addAboutText()
     insertText ("ASIO Interface Technology by Steinberg Media Technologies GmbH", true);
     insertBreak();
     insertText ("This software makes use of certain code libraries, those portions of code are copyright as per below:", true);
-    insertBullet(); insertText ("JUCE 7"); insertCopyright ("Raw Material Software", 2022);
+    insertBullet(); insertText ("JUCE 8"); insertCopyright ("Raw Material Software", 2022);
     insertBullet(); insertText ("Application code"); insertCopyright ("Oblique Audio", 2022);
     insertBullet(); insertText ("Fast maths approximations"); insertCopyright ("Paul Mineiro", 2011);
     insertBullet(); insertText ("rand31pmc white noise generator"); insertCopyright ("Robin Whittle", 2005);
@@ -153,7 +153,7 @@ void AboutComponent::insertText (const String& text, const bool breakLine, const
 }
 void AboutComponent::insertBreak (const float height)
 {
-    txtEditor.setFont (Font (GUI_SIZE_F(height)));  // NOLINT(clang-diagnostic-double-promotion)
+    txtEditor.setFont (Font (FontOptions (GUI_SIZE_F(height))));
     txtEditor.insertTextAtCaret ("\n");
 }
 void AboutComponent::insertBullet (const bool insertBreakBefore)

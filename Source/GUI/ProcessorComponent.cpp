@@ -34,7 +34,7 @@ ProcessorComponent::ProcessorComponent (const String& processorId, ProcessorHarn
     addAndMakeVisible (lblTitle);
     lblTitle.setText (processorToTest->getProcessorName(), dontSendNotification);
     lblTitle.setTooltip ("Processor " + processorId);
-    lblTitle.setFont (Font (GUI_SIZE_F(0.7), Font::bold));
+    lblTitle.setFont (Font (FontOptions (GUI_SIZE_F(0.7), Font::bold)));
     lblTitle.setJustificationType (Justification::topLeft);
     lblTitle.setEditable (false, false, false);
     lblTitle.setColour (TextEditor::textColourId, Colours::black);
@@ -225,7 +225,7 @@ ProcessorComponent::ControlComponent::ControlComponent (const int index, Process
         defaultControlValue = processor->getDefaultControlValue (controlIndex);
     }
     lblControl.setText (controlName, dontSendNotification);
-    lblControl.setFont (Font (GUI_SIZE_F(0.5), Font::plain).withTypefaceStyle ("Regular"));
+    lblControl.setFont (Font (FontOptions (GUI_SIZE_F(0.5), Font::plain)).withTypefaceStyle ("Regular"));
     lblControl.setJustificationType (Justification::centredLeft);
     lblControl.setEditable (false, false, false);
     lblControl.setColour (TextEditor::textColourId, Colours::black);
