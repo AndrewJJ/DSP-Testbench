@@ -43,7 +43,7 @@ MainContentComponent::MainContentComponent (AudioDeviceManager& deviceManager)
     // Set small to force resize to minimum resize limit
     setSize (1, 1);
 
-    oglContext.attachTo (*this);
+    //oglContext.attachTo (*this);
 
     // Listen for changes to audio device so we can save the state
     deviceManager.addChangeListener(this);
